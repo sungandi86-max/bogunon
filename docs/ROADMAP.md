@@ -191,6 +191,24 @@ feat: build app shell and static design system
 
 ## 6. Phase 2 — Supabase 기반과 Google 로그인
 
+### 진행 상태
+
+- 상태: 완료
+- 완료일: 2026-07-17
+- 구현 기준 커밋: `0bd371c` (`feat: implement Google authentication`)
+- 실제 Google OAuth 로그인, 콜백, 새로고침 후 세션 유지와 로그아웃을 localhost와 Production에서 검증했다.
+- Phase 3 Database Schema와 RLS는 시작하지 않았다.
+
+### 인증 환경설정 체크리스트
+
+- [x] 로컬 Supabase Project URL과 Publishable Key 설정
+- [x] Supabase Authentication Site URL과 Redirect URLs 설정
+- [x] Google Cloud Web OAuth Client의 Authorized JavaScript origins 설정
+- [x] Google Cloud Web OAuth Client의 Authorized redirect URIs 설정
+- [x] Supabase Google Provider 활성화
+- [x] Vercel Production 환경변수 설정 및 재배포
+- [x] localhost와 Production의 `/auth/callback` 로그인 흐름 검증
+
 ### 목표
 
 Supabase 프로젝트 연결, Google OAuth, 쿠키 기반 세션과 보호 화면을 구현한다.

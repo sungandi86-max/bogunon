@@ -1,6 +1,6 @@
 # 보건온
 
-보건교사의 업무, 일정, 운동과 개인 프로젝트를 한곳에서 관리하기 위한 웹 애플리케이션입니다. 현재 저장소는 ROADMAP Phase 0의 로컬 개발 기반만 포함하며 제품 UI, 인증과 데이터베이스 스키마는 구현하지 않습니다.
+보건교사의 업무, 일정, 운동과 개인 프로젝트를 한곳에서 관리하기 위한 웹 애플리케이션입니다. 현재 ROADMAP Phase 2까지 완료되어 반응형 App Shell과 Supabase Auth 기반 Google OAuth 로그인, 쿠키 세션 유지, 보호 화면과 로그아웃이 동작합니다. Phase 3 데이터베이스 스키마와 RLS는 아직 시작하지 않았습니다.
 
 ## 요구 사항
 
@@ -25,7 +25,23 @@ npx supabase start
 
 ## 환경 변수
 
-`.env.example`을 참고해 로컬 환경에 필요한 값을 설정합니다. 실제 URL과 키는 저장소에 커밋하지 않습니다.
+`.env.example`을 참고해 로컬 환경에 다음 변수를 설정합니다. 실제 URL과 키는 저장소에 커밋하지 않습니다.
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
+```
+
+## Google OAuth 설정 상태
+
+- [x] 로컬 `.env.local`에 Supabase Project URL과 Publishable Key 설정
+- [x] Supabase Authentication Site URL과 Redirect URLs 설정
+- [x] Google Cloud Web OAuth Client의 JavaScript origin과 Supabase callback URI 설정
+- [x] Supabase Google Provider 활성화
+- [x] Vercel Production 환경변수 설정 및 재배포
+- [x] localhost와 Production에서 실제 Google 로그인·콜백·세션 유지·로그아웃 검증
+
+OAuth 애플리케이션 콜백 경로는 `/auth/callback`입니다. Google OAuth Client Secret과 Supabase secret 또는 service role key는 이 저장소나 브라우저 환경변수에 저장하지 않습니다.
 
 ## 검증
 
@@ -33,6 +49,7 @@ npx supabase start
 npm run lint
 npm run typecheck
 npm run test
+npm run test:auth
 npm run build
 ```
 
