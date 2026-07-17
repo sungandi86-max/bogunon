@@ -123,7 +123,7 @@ Phase 2 이상에서 Supabase 작업을 시작할 때만 적용한다.
 - 현재 공식 Supabase Auth·Next.js SSR·RLS 문서를 확인한다.
 - CLI 명령은 `--help`로 현재 버전을 확인한다.
 - DB 변경은 migration 파일로 관리한다.
-- `DATABASE_SCHEMA.sql`을 기준으로 Phase 3 migration을 작성한다.
+- `DATABASE_SCHEMA.sql`의 장기 모델과 `ROADMAP.md`의 현재 Phase 범위를 함께 확인하고, Phase 3에서는 `tasks`와 `events`만 migration으로 작성한다.
 - 모든 사용자 테이블에 RLS를 활성화한다.
 - 사용자 A/B/비로그인 정책 테스트를 작성한다.
 - UPDATE policy에 `USING`과 `WITH CHECK`를 모두 둔다.

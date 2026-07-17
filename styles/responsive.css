@@ -81,5 +81,10 @@
   .detail-panel__header { padding-top: 24px; }
   .detail-panel__footer { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
   .button { min-height: 44px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .work-item-card { align-items: stretch; display: block; }
+  .work-item-actions { justify-content: flex-end; margin-top: 10px; }
+  .inline-editor { position: fixed; right: 16px; top: 72px; width: calc(100vw - 32px); }
+  .calendar-list__item { align-items: flex-start; gap: 8px; }
   .login-card { padding: 26px 22px; }
 }

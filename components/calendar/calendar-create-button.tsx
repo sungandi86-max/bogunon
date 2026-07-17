@@ -11,7 +11,7 @@ export function CalendarCreateButton() {
   return (
     <Button
       className="calendar-desktop-add"
-      onClick={(event) => openCreate(event.currentTarget)}
+      onClick={(event) => openCreate(event.currentTarget, "event")}
     >
       <Plus aria-hidden="true" size={18} />일정 추가
     </Button>

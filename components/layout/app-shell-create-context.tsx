@@ -3,7 +3,7 @@
 import { createContext, use } from "react";
 
 interface AppShellCreateContextValue {
-  readonly openCreate: (trigger: HTMLButtonElement) => void;
+  readonly openCreate: (trigger: HTMLButtonElement, kind?: "task" | "event") => void;
 }
 
 export const AppShellCreateContext = createContext<AppShellCreateContextValue | null>(null);

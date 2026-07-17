@@ -1,5 +1,6 @@
--- 보건온 초기 Supabase PostgreSQL Migration
--- PostgreSQL / Supabase Auth 기준
+-- 보건온 장기 목표 Supabase PostgreSQL 스키마 참고안
+-- 실행 migration의 현재 범위는 ROADMAP.md와 supabase/migrations/를 기준으로 한다.
+-- Phase 3에서는 tasks와 events만 구현하며 나머지 테이블은 후속 Phase 전까지 실행하지 않는다.
 
 begin;
 

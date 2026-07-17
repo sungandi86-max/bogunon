@@ -20,10 +20,12 @@ const fallbackProfile: AuthProfile = { email: "Google 계정", initial: "보" };
 
 export function AppShell({ children, profile = fallbackProfile }: AppShellProps) {
   const [createOpen, setCreateOpen] = useState(false);
+  const [createKind, setCreateKind] = useState<"task" | "event">("task");
   const createButtonRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
-  const openCreate = useCallback((trigger: HTMLButtonElement) => {
+  const openCreate = useCallback((trigger: HTMLButtonElement, kind: "task" | "event" = "task") => {
     createButtonRef.current = trigger;
+    setCreateKind(kind);
     setCreateOpen(true);
   }, []);
   const closeCreate = useCallback(() => setCreateOpen(false), []);
@@ -38,7 +40,7 @@ export function AppShell({ children, profile = fallbackProfile }: AppShellProps)
           footer={
             <>
               <Button onClick={closeCreate} variant="secondary">취소</Button>
-              <Button aria-describedby="phase-one-save-note" disabled>저장</Button>
+              <Button form="create-work-item-form" type="submit">저장</Button>
             </>
           }
           initialFocusRef={titleRef}
@@ -47,7 +49,7 @@ export function AppShell({ children, profile = fallbackProfile }: AppShellProps)
           returnFocusRef={createButtonRef}
           title="새로 만들기"
         >
-          <CreateItemForm titleRef={titleRef} />
+          <CreateItemForm defaultKind={createKind} key={`${createKind}-${createOpen}`} onSaved={closeCreate} titleRef={titleRef} />
         </ResponsiveDetailPanel>
       </div>
     </AppShellCreateContext>

@@ -1,0 +1,79 @@
+import { describe, expect, it, vi } from "vitest";
+
+import { saveWorkItemAction } from "@/app/(app)/work-item-actions";
+import { deleteWorkItemAction, toggleTaskAction } from "@/app/(app)/work-item-actions";
+import { removeWorkItem, saveEvent, saveTask, setTaskCompleted } from "@/lib/work-items/repository";
+
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("@/lib/work-items/repository", () => ({
+  removeWorkItem: vi.fn(),
+  saveEvent: vi.fn(),
+  saveTask: vi.fn(),
+  setTaskCompleted: vi.fn(),
+}));
+
+describe("saveWorkItemAction", () => {
+  it("rejects an empty title before database access", async () => {
+    const formData = new FormData();
+    formData.set("kind", "task");
+    formData.set("title", "   ");
+    formData.set("area", "healthWork");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "error",
+      message: "제목을 입력해 주세요.",
+    });
+  });
+
+  it("rejects an event whose end date precedes its start date", async () => {
+    const formData = new FormData();
+    formData.set("kind", "event");
+    formData.set("title", "교직원 회의");
+    formData.set("area", "schoolSchedule");
+    formData.set("startDate", "2026-07-18");
+    formData.set("endDate", "2026-07-17");
+
+    const result = await saveWorkItemAction({ status: "idle" }, formData);
+    expect(result).toEqual({ status: "error", message: "일정 날짜를 확인해 주세요." });
+  });
+
+  it("saves an authenticated task payload without accepting a user id", async () => {
+    const formData = new FormData();
+    formData.set("kind", "task");
+    formData.set("title", "  보건교육 결과 제출  ");
+    formData.set("area", "healthWork");
+    formData.set("status", "waitingForReply");
+    formData.set("priority", "high");
+    formData.set("dueDate", "2026-07-17");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({ status: "success", message: "저장했습니다." });
+    expect(vi.mocked(saveTask)).toHaveBeenCalledWith(expect.objectContaining({ title: "보건교육 결과 제출", status: "waitingForReply", priority: "high", due_date: "2026-07-17" }), undefined);
+  });
+
+  it("saves an all-day event through the shared action", async () => {
+    const formData = new FormData();
+    formData.set("kind", "event");
+    formData.set("title", "교직원 회의");
+    formData.set("area", "schoolSchedule");
+    formData.set("startDate", "2026-07-17");
+    formData.set("endDate", "2026-07-17");
+    formData.set("isAllDay", "on");
+
+    await saveWorkItemAction({ status: "idle" }, formData);
+    expect(vi.mocked(saveEvent)).toHaveBeenCalledWith(expect.objectContaining({ title: "교직원 회의", is_all_day: true, start_time: null, end_time: null }), undefined);
+  });
+
+  it("routes completion and deletion to the owned repository methods", async () => {
+    const toggleData = new FormData();
+    toggleData.set("id", "task-id");
+    toggleData.set("completed", "true");
+    await toggleTaskAction(toggleData);
+    expect(vi.mocked(setTaskCompleted)).toHaveBeenCalledWith("task-id", true);
+
+    const deleteData = new FormData();
+    deleteData.set("id", "event-id");
+    deleteData.set("kind", "event");
+    await deleteWorkItemAction(deleteData);
+    expect(vi.mocked(removeWorkItem)).toHaveBeenCalledWith("events", "event-id");
+  });
+});

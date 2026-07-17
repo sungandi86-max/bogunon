@@ -332,73 +332,63 @@ git diff --check
 feat: realign dashboard UX with daily operations
 ```
 
-## 8. Phase 3 — Database Schema와 RLS
+## 8. Phase 3 — Tasks & Calendar MVP
 
 ### 목표
 
-사용자 소유 데이터를 저장할 테이블, 제약, 인덱스와 RLS를 migration으로 구현한다.
+Phase 2.5 운영 대시보드의 더미 업무·일정을 Supabase 원본 데이터로 교체한다.
 
 ### 구현 범위
 
-테이블:
-
-- `events`
-- `tasks`
-- `checklist_items`
-- `daily_focus_assignments`
-- `repeat_task_templates`
-- `template_checklist_items`
-- `exercise_records`
-- `projects`
-- `quick_memos`
-- `user_settings`
-- `work_periods`
-
-DB 작업:
-
-- `user_id`
-- 외래키
-- check·unique 제약
-- 소유권·날짜·상태 인덱스
-- RLS 활성화
-- SELECT·INSERT·UPDATE·DELETE 정책
-- 사용자 A/B/비로그인 테스트
-- Supabase Database Type 생성
+- `tasks`, `events` 테이블과 필요한 제약·인덱스
+- 로그인 사용자의 자기 행만 허용하는 SELECT·INSERT·UPDATE·DELETE RLS
+- 업무 생성·수정·완료·완료 취소·삭제
+- 일정 생성·수정·삭제
+- 실제 데이터 기반 오늘 마감 업무·오늘 일정·회신 대기·오늘 우선 업무
+- 월간 달력의 `events` 표시
+- PC 업무·일정 빠른 추가와 모바일 새로 만들기 버튼
+- PC와 모바일에서 동일한 생성 폼 사용
 
 ### 생성 또는 수정 파일
 
-- `supabase/migrations/*_create_bogeonon_schema.sql`
+- `supabase/migrations/*_phase_3_tasks_events_mvp.sql`
 - `types/database.ts`
 - `supabase/tests/` 또는 DB 보안 테스트 파일
-- 스키마 생성 스크립트
+- 업무·일정 data access와 Server Action
+- 업무·캘린더·브리핑 화면
 
 ### 제외 범위
 
-- 화면 CRUD 연결
-- Realtime
-- Storage와 첨부 업로드
-- 관리자·공유 정책
+- Google Calendar Sync
+- AI 자동 분류
+- 반복 일정과 반복 업무 템플릿
+- 운동 기록 DB
+- 프로젝트 관리 DB
+- 체크리스트와 날짜별 별도 핵심 업무 테이블
+- Realtime, Storage, 관리자·공유 정책
 
 ### 완료 조건
 
-- 모든 사용자 소유 테이블에 RLS가 활성화된다.
+- `tasks`, `events`에 RLS가 활성화된다.
 - 사용자 A는 자기 행 CRUD가 가능하다.
 - 사용자 A는 사용자 B 행 SELECT·INSERT·UPDATE·DELETE가 불가능하다.
 - 비로그인 요청은 사용자 데이터에 접근하지 못한다.
 - UPDATE로 `user_id`를 바꿀 수 없다.
-- 외래키·check·unique 제약이 잘못된 데이터를 거부한다.
+- check 제약이 잘못된 날짜·상태·완료 시각을 거부한다.
 - 생성 Type이 현재 migration과 일치한다.
 - DB advisor의 보안 오류가 없다.
+- 업무·일정 CRUD가 새로고침 후에도 유지된다.
+- 브리핑과 월간 달력이 실제 저장 데이터를 표시한다.
 
 ### 자동 검증
 
 ```bash
-supabase start
-supabase db reset
-npm run db:types
-npm run test:rls
+npx supabase db reset
+npx supabase test db
 npm run typecheck
-supabase db lint
+npx supabase db lint
+npm run test
+npm run build
 ```
 
 사용 중인 CLI에서 지원하는 advisor 명령을 `--help`로 확인한 뒤 보안·성능 advisor를 실행한다.
@@ -412,8 +402,10 @@ supabase db lint
 ### 커밋 예시
 
 ```text
-feat: add database schema and row level security
+feat: implement tasks and calendar mvp
 ```
+
+Phase 4 이후의 repository 확장, 체크리스트, 별도 `daily_focus_assignments`, 운동 기록, 프로젝트, 반복 업무는 Phase 3 완료에 포함하지 않는다. 아래 후속 Phase의 업무·일정 항목 중 Phase 3에서 이미 제공한 기본 CRUD·브리핑·월간 표시는 재구현하지 않고 고급 기능만 확장한다.
 
 ## 9. Phase 4 — Repository와 도메인 계층
 

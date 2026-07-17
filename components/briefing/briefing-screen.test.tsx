@@ -12,7 +12,7 @@ describe("BriefingScreen", () => {
   it("renders the operations dashboard and opens quick create", () => {
     render(
       <AppShell>
-        <BriefingScreen />
+        <BriefingScreen events={[]} month="2026-07" tasks={[]} today="2026-07-17" />
       </AppShell>,
     );
 
@@ -20,8 +20,8 @@ describe("BriefingScreen", () => {
     expect(document.querySelector(".operations-main")).toBeInTheDocument();
     expect(screen.getByRole("complementary", { name: "오늘의 운영 항목" })).toHaveClass("operations-rail");
     expect(screen.getByRole("grid", { name: "2026년 7월 월간 캘린더" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "주간 요약" })).toBeInTheDocument();
-    expect(screen.getByText("프로젝트 다음 행동")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "오늘 요약" })).toBeInTheDocument();
+    expect(screen.getByText("오늘 일정이 없습니다.")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "모바일 주요 메뉴" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "업무" }));

@@ -2,30 +2,22 @@
 
 import { useState } from "react";
 
-const week = [
-  ["월", 13], ["화", 14], ["수", 15], ["목", 16], ["금", 17], ["토", 18], ["일", 19],
-] as const;
+import type { EventRow } from "@/types/database";
 
-export function MobileWeekStrip() {
-  const [selected, setSelected] = useState(17);
-  return (
-    <div className="mobile-week-strip" aria-label="주간 날짜 선택">
-      {week.map(([weekday, day]) => (
-        <button
-          aria-pressed={selected === day}
-          className={`week-strip-day${selected === day ? " is-selected" : ""}${day === 17 ? " is-today" : ""}`}
-          key={day}
-          onClick={() => setSelected(day)}
-          type="button"
-        >
-          <small>{weekday}</small>
-          <strong>{day}</strong>
-          <span className="week-strip-markers" aria-hidden="true">
-            {[14, 17, 19].includes(day) && <span className="marker" />}
-            {[17, 18].includes(day) && <span className="marker marker--deadline" />}
-          </span>
-        </button>
-      ))}
-    </div>
-  );
+const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
+
+export function MobileWeekStrip({ events, today }: { readonly events: EventRow[]; readonly today: string }) {
+  const todayDate = new Date(`${today}T00:00:00Z`);
+  const mondayOffset = (todayDate.getUTCDay() + 6) % 7;
+  const dates = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(todayDate);
+    date.setUTCDate(todayDate.getUTCDate() - mondayOffset + index);
+    return date.toISOString().slice(0, 10);
+  });
+  const [selected, setSelected] = useState(today);
+  return <div className="mobile-week-strip" aria-label="주간 날짜 선택">{dates.map((date) => {
+    const value = new Date(`${date}T00:00:00Z`);
+    const hasEvent = events.some((event) => event.start_date <= date && event.end_date >= date);
+    return <button aria-pressed={selected === date} className={`week-strip-day${selected === date ? " is-selected" : ""}${date === today ? " is-today" : ""}`} key={date} onClick={() => setSelected(date)} type="button"><small>{weekdays[value.getUTCDay()]}</small><strong>{value.getUTCDate()}</strong><span className="week-strip-markers" aria-hidden="true">{hasEvent && <span className="marker" />}</span></button>;
+  })}</div>;
 }

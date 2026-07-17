@@ -15,6 +15,12 @@
 .field textarea { min-height: 88px; resize: vertical; }
 .privacy-notice { align-items: flex-start; background: var(--brand-50); border-left: 3px solid var(--brand-700); color: var(--ink-700); display: flex; font-size: 12px; gap: 8px; margin-top: 20px; padding: 12px; }
 .static-note { color: var(--ink-500); font-size: 12px; margin: 14px 0 0; }
+.form-grid { display: grid; gap: 0 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.checkbox-field { align-items: center; display: flex; font-size: 13px; gap: 8px; margin-top: 20px; }
+.checkbox-field input { accent-color: var(--action-700); }
+.form-message { color: var(--success); font-size: 12px; margin: 12px 0 0; }
+.form-message--error { color: var(--danger); }
+.work-item-form > .button { margin-top: 16px; }
 
 .login-page { align-items: center; display: grid; min-height: 100dvh; padding: 32px 16px; }
 .login-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin: 0 auto; max-width: 440px; padding: 34px; width: 100%; }
