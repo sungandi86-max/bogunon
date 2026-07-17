@@ -10,6 +10,7 @@ import { MobileBottomNavigation } from "@/components/layout/mobile-bottom-naviga
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
 import { Button } from "@/components/ui/button";
 import type { AuthProfile } from "@/lib/auth/profile";
+import type { TemplateDefinition } from "@/lib/work-items/workflow";
 
 interface AppShellProps {
   readonly children: ReactNode;
@@ -21,11 +22,13 @@ const fallbackProfile: AuthProfile = { email: "Google 계정", initial: "보" };
 export function AppShell({ children, profile = fallbackProfile }: AppShellProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const [createKind, setCreateKind] = useState<"task" | "event">("task");
+  const [createTemplate, setCreateTemplate] = useState<TemplateDefinition>();
   const createButtonRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
-  const openCreate = useCallback((trigger: HTMLButtonElement, kind: "task" | "event" = "task") => {
+  const openCreate = useCallback((trigger: HTMLButtonElement, kind: "task" | "event" = "task", template?: TemplateDefinition) => {
     createButtonRef.current = trigger;
     setCreateKind(kind);
+    setCreateTemplate(template);
     setCreateOpen(true);
   }, []);
   const closeCreate = useCallback(() => setCreateOpen(false), []);
@@ -49,7 +52,7 @@ export function AppShell({ children, profile = fallbackProfile }: AppShellProps)
           returnFocusRef={createButtonRef}
           title="새로 만들기"
         >
-          <CreateItemForm defaultKind={createKind} key={`${createKind}-${createOpen}`} onSaved={closeCreate} titleRef={titleRef} />
+          <CreateItemForm defaultKind={createKind} {...(createTemplate ? { initialTemplate: createTemplate } : {})} key={`${createKind}-${createTemplate?.key ?? "blank"}-${createOpen}`} onSaved={closeCreate} titleRef={titleRef} />
         </ResponsiveDetailPanel>
       </div>
     </AppShellCreateContext>

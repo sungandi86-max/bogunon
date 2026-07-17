@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { occurrenceDatesThrough, shiftFromAnchor } from "@/lib/work-items/recurrence";
 import type { Database, EventRow, TaskRow } from "@/types/database";
 
-type TaskWriteValues = Omit<
+export type TaskWriteValues = Omit<
   TaskRow,
   "id" | "user_id" | "created_at" | "updated_at" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through"
 >;
@@ -36,7 +36,7 @@ export async function listAllEvents(): Promise<EventRow[]> {
   return data;
 }
 
-export async function saveTask(values: TaskWriteValues, id?: string) {
+export async function saveTask(values: TaskWriteValues, id?: string): Promise<string> {
   const { supabase, userId } = await ownedClient();
   const recurrenceDate = values.recurrence_frequency ? values.scheduled_date : null;
   let recurrenceGeneratedThrough = recurrenceDate;
@@ -54,21 +54,24 @@ export async function saveTask(values: TaskWriteValues, id?: string) {
       ? recurrenceDate
       : current.recurrence_generated_through;
   }
-  const query = id
-    ? supabase.from("tasks").update({
+  if (id) {
+    const { error } = await supabase.from("tasks").update({
       ...values,
       recurrence_date: recurrenceDate,
       recurrence_generated_through: recurrenceGeneratedThrough,
-    }).eq("id", id).eq("user_id", userId)
-    : supabase.from("tasks").insert({
+    }).eq("id", id).eq("user_id", userId);
+    if (error) throw new Error("업무를 저장하지 못했습니다.");
+    return id;
+  }
+  const { data, error } = await supabase.from("tasks").insert({
       ...values,
       user_id: userId,
       recurrence_source_id: null,
       recurrence_date: recurrenceDate,
       recurrence_generated_through: recurrenceGeneratedThrough,
-    });
-  const { error } = await query;
+    }).select("id").single();
   if (error) throw new Error("업무를 저장하지 못했습니다.");
+  return data.id;
 }
 
 export async function ensureRecurringTasks(throughDate: string): Promise<void> {
@@ -101,6 +104,8 @@ export async function ensureRecurringTasks(throughDate: string): Promise<void> {
         due_date: shiftFromAnchor(root.recurrence_date, root.due_date, occurrenceDate),
         follow_up_date: shiftFromAnchor(root.recurrence_date, root.follow_up_date, occurrenceDate),
         memo: root.memo,
+        description: root.description,
+        estimated_minutes: root.estimated_minutes,
         completed_at: null,
         recurrence_frequency: root.recurrence_frequency,
         recurrence_source_id: root.id,
@@ -128,13 +133,16 @@ export async function ensureRecurringTasks(throughDate: string): Promise<void> {
   }
 }
 
-export async function saveEvent(values: Omit<EventRow, "id" | "user_id" | "created_at" | "updated_at">, id?: string) {
+export async function saveEvent(values: Omit<EventRow, "id" | "user_id" | "created_at" | "updated_at">, id?: string): Promise<string> {
   const { supabase, userId } = await ownedClient();
-  const query = id
-    ? supabase.from("events").update(values).eq("id", id).eq("user_id", userId)
-    : supabase.from("events").insert({ ...values, user_id: userId });
-  const { error } = await query;
+  if (id) {
+    const { error } = await supabase.from("events").update(values).eq("id", id).eq("user_id", userId);
+    if (error) throw new Error("일정을 저장하지 못했습니다.");
+    return id;
+  }
+  const { data, error } = await supabase.from("events").insert({ ...values, user_id: userId }).select("id").single();
   if (error) throw new Error("일정을 저장하지 못했습니다.");
+  return data.id;
 }
 
 export async function removeWorkItem(table: "tasks" | "events", id: string) {

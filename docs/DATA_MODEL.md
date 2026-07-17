@@ -191,6 +191,8 @@ export type CalendarEvent = GeneralCalendarEvent | ExerciseCalendarEvent;
 
 ## 9. 할 일·체크리스트 모델
 
+Phase 5 실제 스키마에서는 체크리스트를 `task_checklist_items`로 저장하며 `title`, `is_completed`, `position`을 사용한다. 템플릿은 `task_templates`와 `task_template_checklist_items`, 다중 링크는 `task_links`·`event_links`, 알림 준비 데이터는 `task_reminders`·`event_reminders`로 분리한다. 모든 하위 테이블은 `user_id`를 포함하고 부모와의 복합 외래키로 동일 사용자 소유권을 강제한다. 상세 DDL과 적용 절차는 `DATABASE.md`를 따른다.
+
 ```ts
 export interface ChecklistItem extends UserOwnedEntity {
   taskId: UUID;

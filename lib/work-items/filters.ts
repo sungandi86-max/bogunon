@@ -12,10 +12,11 @@ export interface TaskFilterValues {
   readonly query: string;
 }
 
-function containsQuery(title: string, memo: string | null, query: string): boolean {
+function containsQuery(title: string, memo: string | null, description: string | null, query: string): boolean {
   const normalized = query.trim().toLocaleLowerCase("ko-KR");
   return !normalized || title.toLocaleLowerCase("ko-KR").includes(normalized)
-    || (memo?.toLocaleLowerCase("ko-KR").includes(normalized) ?? false);
+    || (memo?.toLocaleLowerCase("ko-KR").includes(normalized) ?? false)
+    || (description?.toLocaleLowerCase("ko-KR").includes(normalized) ?? false);
 }
 
 function periodRange(today: string, period: PeriodFilter): readonly [string, string] | null {
@@ -39,7 +40,7 @@ export function filterTasks(
     const dates = [task.scheduled_date, task.due_date, task.follow_up_date].filter(
       (date): date is string => Boolean(date),
     );
-    return containsQuery(task.title, task.memo, filters.query)
+    return containsQuery(task.title, task.memo, task.description, filters.query)
       && (filters.category === "all" || task.category === filters.category)
       && (filters.priority === "all" || task.priority === filters.priority)
       && (filters.completion === "all"
@@ -55,6 +56,6 @@ export function filterEvents(
   today: string,
 ): readonly EventRow[] {
   const range = periodRange(today, period);
-  return events.filter((event) => containsQuery(event.title, event.memo, query)
+  return events.filter((event) => containsQuery(event.title, event.memo, event.description, query)
     && (!range || (event.start_date <= range[1] && event.end_date >= range[0])));
 }

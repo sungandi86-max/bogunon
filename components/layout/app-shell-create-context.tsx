@@ -1,9 +1,10 @@
 "use client";
 
 import { createContext, use } from "react";
+import type { TemplateDefinition } from "@/lib/work-items/workflow";
 
 interface AppShellCreateContextValue {
-  readonly openCreate: (trigger: HTMLButtonElement, kind?: "task" | "event") => void;
+  readonly openCreate: (trigger: HTMLButtonElement, kind?: "task" | "event", template?: TemplateDefinition) => void;
 }
 
 export const AppShellCreateContext = createContext<AppShellCreateContextValue | null>(null);

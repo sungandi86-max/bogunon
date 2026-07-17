@@ -15,6 +15,8 @@ const taskBase: TaskRow = {
   due_date: "2026-07-17",
   follow_up_date: null,
   memo: "응급약품 유효기간 확인",
+  description: null,
+  estimated_minutes: null,
   completed_at: null,
   recurrence_frequency: "monthly",
   recurrence_source_id: null,
@@ -35,6 +37,7 @@ const eventBase: EventRow = {
   start_time: "14:00:00",
   end_time: null,
   memo: "교직원 CPR",
+  description: null,
   created_at: "2026-07-17T00:00:00Z",
   updated_at: "2026-07-17T00:00:00Z",
 };

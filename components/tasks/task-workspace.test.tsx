@@ -8,7 +8,7 @@ const task: TaskRow = {
   id: "task-1", user_id: "user-1", title: "약품 점검", area: "healthWork",
   status: "planned", priority: "high", category: "medication",
   scheduled_date: "2026-07-17", due_date: "2026-07-17", follow_up_date: null,
-  memo: "유효기간 확인", completed_at: null, recurrence_frequency: "monthly",
+  memo: "유효기간 확인", description: null, estimated_minutes: null, completed_at: null, recurrence_frequency: "monthly",
   recurrence_source_id: null, recurrence_date: "2026-07-17",
   recurrence_generated_through: "2026-07-17",
   created_at: "2026-07-17T00:00:00Z", updated_at: "2026-07-17T00:00:00Z",
@@ -17,7 +17,7 @@ const task: TaskRow = {
 const event: EventRow = {
   id: "event-1", user_id: "user-1", title: "보건교육", area: "healthWork",
   start_date: "2026-07-17", end_date: "2026-07-17", is_all_day: false,
-  start_time: "14:00:00", end_time: null, memo: "교직원 CPR",
+  start_time: "14:00:00", end_time: null, memo: "교직원 CPR", description: null,
   created_at: "2026-07-17T00:00:00Z", updated_at: "2026-07-17T00:00:00Z",
 };
 
