@@ -392,3 +392,31 @@
 .workflow-briefing--compact .workflow-briefing__list { grid-template-columns: 1fr; }
 .workflow-briefing--compact .workflow-briefing__list > a { padding-inline: 0; }
 .workflow-briefing--compact .workflow-briefing__list > a + a { border-left: 0; }
+
+/* Contextual exercise records */
+.exercise-page { max-width: 1480px; }
+.exercise-sections { display: grid; gap: var(--space-12); }
+.exercise-grid { display: grid; gap: var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.exercise-empty { min-height: 360px; }
+.exercise-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: grid; gap: var(--space-5); min-width: 0; padding: var(--space-8); }
+.exercise-card > header { align-items: start; display: flex; gap: var(--space-5); justify-content: space-between; }
+.exercise-card > header h3 { color: var(--brand-950); font-size: var(--text-lg); margin: var(--space-1) 0 0; }
+.exercise-card__type { color: var(--ink-500); font-size: var(--text-2xs); font-weight: var(--weight-semibold); }
+.exercise-card__header-actions { align-items: center; display: flex; gap: var(--space-2); }
+.exercise-card__schedule, .exercise-card__meta { align-items: center; color: var(--ink-700); display: flex; flex-wrap: wrap; font-size: var(--text-sm); gap: var(--space-5); }
+.exercise-card__schedule span, .exercise-card__meta span { align-items: center; display: inline-flex; gap: var(--space-2); }
+.exercise-card > p { border-top: 1px solid var(--line-subtle); color: var(--ink-700); font-size: var(--text-sm); line-height: var(--leading-body); margin: 0; padding-top: var(--space-5); white-space: pre-wrap; }
+.exercise-card__more { position: relative; }
+.exercise-card__more > summary { align-items: center; border-radius: var(--radius-md); color: var(--ink-500); cursor: pointer; display: inline-flex; height: var(--touch-target); justify-content: center; list-style: none; width: var(--touch-target); }
+.exercise-card__more > summary::-webkit-details-marker { display: none; }
+.exercise-card__more > summary:hover { background: var(--brand-50); color: var(--brand-900); }
+.exercise-card__more > div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: grid; min-width: 170px; padding: var(--space-3); position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 20; }
+.exercise-card__more button { background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-700); cursor: pointer; font-size: var(--text-sm); min-height: var(--touch-target); padding: 0 var(--space-4); text-align: left; width: 100%; }
+.exercise-card__more button:hover { background: var(--brand-50); }
+.exercise-form { display: grid; gap: var(--space-7); }
+.exercise-form__grid { display: grid; gap: var(--space-5); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.exercise-form__wide { grid-column: 1 / -1; }
+.exercise-form .field { min-width: 0; }
+.exercise-form input, .exercise-form select, .exercise-form textarea { width: 100%; }
+.exercise-form textarea { min-height: 96px; resize: vertical; }
+.exercise-quick-result { color: var(--success); font-size: var(--text-xs); margin: var(--space-3) 0 0; }

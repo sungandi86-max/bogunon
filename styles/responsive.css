@@ -24,6 +24,7 @@
 }
 @media (min-width: 768px) and (max-width: 899px) {
   .detail-panel { max-width: none; width: calc(100% - var(--sidebar-compact-width)); }
+  .exercise-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 767px) {
   .assistant-trigger { min-height: var(--touch-target); }
@@ -135,4 +136,10 @@
   .workflow-briefing__list { grid-template-columns: 1fr; }
   .workflow-briefing__list > a + a { border-left: 0; }
   .workflow-form-row { grid-template-columns: 1fr; }
+  .exercise-grid, .exercise-form__grid { grid-template-columns: 1fr; }
+  .exercise-form__wide { grid-column: auto; }
+  .exercise-form input, .exercise-form select { min-height: var(--touch-target); }
+  .exercise-card { padding: var(--space-7); }
+  .exercise-card__schedule, .exercise-card__meta { align-items: flex-start; flex-direction: column; gap: var(--space-3); }
+  .exercise-card__more > div { max-width: calc(100vw - (var(--space-6) * 2)); position: fixed; right: var(--space-6); top: 22vh; width: 220px; }
 }

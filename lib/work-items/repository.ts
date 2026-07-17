@@ -36,6 +36,12 @@ export async function listAllEvents(): Promise<EventRow[]> {
   return data;
 }
 
+export async function updateEventDescription(id: string, description: string): Promise<void> {
+  const { supabase, userId } = await ownedClient();
+  const { error } = await supabase.from("events").update({ description }).eq("id", id).eq("user_id", userId);
+  if (error) throw new Error("일정 상태를 저장하지 못했습니다.");
+}
+
 export async function saveTask(values: TaskWriteValues, id?: string): Promise<string> {
   const { supabase, userId } = await ownedClient();
   const recurrenceDate = values.recurrence_frequency ? values.scheduled_date : null;
