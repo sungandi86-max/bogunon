@@ -5,11 +5,10 @@ import { todayInSeoul } from "@/lib/work-items/date";
 import { ensureRecurringTasks, listAllEvents, listTasks } from "@/lib/work-items/repository";
 import { listWorkflowData } from "@/lib/work-items/phase5-repository";
 import { listHealthWorkflowData } from "@/lib/workflows/repository";
-import { AssistantTrigger } from "@/components/ai/assistant-trigger";
 
 export default async function TasksPage() {
   const today = todayInSeoul();
   await ensureRecurringTasks(today);
   const [tasks, events, workflow, healthWorkflows] = await Promise.all([listTasks(), listAllEvents(), listWorkflowData(), listHealthWorkflowData()]);
-  return <main className="page-canvas"><PageHeader action={<div className="page-header__actions"><AssistantTrigger surface="task" /><MobileCreateButton /></div>} description="업무를 검색하고 카테고리, 반복 주기와 상태를 관리합니다." title="업무" /><TaskWorkspace events={events} healthWorkflows={healthWorkflows} tasks={tasks} today={today} workflow={workflow} /></main>;
+  return <main className="page-canvas"><PageHeader action={<MobileCreateButton />} description="업무를 검색하고 카테고리, 반복 주기와 상태를 관리합니다." title="업무" /><TaskWorkspace events={events} healthWorkflows={healthWorkflows} tasks={tasks} today={today} workflow={workflow} /></main>;
 }

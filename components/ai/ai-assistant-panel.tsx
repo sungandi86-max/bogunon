@@ -37,15 +37,15 @@ function actionLabel(action: string) {
   return ({
     create_task: "업무 초안",
     create_event: "일정 초안",
-    create_workflow: "Workflow 시작 초안",
+    create_workflow: "업무 절차 시작 제안",
     create_checklist: "체크리스트 초안",
-    create_workflow_template: "Workflow 템플릿 초안",
+    create_workflow_template: "업무 절차 템플릿 제안",
     summarize_today: "오늘 요약",
     summarize_period: "기간 요약",
     recommend_priority: "우선순위 추천",
     find_similar_work: "유사 업무 추천",
     duplicate_previous_work: "지난 업무 재사용 초안",
-  } as Record<string, string>)[action] ?? "AI 초안";
+  } as Record<string, string>)[action] ?? "내용 제안";
 }
 
 export function AiAssistantPanel({ entityId, onApplied, onClose, onCreateDraft, open, returnFocusRef, surface = "global" }: AiAssistantPanelProps) {
@@ -82,7 +82,7 @@ export function AiAssistantPanel({ entityId, onApplied, onClose, onCreateDraft, 
         signal: controller.signal,
       });
       const payload: unknown = await response.json();
-      if (!response.ok) throw new Error(messageFromPayload(payload, "AI 초안을 만들지 못했습니다."));
+      if (!response.ok) throw new Error(messageFromPayload(payload, "내용 제안을 만들지 못했습니다."));
       if (!payload || typeof payload !== "object" || !("action" in payload) || !payload.action || typeof payload.action !== "object" || !("action" in payload.action) || typeof payload.action.action !== "string") {
         throw new Error("AI 응답 형식을 확인하지 못했습니다.");
       }
@@ -133,11 +133,11 @@ export function AiAssistantPanel({ entityId, onApplied, onClose, onCreateDraft, 
         const query = draftId ? `?draftId=${encodeURIComponent(draftId)}` : "";
         const response = await fetch(`/api/ai/apply${query}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(draft) });
         const payload: unknown = await response.json();
-        if (!response.ok) throw new Error(messageFromPayload(payload, "AI 초안을 적용하지 못했습니다."));
+        if (!response.ok) throw new Error(messageFromPayload(payload, "내용 제안을 적용하지 못했습니다."));
         setConfirmed(true);
         onApplied?.();
       } catch (applyError) {
-        setError(applyError instanceof Error ? applyError.message : "AI 초안을 적용하지 못했습니다.");
+        setError(applyError instanceof Error ? applyError.message : "내용 제안을 적용하지 못했습니다.");
       } finally {
         setPending(false);
       }
@@ -164,7 +164,7 @@ export function AiAssistantPanel({ entityId, onApplied, onClose, onCreateDraft, 
 
   const createsWorkItem = draft?.action === "create_task" || draft?.action === "create_event";
   const appliesDraft = ["create_workflow", "create_checklist", "create_workflow_template", "duplicate_previous_work", "recommend_priority"].includes(draft?.action ?? "");
-  return <ResponsiveDetailPanel initialFocusRef={inputRef} onClose={onClose} open={open} {...(returnFocusRef ? { returnFocusRef } : {})} title="AI 업무 도우미">
+  return <ResponsiveDetailPanel initialFocusRef={inputRef} onClose={onClose} open={open} {...(returnFocusRef ? { returnFocusRef } : {})} title="작성 도움">
     <div className="ai-assistant">
       <div className="ai-privacy-notice"><ShieldCheck aria-hidden="true" size={18} /><div><strong>학생 개인정보와 건강 민감정보는 입력하지 마세요.</strong><span>전송 전 민감 패턴을 검사하며, 현재 요청에 필요한 최소 업무 데이터만 사용합니다.</span></div></div>
       <div className="field"><label className="field-label" htmlFor="ai-assistant-input">AI 요청</label><textarea id="ai-assistant-input" maxLength={1200} onChange={(event) => setInput(event.target.value)} placeholder="업무 생성, 요약 또는 추천을 요청하세요." ref={inputRef} rows={draft ? 3 : 4} value={input} /></div>

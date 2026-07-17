@@ -49,8 +49,8 @@
   --action-500: #12a399;
   --action-100: #d9f0ed;
   --action-50: #eef9f7;
-  --canvas-warm: #f7f5f0;
-  --canvas-cool: #f4f6f8;
+  --canvas-warm: #f5f8f7;
+  --canvas-cool: #f2f7f6;
   --surface: #ffffff;
   --surface-subtle: #fafaf8;
   --ink-950: #17202a;
@@ -117,12 +117,12 @@
 }
 
 * { box-sizing: border-box; }
-html { background: var(--canvas-warm); }
+html { background: var(--canvas-cool); }
 body {
   min-width: 320px;
   min-height: 100dvh;
   margin: 0;
-  background: var(--canvas-warm);
+  background: var(--canvas-cool);
   color: var(--ink-950);
   font-family: var(--font-family-sans);
   font-size: var(--text-base);

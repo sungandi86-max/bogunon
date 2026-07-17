@@ -30,10 +30,10 @@ describe("WorkflowWorkspace", () => {
     const { container } = render(<WorkflowWorkspace data={data} tasks={[task]} />);
     expect(screen.getByText(/현재 공문 확인/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "완료" })).toBeInTheDocument();
-    fireEvent.change(screen.getByPlaceholderText("Workflow, 업무, 단계, 메모 검색"), { target: { value: "시행 일정" } });
-    expect(container.querySelector(".task-results-summary")).toHaveTextContent("Workflow 1건");
-    fireEvent.change(screen.getByPlaceholderText("Workflow, 업무, 단계, 메모 검색"), { target: { value: "없는 업무" } });
-    expect(container.querySelector(".task-results-summary")).toHaveTextContent("Workflow 0건");
+    fireEvent.change(screen.getByPlaceholderText("업무 절차, 업무, 단계, 메모 검색"), { target: { value: "시행 일정" } });
+    expect(container.querySelector(".task-results-summary")).toHaveTextContent("업무 절차 1건");
+    fireEvent.change(screen.getByPlaceholderText("업무 절차, 업무, 단계, 메모 검색"), { target: { value: "없는 업무" } });
+    expect(container.querySelector(".task-results-summary")).toHaveTextContent("업무 절차 0건");
   });
 
   it.each(["paused", "completed", "cancelled"] as const)(

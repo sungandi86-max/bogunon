@@ -34,6 +34,6 @@ export async function POST(request: Request) {
     for (const path of ["/briefing", "/tasks", "/calendar", "/annual", "/workflows"]) revalidatePath(path);
     return NextResponse.json({ ...result, ...(warning ? { warning } : {}) });
   } catch {
-    return NextResponse.json({ error: "AI 초안을 적용하지 못했습니다. 내용을 확인해 주세요.", code: "INVALID_DRAFT" }, { status: 400 });
+    return NextResponse.json({ error: "내용 제안을 적용하지 못했습니다. 내용을 확인해 주세요.", code: "INVALID_DRAFT" }, { status: 400 });
   }
 }

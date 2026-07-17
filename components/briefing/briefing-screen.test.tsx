@@ -26,7 +26,7 @@ describe("BriefingScreen", () => {
     expect(screen.getByText("오늘 일정이 없습니다.")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "모바일 주요 메뉴" })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "업무" }));
+    fireEvent.click(screen.getByRole("button", { name: "업무 메모" }));
     expect(screen.getByRole("dialog", { name: "새로 만들기" })).toBeInTheDocument();
   });
 
@@ -51,7 +51,7 @@ describe("BriefingScreen", () => {
 
     expect(screen.getByRole("heading", { name: "오늘 해야 할 일" })).toBeInTheDocument();
     expect(screen.getAllByText("약품 점검").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByText("오늘 마감 1건")).toBeInTheDocument();
+    expect(screen.getByText("오늘 1건")).toBeInTheDocument();
     expect(screen.getByText("09:00")).toBeInTheDocument();
     expect(screen.getAllByText("학생건강검진").length).toBeGreaterThanOrEqual(1);
   });

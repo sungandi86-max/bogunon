@@ -39,14 +39,14 @@ function templateFromAssistantDraft(draft: AssistantDraft, aiDraftId?: string): 
   const checklist = Array.isArray(draft["checklist"]) ? draft["checklist"].filter((item): item is string => typeof item === "string") : [];
   return {
     key: `ai-${Date.now()}`,
-    name: "AI 미리보기",
+    name: "작성 도움 미리보기",
     kind,
     category: taskCategory(draft["category"]),
     title: textValue(draft["title"], kind === "task" ? "새 업무" : "새 일정"),
     description: textValue(draft["description"]),
     priority: taskPriority(draft["priority"]),
     estimatedMinutes: numberValue(draft["estimated_minutes"], 30),
-    recommendedTiming: "AI 초안에서 가져옴",
+    recommendedTiming: "작성 도움에서 가져옴",
     recurrenceFrequency: recurrence(draft["recurrence"]),
     checklist,
     memo: textValue(draft["memo"]),

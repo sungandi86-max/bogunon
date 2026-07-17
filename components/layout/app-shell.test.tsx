@@ -13,9 +13,12 @@ describe("AppShell", () => {
   it("marks the current navigation item", () => {
     render(<AppShell><main>본문</main></AppShell>);
 
-    const briefingLinks = screen.getAllByRole("link", { name: "브리핑" });
-    expect(briefingLinks).toHaveLength(2);
-    expect(briefingLinks.every((link) => link.getAttribute("aria-current") === "page")).toBe(true);
+    expect(screen.getByRole("link", { name: "오늘" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByRole("link", { name: "브리핑" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getAllByRole("link", { name: "업무 절차" })).toHaveLength(2);
+    expect(screen.getByText("보건업무")).toBeInTheDocument();
+    expect(screen.getByText("나의 기록")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "AI 업무 도우미" })).not.toBeInTheDocument();
   });
 
   it("opens the create panel, closes with Escape, and returns focus", () => {
@@ -23,12 +26,14 @@ describe("AppShell", () => {
     const launcher = screen.getByRole("button", { name: "새로 만들기" });
 
     fireEvent.click(launcher);
+    const createTask = screen.getByRole("button", { name: "업무 만들기" });
+    fireEvent.click(createTask);
     expect(screen.getByRole("dialog", { name: "새로 만들기" })).toBeInTheDocument();
     expect(screen.getByLabelText("제목")).toHaveFocus();
 
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog", { name: "새로 만들기" })).not.toBeInTheDocument();
-    expect(launcher).toHaveFocus();
+    expect(createTask).toHaveFocus();
   });
 
   it("returns focus to the mobile create launcher", () => {
@@ -57,7 +62,8 @@ describe("AppShell", () => {
       } }),
     }));
     render(<AppShell><main>본문</main></AppShell>);
-    fireEvent.click(screen.getByRole("button", { name: "AI 업무 도우미" }));
+    fireEvent.click(screen.getByRole("button", { name: "새로 만들기" }));
+    fireEvent.click(screen.getByRole("button", { name: "작성 도움" }));
     fireEvent.change(screen.getByLabelText("AI 요청"), { target: { value: "매월 약품 점검 업무 만들어줘" } });
     fireEvent.click(screen.getByRole("button", { name: "초안 만들기" }));
     expect(await screen.findByText("구조화된 미리보기")).toBeInTheDocument();

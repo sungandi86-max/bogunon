@@ -14,6 +14,7 @@ export type TemplateDefinition = {
   readonly key: string;
   readonly name: string;
   readonly kind: WorkItemKind;
+  readonly area?: "healthWork" | "schoolSchedule" | "exercise" | "personal" | "project";
   readonly category: TaskCategory;
   readonly title: string;
   readonly description: string;

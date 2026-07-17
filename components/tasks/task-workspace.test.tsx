@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
+import { AssistantContext } from "@/components/ai/assistant-context";
 import { TaskWorkspace } from "@/components/tasks/task-workspace";
 import type { EventRow, TaskRow } from "@/types/database";
 
@@ -75,5 +76,15 @@ describe("TaskWorkspace", () => {
     fireEvent.click(filters.getByRole("button", { name: "초기화" }));
     expect(screen.getByText("공문 제출")).toBeInTheDocument();
     expect(screen.getByText("업무 2건")).toBeInTheDocument();
+  });
+
+  it("keeps secondary actions inside the more menu", () => {
+    render(<AssistantContext value={{ openAssistant: vi.fn() }}><TaskWorkspace events={[]} tasks={[task]} today="2026-07-17" /></AssistantContext>);
+
+    expect(screen.queryByRole("button", { name: "AI 초안" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText("더보기"));
+    expect(screen.getByRole("button", { name: "내용 제안" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "템플릿으로 저장" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "삭제" })).toBeInTheDocument();
   });
 });

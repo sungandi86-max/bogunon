@@ -8,7 +8,7 @@ const links = [
   ["브리핑", "/briefing", Home],
   ["업무함", "/tasks", ClipboardList],
   ["일정", "/calendar", CalendarDays],
-  ["Workflow", "/workflows", GitBranch],
+  ["업무 절차", "/workflows", GitBranch],
   ["설정", "/settings", Settings],
 ] as const;
 

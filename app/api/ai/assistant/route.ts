@@ -51,7 +51,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       return errorResponse("AI 응답 시간이 초과되었습니다. 다시 시도해 주세요.", error.code, 504);
     }
     if (error instanceof AiProviderError) {
-      return errorResponse("AI 초안을 만들지 못했습니다. 다시 시도해 주세요.", error.code, 502);
+      return errorResponse("내용 제안을 만들지 못했습니다. 다시 시도해 주세요.", error.code, 502);
     }
     if (error instanceof AiProviderConfigurationError) {
       return errorResponse("AI 제공자 설정을 확인해 주세요.", error.code, 503);

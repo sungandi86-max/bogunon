@@ -28,13 +28,13 @@ export function WorkflowTemplatePanel({ data, tasks }: { readonly data: HealthWo
   const [stepLines, setStepLines] = useState("");
   const [followupTitle, setFollowupTitle] = useState("");
   const availableTasks = tasks.filter((task) => task.status !== "completed" && !data.instances.some((item) => item.task_id === task.id));
-  return <aside className="workflow-template-panel" aria-label="Workflow 템플릿과 시작">
+  return <aside className="workflow-template-panel" aria-label="업무 절차 템플릿과 시작">
     <section className="workflow-panel-card">
-      <div className="section-heading"><div><p>시작</p><h2>업무에 Workflow 적용</h2></div></div>
+      <div className="section-heading"><div><p>시작</p><h2>업무에 절차 적용</h2></div></div>
       <form action={startWorkflowAction} className="workflow-compact-form">
         <label><span>업무</span><select name="taskId" required><option value="">선택</option>{availableTasks.map((task) => <option key={task.id} value={task.id}>{task.title}</option>)}</select></label>
-        <label><span>Workflow</span><select name="source" required><optgroup label="기본">{BUILT_IN_WORKFLOW_TEMPLATES.map((item) => <option key={item.key} value={item.key}>{item.name}</option>)}</optgroup><optgroup label="내 템플릿">{data.templates.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</optgroup></select></label>
-        {availableTasks.length > 0 && <WorkflowSubmitButton className="button button--primary"><Plus size={16} />Workflow 시작</WorkflowSubmitButton>}
+        <label><span>업무 절차</span><select name="source" required><optgroup label="기본">{BUILT_IN_WORKFLOW_TEMPLATES.map((item) => <option key={item.key} value={item.key}>{item.name}</option>)}</optgroup><optgroup label="내 템플릿">{data.templates.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</optgroup></select></label>
+        {availableTasks.length > 0 && <WorkflowSubmitButton className="button button--primary"><Plus size={16} />업무 절차 시작</WorkflowSubmitButton>}
       </form>
       {!availableTasks.length && <p className="form-help">연결할 미완료 업무가 없습니다.</p>}
     </section>
@@ -42,9 +42,9 @@ export function WorkflowTemplatePanel({ data, tasks }: { readonly data: HealthWo
       <div className="section-heading"><div><p>기본 템플릿</p><h2>보건업무 절차</h2></div></div>
       <div className="workflow-template-list">{BUILT_IN_WORKFLOW_TEMPLATES.map((template) => <article key={template.key}><div><strong>{template.name}</strong><span>{template.steps.length}단계 · {template.recommendedTiming}</span></div><form action={cloneWorkflowTemplateAction}><input name="key" type="hidden" value={template.key} /><button className="icon-text-action" type="submit"><Copy size={14} />내 템플릿으로 복제</button></form></article>)}</div>
     </section>
-    {data.templates.length > 0 && <section className="workflow-panel-card"><div className="section-heading"><div><p>사용자 템플릿</p><h2>내 Workflow 편집</h2></div></div><div className="workflow-template-list">{data.templates.map((template) => <CustomTemplateEditor data={data} key={template.id} template={template} />)}</div></section>}
+    {data.templates.length > 0 && <section className="workflow-panel-card"><div className="section-heading"><div><p>사용자 템플릿</p><h2>내 업무 절차 편집</h2></div></div><div className="workflow-template-list">{data.templates.map((template) => <CustomTemplateEditor data={data} key={template.id} template={template} />)}</div></section>}
     <details className="workflow-panel-card workflow-template-builder">
-      <summary>새 Workflow 템플릿 만들기</summary>
+      <summary>새 업무 절차 템플릿 만들기</summary>
       <form action={saveWorkflowTemplateAction} className="workflow-compact-form">
         <label><span>이름</span><input name="name" required /></label>
         <label><span>설명</span><textarea name="description" rows={2} /></label>
