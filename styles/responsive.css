@@ -119,6 +119,7 @@
   .workflow-filters select { width: 100%; }
   .workflow-instance-card { padding: var(--space-5); }
   .workflow-step__body > div:first-child { align-items: start; flex-direction: column; gap: var(--space-1); }
+  .workflow-instance-actions button, .workflow-step-actions button { min-height: 44px; }
   .workflow-briefing__list { grid-template-columns: 1fr; }
   .workflow-briefing__list > a + a { border-left: 0; }
   .workflow-form-row { grid-template-columns: 1fr; }

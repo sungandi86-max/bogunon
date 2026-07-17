@@ -206,6 +206,10 @@ export function isWorkflowTransitionAllowed(from: WorkflowStatus, to: WorkflowSt
   return workflowTransitions[from].includes(to);
 }
 
+export function canTransitionWorkflowSteps(status: WorkflowStatus): boolean {
+  return status === "active";
+}
+
 export function isStepTransitionAllowed(from: WorkflowStepStatus, to: WorkflowStepStatus): boolean {
   return stepTransitions[from].includes(to);
 }

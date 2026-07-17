@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   BUILT_IN_WORKFLOW_TEMPLATES,
+  canTransitionWorkflowSteps,
   calculateWorkflowProgress,
   deriveNextWorkflowAction,
   isStepTransitionAllowed,
@@ -89,6 +90,13 @@ describe("workflow state transitions", () => {
     expect(isWorkflowTransitionAllowed("paused", "active")).toBe(true);
     expect(isWorkflowTransitionAllowed("completed", "active")).toBe(false);
     expect(isWorkflowTransitionAllowed("cancelled", "active")).toBe(false);
+  });
+
+  it("only exposes step mutations while the workflow is active", () => {
+    expect(canTransitionWorkflowSteps("active")).toBe(true);
+    expect(canTransitionWorkflowSteps("paused")).toBe(false);
+    expect(canTransitionWorkflowSteps("completed")).toBe(false);
+    expect(canTransitionWorkflowSteps("cancelled")).toBe(false);
   });
 
   it("allows explicit step progress, hold, skip, and rollback transitions", () => {

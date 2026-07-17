@@ -3,10 +3,11 @@
 import { Check, CirclePause, FastForward, Link2, Play, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { saveWorkflowStepAction, transitionWorkflowAction, transitionWorkflowStepAction } from "@/app/(app)/workflow-actions";
-import { calculateWorkflowProgress, deriveNextWorkflowAction } from "@/lib/workflows/domain";
+import { calculateWorkflowProgress, canTransitionWorkflowSteps, deriveNextWorkflowAction } from "@/lib/workflows/domain";
 import type { TaskRow } from "@/types/database";
 import type { HealthWorkflowData, TaskWorkflowInstanceRow, TaskWorkflowStepRow } from "@/types/workflows";
 import { WorkflowSubmitButton } from "@/components/workflows/workflow-submit-button";
+import { formatSeoulDateTime } from "@/lib/work-items/date";
 
 const statusLabel = { active: "진행 중", paused: "일시 중지", completed: "완료", cancelled: "취소" } as const;
 const stepStatusLabel = { pending: "대기", in_progress: "진행 중", completed: "완료", skipped: "건너뜀", blocked: "보류" } as const;
@@ -48,8 +49,8 @@ export function WorkflowInstanceCard({ data, instance, task }: { readonly data: 
     <div className="workflow-progress" aria-label={`진행률 ${progress.percentage}%`}><span style={{ width: `${progress.percentage}%` }} /></div>
     <div className="workflow-next"><strong>다음 해야 할 일</strong><p>{next.message}</p><span>현재 {next.stepName ?? "완료 확인"} · 남은 단계 {progress.remaining}</span></div>
     <div className="workflow-instance-actions">{instance.status === "active" && <><form action={transitionWorkflowAction}><input name="instanceId" type="hidden" value={instance.id} /><input name="status" type="hidden" value="paused" /><WorkflowSubmitButton className="button button--ghost">일시 중지</WorkflowSubmitButton></form><form action={transitionWorkflowAction}><input name="instanceId" type="hidden" value={instance.id} /><input name="status" type="hidden" value="completed" /><WorkflowSubmitButton className="button button--secondary" confirmMessage="모든 단계를 확인하고 Workflow를 완료할까요?">Workflow 완료</WorkflowSubmitButton></form></>}{instance.status === "paused" && <form action={transitionWorkflowAction}><input name="instanceId" type="hidden" value={instance.id} /><input name="status" type="hidden" value="active" /><WorkflowSubmitButton className="button button--secondary">재개</WorkflowSubmitButton></form>}{(instance.status === "active" || instance.status === "paused") && <form action={transitionWorkflowAction}><input name="instanceId" type="hidden" value={instance.id} /><input name="status" type="hidden" value="cancelled" /><WorkflowSubmitButton className="danger-action" confirmMessage="이 Workflow를 취소할까요? 취소 후에는 다시 열 수 없습니다.">취소</WorkflowSubmitButton></form>}</div>
-    <ol className="workflow-steps">{steps.map((step) => <li className={`workflow-step workflow-step--${step.status}`} key={step.id}><div className="workflow-step__index">{step.position + 1}</div><div className="workflow-step__body"><div><strong>{step.name}</strong><span>{stepStatusLabel[step.status]}{step.estimated_minutes ? ` · ${step.estimated_minutes}분` : ""}</span></div>{step.description && <p>{step.description}</p>}<StepActions data={data} step={step} /><StepEditor data={data} step={step} /></div></li>)}</ol>
-    <details className="workflow-timeline"><summary>Timeline {timeline.length}건</summary>{timeline.map((event) => <div key={event.id}><span /><p><strong>{event.message}</strong><time>{new Date(event.created_at).toLocaleString("ko-KR")}</time></p></div>)}</details>
+    <ol className="workflow-steps">{steps.map((step) => <li className={`workflow-step workflow-step--${step.status}`} key={step.id}><div className="workflow-step__index">{step.position + 1}</div><div className="workflow-step__body"><div><strong>{step.name}</strong><span>{stepStatusLabel[step.status]}{step.estimated_minutes ? ` · ${step.estimated_minutes}분` : ""}</span></div>{step.description && <p>{step.description}</p>}{canTransitionWorkflowSteps(instance.status) && <StepActions data={data} step={step} />}<StepEditor data={data} step={step} /></div></li>)}</ol>
+    <details className="workflow-timeline"><summary>Timeline {timeline.length}건</summary>{timeline.map((event) => <div key={event.id}><span /><p><strong>{event.message}</strong><time>{formatSeoulDateTime(event.created_at)}</time></p></div>)}</details>
     {data.links.some((item) => steps.some((step) => step.id === item.workflow_step_id)) && <span className="workflow-link-count"><Link2 size={13} />단계 링크 포함</span>}
   </article>;
 }

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { WorkflowWorkspace } from "@/components/workflows/workflow-workspace";
+import { WorkflowInstanceCard } from "@/components/workflows/workflow-instance-card";
 import type { TaskRow } from "@/types/database";
 import type { HealthWorkflowData } from "@/types/workflows";
 
@@ -28,9 +29,22 @@ describe("WorkflowWorkspace", () => {
   it("shows progress and filters by step memo", () => {
     const { container } = render(<WorkflowWorkspace data={data} tasks={[task]} />);
     expect(screen.getByText(/현재 공문 확인/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "완료" })).toBeInTheDocument();
     fireEvent.change(screen.getByPlaceholderText("Workflow, 업무, 단계, 메모 검색"), { target: { value: "시행 일정" } });
     expect(container.querySelector(".task-results-summary")).toHaveTextContent("Workflow 1건");
     fireEvent.change(screen.getByPlaceholderText("Workflow, 업무, 단계, 메모 검색"), { target: { value: "없는 업무" } });
     expect(container.querySelector(".task-results-summary")).toHaveTextContent("Workflow 0건");
   });
+
+  it.each(["paused", "completed", "cancelled"] as const)(
+    "hides step transition actions when the workflow is %s",
+    (status) => {
+      const instance = { ...data.instances[0]!, status };
+
+      render(<WorkflowInstanceCard data={data} instance={instance} task={task} />);
+
+      expect(screen.queryByRole("button", { name: "완료" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "보류" })).not.toBeInTheDocument();
+    },
+  );
 });
