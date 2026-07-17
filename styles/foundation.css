@@ -1,0 +1,77 @@
+:root {
+  --brand-950: #101f33;
+  --brand-900: #172a46;
+  --brand-800: #203a5e;
+  --brand-700: #2a4b73;
+  --brand-100: #e8edf3;
+  --brand-50: #f3f6f9;
+  --action-700: #087f78;
+  --action-600: #0b9389;
+  --action-500: #12a399;
+  --action-100: #d9f0ed;
+  --action-50: #eef9f7;
+  --canvas-warm: #f7f5f0;
+  --canvas-cool: #f4f6f8;
+  --surface: #ffffff;
+  --surface-subtle: #fafaf8;
+  --ink-950: #17202a;
+  --ink-700: #46515f;
+  --ink-500: #697586;
+  --line-strong: #cbd2da;
+  --line: #dde2e7;
+  --line-subtle: #e9edf0;
+  --health: #243b5a;
+  --health-soft: #e9eef4;
+  --school: #5b6675;
+  --school-soft: #eef1f4;
+  --exercise: #2858c7;
+  --exercise-soft: #e8eeff;
+  --personal: #b85f42;
+  --personal-soft: #f9eae4;
+  --project: #7352b8;
+  --project-soft: #efeaf9;
+  --success: #2d7a57;
+  --success-soft: #e6f3ec;
+  --danger: #b33a3a;
+  --danger-soft: #fbe7e7;
+  --warning: #a56616;
+  --warning-soft: #f8eedc;
+  --deadline: #c55b55;
+  --deadline-soft: #fae9e7;
+  --info: #356aa0;
+  --info-soft: #e8f0f8;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --shadow-sm: 0 1px 2px rgb(16 31 51 / 0.06);
+  --shadow-md: 0 8px 24px rgb(16 31 51 / 0.1);
+  --shadow-panel: -12px 0 32px rgb(16 31 51 / 0.12);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas-warm);
+  --color-brand: var(--brand-900);
+  --color-muted: var(--ink-700);
+  --font-sans: Pretendard, "Noto Sans KR", system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--canvas-warm); }
+body {
+  min-width: 320px;
+  min-height: 100dvh;
+  margin: 0;
+  background: var(--canvas-warm);
+  color: var(--ink-950);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.55;
+}
+body.overlay-open { overflow: hidden; }
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+button { color: inherit; }
+:focus-visible { outline: 2px solid var(--action-500); outline-offset: 2px; }

@@ -1,0 +1,52 @@
+@media (max-width: 1023px) {
+  .global-navigation__inner { padding: 0 24px; }
+  .desktop-navigation { gap: 16px; }
+  .page-canvas { padding-inline: 24px; }
+  .briefing-grid { grid-template-columns: 1fr; }
+  .compact-calendar { max-width: 520px; }
+}
+@media (max-width: 767px) {
+  .app-shell { padding-bottom: calc(68px + env(safe-area-inset-bottom)); }
+  .global-navigation { display: none; }
+  .mobile-navigation { align-items: stretch; background: var(--surface); border-top: 1px solid var(--line); bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); left: 0; padding-bottom: env(safe-area-inset-bottom); position: fixed; right: 0; z-index: 40; }
+  .mobile-navigation a { align-items: center; color: var(--ink-500); display: flex; flex-direction: column; font-size: 11px; font-weight: 600; gap: 4px; justify-content: center; min-height: 68px; position: relative; }
+  .mobile-navigation a[aria-current="page"] { color: var(--brand-900); }
+  .mobile-navigation a[aria-current="page"]::before { background: var(--action-700); content: ""; height: 2px; left: 26%; position: absolute; right: 26%; top: 0; }
+  .page-canvas { padding: 20px 16px 32px; }
+  .page-header { align-items: center; margin-bottom: 18px; }
+  .page-header h1 { font-size: 20px; line-height: 30px; }
+  .page-header__description { display: none; }
+  .mobile-create-button { display: inline-flex; }
+  .briefing-header { display: block; margin-bottom: 18px; }
+  .briefing-header__date { font-size: 20px; line-height: 30px; }
+  .briefing-header__summary { font-size: 14px; line-height: 22px; margin-top: 5px; }
+  .work-status { align-items: center; border-top: 1px solid var(--line); flex-direction: row; justify-content: space-between; margin-top: 14px; min-width: 0; padding-top: 12px; }
+  .work-status strong { font-size: 12px; }
+  .briefing-grid { display: block; }
+  .briefing-main { gap: 28px; }
+  .focus-card { padding: 4px 14px; }
+  .task-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 66px; }
+  .task-row__badges { display: none; }
+  .waiting-row { align-items: start; grid-template-columns: 1fr; gap: 4px; }
+  .waiting-row__meta { justify-content: flex-start; }
+  .compact-calendar { display: none; }
+  .mobile-week-strip { background: var(--surface); border-block: 1px solid var(--line); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); margin: 0 -16px 24px; padding: 7px 10px; }
+  .week-strip-day { align-items: center; background: transparent; border: 0; border-bottom: 2px solid transparent; color: var(--ink-700); cursor: pointer; display: flex; flex-direction: column; height: 64px; justify-content: center; min-width: 0; position: relative; }
+  .week-strip-day small { font-size: 11px; }
+  .week-strip-day strong { font-size: 14px; margin-top: 3px; }
+  .week-strip-day.is-selected { background: var(--action-50); border-color: var(--action-700); color: var(--brand-900); }
+  .week-strip-day.is-today::after { background: var(--brand-900); border-radius: 999px; content: ""; height: 4px; position: absolute; right: 7px; top: 7px; width: 4px; }
+  .week-strip-markers { display: flex; gap: 2px; height: 4px; margin-top: 3px; }
+  .calendar-page { min-height: calc(100dvh - 68px); }
+  .calendar-view-switch { display: none; }
+  .calendar-desktop-add { display: none; }
+  .full-calendar__cell { height: 52px; padding: 5px; }
+  .calendar-item { display: none; }
+  .full-calendar__cell.has-item::after { background: var(--health); border-radius: 999px; content: ""; display: block; height: 4px; margin: 5px auto 0; width: 4px; }
+  .detail-panel { border-left: 0; border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: var(--shadow-md); max-height: 92dvh; max-width: none; top: auto; width: 100%; }
+  .detail-panel::before { background: var(--line-strong); border-radius: 999px; content: ""; height: 4px; left: 50%; position: absolute; top: 8px; transform: translateX(-50%); width: 36px; }
+  .detail-panel__header { padding-top: 24px; }
+  .detail-panel__footer { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+  .button { min-height: 44px; }
+  .login-card { padding: 26px 22px; }
+}

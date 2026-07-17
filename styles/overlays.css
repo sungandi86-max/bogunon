@@ -1,0 +1,25 @@
+.overlay { background: rgb(16 31 51 / 0.24); inset: 0; position: fixed; z-index: 50; }
+.detail-panel { background: var(--surface); border-left: 1px solid var(--line); bottom: 0; box-shadow: var(--shadow-panel); display: flex; flex-direction: column; max-width: 480px; position: absolute; right: 0; top: 0; width: min(460px, 100%); }
+.detail-panel__header { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; min-height: 72px; padding: 16px 20px; }
+.detail-panel__header h2 { font-size: 17px; margin: 0; }
+.detail-panel__body { flex: 1; overflow-y: auto; padding: 22px 20px; }
+.detail-panel__footer { border-top: 1px solid var(--line); display: flex; gap: 10px; justify-content: flex-end; padding: 14px 20px; }
+.create-type-options { border: 0; margin: 0 0 24px; padding: 0; }
+.create-type-options legend, .field-label { color: var(--ink-700); display: block; font-size: 13px; font-weight: 650; margin-bottom: 8px; }
+.type-grid { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr); }
+.type-option { align-items: center; border: 1px solid var(--line); border-radius: var(--radius-md); cursor: pointer; display: flex; gap: 8px; min-height: 44px; padding: 9px 11px; }
+.type-option:has(input:checked) { background: var(--action-50); border-color: var(--action-600); }
+.type-option input { accent-color: var(--action-700); }
+.field { display: grid; gap: 7px; margin-top: 16px; }
+.field input, .field select, .field textarea { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); color: var(--ink-950); min-height: 40px; padding: 8px 10px; width: 100%; }
+.field textarea { min-height: 88px; resize: vertical; }
+.privacy-notice { align-items: flex-start; background: var(--brand-50); border-left: 3px solid var(--brand-700); color: var(--ink-700); display: flex; font-size: 12px; gap: 8px; margin-top: 20px; padding: 12px; }
+.static-note { color: var(--ink-500); font-size: 12px; margin: 14px 0 0; }
+
+.login-page { align-items: center; display: grid; min-height: 100dvh; padding: 32px 16px; }
+.login-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin: 0 auto; max-width: 440px; padding: 34px; width: 100%; }
+.login-card .wordmark { margin: 0 0 34px; }
+.login-card h1 { color: var(--brand-950); font-size: 24px; line-height: 34px; margin: 0; }
+.login-card__description { color: var(--ink-700); font-size: 16px; margin: 10px 0 26px; }
+.google-button { width: 100%; }
+.login-privacy { border-top: 1px solid var(--line); color: var(--ink-700); font-size: 12px; margin: 26px 0 0; padding-top: 20px; }
