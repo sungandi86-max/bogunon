@@ -23,6 +23,13 @@ describe("BriefingScreen", () => {
     expect(screen.getByRole("complementary", { name: "오늘의 운영 항목" })).toHaveClass("operations-rail");
     expect(screen.getByRole("grid", { name: "2026년 7월 월간 캘린더" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "오늘 요약" })).toBeInTheDocument();
+    expect(screen.getByText("오늘 할 일")).toBeInTheDocument();
+    expect(screen.getByText("진행 중 업무 절차")).toBeInTheDocument();
+    expect(screen.getByText("오늘도 차분하게 업무를 정리해보세요.")).toBeInTheDocument();
+    expect(screen.getByText("저장 완료")).toBeInTheDocument();
+    expect(screen.getByText("동기화 완료")).toBeInTheDocument();
+    expect(screen.queryByText("Supabase 저장")).not.toBeInTheDocument();
+    expect(screen.queryByText("업무 운영 중")).not.toBeInTheDocument();
     expect(screen.getByText("오늘 일정이 없습니다.")).toBeInTheDocument();
     expect(screen.getByRole("navigation", { name: "모바일 주요 메뉴" })).toBeInTheDocument();
 

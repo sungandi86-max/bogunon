@@ -116,9 +116,40 @@
   --radius-md: 12px;
   --radius-lg: 18px;
   --radius-xl: 20px;
+  --radius-full: 999px;
   --shadow-sm: 0 8px 28px rgb(48 71 79 / 0.05);
   --shadow-md: 0 16px 42px rgb(48 71 79 / 0.09);
   --shadow-panel: -12px 0 40px rgb(48 71 79 / 0.1);
+  --mobile-canvas: #f3fbf9;
+  --mobile-mint: #58cfbf;
+  --mobile-mint-soft: #eaf8f5;
+  --mobile-blue-soft: #eaf3fc;
+  --mobile-orange-soft: #fff0e5;
+  --mobile-lavender-soft: #f2eefc;
+  --mobile-pink-soft: #fcecef;
+  --mobile-title: #364152;
+  --mobile-body: #657084;
+  --mobile-line: #e4eceb;
+  --mobile-card-radius: 24px;
+  --mobile-summary-radius: 20px;
+  --mobile-week-radius: 22px;
+  --mobile-sheet-radius: 26px;
+  --mobile-nav-radius: 30px;
+  --mobile-nav-inset: 16px;
+  --mobile-nav-bottom: 12px;
+  --mobile-fab-size: 58px;
+  --mobile-glass: rgb(255 255 255 / 0.82);
+  --mobile-nav-surface: rgb(255 255 255 / 0.96);
+  --mobile-pill-surface: rgb(255 255 255 / 0.72);
+  --mobile-icon-surface: rgb(255 255 255 / 0.7);
+  --mobile-line-soft: rgb(228 236 235 / 0.75);
+  --mobile-accent-line: 3px;
+  --mobile-summary-min-height: 116px;
+  --mobile-panel-scroll-padding: 120px;
+  --mobile-card-shadow: 0 12px 30px rgb(67 112 105 / 0.06);
+  --mobile-floating-shadow: 0 20px 48px rgb(67 112 105 / 0.14);
+  --mobile-fab-shadow: 0 14px 30px rgb(63 183 167 / 0.28);
+  --mobile-sheet-shadow: 0 -18px 52px rgb(50 76 79 / 0.14);
 }
 
 @theme inline {

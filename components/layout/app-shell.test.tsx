@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "@/components/layout/app-shell";
@@ -13,12 +13,29 @@ describe("AppShell", () => {
   it("marks the current navigation item", () => {
     render(<AppShell><main>본문</main></AppShell>);
 
-    expect(screen.getByRole("link", { name: "오늘" })).toHaveAttribute("aria-current", "page");
-    expect(screen.getByRole("link", { name: "브리핑" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getAllByRole("link", { name: "오늘" })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "오늘" }).every((link) => link.getAttribute("aria-current") === "page")).toBe(true);
     expect(screen.getAllByRole("link", { name: "업무 절차" })).toHaveLength(2);
     expect(screen.getByText("보건업무")).toBeInTheDocument();
     expect(screen.getByText("나의 기록")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "AI 업무 도우미" })).not.toBeInTheDocument();
+  });
+
+  it("opens the floating mobile creation menu and reuses the task form", () => {
+    render(<AppShell><main>본문</main></AppShell>);
+    const launcher = screen.getByRole("button", { name: "빠른 새로 만들기" });
+
+    fireEvent.click(launcher);
+    const menu = screen.getByRole("dialog", { name: "새로 만들기" });
+    expect(within(menu).getByRole("link", { name: /업무 절차 시작/ })).toHaveAttribute("href", "/workflows");
+    expect(within(menu).getByRole("link", { name: /운동 기록/ })).toHaveAttribute("href", "/exercise?create=1");
+    expect(within(menu).getByRole("link", { name: /빠른 메모/ })).toHaveAttribute("href", "/briefing#quick-note");
+
+    fireEvent.click(within(menu).getByRole("button", { name: /업무 만들기/ }));
+    expect(screen.getByLabelText("제목")).toHaveFocus();
+
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(launcher).toHaveFocus();
   });
 
   it("opens the create panel, closes with Escape, and returns focus", () => {

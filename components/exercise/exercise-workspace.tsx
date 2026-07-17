@@ -15,11 +15,12 @@ import type { EventRow } from "@/types/database";
 
 interface ExerciseWorkspaceProps {
   readonly events: readonly EventRow[];
+  readonly initialOpen?: boolean;
   readonly today: string;
 }
 
-export function ExerciseWorkspace({ events, today }: ExerciseWorkspaceProps) {
-  const [open, setOpen] = useState(false);
+export function ExerciseWorkspace({ events, initialOpen = false, today }: ExerciseWorkspaceProps) {
+  const [open, setOpen] = useState(initialOpen);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const typeRef = useRef<HTMLSelectElement>(null);
   const router = useRouter();

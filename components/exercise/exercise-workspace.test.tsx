@@ -28,6 +28,13 @@ const event = (id: string, status: "planned" | "completed" | "cancelled"): Event
 });
 
 describe("ExerciseWorkspace", () => {
+  it("opens the contextual form from the floating navigation route", () => {
+    render(<ExerciseWorkspace events={[]} initialOpen today="2026-07-18" />);
+
+    expect(screen.getByRole("dialog", { name: "운동 기록 추가" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "운동 종류" })).toBeInTheDocument();
+  });
+
   it("opens a contextual exercise form without generic work fields", () => {
     render(<ExerciseWorkspace events={[]} today="2026-07-18" />);
     fireEvent.click(screen.getByRole("button", { name: "운동 기록 추가" }));

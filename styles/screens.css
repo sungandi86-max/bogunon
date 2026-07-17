@@ -31,6 +31,7 @@
 .briefing-header { align-items: flex-start; display: flex; gap: var(--space-14); justify-content: space-between; margin-bottom: var(--space-12); }
 .briefing-header__date { color: var(--brand-950); font-size: var(--text-3xl); font-weight: var(--weight-bold); line-height: var(--leading-heading); margin: 0; }
 .briefing-header__summary { color: var(--ink-700); font-size: var(--text-base); font-weight: var(--weight-medium); margin: var(--space-3) 0 0; max-width: 660px; }
+.mobile-briefing-brand, .mobile-briefing-greeting, .briefing-header__time { display: none; }
 .work-status { align-items: flex-end; display: flex; flex-direction: column; gap: 6px; min-width: 220px; }
 .work-status span { align-items: center; color: var(--success); display: inline-flex; font-size: var(--text-md); font-weight: var(--weight-semibold); gap: var(--space-3); }
 .work-status strong { color: var(--brand-900); font-size: var(--text-base); font-weight: var(--weight-semibold); }

@@ -100,7 +100,7 @@ export function AppShell({ children, profile = fallbackProfile }: AppShellProps)
         <div className="app-shell">
         <GlobalNavigation onAssistant={openAssistant} onCreate={openCreate} profile={profile} />
         {children}
-        <MobileBottomNavigation />
+        <MobileBottomNavigation onAssistant={(trigger) => openAssistant(trigger, "global")} onCreate={openCreate} />
         <ResponsiveDetailPanel
           footer={
             <>
