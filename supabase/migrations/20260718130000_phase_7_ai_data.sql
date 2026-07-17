@@ -33,7 +33,7 @@ create table public.ai_action_drafts (
   request_id uuid not null,
   action_type text not null check (action_type = btrim(action_type) and action_type <> ''),
   payload jsonb not null check (jsonb_typeof(payload) = 'object'),
-  status text not null default 'pending' check (status in ('pending', 'applied', 'dismissed')),
+  status text not null default 'pending',
   applied_at timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
