@@ -1,11 +1,12 @@
 "use client";
 
-import { CalendarDays, ClipboardList, Dumbbell, FolderKanban, GitBranch, Home, LayoutGrid, LibraryBig, Plus, Settings } from "lucide-react";
+import { CalendarDays, ClipboardList, Dumbbell, FolderKanban, GitBranch, Home, LayoutGrid, LibraryBig, Plus, Settings, WandSparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { AuthProfile } from "@/lib/auth/profile";
+import type { AssistantSurface } from "@/components/ai/assistant-context";
 
 const links = [
   ["브리핑", "/briefing", Home],
@@ -20,11 +21,12 @@ const links = [
 ] as const;
 
 interface GlobalNavigationProps {
+  readonly onAssistant: (trigger: HTMLButtonElement, surface?: AssistantSurface) => void;
   readonly onCreate: (trigger: HTMLButtonElement) => void;
   readonly profile: AuthProfile;
 }
 
-export function GlobalNavigation({ onCreate, profile }: GlobalNavigationProps) {
+export function GlobalNavigation({ onAssistant, onCreate, profile }: GlobalNavigationProps) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -54,6 +56,9 @@ export function GlobalNavigation({ onCreate, profile }: GlobalNavigationProps) {
         </Link>
         <Button className="sidebar-create" onClick={(event) => onCreate(event.currentTarget)}>
           <Plus aria-hidden="true" size={18} />새로 만들기
+        </Button>
+        <Button className="sidebar-assistant" onClick={(event) => onAssistant(event.currentTarget, "global")} variant="secondary">
+          <WandSparkles aria-hidden="true" size={17} />AI 업무 도우미
         </Button>
         <nav className="desktop-navigation" aria-label="주요 메뉴">
           {links.map(([label, href, Icon]) => (

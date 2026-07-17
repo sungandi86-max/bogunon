@@ -4,6 +4,7 @@ import { saveWorkItemAction } from "@/app/(app)/work-item-actions";
 import { deleteWorkItemAction, toggleTaskAction } from "@/app/(app)/work-item-actions";
 import { removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
 import { saveEventBundle, saveTaskBundle } from "@/lib/work-items/phase5-repository";
+import { markAiDraftApplied } from "@/lib/ai/history";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/work-items/repository", () => ({
@@ -17,6 +18,7 @@ vi.mock("@/lib/work-items/phase5-repository", () => ({
   saveCustomTemplate: vi.fn(), saveEventBundle: vi.fn(), saveTaskBundle: vi.fn(), setChecklistItemCompleted: vi.fn(),
   templateFromEvent: vi.fn(), templateFromTask: vi.fn(),
 }));
+vi.mock("@/lib/ai/history", () => ({ markAiDraftApplied: vi.fn() }));
 
 describe("saveWorkItemAction", () => {
   beforeEach(() => {
@@ -59,6 +61,21 @@ describe("saveWorkItemAction", () => {
 
     await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({ status: "success", message: "저장했습니다." });
     expect(vi.mocked(saveTaskBundle)).toHaveBeenCalledWith(expect.objectContaining({ title: "보건교육 결과 제출", status: "waitingForReply", priority: "high", category: "officialDocument", due_date: "2026-07-17" }), { checklist: [], links: [], reminders: [] }, undefined);
+  });
+
+  it("keeps an AI-created task save successful when optional history marking fails", async () => {
+    vi.mocked(markAiDraftApplied).mockRejectedValueOnce(new Error("history unavailable"));
+    const formData = new FormData();
+    formData.set("kind", "task");
+    formData.set("title", "보건교육 결과 제출");
+    formData.set("area", "healthWork");
+    formData.set("aiDraftId", "draft-1");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "success",
+      message: "저장했지만 AI 기록 상태를 갱신하지 못했습니다.",
+    });
+    expect(saveTaskBundle).toHaveBeenCalledOnce();
   });
 
   it("requires a scheduled date for a recurring task", async () => {

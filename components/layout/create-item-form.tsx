@@ -10,6 +10,7 @@ import { TASK_CATEGORY_OPTIONS } from "@/lib/work-items/categories";
 import { parseKoreanQuickInput } from "@/lib/work-items/workflow";
 import type { QuickInputResult, TemplateDefinition } from "@/lib/work-items/workflow";
 import type { EventLinkRow, EventReminderRow, EventRow, TaskChecklistItemRow, TaskLinkRow, TaskReminderRow, TaskRow } from "@/types/database";
+import { AssistantTrigger } from "@/components/ai/assistant-trigger";
 
 type LinkDraft = { title: string; url: string };
 type ChecklistDraft = { title: string; isCompleted: boolean };
@@ -45,11 +46,11 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [status, setStatus] = useState(task?.status ?? "planned");
   const [priority, setPriority] = useState(task?.priority ?? initialTemplate?.priority ?? "normal");
   const [recurrence, setRecurrence] = useState(task?.recurrence_frequency ?? initialTemplate?.recurrenceFrequency ?? "");
-  const [scheduledDate, setScheduledDate] = useState(task?.scheduled_date ?? "");
-  const [startDate, setStartDate] = useState(event?.start_date ?? "");
-  const [endDate, setEndDate] = useState(event?.end_date ?? "");
-  const [startTime, setStartTime] = useState(event?.start_time?.slice(0, 5) ?? "");
-  const [allDay, setAllDay] = useState(event?.is_all_day ?? true);
+  const [scheduledDate, setScheduledDate] = useState(task?.scheduled_date ?? initialTemplate?.scheduledDate ?? "");
+  const [startDate, setStartDate] = useState(event?.start_date ?? initialTemplate?.startDate ?? "");
+  const [endDate, setEndDate] = useState(event?.end_date ?? initialTemplate?.endDate ?? initialTemplate?.startDate ?? "");
+  const [startTime, setStartTime] = useState(event?.start_time?.slice(0, 5) ?? initialTemplate?.startTime ?? "");
+  const [allDay, setAllDay] = useState(event?.is_all_day ?? initialTemplate?.isAllDay ?? true);
   const [memo, setMemo] = useState(initialItem?.memo ?? initialTemplate?.memo ?? "");
   const [estimatedMinutes, setEstimatedMinutes] = useState(task?.estimated_minutes?.toString() ?? initialTemplate?.estimatedMinutes?.toString() ?? "");
   const [checklist, setChecklist] = useState<ChecklistDraft[]>(checklistItems.length
@@ -106,10 +107,11 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
       <input name="checklist" type="hidden" value={checklistJson} />
       <input name="links" type="hidden" value={linksJson} />
       <input name="reminders" type="hidden" value={remindersJson} />
+      {initialTemplate?.aiDraftId && <input name="aiDraftId" type="hidden" value={initialTemplate.aiDraftId} />}
 
       {!initialItem && (
         <section className="quick-input-box" aria-labelledby="quick-input-title">
-          <div><Sparkles aria-hidden="true" size={17} /><strong id="quick-input-title">한국어 빠른 입력</strong></div>
+          <div className="quick-input-box__heading"><div><Sparkles aria-hidden="true" size={17} /><strong id="quick-input-title">한국어 빠른 입력</strong></div><AssistantTrigger label="AI로 초안" surface="quick_add" /></div>
           <textarea onChange={(e) => setQuickText(e.target.value)} placeholder="예: 내일 오후 2시 보건교육" value={quickText} />
           <button className="button button--secondary" onClick={() => setQuickPreview(parseKoreanQuickInput(quickText))} disabled={!quickText.trim()} type="button">입력 해석</button>
           {quickPreview && <div className="quick-preview"><span>{quickPreview.kind === "task" ? "업무" : "일정"}</span><strong>{quickPreview.title}</strong><small>{quickPreview.scheduledDate ?? quickPreview.startDate ?? "날짜 미정"}{quickPreview.startTime ? ` ${quickPreview.startTime}` : ""}</small><button onClick={applyQuickPreview} type="button">폼에 반영</button></div>}
@@ -128,13 +130,13 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
         <div className="field"><label className="field-label" htmlFor={`${formKey}-estimate`}>예상 소요 시간(분)</label><input id={`${formKey}-estimate`} max={1440} min={1} name="estimatedMinutes" onChange={(e) => setEstimatedMinutes(e.target.value)} type="number" value={estimatedMinutes} /></div>
         <div className="field"><label className="field-label" htmlFor={`${formKey}-recurrence`}>반복</label><select id={`${formKey}-recurrence`} name="recurrenceFrequency" onChange={(e) => setRecurrence(e.target.value)} value={recurrence}><option value="">반복 안 함</option><option value="daily">매일</option><option value="weekly">매주</option><option value="monthly">매월</option><option value="yearly">매년</option></select></div>
         <div className="field"><label className="field-label" htmlFor={`${formKey}-scheduled`}>수행일</label><input id={`${formKey}-scheduled`} name="scheduledDate" onChange={(e) => setScheduledDate(e.target.value)} required={Boolean(recurrence)} type="date" value={scheduledDate} />{recurrence && <small className="field-help">반복 생성의 기준일입니다.</small>}</div>
-        <div className="field"><label className="field-label" htmlFor={`${formKey}-due`}>마감일</label><input defaultValue={task?.due_date ?? ""} id={`${formKey}-due`} name="dueDate" type="date" /></div>
+        <div className="field"><label className="field-label" htmlFor={`${formKey}-due`}>마감일</label><input defaultValue={task?.due_date ?? initialTemplate?.dueDate ?? ""} id={`${formKey}-due`} name="dueDate" type="date" /></div>
         <div className="field"><label className="field-label" htmlFor={`${formKey}-followup`}>후속 확인일</label><input defaultValue={task?.follow_up_date ?? ""} id={`${formKey}-followup`} name="followUpDate" type="date" /></div>
       </div> : <div className="form-grid">
         <div className="field"><label className="field-label" htmlFor={`${formKey}-start`}>시작일</label><input id={`${formKey}-start`} name="startDate" onChange={(e) => { setStartDate(e.target.value); if (!endDate) setEndDate(e.target.value); }} required type="date" value={startDate} /></div>
         <div className="field"><label className="field-label" htmlFor={`${formKey}-end`}>종료일</label><input id={`${formKey}-end`} name="endDate" onChange={(e) => setEndDate(e.target.value)} required type="date" value={endDate} /></div>
         <label className="checkbox-field"><input checked={allDay} name="isAllDay" onChange={(e) => setAllDay(e.target.checked)} type="checkbox" />종일 일정</label>
-        {!allDay && <><div className="field"><label className="field-label" htmlFor={`${formKey}-start-time`}>시작 시간</label><input id={`${formKey}-start-time`} name="startTime" onChange={(e) => setStartTime(e.target.value)} required type="time" value={startTime} /></div><div className="field"><label className="field-label" htmlFor={`${formKey}-end-time`}>종료 시간</label><input defaultValue={event?.end_time?.slice(0, 5) ?? ""} id={`${formKey}-end-time`} name="endTime" type="time" /></div></>}
+        {!allDay && <><div className="field"><label className="field-label" htmlFor={`${formKey}-start-time`}>시작 시간</label><input id={`${formKey}-start-time`} name="startTime" onChange={(e) => setStartTime(e.target.value)} required type="time" value={startTime} /></div><div className="field"><label className="field-label" htmlFor={`${formKey}-end-time`}>종료 시간</label><input defaultValue={event?.end_time?.slice(0, 5) ?? initialTemplate?.endTime ?? ""} id={`${formKey}-end-time`} name="endTime" type="time" /></div></>}
       </div>}
 
       {kind === "task" && <section className="form-collection"><div className="form-collection__heading"><div><strong>체크리스트</strong><span>{checklist.length}개 항목</span></div><button onClick={() => setChecklist((items) => [...items, { title: "", isCompleted: false }])} type="button"><Plus size={15} />추가</button></div>{checklist.map((item, index) => <div className="collection-row" key={index}><input aria-label={`체크리스트 ${index + 1}`} onChange={(e) => updateChecklist(index, e.target.value)} placeholder="세부 업무" value={item.title} /><button aria-label="위로 이동" disabled={index === 0} onClick={() => moveChecklist(index, -1)} type="button"><ArrowUp size={14} /></button><button aria-label="아래로 이동" disabled={index === checklist.length - 1} onClick={() => moveChecklist(index, 1)} type="button"><ArrowDown size={14} /></button><button aria-label="삭제" onClick={() => setChecklist((items) => items.filter((_, itemIndex) => itemIndex !== index))} type="button"><Trash2 size={14} /></button></div>)}</section>}

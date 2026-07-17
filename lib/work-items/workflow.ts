@@ -23,6 +23,14 @@ export type TemplateDefinition = {
   readonly recurrenceFrequency: RecurrenceFrequency | null;
   readonly checklist: readonly string[];
   readonly memo: string;
+  readonly scheduledDate?: string;
+  readonly dueDate?: string;
+  readonly startDate?: string;
+  readonly endDate?: string;
+  readonly startTime?: string;
+  readonly endTime?: string;
+  readonly isAllDay?: boolean;
+  readonly aiDraftId?: string;
   readonly customId?: string;
 };
 

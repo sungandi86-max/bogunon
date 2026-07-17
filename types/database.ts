@@ -130,11 +130,61 @@ export type EventReminderRow = {
   updated_at: string;
 };
 
+export type AiPreferencesRow = {
+  id: string;
+  user_id: string;
+  history_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AiRequestRow = {
+  id: string;
+  user_id: string;
+  request_type: string;
+  prompt: string;
+  status: "pending" | "completed" | "failed";
+  error_message: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AiActionDraftRow = {
+  id: string;
+  user_id: string;
+  request_id: string;
+  action_type: string;
+  payload: Json;
+  status: "pending" | "applied" | "dismissed";
+  applied_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 type Insert<T, Optional extends keyof T> = Omit<T, Optional> & Partial<Pick<T, Optional>>;
 
 export type Database = {
   public: {
     Tables: WorkflowDatabaseTables & {
+      ai_preferences: {
+        Row: AiPreferencesRow;
+        Insert: Insert<AiPreferencesRow, "id" | "history_enabled" | "created_at" | "updated_at">;
+        Update: Partial<AiPreferencesRow>;
+        Relationships: [];
+      };
+      ai_requests: {
+        Row: AiRequestRow;
+        Insert: Insert<AiRequestRow, "id" | "status" | "error_message" | "completed_at" | "created_at" | "updated_at">;
+        Update: Partial<AiRequestRow>;
+        Relationships: [];
+      };
+      ai_action_drafts: {
+        Row: AiActionDraftRow;
+        Insert: Insert<AiActionDraftRow, "id" | "status" | "applied_at" | "created_at" | "updated_at">;
+        Update: Partial<AiActionDraftRow>;
+        Relationships: [];
+      };
       tasks: {
         Row: TaskRow;
         Insert: Insert<TaskRow, "id" | "status" | "priority" | "category" | "scheduled_date" | "due_date" | "follow_up_date" | "memo" | "description" | "estimated_minutes" | "completed_at" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "created_at" | "updated_at">;
@@ -210,6 +260,10 @@ export type Database = {
       transition_workflow_step: { Args: { p_step_id: string; p_target_status: string; p_force?: boolean }; Returns: string };
       transition_workflow_instance: { Args: { p_instance_id: string; p_target_status: string }; Returns: string };
       complete_workflow_instance: { Args: { p_instance_id: string }; Returns: string };
+      save_ai_history_bundle: {
+        Args: { p_user_id: string; p_request_type: string; p_prompt: string; p_payload: Json };
+        Returns: string;
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

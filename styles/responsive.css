@@ -15,11 +15,15 @@
   .global-navigation__inner { padding-inline: 14px; }
   .global-navigation .wordmark { font-size: var(--text-hidden); justify-content: center; margin-inline: 0; }
   .sidebar-create { font-size: var(--text-hidden); padding: 0; width: 100%; }
+  .sidebar-assistant { font-size: var(--text-hidden); justify-content: center; padding: 0; width: 100%; }
   .desktop-navigation a { font-size: var(--text-hidden); justify-content: center; padding: 0; }
   .global-navigation__actions { align-items: center; }
   .sync-status { font-size: var(--text-hidden); }
   .profile-popover { left: calc(100% + 8px); }
   .page-canvas { margin-left: var(--sidebar-compact-width); }
+}
+@media (min-width: 768px) and (max-width: 899px) {
+  .detail-panel { max-width: none; width: calc(100% - var(--sidebar-compact-width)); }
 }
 @media (min-width: 1024px) and (max-width: 1279px) {
   .operations-dashboard { grid-template-columns: 1fr; }
@@ -27,6 +31,14 @@
   .operations-rail > section + section { border-left: 1px solid var(--line); border-top: 0; }
 }
 @media (max-width: 767px) {
+  .assistant-trigger { min-height: var(--touch-target); }
+  .page-header__actions { width: 100%; }
+  .page-header__actions .assistant-trigger { flex: 1; }
+  .quick-input-box__heading { align-items: stretch; flex-direction: column; }
+  .quick-input-box__heading .button { width: 100%; }
+  .ai-assistant { gap: var(--space-5); }
+  .ai-examples button { min-height: var(--touch-target); }
+  .ai-preview > textarea { max-height: 18dvh; min-height: 96px; }
   .app-shell { padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom)); }
   .global-navigation { display: none; }
   .mobile-navigation { align-items: stretch; background: var(--surface); border-top: 1px solid var(--line); bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); left: 0; padding-bottom: env(safe-area-inset-bottom); position: fixed; right: 0; z-index: 40; }
@@ -88,6 +100,8 @@
   .button { min-height: var(--touch-target); }
   .form-grid { grid-template-columns: 1fr; }
   .work-item-card { align-items: stretch; display: block; padding: var(--space-5) var(--space-6); }
+  .work-item-card__assistant, .workflow-instance-card__assistant { margin: 0 0 var(--space-4); }
+  .work-item-card__assistant .button, .workflow-instance-card__assistant .button { min-height: var(--touch-target); width: 100%; }
   .task-tools { padding: var(--space-5); }
   .task-filters { align-items: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .task-filters > svg { display: none; }

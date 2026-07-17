@@ -36,8 +36,8 @@ npm run build
 | 4 | 보건교사 업무 운영 고도화 | 카테고리·반복·브리핑·검색·필터 |
 | 5 | 보건업무 템플릿·연간 계획 | 템플릿·체크리스트·복제·연간 보기·RLS |
 | 6 | Workflow OS | 템플릿·인스턴스·상태 전이·원자적 RPC·Task 통합 |
-| 7 | 전체 캘린더 | 월간·주간·목록·필터 |
-| 8 | 반복 업무 템플릿 | 검토 후 복사 |
+| 7 | 개인정보 안전 AI 업무 도우미 | provider/schema·preview/confirm·RLS |
+| 8 | 템플릿 운영 확장 (시작하지 않음) | 별도 승인 후 검토 |
 | 9 | 운동 기록 | 일정별 단일 기록 |
 | 10 | 프로젝트 | 진행률·대표 다음 행동 |
 | 11 | 빠른 메모 | CRUD·전환 |
@@ -619,33 +619,28 @@ git diff --check
 feat: add workflow operating system
 ```
 
-## 12. Phase 7 — 전체 캘린더
+## 12. Phase 7 — 개인정보 안전 AI 업무 도우미
 
 ### 목표
 
-월간·주간·일정 목록으로 전체 일정을 조망하는 화면을 완성한다.
+기존 Task·Event·Workflow·템플릿·연간 업무를 최소 문맥으로 활용하는 provider 중립 AI 보조 계층을 추가한다. Phase 1~6 기능과 RLS를 유지하며 Phase 8 범위는 시작하지 않는다.
 
 ### 구현 범위
 
-- 월간 보기
-- 주간 보기
-- 일정 목록 보기
-- 영역 필터
-- 선택 날짜 상세 목록
-- 일정·수행일·마감일·운동 일정 표시
-- 같은 날짜의 수행일·마감일 중복 규칙
-- 월요일 시작
-- 오늘 이동
-- 이전·다음 기간
-- 모바일 월간 달력
+- 서버 전용 provider abstraction과 OpenAI·결정적 mock 구현
+- 서버 전용 `AI_PROVIDER`, `OPENAI_API_KEY`, `AI_MODEL` 구성
+- 한국어 업무 정리, Task·Event 초안, 체크리스트·다음 행동 제안과 선택 항목 요약
+- PC 사이드바, 브리핑, 빠른 추가, 업무, Workflow와 연간 업무에서 여는 공통 반응형 AI 패널
+- 런타임 검증된 구조화 응답과 preview → edit → confirm → 기존 Repository/RPC 반영 흐름
+- delete operation이 없는 no-delete 계약
+- 학생 개인정보·건강정보 입력 금지, 최소 문맥 전송과 원문 비로그
+- 인증 사용자당 분당 10회 제한, 12초 전체 timeout과 자동 재시도 없음
+- `ai_preferences`, `ai_requests`, `ai_action_drafts`의 사용자별 RLS와 기록 기본 off
 
 ### 생성 또는 수정 파일
 
-- 캘린더 route
-- `components/calendar/month-view/*`
-- `components/calendar/week-view/*`
-- `components/calendar/agenda-view/*`
-- 캘린더 집계·필터 테스트
+- AI provider·schema·rate limit·timeout·preview/confirm 테스트
+- `docs/AI_ARCHITECTURE.md`, `docs/PRIVACY.md`와 Phase 7 관련 문서
 
 ### 제외 범위
 
@@ -653,14 +648,18 @@ feat: add workflow operating system
 - Google Calendar
 - Supabase Realtime
 - 무한 스크롤 자동 로딩
+- AI 자동 실행·자동 저장, AI 삭제·취소·Workflow 전이
+- 전체 DB·전체 캘린더의 암묵적 provider 전송
+- 기본 활성화된 대화 기록, 문맥 snapshot 저장과 사용자 간 기록 공유
+- 학생 개인 건강기록, 파일·이미지 분석과 음성 입력
 
 ### 완료 조건
 
-- 세 보기에서 같은 데이터 의미를 유지한다.
-- 영역 필터가 모든 보기에 일관되게 적용된다.
-- 같은 날짜의 수행일·마감일은 한 항목에 두 의미로 표시된다.
-- 모바일 월간 셀 높이가 항목 수에 따라 늘어나지 않는다.
-- 날짜 선택 후 상세 진입이 가능하다.
+- provider 응답은 공통 schema와 no-delete 필터를 통과하고 mock 여부를 명확히 표시한다.
+- 사용자가 미리보기와 변경 필드를 확인하기 전에는 DB 쓰기가 발생하지 않는다.
+- 확인 이후의 쓰기도 기존 인증·도메인 검증·RLS를 통과하며 취소·timeout·제한·오류에서 부분 저장이 없다.
+- provider에는 선택한 최소 문맥만 전송하고 입력·응답 원문을 로그나 기본 기록에 남기지 않는다.
+- Desktop·Tablet·Mobile에서 AI 진입, loading, preview, confirm과 오류 흐름을 사용할 수 있다.
 
 ### 자동 검증
 
@@ -668,22 +667,25 @@ feat: add workflow operating system
 npm run typecheck
 npm run lint
 npm run test -- calendar
+npm run test -- ai
 npm run build
 ```
 
 ### 수동 검증
 
-- 월 경계·연도 경계·기간 일정을 확인한다.
-- PC 월간·주간·목록과 모바일 월간을 확인한다.
-- 긴 제목과 많은 항목에서 셀 높이와 `+N` 표시를 확인한다.
+- AI 각 진입점에서 mock·provider 응답, 구조화 미리보기 수정·취소·확인과 no-delete를 확인한다.
+- 1440×900, 1280×800, 768×1024, 375×812에서 AI 화면과 확인 행동의 반응형·키보드 흐름을 확인한다.
+- history off에서 새 대화 행이나 localStorage 원본이 없고 사용자 A/B·비로그인 RLS가 유지되는지 확인한다.
 
 ### 커밋 예시
 
 ```text
-feat: implement full calendar views
+feat: add safe AI workflow assistance
 ```
 
 ## 13. Phase 8 — 템플릿 운영 확장 (기존 계획, Phase 5 이후 재정의)
+
+**상태: 시작하지 않음.**
 
 기존 반복 업무 템플릿 MVP 범위는 최신 확정안에 따라 Phase 5에 통합됐다. Phase 8에서는 Phase 5 기능을 재구현하지 않으며, 향후 별도 승인 시 템플릿 수정·삭제, 윤년 검증과 운영 정책만 확장한다.
 

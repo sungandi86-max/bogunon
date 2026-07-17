@@ -10,6 +10,7 @@ import { checklistProgress } from "@/lib/work-items/workflow";
 import { TaskCompletionButton } from "@/components/tasks/task-completion-button";
 import { calculateWorkflowProgress, deriveNextWorkflowAction } from "@/lib/workflows/domain";
 import type { HealthWorkflowData } from "@/types/workflows";
+import { AssistantTrigger } from "@/components/ai/assistant-trigger";
 
 const areaLabel = { healthWork: "보건업무", schoolSchedule: "학교일정", exercise: "운동", personal: "개인일정", project: "프로젝트" } as const;
 const recurrenceLabel = { daily: "매일", weekly: "매주", monthly: "매월", yearly: "매년" } satisfies Record<RecurrenceFrequency, string>;
@@ -30,6 +31,7 @@ export function TaskList({ tasks, workflow, healthWorkflows }: { readonly tasks:
     const nextWorkflow = deriveNextWorkflowAction(workflowSnapshot);
     return (
     <article className="work-item-card" key={task.id}>
+      <div className="work-item-card__assistant"><AssistantTrigger entityId={task.id} label="AI 초안" surface="task" /></div>
       <div className="work-item-card__main">
         <TaskCompletionButton completed={task.status === "completed"} incompleteChecklist={progress.total - progress.completed} taskId={task.id} title={task.title} />
         <div><strong className={task.status === "completed" ? "is-completed" : undefined}>{task.title}</strong><div className="work-item-meta"><TaskCategoryBadge category={task.category} /><Badge tone={task.area === "healthWork" ? "health" : task.area === "schoolSchedule" ? "school" : task.area}>{areaLabel[task.area]}</Badge><span>{task.due_date ? `마감 ${task.due_date}` : task.scheduled_date ? `수행 ${task.scheduled_date}` : "날짜 미정"}</span>{task.recurrence_frequency && <span className="recurrence-label"><Repeat2 aria-hidden="true" size={12} />{recurrenceLabel[task.recurrence_frequency]}</span>}{progress.total > 0 && <span className="checklist-progress"><ListChecks size={13} />{progress.completed}/{progress.total} 완료 · {progress.percentage}%</span>}{reminders.length > 0 && <span><Bell size={12} /> 알림 {reminders.length}</span>}<span>{task.status === "waitingForReply" ? "회신 대기" : task.priority === "high" ? "우선" : ""}</span></div></div>

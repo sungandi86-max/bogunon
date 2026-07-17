@@ -7,6 +7,7 @@ import type { EventRow, TaskRow } from "@/types/database";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/briefing",
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
 
 describe("BriefingScreen", () => {

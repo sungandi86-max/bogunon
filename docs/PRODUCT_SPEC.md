@@ -550,3 +550,45 @@ Phase 6는 Phase 5의 단일 Task·Event 템플릿과 복제 기능을 대체하
 - 모든 사용자 소유 Workflow 행과 연결 Task에는 RLS와 동일 사용자 관계 제약을 적용하고 비로그인 접근을 차단한다.
 - QA는 상태 전이표, 진행률·다음 행동, RPC 실패 롤백과 동시 요청, 사용자 A/B 격리, 새로고침 유지, Task·대시보드 통합, Desktop·Mobile 반응형과 키보드 접근성을 포함한다.
 - Phase 6 완료 전 Phase 5 템플릿·체크리스트·복제·연간 업무·빠른 입력·링크·알림 저장의 회귀 테스트를 통과해야 한다.
+
+## 30. Phase 7 개인정보 안전 AI 업무 도우미
+
+Phase 7은 기존 업무 흐름 위에 선택적인 AI 보조 계층을 추가한다. Phase 1~6의 기능과 데이터 계약을 대체하지 않으며 Phase 8은 시작하지 않는다.
+
+### 30.1 AI 사용 목적과 진입점
+
+- AI는 한국어 업무 입력 정리, Task·Event 초안, 우선순위·체크리스트·다음 행동 제안과 선택 항목 요약을 제공한다.
+- 사용자는 PC 사이드바의 `AI 업무 도우미`와 브리핑, 빠른 추가, 업무, Workflow, 연간 업무의 문맥 버튼에서 공통 반응형 AI 패널을 연다.
+- 문맥 진입은 현재 선택한 항목만 포함하고, 전역 진입은 사용자가 직접 붙여 넣거나 선택한 내용만 사용한다.
+- AI를 사용하지 않아도 기존 생성·수정·Workflow 전이와 캘린더 기능을 모두 사용할 수 있다.
+
+### 30.2 구조화된 미리보기와 확인
+
+- AI 응답은 읽기 전용 답변·제안 또는 런타임 검증된 `mutation_preview`로 반환한다.
+- 변경안은 대상, 현재 값과 제안 값을 구분해 표시하고 사용자가 항목별 포함 여부와 값을 수정할 수 있어야 한다.
+- `확인하고 반영` 전에는 DB를 쓰지 않는다. 확인 후에도 기존 server action, Repository/RPC, 도메인 검증과 RLS를 사용한다.
+- AI operation에는 삭제가 없다. 삭제·취소·일괄 제거와 Workflow 상태 전이는 AI가 실행하지 않으며 기존 제품 화면에서 사용자가 직접 수행한다.
+- schema 오류, 취소, timeout, rate limit과 provider 실패에서는 쓰기가 0건이어야 한다. 저장 실패를 부분 성공처럼 표시하지 않는다.
+
+### 30.3 Provider와 fallback
+
+- UI는 provider에 종속되지 않으며 서버 provider interface만 호출한다.
+- `AI_PROVIDER`, `OPENAI_API_KEY`, `AI_MODEL`은 서버 전용이다. 브라우저가 provider, 모델이나 자격 증명을 선택·조회할 수 없다.
+- OpenAI provider와 결정적인 mock provider가 같은 입력·출력 계약을 사용한다.
+- 개발 환경, 자격 증명 누락 또는 장애 시 mock을 사용할 수 있으나 응답에 mock임을 표시하며 실제 provider 응답으로 가장하지 않는다.
+- 인증 사용자 기준 분당 10회 제한, 전체 12초 timeout을 적용하고 자동 재시도는 하지 않는다.
+
+### 30.4 개인정보와 기록
+
+- provider에는 요청에 필요한 최소 문맥만 전송한다. 토큰, 이메일, `user_id`, 내부 ID, 전체 목록과 다른 사용자 데이터는 제외한다.
+- 메모·설명은 기본 제외하며 사용자가 명시적으로 AI 입력에 포함한 경우에만 전송한다.
+- 학생 개인정보·건강정보 입력 금지 안내를 입력부와 확인 화면에 제공하고 입력·응답 원문을 로그에 남기지 않는다.
+- AI 대화·제안 기록은 기본 off다. 기본 모드는 DB와 localStorage에 요청·응답을 보존하지 않는다.
+- `ai_preferences.history_enabled`의 기본값은 `false`다. 기록은 사용자 설정과 해당 요청의 명시적 opt-in이 모두 있을 때만 `ai_requests`·`ai_action_drafts`에 저장하고 사용자별 RLS를 적용한다.
+
+### 30.5 인수 조건
+
+- mock과 OpenAI provider가 동일한 구조 검증과 no-delete 필터를 통과한다.
+- Desktop·Tablet·Mobile에서 진입, 입력, loading, preview, confirm, success·error 흐름이 동일하다.
+- 사용자 A/B와 비로그인 검증에서 AI 확인 이후의 쓰기도 기존 데이터 격리를 유지한다.
+- Phase 1~6의 인증, Task·Event, 캘린더, 템플릿, 연간 업무와 Workflow 회귀 테스트가 통과한다.

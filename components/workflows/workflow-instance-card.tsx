@@ -8,6 +8,7 @@ import type { TaskRow } from "@/types/database";
 import type { HealthWorkflowData, TaskWorkflowInstanceRow, TaskWorkflowStepRow } from "@/types/workflows";
 import { WorkflowSubmitButton } from "@/components/workflows/workflow-submit-button";
 import { formatSeoulDateTime } from "@/lib/work-items/date";
+import { AssistantTrigger } from "@/components/ai/assistant-trigger";
 
 const statusLabel = { active: "진행 중", paused: "일시 중지", completed: "완료", cancelled: "취소" } as const;
 const stepStatusLabel = { pending: "대기", in_progress: "진행 중", completed: "완료", skipped: "건너뜀", blocked: "보류" } as const;
@@ -45,6 +46,7 @@ export function WorkflowInstanceCard({ data, instance, task }: { readonly data: 
   const progress = calculateWorkflowProgress(snapshot); const next = deriveNextWorkflowAction(snapshot);
   const timeline = data.timeline.filter((item) => item.instance_id === instance.id).slice(0, 10);
   return <article className="workflow-instance-card" id={`workflow-${instance.id}`}>
+    <div className="workflow-instance-card__assistant"><AssistantTrigger entityId={instance.id} label="AI 단계 초안" surface="workflow" /></div>
     <header><div><span className={`workflow-status workflow-status--${instance.status}`}>{statusLabel[instance.status]}</span><h2>{instance.name}</h2><p>{task?.title ?? "연결 업무"}</p></div><strong>{progress.completed}/{progress.total} · {progress.percentage}%</strong></header>
     <div className="workflow-progress" aria-label={`진행률 ${progress.percentage}%`}><span style={{ width: `${progress.percentage}%` }} /></div>
     <div className="workflow-next"><strong>다음 해야 할 일</strong><p>{next.message}</p><span>현재 {next.stepName ?? "완료 확인"} · 남은 단계 {progress.remaining}</span></div>

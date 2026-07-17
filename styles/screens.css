@@ -115,6 +115,8 @@
 .global-navigation__inner { align-items: stretch; flex-direction: column; margin: 0; max-width: none; padding: var(--space-10) var(--space-7) var(--space-7); }
 .global-navigation .wordmark { flex: 0 0 auto; margin: 0 var(--space-2) var(--space-10); }
 .sidebar-create { flex: 0 0 auto; width: 100%; }
+.sidebar-assistant { flex: 0 0 auto; justify-content: flex-start; width: 100%; }
+.page-header__actions { align-items: center; display: flex; gap: var(--space-3); }
 .desktop-navigation { align-items: stretch; flex-direction: column; gap: var(--space-2); margin-top: var(--space-8); }
 .desktop-navigation a { border-radius: var(--radius-md); flex: 0 0 auto; gap: var(--space-6); min-height: 40px; padding: 0 var(--space-6); }
 .desktop-navigation a:hover { background: var(--brand-50); }
@@ -158,6 +160,10 @@
 .operations-rail { align-self: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); min-width: 0; overflow: hidden; }
 .operations-rail > section { padding: var(--space-7); }
 .operations-rail > section + section { border-top: 1px solid var(--line); }
+.ai-briefing-card { background: var(--action-50); }
+.ai-briefing-card p { color: var(--ink-700); font-size: var(--text-sm); margin: var(--space-3) 0 var(--space-5); }
+.ai-briefing-card .button { width: 100%; }
+.suggestion-label { color: var(--action-700); font-size: var(--text-2xs); font-weight: var(--weight-bold); letter-spacing: .08em; text-transform: uppercase; }
 .rail-heading { align-items: center; display: flex; justify-content: space-between; margin-bottom: var(--space-4); }
 .rail-heading h2 { font-size: var(--text-base); font-weight: var(--weight-bold); margin: 0; }
 .rail-heading > strong, .rail-heading > span { color: var(--ink-500); font-size: var(--text-sm); }
@@ -183,6 +189,9 @@
 .work-item-list { display: grid; gap: var(--space-3); margin: 0 auto; max-width: 1120px; }
 .work-item-card { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); display: flex; gap: var(--space-8); justify-content: space-between; min-height: 58px; padding: var(--space-5) var(--space-7); }
 .work-item-card__main { align-items: center; display: flex; gap: 12px; min-width: 0; }
+.work-item-card__assistant { margin-left: auto; }
+.work-item-card__assistant .button, .workflow-instance-card__assistant .button { min-height: var(--control-sm); padding: 0 var(--space-4); white-space: nowrap; }
+.workflow-instance-card__assistant { display: flex; justify-content: flex-end; }
 .work-item-card__main strong { display: block; font-size: var(--text-base); font-weight: var(--weight-semibold); }
 .work-item-card__main .is-completed { color: var(--ink-500); text-decoration: line-through; }
 .work-item-meta { align-items: center; color: var(--ink-500); display: flex; flex-wrap: wrap; font-size: var(--text-xs); gap: var(--space-4); margin-top: var(--space-1); }

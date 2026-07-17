@@ -14,6 +14,7 @@ import {
   templateFromEvent,
   templateFromTask,
 } from "@/lib/work-items/phase5-repository";
+import { markAiDraftApplied } from "@/lib/ai/history";
 import { BUILT_IN_TEMPLATES, parseWorkItemRelations } from "@/lib/work-items/workflow";
 import { listAllEvents, listTasks } from "@/lib/work-items/repository";
 import {
@@ -98,8 +99,17 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
         recurrence_frequency: recurrenceFrequency,
       }, relations, id);
     }
+    const aiDraftId = optional(formData, "aiDraftId");
+    let message = "저장했습니다.";
+    if (aiDraftId) {
+      try {
+        await markAiDraftApplied(aiDraftId);
+      } catch {
+        message = "저장했지만 AI 기록 상태를 갱신하지 못했습니다.";
+      }
+    }
     refreshWorkItems();
-    return { status: "success", message: "저장했습니다." };
+    return { status: "success", message };
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "저장하지 못했습니다." };
   }

@@ -6,6 +6,7 @@ import { MobileCreateButton } from "@/components/layout/mobile-create-button";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/briefing",
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
 
 describe("AppShell", () => {
@@ -44,5 +45,28 @@ describe("AppShell", () => {
 
     fireEvent.keyDown(document, { key: "Escape" });
     expect(launcher).toHaveFocus();
+  });
+
+  it("moves a confirmed AI task draft into the existing create form", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ mode: "mock", action: {
+        action: "create_task", title: "약품 점검", description: "월간 재고 점검",
+        category: "medication", priority: "high", scheduled_date: "2026-07-20",
+        due_date: "2026-07-21", recurrence: "monthly", checklist: ["재고 확인"],
+      } }),
+    }));
+    render(<AppShell><main>본문</main></AppShell>);
+    fireEvent.click(screen.getByRole("button", { name: "AI 업무 도우미" }));
+    fireEvent.change(screen.getByLabelText("AI 요청"), { target: { value: "매월 약품 점검 업무 만들어줘" } });
+    fireEvent.click(screen.getByRole("button", { name: "초안 만들기" }));
+    expect(await screen.findByText("구조화된 미리보기")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "생성 폼에서 확인" }));
+
+    expect(screen.getByRole("dialog", { name: "새로 만들기" })).toBeInTheDocument();
+    expect(screen.getByLabelText("제목")).toHaveValue("약품 점검");
+    expect(screen.getByLabelText("수행일")).toHaveValue("2026-07-20");
+    expect(screen.getByLabelText("마감일")).toHaveValue("2026-07-21");
+    expect(screen.getByLabelText("체크리스트 1")).toHaveValue("재고 확인");
   });
 });
