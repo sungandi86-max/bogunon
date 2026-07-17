@@ -37,11 +37,11 @@
   .ai-preview > textarea { max-height: 18dvh; min-height: 96px; }
   .app-shell { padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom)); }
   .global-navigation { display: none; }
-  .mobile-navigation { align-items: stretch; background: var(--surface); border-top: 1px solid var(--line); bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); left: 0; padding-bottom: env(safe-area-inset-bottom); position: fixed; right: 0; z-index: 40; }
+  .mobile-navigation { align-items: stretch; background: var(--sidebar-surface); border-top: 1px solid var(--line); bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); left: 0; padding-bottom: env(safe-area-inset-bottom); position: fixed; right: 0; z-index: 40; }
   .mobile-navigation a { align-items: center; color: var(--ink-500); display: flex; flex-direction: column; font-size: var(--text-xs); font-weight: var(--weight-semibold); gap: var(--space-2); justify-content: center; min-height: var(--mobile-nav-height); position: relative; }
   .mobile-navigation a svg { height: 20px; width: 20px; }
   .mobile-navigation a[aria-current="page"] { color: var(--brand-900); }
-  .mobile-navigation a[aria-current="page"]::before { background: var(--action-700); content: ""; height: 2px; left: 26%; position: absolute; right: 26%; top: 0; }
+  .mobile-navigation a[aria-current="page"]::before { background: var(--action-500); content: ""; height: 2px; left: 26%; position: absolute; right: 26%; top: 0; }
   .page-canvas { margin-left: 0; padding: var(--space-7) var(--space-6) var(--space-12); }
   .page-header { align-items: center; min-height: var(--mobile-header-height); margin-bottom: var(--space-6); }
   .page-header h1 { font-size: var(--text-xl); line-height: var(--leading-heading); }
@@ -80,7 +80,7 @@
   .week-strip-day small { font-size: var(--text-xs); }
   .week-strip-day strong { font-size: var(--text-base); margin-top: var(--space-1); }
   .week-strip-day.is-selected { background: var(--action-50); border-color: var(--action-700); color: var(--brand-900); }
-  .week-strip-day.is-today::after { background: var(--brand-900); border-radius: 999px; content: ""; height: 4px; position: absolute; right: 7px; top: 7px; width: 4px; }
+  .week-strip-day.is-today strong { align-items: center; background: var(--action-500); border-radius: 999px; color: var(--brand-950); display: inline-flex; height: 26px; justify-content: center; width: 26px; }
   .week-strip-markers { display: flex; gap: 2px; height: 4px; margin-top: 3px; }
   .calendar-page { min-height: calc(100dvh - var(--mobile-nav-height)); }
   .calendar-view-switch { display: none; }
@@ -142,4 +142,5 @@
   .exercise-card { padding: var(--space-7); }
   .exercise-card__schedule, .exercise-card__meta { align-items: flex-start; flex-direction: column; gap: var(--space-3); }
   .exercise-card__more > div { max-width: calc(100vw - (var(--space-6) * 2)); position: fixed; right: var(--space-6); top: 22vh; width: 220px; }
+  button, .quick-input-box__heading .button { min-height: var(--touch-target); }
 }

@@ -1,7 +1,7 @@
-.overlay { background: rgb(16 31 51 / 0.24); inset: 0; position: fixed; z-index: 50; }
+.overlay { background: rgb(36 50 71 / 0.18); inset: 0; position: fixed; z-index: 50; }
 .detail-panel { background: var(--surface); border-left: 1px solid var(--line); bottom: 0; box-shadow: var(--shadow-panel); display: flex; flex-direction: column; max-width: 480px; position: absolute; right: 0; top: 0; width: min(460px, 100%); }
 .detail-panel__header { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; min-height: 60px; padding: var(--space-6) var(--space-8); }
-.detail-panel__header h2 { font-size: var(--text-lg); font-weight: var(--weight-bold); margin: 0; }
+.detail-panel__header h2 { color: var(--brand-950); font-size: var(--text-card); font-weight: var(--weight-bold); margin: 0; }
 .detail-panel__body { flex: 1; overflow-y: auto; padding: var(--space-8); }
 .detail-panel__footer { border-top: 1px solid var(--line); display: flex; gap: var(--space-5); justify-content: flex-end; padding: var(--space-6) var(--space-8); }
 .create-type-options { border: 0; margin: 0 0 var(--space-10); padding: 0; }
@@ -78,7 +78,7 @@
 .ai-preview h3 { font-size: var(--text-base); margin: var(--space-2) 0 0; }
 .ai-preview header > strong { background: var(--action-50); color: var(--action-700); font-size: var(--text-xs); padding: var(--space-2) var(--space-4); }
 .ai-preview > p { color: var(--ink-500); font-size: var(--text-xs); margin: 0; padding: var(--space-4) var(--space-5); }
-.ai-preview > textarea { background: #111c2d; border: 0; color: #d9e7e5; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: var(--text-xs); line-height: 1.55; max-height: 32dvh; min-height: 180px; padding: var(--space-5); resize: vertical; width: 100%; }
+.ai-preview > textarea { background: var(--surface-subtle); border: 0; color: var(--ink-700); font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: var(--text-xs); line-height: 1.55; max-height: 32dvh; min-height: 180px; padding: var(--space-5); resize: vertical; width: 100%; }
 .ai-preview__actions { border-top: 1px solid var(--line); justify-content: flex-end; padding: var(--space-4) var(--space-5); }
 .ai-confirmed { align-items: center; background: var(--success-soft); color: var(--success); display: flex; font-size: var(--text-sm); gap: var(--space-3); margin: 0; padding: var(--space-5); }
 @keyframes ai-spin { to { transform: rotate(360deg); } }
