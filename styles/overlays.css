@@ -19,7 +19,8 @@
 .login-page { align-items: center; display: grid; min-height: 100dvh; padding: 32px 16px; }
 .login-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); margin: 0 auto; max-width: 440px; padding: 34px; width: 100%; }
 .login-card .wordmark { margin: 0 0 34px; }
-.login-card h1 { color: var(--brand-950); font-size: 24px; line-height: 34px; margin: 0; }
-.login-card__description { color: var(--ink-700); font-size: 16px; margin: 10px 0 26px; }
+.login-card h1 { color: var(--brand-950); font-size: 24px; line-height: 34px; margin: 0; word-break: keep-all; }
+.login-card__description { color: var(--ink-700); font-size: 16px; margin: 10px 0 26px; word-break: keep-all; }
 .google-button { width: 100%; }
-.login-privacy { border-top: 1px solid var(--line); color: var(--ink-700); font-size: 12px; margin: 26px 0 0; padding-top: 20px; }
+.auth-error { background: var(--danger-soft); border-left: 3px solid var(--danger); color: var(--danger); font-size: 13px; margin: 0 0 16px; padding: 10px 12px; word-break: keep-all; }
+.login-privacy { border-top: 1px solid var(--line); color: var(--ink-700); font-size: 12px; margin: 26px 0 0; padding-top: 20px; word-break: keep-all; }

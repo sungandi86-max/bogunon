@@ -9,12 +9,16 @@ import { GlobalNavigation } from "@/components/layout/global-navigation";
 import { MobileBottomNavigation } from "@/components/layout/mobile-bottom-navigation";
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
 import { Button } from "@/components/ui/button";
+import type { AuthProfile } from "@/lib/auth/profile";
 
 interface AppShellProps {
   readonly children: ReactNode;
+  readonly profile?: AuthProfile;
 }
 
-export function AppShell({ children }: AppShellProps) {
+const fallbackProfile: AuthProfile = { email: "Google 계정", initial: "보" };
+
+export function AppShell({ children, profile = fallbackProfile }: AppShellProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const createButtonRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -27,7 +31,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <AppShellCreateContext value={{ openCreate }}>
       <div className="app-shell">
-        <GlobalNavigation onCreate={openCreate} />
+        <GlobalNavigation onCreate={openCreate} profile={profile} />
         {children}
         <MobileBottomNavigation />
         <ResponsiveDetailPanel

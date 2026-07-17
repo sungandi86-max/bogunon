@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import type { AuthProfile } from "@/lib/auth/profile";
 
 const links = [
   ["브리핑", "/briefing"],
@@ -16,9 +17,10 @@ const links = [
 
 interface GlobalNavigationProps {
   readonly onCreate: (trigger: HTMLButtonElement) => void;
+  readonly profile: AuthProfile;
 }
 
-export function GlobalNavigation({ onCreate }: GlobalNavigationProps) {
+export function GlobalNavigation({ onCreate, profile }: GlobalNavigationProps) {
   const pathname = usePathname();
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -66,12 +68,14 @@ export function GlobalNavigation({ onCreate }: GlobalNavigationProps) {
               className="profile-button"
               onClick={() => setProfileOpen((current) => !current)}
               type="button"
-            >보</button>
+            >{profile.initial}</button>
             {profileOpen && (
               <div className="profile-popover" role="menu">
-                <p><strong>보건교사</strong><span>teacher@school.example</span></p>
+                <p><strong>Google 계정</strong><span>{profile.email}</span></p>
                 <Link href="/settings" role="menuitem">설정</Link>
-                <button role="menuitem" type="button">로그아웃</button>
+                <form action="/auth/logout" method="post">
+                  <button role="menuitem" type="submit">로그아웃</button>
+                </form>
               </div>
             )}
           </div>
