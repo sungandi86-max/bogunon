@@ -6,6 +6,7 @@ import { useActionState, useEffect, useState } from "react";
 
 import { saveWorkItemAction } from "@/app/(app)/work-item-actions";
 import type { WorkItemActionState } from "@/app/(app)/work-item-actions";
+import { TASK_CATEGORY_OPTIONS } from "@/lib/work-items/categories";
 import type { EventRow, TaskRow } from "@/types/database";
 
 interface CreateItemFormProps {
@@ -25,6 +26,8 @@ export function CreateItemForm({ defaultKind = "task", initialItem, onSaved, tit
   const initialKind = initialItem && "start_date" in initialItem ? "event" : defaultKind;
   const [kind, setKind] = useState<"task" | "event">(initialKind);
   const [allDay, setAllDay] = useState(initialItem && "is_all_day" in initialItem ? initialItem.is_all_day : true);
+  const initialRecurrence = initialItem && "recurrence_frequency" in initialItem ? initialItem.recurrence_frequency ?? "" : "";
+  const [recurrence, setRecurrence] = useState(initialRecurrence);
   const [state, action, pending] = useActionState(saveWorkItemAction, initialWorkItemActionState);
 
   useEffect(() => { if (state.status === "success") onSaved?.(); }, [onSaved, state.status]);
@@ -53,9 +56,11 @@ export function CreateItemForm({ defaultKind = "task", initialItem, onSaved, tit
       </div>
       {kind === "task" ? (
         <div className="form-grid">
+          <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-category`}>업무 카테고리</label><select defaultValue={task?.category ?? "other"} id={`${initialItem?.id ?? "create"}-category`} name="category">{TASK_CATEGORY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
           <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-status`}>상태</label><select defaultValue={task?.status ?? "planned"} id={`${initialItem?.id ?? "create"}-status`} name="status"><option value="planned">예정</option><option value="inProgress">진행 중</option><option value="waitingForReply">회신 대기</option><option value="needsCheck">확인 필요</option><option value="onHold">보류</option><option value="completed">완료</option></select></div>
           <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-priority`}>우선순위</label><select defaultValue={task?.priority ?? "normal"} id={`${initialItem?.id ?? "create"}-priority`} name="priority"><option value="high">높음</option><option value="normal">보통</option><option value="low">낮음</option></select></div>
-          <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-scheduled`}>수행일</label><input defaultValue={task?.scheduled_date ?? ""} id={`${initialItem?.id ?? "create"}-scheduled`} name="scheduledDate" type="date" /></div>
+          <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-recurrence`}>반복</label><select id={`${initialItem?.id ?? "create"}-recurrence`} name="recurrenceFrequency" onChange={(event) => setRecurrence(event.target.value)} value={recurrence}><option value="">반복 안 함</option><option value="daily">매일</option><option value="weekly">매주</option><option value="monthly">매월</option><option value="yearly">매년</option></select></div>
+          <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-scheduled`}>수행일</label><input defaultValue={task?.scheduled_date ?? ""} id={`${initialItem?.id ?? "create"}-scheduled`} name="scheduledDate" required={Boolean(recurrence)} type="date" />{recurrence && <small className="field-help">반복 생성의 기준일입니다.</small>}</div>
           <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-due`}>마감일</label><input defaultValue={task?.due_date ?? ""} id={`${initialItem?.id ?? "create"}-due`} name="dueDate" type="date" /></div>
           <div className="field"><label className="field-label" htmlFor={`${initialItem?.id ?? "create"}-followup`}>후속 확인일</label><input defaultValue={task?.follow_up_date ?? ""} id={`${initialItem?.id ?? "create"}-followup`} name="followUpDate" type="date" /></div>
         </div>

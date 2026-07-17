@@ -11,5 +11,5 @@ export default async function CalendarPage() {
   const month = today.slice(0, 7);
   const { first, last } = monthRange(today);
   const events = await listEvents(first, last);
-  return <main className="calendar-page"><div className="page-canvas"><PageHeader action={<MobileCreateButton />} description="등록한 일정을 월간 달력에서 확인하고 관리합니다." title="캘린더" /><div className="calendar-toolbar calendar-page-toolbar"><strong>{month.replace("-", "년 ")}월</strong><CalendarCreateButton /></div><FullMonthCalendar events={events} month={month} /><EventList events={events} /></div></main>;
+  return <main className="calendar-page"><div className="page-canvas"><PageHeader action={<MobileCreateButton kind="event" />} description="등록한 일정을 월간 달력에서 확인하고 관리합니다." title="캘린더" /><div className="calendar-toolbar calendar-page-toolbar"><strong>{month.replace("-", "년 ")}월</strong><CalendarCreateButton /></div><FullMonthCalendar events={events} month={month} /><EventList events={events} /></div></main>;
 }

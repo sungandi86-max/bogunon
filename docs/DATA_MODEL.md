@@ -121,6 +121,28 @@ export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 export const TASK_PRIORITIES = ["low", "normal", "high"] as const;
 export type TaskPriority = (typeof TASK_PRIORITIES)[number];
+
+export const TASK_CATEGORIES = [
+  "studentHealthScreening",
+  "additionalScreening",
+  "infectiousDisease",
+  "firstAid",
+  "medication",
+  "officialDocument",
+  "training",
+  "event",
+  "counseling",
+  "other",
+] as const;
+export type TaskCategory = (typeof TASK_CATEGORIES)[number];
+
+export const RECURRENCE_FREQUENCIES = [
+  "daily",
+  "weekly",
+  "monthly",
+  "yearly",
+] as const;
+export type RecurrenceFrequency = (typeof RECURRENCE_FREQUENCIES)[number];
 ```
 
 신규 할 일의 기본 우선순위는 `normal`이다.
@@ -182,6 +204,7 @@ export interface Task extends UserOwnedEntity {
   area: Area;
   status: TaskStatus;
   priority: TaskPriority;
+  category: TaskCategory;
   tags?: string[];
   color?: string;
   attachments?: Attachment[];
@@ -196,6 +219,10 @@ export interface Task extends UserOwnedEntity {
   linkedEventId?: UUID;
   linkedProjectId?: UUID;
   completedAt?: ISODateTime;
+  recurrenceFrequency?: RecurrenceFrequency;
+  recurrenceSourceId?: UUID;
+  recurrenceDate?: LocalDate;
+  recurrenceGeneratedThrough?: LocalDate;
 }
 ```
 
@@ -208,6 +235,11 @@ export interface Task extends UserOwnedEntity {
 - MVP에서 `attachments`는 생략하거나 빈 배열만 허용한다.
 - ChecklistItem의 `userId`와 Task의 `userId`는 같아야 한다.
 - `linkedEventId`와 `linkedProjectId`는 같은 사용자 소유 행만 참조한다.
+- 카테고리는 학생건강검진·별도검사·감염병·응급처치·약품관리·공문·연수·행사·상담·기타 중 하나다.
+- 반복 업무는 수행일을 기준으로 하며 같은 사용자·반복 원본·수행일 조합을 중복 생성하지 않는다.
+- 반복 원본은 마지막 생성 완료일을 기록하여 사용자가 삭제한 과거 반복 인스턴스를 다시 만들지 않는다.
+- 반복 원본 삭제 시 해당 원본에서 자동 생성된 업무도 함께 삭제한다.
+- 반복 템플릿과 자동 반복 업무는 별도 개념이다.
 
 ## 10. 오늘 꼭 끝낼 일 지정
 
@@ -253,7 +285,7 @@ export interface RepeatTaskTemplate extends UserOwnedEntity {
 }
 ```
 
-복사 시 새 Task와 ChecklistItem을 현재 사용자 소유로 생성한다. 자동 생성과 원본-복사본 동기화는 없다.
+복사 시 새 Task와 ChecklistItem을 현재 사용자 소유로 생성한다. 템플릿의 자동 복사와 원본-복사본 동기화는 없다.
 
 ## 12. 운동 기록
 

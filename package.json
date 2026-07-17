@@ -11,9 +11,11 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
-    "test:auth": "vitest run lib/auth lib/supabase components/auth app/auth"
+    "test:auth": "vitest run lib/auth lib/supabase components/auth app/auth",
+    "test:db": "supabase test db"
   },
   "dependencies": {
+    "@fontsource/pretendard": "^5.2.5",
     "@supabase/ssr": "0.12.3",
     "@supabase/supabase-js": "2.110.7",
     "class-variance-authority": "0.7.1",

@@ -33,7 +33,7 @@ npm run build
 | 1 | App Shell·정적 디자인 시스템 | PC·모바일 시각 검증 |
 | 2 | Google 로그인·세션 | 로그인·보호·로그아웃 |
 | 3 | DB Schema·RLS | A/B/비로그인 보안 테스트 |
-| 4 | Repository·도메인 계층 | 매핑·검증·충돌 단위 테스트 |
+| 4 | 보건교사 업무 운영 고도화 | 카테고리·반복·브리핑·검색·필터 |
 | 5 | 할 일·오늘 꼭 끝낼 일 | CRUD·상태·3개 제한 |
 | 6 | 일정·브리핑 달력 | 일정 CRUD·축소 달력·주간 스트립 |
 | 7 | 전체 캘린더 | 월간·주간·목록·필터 |
@@ -407,78 +407,75 @@ feat: implement tasks and calendar mvp
 
 Phase 4 이후의 repository 확장, 체크리스트, 별도 `daily_focus_assignments`, 운동 기록, 프로젝트, 반복 업무는 Phase 3 완료에 포함하지 않는다. 아래 후속 Phase의 업무·일정 항목 중 Phase 3에서 이미 제공한 기본 CRUD·브리핑·월간 표시는 재구현하지 않고 고급 기능만 확장한다.
 
-## 9. Phase 4 — Repository와 도메인 계층
+## 9. Phase 4 — 보건교사 업무 운영 고도화
 
 ### 목표
 
-화면과 Supabase를 분리하고 검증 가능한 도메인 접근 계층을 구현한다.
+일반 일정관리 기능을 넘어 보건교사가 매일 사용하는 업무를 분류하고 반복·검색·브리핑으로 빠르게 운영할 수 있게 한다.
 
 ### 구현 범위
 
-- 도메인 타입
-- Runtime Validation
-- EventRepository
-- TaskRepository
-- DailyFocusRepository
-- TemplateRepository
-- ExerciseRepository
-- ProjectRepository
-- QuickMemoRepository
-- SettingsRepository
-- AuthContext
-- DraftCache
-- camelCase ↔ snake_case Adapter
-- Result와 오류 매핑
-- 날짜 계산 유틸리티
-- `updatedAt` 기반 충돌 처리 기반
+- Task 전용 10개 업무 카테고리와 카테고리 색상
+- 매일·매주·매월·매년 반복 주기
+- 로그인 후 브리핑·업무 진입 시 누락 반복 업무 자동 생성
+- 반복 발생일 중복 방지와 월·연 무효 날짜 건너뛰기
+- 실제 데이터 기반 오늘 해야 할 일·오늘 일정·우선 업무·회신 대기 상세 목록
+- 업무·일정 제목과 메모의 입력 즉시 검색
+- 카테고리·완료 여부·기간·우선순위 필터
+- 기존 Task/Event CRUD와 RLS 유지
+- Desktop 3열 Dashboard와 Mobile Bottom Navigation 유지
 
 ### 생성 또는 수정 파일
 
-- `domain/types/*`
-- `domain/validation/*`
-- `domain/date/*`
-- `repositories/interfaces/*`
-- `repositories/supabase/*`
-- `repositories/mappers/*`
-- `lib/auth-context.ts`
-- `lib/draft-cache.ts`
-- 단위 테스트
+- Phase 4 migration과 DB 보안 테스트
+- Task/Event 타입과 데이터 접근
+- 업무 생성·수정 폼
+- 업무 검색·필터 컴포넌트
+- 브리핑 운영 열
+- 카테고리·반복·검색 단위 테스트
+- 관련 제품·화면·데이터·디자인 문서
 
 ### 제외 범위
 
-- 전체 화면 CRUD 연결
-- 범용 CRUD 프레임워크
-- localStorage 도메인 Repository
-- 오프라인 쓰기 큐
+- Supabase Realtime 구독
+- Quick Memo 테이블과 CRUD
+- 반복 업무 템플릿 복사
+- Google Calendar Sync
+- AI 자동 분류
+- 운동·프로젝트 DB
+- 알림·예약 작업·오프라인 큐
 
 ### 완료 조건
 
-- UI 코드가 테이블 snake_case를 직접 다루지 않는다.
-- 모든 Repository가 Result 스타일을 사용한다.
-- 인증되지 않은 호출이 명확한 오류로 반환된다.
-- 매퍼 왕복 변환이 데이터 손실 없이 동작한다.
-- 날짜·마감·후속 확인 계산이 `Asia/Seoul` 기준이다.
-- 충돌 시 자동 덮어쓰지 않는 결과를 반환한다.
+- 모든 Task가 10개 카테고리 중 하나를 저장하고 색상 라벨로 표시한다.
+- 매일·매주·매월·매년 반복 업무가 기준일까지 중복 없이 생성된다.
+- 오늘 브리핑이 숫자와 함께 실제 업무·일정 제목과 시간을 표시한다.
+- 검색이 Task·Event 제목과 각 메모 필드를 입력 즉시 찾는다.
+- 네 필터를 조합해도 결과가 일관된다.
+- 기존 CRUD, RLS, Desktop 3열과 Mobile Bottom Navigation이 유지된다.
+- Pretendard와 공통 타이포·간격·반경·색상·그림자·포커스 토큰을 모든 Phase 4 화면에 적용한다.
+- Desktop·Tablet·Mobile에서 카드 밀도, 캘린더 셀, 사이드바와 하단 내비게이션이 같은 디자인 언어를 유지한다.
 
 ### 자동 검증
 
 ```bash
+npm run lint -- --max-warnings=0
 npm run typecheck
-npm run lint
-npm run test -- domain repositories
+npm run test
+npm run test:db
 npm run build
 ```
 
 ### 수동 검증
 
-- Repository 오류가 사용자 입력 원문을 포함하지 않는지 확인한다.
-- localStorage에 도메인 데이터 전체가 저장되지 않는지 확인한다.
-- Supabase 행과 도메인 객체의 날짜·열거 값이 일치하는지 확인한다.
+- Desktop·Tablet·Mobile에서 검색·필터·반복 폼과 브리핑을 확인한다.
+- 반복 업무 생성 후 새로고침과 재진입에서 중복이 없는지 확인한다.
+- 학생 개인정보용 필드와 예시가 없는지 확인한다.
 
 ### 커밋 예시
 
 ```text
-feat: implement domain repositories and validation
+feat: add recurring tasks and category system
 ```
 
 ## 10. Phase 5 — 할 일과 오늘 꼭 끝낼 일

@@ -1,5 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
-import type { EventRow, TaskRow } from "@/types/database";
+import { occurrenceDatesThrough, shiftFromAnchor } from "@/lib/work-items/recurrence";
+import type { Database, EventRow, TaskRow } from "@/types/database";
+
+type TaskWriteValues = Omit<
+  TaskRow,
+  "id" | "user_id" | "created_at" | "updated_at" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through"
+>;
+type DatabaseTaskInsert = Database["public"]["Tables"]["tasks"]["Insert"];
 
 async function ownedClient() {
   const supabase = await createClient();
@@ -22,13 +29,103 @@ export async function listEvents(first: string, last: string): Promise<EventRow[
   return data;
 }
 
-export async function saveTask(values: Omit<TaskRow, "id" | "user_id" | "created_at" | "updated_at">, id?: string) {
+export async function listAllEvents(): Promise<EventRow[]> {
   const { supabase, userId } = await ownedClient();
+  const { data, error } = await supabase.from("events").select("*").eq("user_id", userId).order("start_date", { ascending: false });
+  if (error) throw new Error("일정을 불러오지 못했습니다.");
+  return data;
+}
+
+export async function saveTask(values: TaskWriteValues, id?: string) {
+  const { supabase, userId } = await ownedClient();
+  const recurrenceDate = values.recurrence_frequency ? values.scheduled_date : null;
+  let recurrenceGeneratedThrough = recurrenceDate;
+  if (id) {
+    const { data: current, error } = await supabase
+      .from("tasks")
+      .select("recurrence_date,recurrence_frequency,recurrence_generated_through")
+      .eq("id", id)
+      .eq("user_id", userId)
+      .single();
+    if (error) throw new Error("업무를 확인하지 못했습니다.");
+    const recurrenceChanged = current.recurrence_date !== recurrenceDate
+      || current.recurrence_frequency !== values.recurrence_frequency;
+    recurrenceGeneratedThrough = recurrenceChanged
+      ? recurrenceDate
+      : current.recurrence_generated_through;
+  }
   const query = id
-    ? supabase.from("tasks").update(values).eq("id", id).eq("user_id", userId)
-    : supabase.from("tasks").insert({ ...values, user_id: userId });
+    ? supabase.from("tasks").update({
+      ...values,
+      recurrence_date: recurrenceDate,
+      recurrence_generated_through: recurrenceGeneratedThrough,
+    }).eq("id", id).eq("user_id", userId)
+    : supabase.from("tasks").insert({
+      ...values,
+      user_id: userId,
+      recurrence_source_id: null,
+      recurrence_date: recurrenceDate,
+      recurrence_generated_through: recurrenceGeneratedThrough,
+    });
   const { error } = await query;
   if (error) throw new Error("업무를 저장하지 못했습니다.");
+}
+
+export async function ensureRecurringTasks(throughDate: string): Promise<void> {
+  const { supabase, userId } = await ownedClient();
+  const { data: roots, error: rootsError } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("user_id", userId)
+    .is("recurrence_source_id", null)
+    .not("recurrence_frequency", "is", null)
+    .lte("recurrence_date", throughDate);
+  if (rootsError) throw new Error("반복 업무를 확인하지 못했습니다.");
+  if (!roots.length) return;
+
+  const inserts: DatabaseTaskInsert[] = [];
+  const generatedThroughUpdates: Array<{ id: string; date: string }> = [];
+  for (const root of roots) {
+    if (!root.recurrence_frequency || !root.recurrence_date) continue;
+    const generationAnchor = root.recurrence_generated_through ?? root.recurrence_date;
+    const occurrenceDates = occurrenceDatesThrough(generationAnchor, throughDate, root.recurrence_frequency);
+    for (const occurrenceDate of occurrenceDates) {
+      inserts.push({
+        user_id: userId,
+        title: root.title,
+        area: root.area,
+        status: "planned",
+        priority: root.priority,
+        category: root.category,
+        scheduled_date: occurrenceDate,
+        due_date: shiftFromAnchor(root.recurrence_date, root.due_date, occurrenceDate),
+        follow_up_date: shiftFromAnchor(root.recurrence_date, root.follow_up_date, occurrenceDate),
+        memo: root.memo,
+        completed_at: null,
+        recurrence_frequency: root.recurrence_frequency,
+        recurrence_source_id: root.id,
+        recurrence_date: occurrenceDate,
+        recurrence_generated_through: null,
+      });
+    }
+    const lastOccurrenceDate = occurrenceDates.at(-1);
+    if (lastOccurrenceDate) generatedThroughUpdates.push({ id: root.id, date: lastOccurrenceDate });
+  }
+  if (inserts.length) {
+    const { error } = await supabase.from("tasks").upsert(inserts, {
+      onConflict: "user_id,recurrence_source_id,recurrence_date",
+      ignoreDuplicates: true,
+    });
+    if (error) throw new Error("반복 업무를 생성하지 못했습니다.");
+  }
+  for (const update of generatedThroughUpdates) {
+    const { error } = await supabase
+      .from("tasks")
+      .update({ recurrence_generated_through: update.date })
+      .eq("id", update.id)
+      .eq("user_id", userId);
+    if (error) throw new Error("반복 업무 생성 상태를 저장하지 못했습니다.");
+  }
 }
 
 export async function saveEvent(values: Omit<EventRow, "id" | "user_id" | "created_at" | "updated_at">, id?: string) {

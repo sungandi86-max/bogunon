@@ -1,6 +1,21 @@
 export type Area = "healthWork" | "schoolSchedule" | "exercise" | "personal" | "project";
 export type TaskStatus = "planned" | "inProgress" | "waitingForReply" | "needsCheck" | "completed" | "onHold";
 export type TaskPriority = "low" | "normal" | "high";
+export const TASK_CATEGORIES = [
+  "studentHealthScreening",
+  "additionalScreening",
+  "infectiousDisease",
+  "firstAid",
+  "medication",
+  "officialDocument",
+  "training",
+  "event",
+  "counseling",
+  "other",
+] as const;
+export type TaskCategory = (typeof TASK_CATEGORIES)[number];
+export const RECURRENCE_FREQUENCIES = ["daily", "weekly", "monthly", "yearly"] as const;
+export type RecurrenceFrequency = (typeof RECURRENCE_FREQUENCIES)[number];
 
 export type TaskRow = {
   id: string;
@@ -9,11 +24,16 @@ export type TaskRow = {
   area: Area;
   status: TaskStatus;
   priority: TaskPriority;
+  category: TaskCategory;
   scheduled_date: string | null;
   due_date: string | null;
   follow_up_date: string | null;
   memo: string | null;
   completed_at: string | null;
+  recurrence_frequency: RecurrenceFrequency | null;
+  recurrence_source_id: string | null;
+  recurrence_date: string | null;
+  recurrence_generated_through: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,7 +60,7 @@ export type Database = {
     Tables: {
       tasks: {
         Row: TaskRow;
-        Insert: Insert<TaskRow, "id" | "status" | "priority" | "scheduled_date" | "due_date" | "follow_up_date" | "memo" | "completed_at" | "created_at" | "updated_at">;
+        Insert: Insert<TaskRow, "id" | "status" | "priority" | "category" | "scheduled_date" | "due_date" | "follow_up_date" | "memo" | "completed_at" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "created_at" | "updated_at">;
         Update: Partial<TaskRow>;
         Relationships: [];
       };

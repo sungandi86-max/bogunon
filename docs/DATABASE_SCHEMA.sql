@@ -1,6 +1,6 @@
 -- 보건온 장기 목표 Supabase PostgreSQL 스키마 참고안
 -- 실행 migration의 현재 범위는 ROADMAP.md와 supabase/migrations/를 기준으로 한다.
--- Phase 3에서는 tasks와 events만 구현하며 나머지 테이블은 후속 Phase 전까지 실행하지 않는다.
+-- Phase 4에서는 tasks의 카테고리·반복 필드를 확장하며, tasks/events 이외 테이블은 후속 Phase 전까지 실행하지 않는다.
 
 begin;
 
@@ -140,6 +140,13 @@ create table public.tasks (
     status in ('planned', 'inProgress', 'waitingForReply', 'needsCheck', 'completed', 'onHold')
   ),
   priority text not null default 'normal' check (priority in ('low', 'normal', 'high')),
+  category text not null default 'other' check (
+    category in (
+      'studentHealthScreening', 'additionalScreening', 'infectiousDisease',
+      'firstAid', 'medication', 'officialDocument', 'training', 'event',
+      'counseling', 'other'
+    )
+  ),
   tags text[] check (public.valid_text_tags(tags)),
   color text check (color is null or color ~ '^#[0-9A-Fa-f]{6}$'),
   attachments jsonb check (
@@ -160,9 +167,21 @@ create table public.tasks (
   linked_event_id uuid,
   linked_project_id uuid,
   completed_at timestamptz,
+  recurrence_frequency text check (
+    recurrence_frequency is null
+    or recurrence_frequency in ('daily', 'weekly', 'monthly', 'yearly')
+  ),
+  recurrence_source_id uuid,
+  recurrence_date date,
+  recurrence_generated_through date,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint tasks_user_id_id_key unique (user_id, id),
+  constraint tasks_recurrence_occurrence_key unique (
+    user_id, recurrence_source_id, recurrence_date
+  ),
+  constraint tasks_recurrence_source_fk foreign key (user_id, recurrence_source_id)
+    references public.tasks(user_id, id) on delete cascade,
   constraint tasks_linked_event_fk foreign key (user_id, linked_event_id)
     references public.events(user_id, id) on delete set null (linked_event_id),
   constraint tasks_linked_project_fk foreign key (user_id, linked_project_id)
@@ -170,6 +189,27 @@ create table public.tasks (
   constraint tasks_completed_at_check check (
     (status = 'completed' and completed_at is not null)
     or (status <> 'completed' and completed_at is null)
+  ),
+  constraint tasks_recurrence_check check (
+    (
+      recurrence_frequency is null
+      and recurrence_source_id is null
+      and recurrence_date is null
+      and recurrence_generated_through is null
+    )
+    or (
+      recurrence_frequency is not null
+      and scheduled_date is not null
+      and recurrence_date = scheduled_date
+      and (
+        (
+          recurrence_source_id is null
+          and recurrence_generated_through is not null
+          and recurrence_generated_through >= recurrence_date
+        )
+        or (recurrence_source_id is not null and recurrence_generated_through is null)
+      )
+    )
   )
 );
 

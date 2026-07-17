@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { saveWorkItemAction } from "@/app/(app)/work-item-actions";
 import { deleteWorkItemAction, toggleTaskAction } from "@/app/(app)/work-item-actions";
@@ -13,6 +13,10 @@ vi.mock("@/lib/work-items/repository", () => ({
 }));
 
 describe("saveWorkItemAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("rejects an empty title before database access", async () => {
     const formData = new FormData();
     formData.set("kind", "task");
@@ -44,10 +48,26 @@ describe("saveWorkItemAction", () => {
     formData.set("area", "healthWork");
     formData.set("status", "waitingForReply");
     formData.set("priority", "high");
+    formData.set("category", "officialDocument");
     formData.set("dueDate", "2026-07-17");
 
     await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({ status: "success", message: "저장했습니다." });
-    expect(vi.mocked(saveTask)).toHaveBeenCalledWith(expect.objectContaining({ title: "보건교육 결과 제출", status: "waitingForReply", priority: "high", due_date: "2026-07-17" }), undefined);
+    expect(vi.mocked(saveTask)).toHaveBeenCalledWith(expect.objectContaining({ title: "보건교육 결과 제출", status: "waitingForReply", priority: "high", category: "officialDocument", due_date: "2026-07-17" }), undefined);
+  });
+
+  it("requires a scheduled date for a recurring task", async () => {
+    const formData = new FormData();
+    formData.set("kind", "task");
+    formData.set("title", "약품 점검");
+    formData.set("area", "healthWork");
+    formData.set("category", "medication");
+    formData.set("recurrenceFrequency", "monthly");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "error",
+      message: "반복 업무는 수행일을 입력해 주세요.",
+    });
+    expect(vi.mocked(saveTask)).not.toHaveBeenCalled();
   });
 
   it("saves an all-day event through the shared action", async () => {

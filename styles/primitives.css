@@ -4,12 +4,12 @@
   border-radius: var(--radius-md);
   cursor: pointer;
   display: inline-flex;
-  font-size: 13px;
-  font-weight: 650;
-  gap: 8px;
-  height: 40px;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  gap: var(--space-4);
+  height: var(--control-lg);
   justify-content: center;
-  padding: 0 16px;
+  padding: 0 var(--space-8);
   transition: background-color 120ms ease-out, border-color 120ms ease-out,
     color 120ms ease-out, transform 120ms ease-out;
 }
@@ -22,18 +22,18 @@
 .button--ghost { background: transparent; color: var(--brand-800); padding-inline: 10px; }
 .button--ghost:hover:not(:disabled) { background: var(--brand-50); }
 .button--danger { background: var(--danger); color: var(--surface); }
-.button--icon { height: 40px; padding: 0; width: 40px; }
+.button--icon { height: var(--control-lg); padding: 0; width: var(--control-lg); }
 
 .badge {
   align-items: center;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   display: inline-flex;
-  font-size: 12px;
-  font-weight: 650;
-  gap: 5px;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  gap: var(--space-2);
   height: 24px;
-  padding: 0 8px;
+  padding: 0 var(--space-4);
   white-space: nowrap;
 }
 .badge--health { background: var(--health-soft); color: var(--health); }
@@ -46,21 +46,42 @@
 .badge--deadline { background: var(--deadline-soft); color: var(--deadline); }
 .badge--success { background: var(--success-soft); color: var(--success); }
 .badge--neutral { background: var(--brand-50); color: var(--ink-700); }
+.category-badge {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  height: 22px;
+  padding: 0 var(--space-3);
+  white-space: nowrap;
+}
+.category-badge--studentHealthScreening { background: var(--category-screening-soft); color: var(--category-screening); }
+.category-badge--additionalScreening { background: var(--category-additional-soft); color: var(--category-additional); }
+.category-badge--infectiousDisease { background: var(--category-infectious-soft); color: var(--category-infectious); }
+.category-badge--firstAid { background: var(--category-first-aid-soft); color: var(--category-first-aid); }
+.category-badge--medication { background: var(--category-medication-soft); color: var(--category-medication); }
+.category-badge--officialDocument { background: var(--category-document-soft); color: var(--category-document); }
+.category-badge--training { background: var(--category-training-soft); color: var(--category-training); }
+.category-badge--event { background: var(--category-event-soft); color: var(--category-event); }
+.category-badge--counseling { background: var(--category-counseling-soft); color: var(--category-counseling); }
+.category-badge--other { background: var(--category-other-soft); color: var(--category-other); }
 
 .empty-state, .section-error {
   align-items: flex-start;
   border-top: 1px solid var(--line);
   display: flex;
-  gap: 12px;
-  padding: 20px 0;
+  gap: var(--space-6);
+  padding: var(--space-8) 0;
 }
 .empty-state svg, .section-error svg { color: var(--ink-500); flex: 0 0 auto; margin-top: 2px; }
-.empty-state h3, .section-error h3 { font-size: 14px; margin: 0; }
-.empty-state p, .section-error p { color: var(--ink-700); margin: 4px 0 0; }
+.empty-state h3, .section-error h3 { font-size: var(--text-base); font-weight: var(--weight-semibold); margin: 0; }
+.empty-state p, .section-error p { color: var(--ink-700); font-size: var(--text-md); margin: var(--space-2) 0 0; }
 .section-error { color: var(--danger); }
 .section-error p { color: var(--ink-700); }
 .loading-rows { display: grid; }
-.loading-row { align-items: center; border-top: 1px solid var(--line-subtle); display: grid; gap: 12px; grid-template-columns: 20px 1fr 72px; min-height: 56px; }
+.loading-row { align-items: center; border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-6); grid-template-columns: 20px 1fr 72px; min-height: 48px; }
 .skeleton { animation: pulse 1.4s ease-in-out infinite; background: var(--brand-100); border-radius: var(--radius-sm); height: 12px; }
 .skeleton--square { height: 18px; width: 18px; }
 .skeleton--short { justify-self: end; width: 62px; }

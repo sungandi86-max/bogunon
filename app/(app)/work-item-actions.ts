@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import { removeWorkItem, saveEvent, saveTask, setTaskCompleted } from "@/lib/work-items/repository";
-import type { Area, TaskPriority, TaskStatus } from "@/types/database";
+import {
+  RECURRENCE_FREQUENCIES,
+  TASK_CATEGORIES,
+} from "@/types/database";
+import type { Area, TaskStatus } from "@/types/database";
 
 export interface WorkItemActionState {
   readonly status: "idle" | "success" | "error";
@@ -12,7 +16,7 @@ export interface WorkItemActionState {
 
 const areas = new Set<Area>(["healthWork", "schoolSchedule", "exercise", "personal", "project"]);
 const statuses = new Set<TaskStatus>(["planned", "inProgress", "waitingForReply", "needsCheck", "completed", "onHold"]);
-const priorities = new Set<TaskPriority>(["low", "normal", "high"]);
+const priorities = ["low", "normal", "high"] as const;
 
 function optional(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? "").trim();
@@ -47,13 +51,28 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
       }, id);
     } else {
       const statusValue = String(formData.get("status") ?? "planned") as TaskStatus;
-      const priorityValue = String(formData.get("priority") ?? "normal") as TaskPriority;
-      if (!statuses.has(statusValue) || !priorities.has(priorityValue)) return { status: "error", message: "업무 상태를 확인해 주세요." };
+      const priorityRaw = String(formData.get("priority") ?? "normal");
+      const priorityValue = priorities.find((priority) => priority === priorityRaw);
+      const categoryRaw = String(formData.get("category") ?? "other");
+      const categoryValue = TASK_CATEGORIES.find((category) => category === categoryRaw);
+      const recurrenceValue = optional(formData, "recurrenceFrequency");
+      const recurrenceFrequency = RECURRENCE_FREQUENCIES.find((frequency) => frequency === recurrenceValue) ?? null;
+      const scheduledDate = optional(formData, "scheduledDate");
+      if (!statuses.has(statusValue) || !priorityValue || !categoryValue) {
+        return { status: "error", message: "업무 분류와 상태를 확인해 주세요." };
+      }
+      if (recurrenceValue && !recurrenceFrequency) {
+        return { status: "error", message: "반복 주기를 확인해 주세요." };
+      }
+      if (recurrenceFrequency && !scheduledDate) {
+        return { status: "error", message: "반복 업무는 수행일을 입력해 주세요." };
+      }
       await saveTask({
-        title, area: areaValue, status: statusValue, priority: priorityValue,
-        scheduled_date: optional(formData, "scheduledDate"), due_date: optional(formData, "dueDate"),
+        title, area: areaValue, status: statusValue, priority: priorityValue, category: categoryValue,
+        scheduled_date: scheduledDate, due_date: optional(formData, "dueDate"),
         follow_up_date: optional(formData, "followUpDate"), memo: optional(formData, "memo"),
         completed_at: statusValue === "completed" ? new Date().toISOString() : null,
+        recurrence_frequency: recurrenceFrequency,
       }, id);
     }
     refreshWorkItems();
