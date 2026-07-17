@@ -1,3 +1,5 @@
+import type { WorkflowDatabaseTables } from "@/types/workflows";
+
 export type Area = "healthWork" | "schoolSchedule" | "exercise" | "personal" | "project";
 export type TaskStatus = "planned" | "inProgress" | "waitingForReply" | "needsCheck" | "completed" | "onHold";
 export type TaskPriority = "low" | "normal" | "high";
@@ -132,7 +134,7 @@ type Insert<T, Optional extends keyof T> = Omit<T, Optional> & Partial<Pick<T, O
 
 export type Database = {
   public: {
-    Tables: {
+    Tables: WorkflowDatabaseTables & {
       tasks: {
         Row: TaskRow;
         Insert: Insert<TaskRow, "id" | "status" | "priority" | "category" | "scheduled_date" | "due_date" | "follow_up_date" | "memo" | "description" | "estimated_minutes" | "completed_at" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "created_at" | "updated_at">;
@@ -202,6 +204,12 @@ export type Database = {
         Args: { p_source_id: string; p_date: string | null; p_include_checklist: boolean; p_include_description: boolean; p_include_memo: boolean; p_include_recurrence: boolean };
         Returns: string;
       };
+      save_workflow_template_bundle: { Args: { p_template_id?: string | null; p_values: Json; p_steps: Json; p_followups: Json }; Returns: string };
+      create_workflow_instance_bundle: { Args: { p_task_id: string; p_template_id?: string | null; p_values: Json; p_steps: Json; p_followups: Json }; Returns: string };
+      update_workflow_step_bundle: { Args: { p_step_id: string; p_values: Json; p_checklist: Json; p_links: Json }; Returns: string };
+      transition_workflow_step: { Args: { p_step_id: string; p_target_status: string; p_force?: boolean }; Returns: string };
+      transition_workflow_instance: { Args: { p_instance_id: string; p_target_status: string }; Returns: string };
+      complete_workflow_instance: { Args: { p_instance_id: string }; Returns: string };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

@@ -10,6 +10,7 @@ import type { CompletionFilter, PeriodFilter } from "@/lib/work-items/filters";
 import { TASK_CATEGORIES } from "@/types/database";
 import type { EventRow, TaskCategory, TaskPriority, TaskRow } from "@/types/database";
 import type { WorkflowData } from "@/lib/work-items/phase5-repository";
+import type { HealthWorkflowData } from "@/types/workflows";
 
 const completionOptions = ["all", "open", "completed"] as const;
 const periodOptions = ["all", "today", "week", "month"] as const;
@@ -22,11 +23,13 @@ export function TaskWorkspace({
   tasks,
   today,
   workflow = emptyWorkflow,
+  healthWorkflows,
 }: {
   readonly events: readonly EventRow[];
   readonly tasks: readonly TaskRow[];
   readonly today: string;
   readonly workflow?: WorkflowData;
+  readonly healthWorkflows?: HealthWorkflowData;
 }) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<TaskCategory | "all">("all");
@@ -107,7 +110,7 @@ export function TaskWorkspace({
           {matchingEvents.map((event) => <div key={event.id}><time>{event.start_date}{event.start_time ? ` ${event.start_time.slice(0, 5)}` : ""}</time><strong>{event.title}</strong>{event.memo?.toLocaleLowerCase("ko-KR").includes(query.trim().toLocaleLowerCase("ko-KR")) && <span>메모 일치</span>}</div>)}
         </section>
       )}
-      <TaskList tasks={visibleTasks} workflow={workflow} />
+      <TaskList healthWorkflows={healthWorkflows} tasks={visibleTasks} workflow={workflow} />
     </section>
   );
 }

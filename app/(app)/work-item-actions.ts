@@ -42,6 +42,7 @@ function refreshWorkItems() {
   revalidatePath("/calendar");
   revalidatePath("/annual");
   revalidatePath("/templates");
+  revalidatePath("/workflows");
 }
 
 export async function saveWorkItemAction(_state: WorkItemActionState, formData: FormData): Promise<WorkItemActionState> {

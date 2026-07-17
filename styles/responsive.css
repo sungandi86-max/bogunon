@@ -6,6 +6,9 @@
   .operations-rail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .operations-rail > section + section { border-left: 1px solid var(--line); border-top: 0; }
   .template-grid, .annual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workflow-layout { grid-template-columns: 1fr; }
+  .workflow-template-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); position: static; }
+  .workflow-template-builder { grid-column: 1 / -1; }
 }
 @media (min-width: 768px) and (max-width: 1199px) {
   .global-navigation { width: var(--sidebar-compact-width); }
@@ -110,4 +113,13 @@
   .link-row button { grid-column: 2; grid-row: 1 / 3; height: auto; }
   .quick-preview { grid-template-columns: auto 1fr; }
   .quick-preview > small { grid-column: 2; }
+  .workflow-template-panel { grid-template-columns: 1fr; }
+  .workflow-template-builder { grid-column: auto; }
+  .workflow-filters { align-items: stretch; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workflow-filters select { width: 100%; }
+  .workflow-instance-card { padding: var(--space-5); }
+  .workflow-step__body > div:first-child { align-items: start; flex-direction: column; gap: var(--space-1); }
+  .workflow-briefing__list { grid-template-columns: 1fr; }
+  .workflow-briefing__list > a + a { border-left: 0; }
+  .workflow-form-row { grid-template-columns: 1fr; }
 }

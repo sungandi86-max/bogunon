@@ -1,6 +1,6 @@
 # 보건온
 
-보건교사의 업무, 일정, 운동과 개인 프로젝트를 한곳에서 관리하기 위한 웹 애플리케이션입니다. 현재 ROADMAP Phase 5까지 구현되어 Google OAuth, 사용자별 RLS, 업무·일정 CRUD, 카테고리·반복 업무·검색·필터, 보건업무 템플릿, 체크리스트, 업무 복제·재사용, 연간 업무, 규칙 기반 빠른 입력, 관련 링크와 알림 준비 구조가 동작합니다. 운동 기록 DB, 프로젝트 관리 DB, 실제 푸시·이메일 알림과 AI API는 후속 Phase 범위입니다.
+보건교사의 업무, 일정, 운동과 개인 프로젝트를 한곳에서 관리하기 위한 웹 애플리케이션입니다. 현재 ROADMAP Phase 6까지 구현되어 Google OAuth, 사용자별 RLS, 업무·일정 CRUD, 카테고리·반복 업무·검색·필터, 보건업무 템플릿, 체크리스트, 업무 복제·재사용, 연간 업무, 규칙 기반 빠른 입력, 관련 링크·알림 준비 구조와 Task 기반 Workflow OS가 동작합니다. 운동 기록 DB, 프로젝트 관리 DB, 실제 푸시·이메일 알림과 AI API는 후속 Phase 범위입니다.
 
 ## 요구 사항
 
@@ -24,6 +24,8 @@ npx supabase start
 ```
 
 원격 프로젝트에는 `supabase/migrations/20260718090000_phase_5_health_workflow_planning.sql`과 `supabase/migrations/20260718103000_atomic_phase_5_workflow_writes.sql`을 순서대로 적용해야 Phase 5 템플릿·체크리스트·링크·알림과 원자적 묶음 저장을 사용할 수 있습니다. CLI가 연결되지 않은 환경에서는 Supabase Dashboard SQL Editor에서 각 파일 전체를 순서대로 실행합니다.
+
+Phase 6 Workflow OS는 `/workflows`에서 개인정보를 포함하지 않는 기본·사용자 템플릿, Task별 실행 인스턴스, 단계 상태·체크리스트·다음 행동을 관리하고 브리핑과 기존 Task 흐름에 연결합니다. 템플릿 묶음 저장, 인스턴스 시작, 단계 편집·전이와 후속 Task 생성은 서버 RPC의 단일 트랜잭션으로 처리합니다. Phase 5 migration 적용 후 `supabase/migrations/20260718120000_phase_6_workflow_execution.sql` 전체를 원격 프로젝트에 추가 적용합니다.
 
 ## 환경 변수
 
