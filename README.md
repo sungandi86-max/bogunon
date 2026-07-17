@@ -1,6 +1,6 @@
 # 보건온
 
-보건교사의 업무, 일정, 운동과 개인 프로젝트를 한곳에서 관리하기 위한 웹 애플리케이션입니다. 현재 ROADMAP Phase 2까지 완료되어 반응형 App Shell과 Supabase Auth 기반 Google OAuth 로그인, 쿠키 세션 유지, 보호 화면과 로그아웃이 동작합니다. Phase 3 데이터베이스 스키마와 RLS는 아직 시작하지 않았습니다.
+보건교사의 업무, 일정, 운동과 개인 프로젝트를 한곳에서 관리하기 위한 웹 애플리케이션입니다. 현재 ROADMAP Phase 2.5까지 완료되어 PC 고정 사이드바와 3열 운영 대시보드, 모바일 단일 열 브리핑, Supabase Auth 기반 Google OAuth 로그인, 쿠키 세션 유지, 보호 화면과 로그아웃이 동작합니다. Phase 3 데이터베이스 스키마와 RLS는 아직 시작하지 않았습니다.
 
 ## 요구 사항
 
@@ -46,12 +46,15 @@ OAuth 애플리케이션 콜백 경로는 `/auth/callback`입니다. Google OAut
 ## 검증
 
 ```bash
-npm run lint
+npm run lint -- --max-warnings=0
 npm run typecheck
 npm run test
 npm run test:auth
 npm run build
+git diff --check
 ```
+
+반응형 UI는 1440×900, 1280×800, 768×1024, 375×812 브라우저 크기에서 사이드바·운영 열 전환, 가로 오버플로, 빠른 추가 패널 포커스를 수동 확인합니다.
 
 ## 확정 문서
 

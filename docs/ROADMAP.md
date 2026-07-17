@@ -113,6 +113,8 @@ chore: initialize bogeonon development foundation
 
 ## 5. Phase 1 — App Shell과 정적 디자인 시스템
 
+이 절은 Phase 1 완료 당시 구조를 기록한다. 현재 레이아웃 기준은 아래 Phase 2.5이며 상단 내비게이션과 2열 브리핑 요구는 더 이상 적용하지 않는다.
+
 ### 목표
 
 보건온 고유의 화면 뼈대와 공통 UI를 정적 데이터로 구현한다.
@@ -120,11 +122,11 @@ chore: initialize bogeonon development foundation
 ### 구현 범위
 
 - 디자인 토큰과 기본 타이포그래피
-- PC 상단 글로벌 내비게이션
+- PC 상단 글로벌 내비게이션 (Phase 1 당시 구조, Phase 2.5에서 사이드바로 대체)
 - 모바일 하단 메뉴
 - 반응형 App Shell
 - 정적 로그인 화면
-- 정적 브리핑 2열 구조
+- 정적 브리핑 2열 구조 (Phase 1 당시 구조)
 - 우측 상세 패널
 - 새로 만들기 패널·모바일 시트
 - 버튼, 입력, 배지, 업무 행, 구분선 목록
@@ -152,8 +154,8 @@ chore: initialize bogeonon development foundation
 
 ### 완료 조건
 
-- PC에 고정 3열 대시보드가 없다.
-- 브리핑은 60~65% 업무 영역과 35~40% 날짜 탐색 영역이다.
+- Phase 1 당시에는 고정 3열 대시보드를 사용하지 않았다.
+- Phase 1 당시 브리핑은 60~65% 업무 영역과 35~40% 날짜 탐색 영역이었다.
 - 모바일은 브리핑·업무함·일정·운동·설정 하단 메뉴를 사용한다.
 - 대형 원형 플로팅 추가 버튼이 없다.
 - 우측 상세 패널은 기본 닫힘이고 선택 시 열린다.
@@ -275,7 +277,62 @@ npm run test:auth
 feat: implement Google authentication
 ```
 
-## 7. Phase 3 — Database Schema와 RLS
+## 7. Phase 2.5 — UX Direction Realignment
+
+### 목표
+
+하루 종일 켜두는 교사용 운영 대시보드에 맞게 Phase 1의 정보 구조를 재정렬한다.
+
+### 구현 범위
+
+- PC 고정 왼쪽 사이드바
+- 사이드바·중앙 캘린더·오른쪽 운영 열의 3열 브리핑
+- 중앙 날짜·근무 상태, 주간 요약, 월간 통합 캘린더
+- 오른쪽 오늘의 업무, 회신 대기, 회의·일정, 운동, 프로젝트 다음 행동
+- 페이지 이동 없이 기존 생성 패널을 여는 빠른 추가 진입점
+- 모바일 하단 내비게이션과 단일 열 카드 흐름
+- 보건업무, 학교일정, 제출·마감, 회신 대기, 개인일정, 운동, 프로젝트의 시각 구분
+- Phase 2 인증과 보호 라우트 유지
+
+### 제외 범위
+
+- Database Schema와 RLS
+- 제품 데이터 CRUD와 Supabase 조회·저장
+- 실제 반복 일정과 프로젝트 데이터 연결
+- 학생 개인정보를 포함하는 화면 또는 데이터 모델
+
+### 완료 조건
+
+- 1280px 이상에서 고정 사이드바, 중앙 월간 캘린더, 오른쪽 운영 열이 함께 보인다.
+- 오늘 날짜, 근무 상태, 주간 요약과 우선 업무를 페이지 이동 없이 확인할 수 있다.
+- 빠른 추가가 기존 생성 패널을 열고 키보드 포커스를 복귀한다.
+- 모바일은 하단 메뉴와 단일 열 카드이며 플로팅 추가 버튼이 없다.
+- Phase 2 인증 테스트가 그대로 통과한다.
+- Phase 3 파일, 스키마, RLS와 CRUD가 추가되지 않는다.
+
+### 자동 검증
+
+```bash
+npm run lint -- --max-warnings=0
+npm run typecheck
+npm run test
+npm run test:auth
+npm run build
+git diff --check
+```
+
+### 수동 검증
+
+- 1440×900과 1280×800에서 3열 운영 흐름과 상세 패널 오버레이를 확인한다.
+- 375×812에서 단일 열 카드, 상단 빠른 추가와 하단 내비게이션을 확인한다.
+
+### 커밋 메시지
+
+```text
+feat: realign dashboard UX with daily operations
+```
+
+## 8. Phase 3 — Database Schema와 RLS
 
 ### 목표
 
@@ -358,7 +415,7 @@ supabase db lint
 feat: add database schema and row level security
 ```
 
-## 8. Phase 4 — Repository와 도메인 계층
+## 9. Phase 4 — Repository와 도메인 계층
 
 ### 목표
 
@@ -432,7 +489,7 @@ npm run build
 feat: implement domain repositories and validation
 ```
 
-## 9. Phase 5 — 할 일과 오늘 꼭 끝낼 일
+## 10. Phase 5 — 할 일과 오늘 꼭 끝낼 일
 
 ### 목표
 
@@ -499,7 +556,7 @@ npm run build
 feat: implement tasks and daily focus
 ```
 
-## 10. Phase 6 — 일정과 브리핑 달력
+## 11. Phase 6 — 일정과 브리핑 달력
 
 ### 목표
 
@@ -511,7 +568,7 @@ feat: implement tasks and daily focus
 - 종일·기간·시간 일정
 - 운동 일정 기본 필드
 - 일정과 할 일 연결
-- 브리핑 2열 구조 데이터 연결
+- Phase 2.5 중앙 캘린더·오른쪽 운영 열 데이터 연결
 - 축소 월간 달력
 - 모바일 7일 주간 스트립
 - 오늘 시간순 일정
@@ -558,9 +615,9 @@ npm run build
 ### 수동 검증
 
 - 375px에서 7일 스트립이 읽히고 가로 스크롤 오류가 없는지 확인한다.
-- 1280px에서 브리핑 2열 비율과 상세 패널을 확인한다.
+- 1280px에서 사이드바·중앙 캘린더·오른쪽 운영 열과 상세 패널을 확인한다.
 - 오늘·선택 날짜 표시가 서로 구분되는지 확인한다.
-- 축소 달력이 대형 월간 달력처럼 화면 중심을 차지하지 않는지 확인한다.
+- 월간 통합 캘린더와 오른쪽 오늘 행동이 함께 읽히는지 확인한다.
 
 ### 커밋 예시
 
@@ -568,7 +625,7 @@ npm run build
 feat: add events and briefing calendar
 ```
 
-## 11. Phase 7 — 전체 캘린더
+## 12. Phase 7 — 전체 캘린더
 
 ### 목표
 
@@ -632,7 +689,7 @@ npm run build
 feat: implement full calendar views
 ```
 
-## 12. Phase 8 — 반복 업무 템플릿
+## 13. Phase 8 — 반복 업무 템플릿
 
 ### 목표
 
@@ -688,7 +745,7 @@ npm run build
 feat: implement repeat task templates
 ```
 
-## 13. Phase 9 — 운동 기록
+## 14. Phase 9 — 운동 기록
 
 ### 목표
 
@@ -746,7 +803,7 @@ npm run build
 feat: add exercise records
 ```
 
-## 14. Phase 10 — 프로젝트
+## 15. Phase 10 — 프로젝트
 
 ### 목표
 
@@ -758,7 +815,7 @@ feat: add exercise records
 - 0~100 직접 입력 진행률
 - 할 일 연결·해제
 - 연결된 할 일 또는 직접 텍스트 대표 다음 행동
-- PC 글로벌 메뉴 접근
+- PC 사이드바 메뉴 접근
 - 모바일 설정·업무함 접근
 
 ### 생성 또는 수정 파일
@@ -801,7 +858,7 @@ npm run build
 feat: implement project management
 ```
 
-## 15. Phase 11 — 빠른 메모와 전환
+## 16. Phase 11 — 빠른 메모와 전환
 
 ### 목표
 
@@ -855,7 +912,7 @@ npm run build
 feat: add quick memo conversion flows
 ```
 
-## 16. Phase 12 — 근무시간과 교시
+## 17. Phase 12 — 근무시간과 교시
 
 ### 목표
 
@@ -911,7 +968,7 @@ npm run build
 feat: implement work schedule status
 ```
 
-## 17. Phase 13 — JSON 백업·복원
+## 18. Phase 13 — JSON 백업·복원
 
 ### 목표
 
@@ -975,7 +1032,7 @@ npm run build
 feat: add JSON backup and restore
 ```
 
-## 18. Phase 14 — 통합 QA와 배포
+## 19. Phase 14 — 통합 QA와 배포
 
 ### 목표
 

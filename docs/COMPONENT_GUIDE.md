@@ -170,7 +170,7 @@ src/
 
 책임:
 
-- 글로벌 내비게이션과 페이지 콘텐츠 조합
+- 데스크톱 사이드바와 페이지 콘텐츠 조합
 - PC·모바일 기본 레이아웃
 - 상세 패널·모바일 시트 포털 위치
 - 공통 연결 끊김 상태 위치
@@ -181,11 +181,11 @@ src/
 - 업무·일정 상태 변경
 - 인증 소유권 판단
 
-### 4.2 `GlobalNavigation`
+### 4.2 `GlobalNavigation` (데스크톱 사이드바 역할)
 
-- PC 상단 메뉴 표시
+- PC 고정 왼쪽 메뉴 표시
 - 브리핑·업무·캘린더·운동·프로젝트 이동
-- `+ 새로 만들기`, SyncStatus와 ProfileMenu 배치
+- `+ 새로 만들기`, SyncStatus와 ProfileMenu를 위·아래 영역에 배치
 - 현재 경로 활성 상태 표시
 
 ### 4.3 `MobileBottomNavigation`
@@ -351,7 +351,7 @@ interface BriefingViewModel {
 }
 ```
 
-PC는 이 모델을 2열로 배치하고 모바일은 같은 데이터를 단일 열로 배치한다. 모바일 전용 별도 조회와 Repository를 만들지 않는다. 모바일 주간 스트립은 같은 날짜 집계 데이터에서 필요한 7일만 표현한다.
+PC는 중앙 캘린더와 오른쪽 운영 열로 배치하고 모바일은 같은 데이터를 단일 열로 배치한다. 모바일 전용 별도 조회와 Repository를 만들지 않는다. 모바일 주간 스트립은 같은 날짜 집계 데이터에서 필요한 7일만 표현한다.
 
 ## 7. 업무 컴포넌트
 
@@ -697,7 +697,7 @@ interface CalendarDaySummary {
 
 ### 16.1 컴포넌트 구조
 
-- `CreateItemLauncher`: 상단 버튼과 화면별 진입점
+- `CreateItemLauncher`: 사이드바, 오른쪽 빠른 추가, 모바일 상단과 화면별 진입점
 - `CreateTypePicker`: 보건업무·학교일정·운동·개인·프로젝트 업무 선택
 - `CreateItemPanel`: PC 우측 패널 조합
 - `CreateItemSheet`: 모바일 하단 시트 조합
