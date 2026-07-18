@@ -499,7 +499,7 @@
 .exercise-form textarea { min-height: 96px; resize: vertical; }
 .exercise-quick-result { color: var(--success); font-size: var(--text-xs); margin: var(--space-3) 0 0; }
 
-.mobile-daily-schedule, .today-exercise-card { display: none; }
+.mobile-daily-compact, .today-exercise-card { display: none; }
 .exercise-sticker { align-items: center; border-radius: var(--radius-full); box-sizing: border-box; display: inline-flex; flex: 0 0 auto; justify-content: center; padding: 2px; position: relative; transition: transform 160ms ease, box-shadow 160ms ease; }
 .exercise-sticker img { display: block; height: 100%; width: 100%; }
 .exercise-sticker--mint { background: var(--mobile-mint-soft); }

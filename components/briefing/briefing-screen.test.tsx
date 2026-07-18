@@ -30,8 +30,15 @@ describe("BriefingScreen", () => {
     expect(screen.queryByText("동기화 완료")).not.toBeInTheDocument();
     expect(screen.queryByText("Supabase 저장")).not.toBeInTheDocument();
     expect(screen.queryByText("업무 운영 중")).not.toBeInTheDocument();
-    expect(screen.getByText("예정된 다음 일정이 없습니다.")).toBeInTheDocument();
-    expect(screen.getByText("오늘 등록된 일정이 없습니다.")).toBeInTheDocument();
+    expect(screen.queryByText("예정된 다음 일정이 없습니다.")).not.toBeInTheDocument();
+    expect(screen.queryByText("오늘 등록된 업무가 없습니다.")).not.toBeInTheDocument();
+    expect(screen.queryByText("오늘 등록된 일정이 없습니다.")).not.toBeInTheDocument();
+    expect(document.querySelector(".mobile-daily-compact")).not.toBeInTheDocument();
+    const weekStrip = document.querySelector(".mobile-week-strip");
+    const todaySummary = screen.getByRole("heading", { name: "오늘 요약" }).closest("section");
+    expect(weekStrip).not.toBeNull();
+    expect(todaySummary).not.toBeNull();
+    if (weekStrip && todaySummary) expect(weekStrip.compareDocumentPosition(todaySummary)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(screen.getByRole("navigation", { name: "모바일 주요 메뉴" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "업무 메모" }));
@@ -62,6 +69,10 @@ describe("BriefingScreen", () => {
     expect(screen.getByText("오늘 1건")).toBeInTheDocument();
     expect(screen.getAllByText("09:00").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("학생건강검진").length).toBeGreaterThanOrEqual(1);
+    expect(document.querySelector(".mobile-daily-compact")).toBeInTheDocument();
+    expect(screen.getByText("다음 일정", { selector: ".mobile-daily-compact__label" })).toBeInTheDocument();
+    expect(screen.getByText("오늘 할 일", { selector: ".mobile-daily-compact__label" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "다음 일정" })).not.toBeInTheDocument();
     expect(screen.queryByText("가장 가까운 일정")).not.toBeInTheDocument();
     expect(screen.queryByText("홈에서는 숨기는 일정 설명")).not.toBeInTheDocument();
   });
