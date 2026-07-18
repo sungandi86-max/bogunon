@@ -1,0 +1,16 @@
+{
+  "app": {
+    "name": "BOGUNON",
+    "url": "https://bogunon.vercel.app/",
+    "stack": "Next.js"
+  },
+  "tracks": [
+    "security",
+    "edzip"
+  ],
+  "edzipCase": "A",
+  "teacher": {
+    "dormsHandle": ""
+  },
+  "ownershipConfirmed": true
+}
