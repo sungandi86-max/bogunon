@@ -1,8 +1,10 @@
 import { SettingsError } from "@/components/settings/settings-error";
 import { SettingsForm } from "@/components/settings/settings-form";
 import { PageHeader } from "@/components/layout/page-header";
+import { PwaInstallCard } from "@/components/pwa/pwa-install-card";
 import { DEFAULT_USER_SETTINGS } from "@/lib/settings/domain";
 import { getUserSettings } from "@/lib/settings/repository";
+import packageMetadata from "@/package.json";
 
 export default async function SettingsPage() {
   const result = await getUserSettings().then((value) => ({ ok: true, value } as const)).catch(() => ({ ok: false } as const));
@@ -19,5 +21,5 @@ export default async function SettingsPage() {
     writingAssistanceEnabled: row.writing_assistance_enabled,
     displayDensity: row.display_density,
   } as const : DEFAULT_USER_SETTINGS;
-  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><SettingsForm email={email} initialValues={initialValues} /><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
+  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><div className="settings-layout"><PwaInstallCard version={packageMetadata.version} /><SettingsForm email={email} initialValues={initialValues} /></div><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
 }

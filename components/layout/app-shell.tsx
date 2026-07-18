@@ -15,6 +15,7 @@ import { GlobalNavigation } from "@/components/layout/global-navigation";
 import { MobileBottomNavigation } from "@/components/layout/mobile-bottom-navigation";
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
 import { Button } from "@/components/ui/button";
+import { FirstRunWelcome } from "@/components/pwa/first-run-welcome";
 import type { AuthProfile } from "@/lib/auth/profile";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
 import { defaultHealthPresetPreferences } from "@/lib/work-items/health-preset-personalization";
@@ -122,6 +123,7 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
           <CreateItemForm defaultKind={createKind} {...(createTemplate ? { initialTemplate: createTemplate } : {})} key={`${createKind}-${createTemplate?.key ?? "blank"}-${createOpen}`} onSaved={closeCreate} titleRef={titleRef} />
         </ResponsiveDetailPanel>
         <AiAssistantPanel {...(assistantEntityId ? { entityId: assistantEntityId } : {})} onApplied={() => router.refresh()} onClose={closeAssistant} onCreateDraft={moveAssistantDraftToForm} open={assistantOpen} returnFocusRef={assistantButtonRef} surface={assistantSurface} />
+        <FirstRunWelcome />
         </div>
       </AppShellCreateContext>
     </AssistantContext>

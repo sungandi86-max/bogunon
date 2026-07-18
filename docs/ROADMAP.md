@@ -1,8 +1,8 @@
-# 보건온 개발 로드맵
+# BOGUNON 개발 로드맵
 
 ## 1. 문서 목적
 
-이 문서는 보건온 MVP를 작고 검증 가능한 개발 단계로 나눈 실행 계획이다. 각 Phase는 독립적으로 실행·검증·커밋할 수 있어야 하며, 다음 Phase에 필요한 기반만 구현한다.
+이 문서는 BOGUNON MVP를 작고 검증 가능한 개발 단계로 나눈 실행 계획이다. 각 Phase는 독립적으로 실행·검증·커밋할 수 있어야 하며, 다음 Phase에 필요한 기반만 구현한다.
 
 ## 2. 개발 원칙
 
@@ -117,7 +117,7 @@ chore: initialize bogeonon development foundation
 
 ### 목표
 
-보건온 고유의 화면 뼈대와 공통 UI를 정적 데이터로 구현한다.
+BOGUNON 고유의 화면 뼈대와 공통 UI를 정적 데이터로 구현한다.
 
 ### 구현 범위
 
@@ -1182,3 +1182,19 @@ chore: complete MVP QA and deployment
 - [x] 사용자 설정 전용 최소 RLS migration과 SQL 검증 자산
 
 이 작업은 기존 일정·업무 생성 진입점만 보완하며 홈 리디자인, 통계, AI 추천과 Phase 8을 시작하지 않는다.
+
+## 설치형 BOGUNON PWA (Phase 8 아님)
+
+- [x] App Router manifest·metadata와 `/briefing` 시작 경로
+- [x] 일반·maskable·Apple Touch·favicon 아이콘과 BOGUNON 브랜드 자산
+- [x] standalone 최초 실행 환영 안내와 재실행 미노출
+- [x] 설정의 설치 상태·Android 설치·iOS 홈 화면 추가 안내
+- [x] PWA 공개 자산 인증 Proxy 제외와 익명 접근 검증
+- [x] 로그인·PC 사이드바·모바일 오늘 헤더 브랜드 통일
+- [x] Android 설치 프롬프트와 iOS 홈 화면 추가 안내
+- [x] standalone·safe area·`100dvh` 모바일 보정
+- [x] 정적 자산만 허용하는 Service Worker와 오프라인 연결 안내
+- [x] 인증·Supabase·사용자 데이터·세션·쓰기 요청 비캐시 테스트
+- [ ] 실제 Android Chrome과 iOS Safari 기기 설치 최종 확인
+
+이 작업은 설치성과 정적 앱 셸만 보완한다. Web Push, 완전한 오프라인 편집, 통계와 AI 추천 기능은 시작하지 않는다.

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { AuthProfile } from "@/lib/auth/profile";
 import type { AssistantSurface } from "@/components/ai/assistant-context";
+import { BogunonBrand } from "@/components/brand/bogunon-brand";
 
 const navigationGroups = [
   { label: "보건업무", links: [
@@ -53,10 +54,7 @@ export function GlobalNavigation({ onAssistant, onCreate, profile }: GlobalNavig
   return (
     <aside aria-label="데스크톱 앱 메뉴" className="global-navigation">
       <div className="global-navigation__inner">
-        <Link className="wordmark" href="/briefing" aria-label="보건온 브리핑">
-          <span className="wordmark__symbol" aria-hidden="true">온</span>
-          보건온
-        </Link>
+        <BogunonBrand className="wordmark" priority />
         <details className="sidebar-create-menu">
           <summary className="button button--primary sidebar-create" role="button"><Plus aria-hidden="true" size={18} />새로 만들기<ChevronDown aria-hidden="true" className="sidebar-create__chevron" size={15} /></summary>
           <div className="sidebar-create-popover">

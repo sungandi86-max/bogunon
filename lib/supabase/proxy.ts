@@ -6,9 +6,27 @@ import { getSupabaseConfig, hasSupabaseConfig } from "@/lib/supabase/config";
 import { supabaseCookieOptions } from "@/lib/supabase/cookies";
 
 const publicPathPrefixes = ["/auth", "/login"] as const;
+const publicPwaPaths = new Set([
+  "/manifest.webmanifest",
+  "/icon.png",
+  "/apple-icon.png",
+  "/favicon.ico",
+  "/icon-192.png",
+  "/icon-512.png",
+  "/icon-maskable-192.png",
+  "/icon-maskable-512.png",
+  "/sw.js",
+  "/offline",
+  "/offline.html",
+]);
+const publicAssetPrefixes = ["/_next/static/", "/_next/image/", "/images/", "/public/"] as const;
 
 function isPublicPath(pathname: string): boolean {
   return publicPathPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function isPublicAssetPath(pathname: string): boolean {
+  return publicPwaPaths.has(pathname) || publicAssetPrefixes.some((prefix) => pathname.startsWith(prefix));
 }
 
 function requestedPath(request: NextRequest): string {
@@ -17,6 +35,7 @@ function requestedPath(request: NextRequest): string {
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  if (isPublicAssetPath(pathname)) return NextResponse.next({ request });
   if (!hasSupabaseConfig()) {
     if (isPublicPath(pathname)) return NextResponse.next({ request });
     return NextResponse.redirect(new URL(createLoginPath("configuration"), request.url));

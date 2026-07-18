@@ -16,6 +16,7 @@
   .global-navigation { width: var(--sidebar-compact-width); }
   .global-navigation__inner { padding-inline: 14px; }
   .global-navigation .wordmark { font-size: var(--text-hidden); justify-content: center; margin-inline: 0; }
+  .global-navigation .bogunon-brand__wordmark { display: none; }
   .sidebar-create { font-size: var(--text-hidden); padding: 0; width: 100%; }
   .sidebar-create__chevron, .navigation-group > p { display: none; }
   .sidebar-create-popover { left: calc(100% + var(--space-3)); top: 0; }
@@ -58,8 +59,9 @@
   .briefing-page { padding-top: var(--space-4); }
   .briefing-header { display: block; margin-bottom: var(--space-5); }
   .mobile-briefing-brand { align-items: center; display: flex; gap: var(--space-3); margin-bottom: var(--space-5); }
-  .mobile-briefing-brand__mark { align-items: center; background: var(--mobile-mint-soft); border: 1px solid var(--action-100); border-radius: var(--radius-md); color: var(--action-700); display: inline-flex; font-size: var(--text-sm); font-weight: var(--weight-bold); height: var(--control-sm); justify-content: center; width: var(--control-sm); }
-  .mobile-briefing-brand strong { color: var(--mobile-title); font-size: var(--text-lg); }
+  .mobile-briefing-brand .bogunon-brand { min-height: var(--control-sm); }
+  .mobile-briefing-brand .bogunon-brand__symbol { height: var(--control-sm); width: var(--control-sm); }
+  .mobile-briefing-brand .bogunon-brand__wordmark { width: 104px; }
   .mobile-briefing-brand small { align-items: center; background: transparent; color: var(--success); display: inline-flex; font-size: var(--text-meta); font-weight: var(--weight-medium); gap: var(--space-2); margin-left: auto; padding: var(--space-2); }
   .briefing-header__date { align-items: baseline; color: var(--mobile-title); display: flex; flex-wrap: wrap; font-size: var(--text-2xl); gap: var(--space-4); line-height: var(--leading-heading); }
   .briefing-header__time { color: var(--action-600); display: inline; font-size: var(--text-2xl); font-variant-numeric: tabular-nums; }
@@ -220,6 +222,9 @@
   .custom-sticker-icons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .legacy-exercise-section { margin-top: var(--space-8); }
   .settings-form, .settings-skeleton-grid { gap: var(--space-6); grid-template-columns: 1fr; }
+  .pwa-install-card { align-items: stretch; grid-template-columns: 1fr; }
+  .pwa-install-action { align-items: stretch; justify-items: stretch; }
+  .pwa-install-button { min-height: var(--touch-target); width: 100%; }
   .settings-card { border-radius: var(--radius-xl); padding: var(--space-10); }
   .settings-card__heading { gap: var(--space-4); margin-bottom: var(--space-6); }
   .settings-card__heading > svg, .settings-row-icon { height: var(--touch-target); width: var(--touch-target); }
@@ -235,4 +240,10 @@
   .density-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   button, .quick-input-box__heading .button { min-height: var(--touch-target); }
   .quick-note { scroll-margin-top: var(--space-8); }
+}
+@media (display-mode: standalone) and (max-width: 767px) {
+  body { min-height: 100dvh; }
+  .page-canvas { padding-top: calc(var(--space-6) + env(safe-area-inset-top)); }
+  .briefing-page { padding-top: calc(var(--space-4) + env(safe-area-inset-top)); }
+  .welcome-dialog-backdrop { padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom)); padding-top: calc(var(--space-8) + env(safe-area-inset-top)); }
 }

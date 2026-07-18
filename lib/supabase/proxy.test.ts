@@ -47,6 +47,29 @@ describe("Supabase session proxy", () => {
     expect(response.headers.get("location")).toBe("https://bogunon.example/login");
   });
 
+  it.each([
+    "/manifest.webmanifest",
+    "/icon.png",
+    "/apple-icon.png",
+    "/favicon.ico",
+    "/icon-192.png",
+    "/icon-512.png",
+    "/icon-maskable-192.png",
+    "/icon-maskable-512.png",
+    "/sw.js",
+    "/offline",
+    "/offline.html",
+    "/_next/static/chunks/app.js",
+    "/_next/image/image.webp",
+    "/images/brand.png",
+    "/public/asset.txt",
+  ])("keeps the public PWA path %s outside authentication", async (pathname) => {
+    const response = await updateSession(new NextRequest(`https://bogunon.example${pathname}`));
+
+    expect(response.headers.get("location")).toBeNull();
+    expect(getClaims).not.toHaveBeenCalled();
+  });
+
   it("preserves the destination when an existing session has expired", async () => {
     const request = new NextRequest("https://bogunon.example/tasks?filter=today", {
       headers: { cookie: "sb-example-auth-token=expired" },
