@@ -53,12 +53,31 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.health-preset-recent {
+  border-bottom: 1px solid var(--line-subtle);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+}
+
+.health-preset-recent h3,
+.health-preset-groups h3 {
+  color: var(--ink-500);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  margin: 0 0 var(--space-3);
+}
+
+.health-preset-groups {
+  display: grid;
+  gap: var(--space-5);
+}
+
 .health-preset-quick-add__item {
   align-items: center;
   background: transparent;
   border: 1px solid var(--line-subtle);
   border-radius: var(--radius-md);
-  color: var(--ink-900);
+  color: var(--ink-700);
   cursor: pointer;
   display: grid;
   font: inherit;
@@ -71,9 +90,9 @@
 }
 
 .health-preset-quick-add__item > span:nth-child(2) {
+  line-height: var(--leading-tight);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .health-preset-quick-add__item > svg {

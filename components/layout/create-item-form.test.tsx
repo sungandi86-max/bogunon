@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { CreateItemForm } from "@/components/layout/create-item-form";
+import { HEALTH_PRESETS } from "@/lib/work-items/health-presets";
 import { BUILT_IN_TEMPLATES } from "@/lib/work-items/workflow";
 
 vi.mock("@/app/(app)/work-item-actions", () => ({
@@ -63,5 +64,26 @@ describe("CreateItemForm Phase 5 workflows", () => {
     expect(screen.getByLabelText("수행일")).toBeRequired();
     expect(screen.getByLabelText("수행일")).toHaveValue("");
     expect(screen.getByText(/2026년 5월 중 실제 날짜를 선택/)).toBeInTheDocument();
+  });
+
+  it("applies health preset recurrence, checklist, area, duration, and reminder defaults without saving", () => {
+    const taskPreset = HEALTH_PRESETS.find((item) => item.key === "health-log");
+    const eventPreset = HEALTH_PRESETS.find((item) => item.key === "health-education-event");
+    if (!taskPreset || !eventPreset) throw new Error("빠른 보건업무 프리셋이 필요합니다.");
+
+    const { rerender } = render(<CreateItemForm initialTemplate={taskPreset} />);
+    expect(screen.getByLabelText("제목")).toHaveValue("보건일지 작성");
+    expect(screen.getByLabelText("예상 소요 시간(분)")).toHaveValue(10);
+    expect(screen.getByLabelText("반복")).toHaveValue("daily");
+    expect(screen.getByLabelText("체크리스트 1")).toHaveValue("당일 보건실 운영 내용 확인");
+    expect(screen.getByLabelText("알림 기준 1")).toHaveValue("scheduled");
+    expect(screen.getByLabelText("알림 시점(분) 1")).toHaveValue(0);
+
+    rerender(<CreateItemForm initialTemplate={eventPreset} key={eventPreset.key} />);
+    expect(screen.getByLabelText("항목 종류")).toHaveValue("event");
+    expect(screen.getByLabelText("영역")).toHaveValue("healthWork");
+    expect(screen.getByLabelText("시작 시간")).toHaveValue("09:00");
+    expect(screen.getByLabelText("종료 시간")).toHaveValue("09:50");
+    expect(screen.getByLabelText("알림 시점(분) 1")).toHaveValue(30);
   });
 });

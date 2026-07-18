@@ -62,7 +62,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [linkDrafts, setLinkDrafts] = useState<LinkDraft[]>(links.map((item) => ({ title: item.title, url: item.url })));
   const [reminderDrafts, setReminderDrafts] = useState<ReminderDraft[]>(reminders.length
     ? reminders.map((item) => ({ offsetMinutes: item.offset_minutes, referenceType: "reference_type" in item ? item.reference_type : "scheduled" }))
-    : initialTemplate?.reminderOffsets?.map((offsetMinutes) => ({ offsetMinutes, referenceType: initialTemplate.kind === "task" ? "due" : "scheduled" })) ?? []);
+    : initialTemplate?.reminderOffsets?.map((offsetMinutes) => ({ offsetMinutes, referenceType: "scheduled" })) ?? []);
   const [quickText, setQuickText] = useState("");
   const [quickPreview, setQuickPreview] = useState<QuickInputResult | null>(null);
   const [state, action, pending] = useActionState(saveWorkItemAction, initialActionState);

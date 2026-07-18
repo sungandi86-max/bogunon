@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { HEALTH_PRESETS } from "@/lib/work-items/health-presets";
+import { HEALTH_PRESETS, healthPresetsForSurface } from "@/lib/work-items/health-presets";
 
 describe("HEALTH_PRESETS", () => {
   it("contains the exact 12 requested school-health shortcuts", () => {
@@ -16,5 +16,20 @@ describe("HEALTH_PRESETS", () => {
     expect(education).toMatchObject({ kind: "event", title: "보건교육", estimatedMinutes: 50, startTime: "09:00", endTime: "09:50" });
     expect(monthly).toMatchObject({ title: "보건실 월간 통계 정리", estimatedMinutes: 30, recurrenceFrequency: "monthly" });
     expect(HEALTH_PRESETS.every((item) => item.area === "healthWork" && item.checklist.every((text) => !/학생 이름|학번|질병명|연락처/.test(text)))).toBe(true);
+  });
+
+  it("provides the requested desktop and mobile quick orders from the shared registry", () => {
+    expect(healthPresetsForSurface("desktop").slice(0, 6).map((item) => item.name)).toEqual([
+      "보건일지 작성", "보건소식지 작성·게시", "보건실 침구 세탁", "건강검진 준비", "보건교육 기안", "보건교육 결과 보고",
+    ]);
+    expect(healthPresetsForSurface("mobile").slice(0, 6).map((item) => item.name)).toEqual([
+      "보건일지 작성", "건강검진 준비", "보건교육 기안", "보건교육 결과 보고", "보건실 침구 세탁", "보건소식지 작성·게시",
+    ]);
+  });
+
+  it("includes display groups and reminder defaults in the shared records", () => {
+    expect(new Set(HEALTH_PRESETS.map((item) => item.group)).size).toBe(6);
+    expect(HEALTH_PRESETS.every((item) => item.reminderOffsets.length > 0)).toBe(true);
+    expect(HEALTH_PRESETS.find((item) => item.kind === "event")?.reminderOffsets).toEqual([30]);
   });
 });
