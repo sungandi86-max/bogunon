@@ -56,7 +56,7 @@ export default function PrivacyPage() {
           <li>계정과 사용자 작성 정보: 회원 탈퇴 또는 삭제 요청 시까지. 개별 기록은 이용자가 직접 삭제할 수 있습니다.</li>
           <li>AI 요청·결과: 기본적으로 BOGUNON에 저장하지 않습니다. 이용자가 ‘기록 저장’을 선택한 경우 직접 삭제하거나 회원 탈퇴할 때까지 보관합니다.</li>
           <li>임시 설정 쿠키: 10분, 로그인 세션: 만료 또는 로그아웃 때까지</li>
-          <li>OpenAI 안전·오남용 로그: 기본 설정에서 최대 30일. Vercel 운영 로그: 계약 플랜에 정해진 기간</li>
+          <li>OpenAI 안전·오남용 로그: 기본 설정에서 최대 30일. Vercel 런타임 로그: 현재 플랜의 기본 기간으로 보관하며 최대 30일 이내</li>
         </ul>
         <p>보유 목적이 끝난 정보는 지체 없이 삭제합니다. 전자 파일은 복구하기 어려운 방식으로 삭제하고, 법령상 별도 보존 의무가 있으면 해당 정보만 분리 보관합니다.</p>
       </section>
@@ -73,10 +73,10 @@ export default function PrivacyPage() {
           <table>
             <thead><tr><th>업체·이전 지역</th><th>업무와 항목</th><th>시점·보유 기간</th></tr></thead>
             <tbody>
-              <tr><td><strong>Supabase</strong>, Inc.<br />미국 및 하위처리자 소재국</td><td>인증·데이터베이스 운영. 이메일, 계정 식별자, 사용자 작성 정보</td><td>로그인·저장 시 / 계정 삭제 또는 계약상 보유 기간까지</td></tr>
-              <tr><td>Vercel, Inc.<br />미국 및 글로벌 인프라</td><td>호스팅·CDN·운영 로그. IP, 요청 정보, 서비스 전송 내용</td><td>접속 시 / 플랜별 로그 보유 기간까지</td></tr>
+              <tr><td><strong>Supabase</strong>, Inc.<br />미국 및 하위처리자 소재국</td><td>인증·데이터베이스 운영. 이메일, 계정 식별자, 사용자 작성 정보</td><td>로그인·저장 시 / 계정과 서비스 데이터 삭제 시까지. 백업은 계약상 순환 주기 후 삭제</td></tr>
+              <tr><td>Vercel, Inc.<br />미국 및 글로벌 인프라</td><td>호스팅·CDN·운영 로그. IP, 요청 정보, 서비스 전송 내용</td><td>접속 시 / 현재 플랜 기본 기간, 최대 30일 이내</td></tr>
               <tr><td><strong>OpenAI</strong>, L.L.C.<br />미국 및 하위처리자 소재국</td><td>선택적 AI 생성. 요청문과 선택한 업무 맥락</td><td>AI 실행 시 / 기본 오남용 로그 최대 30일</td></tr>
-              <tr><td>Google LLC<br />미국 및 글로벌 인프라</td><td>OAuth 로그인. 이메일, Google 계정 식별자</td><td>로그인 시 / Google 정책과 계정 설정에 따른 기간</td></tr>
+              <tr><td>Google LLC<br />미국 및 글로벌 인프라</td><td>OAuth 로그인. 이메일, Google 계정 식별자</td><td>로그인 시 / 회원 탈퇴 또는 인증 연결 해제 시까지</td></tr>
             </tbody>
           </table>
         </div>
@@ -97,11 +97,11 @@ export default function PrivacyPage() {
       <section>
         <h2>8. 안전성 확보 조치</h2>
         <ul>
-          <li>HTTPS 암호화 통신, 보안 쿠키와 콘텐츠 보안 정책 적용</li>
-          <li>Supabase 행 수준 보안(RLS)으로 계정별 데이터 접근 분리</li>
-          <li>AI 전송 전 학생 개인정보·건강정보 형태 차단, 필요한 제목 중심의 최소 맥락만 전송</li>
-          <li>서버 비밀키의 브라우저 노출 방지, 접근권한 최소화</li>
-          <li>수탁업체의 저장 암호화·백업·접근통제와 보안 사고 대응 절차 활용</li>
+          <li><strong>관리적 조치:</strong> 학생 정보 입력 금지 원칙, 개인정보 최소 수집, 운영자 책임과 침해 신고·삭제 요청 대응 절차를 문서화합니다.</li>
+          <li><strong>기술적 조치:</strong> HTTPS 암호화 통신, 보안 쿠키와 콘텐츠 보안 정책을 적용합니다.</li>
+          <li><strong>접근 통제:</strong> Supabase 행 수준 보안(RLS)으로 계정별 데이터 접근을 분리하고 서버 비밀키의 브라우저 노출을 막습니다.</li>
+          <li><strong>AI 최소화:</strong> 전송 전 학생 개인정보·건강정보 형태를 차단하고 필요한 제목 중심의 최소 맥락만 전송합니다.</li>
+          <li><strong>물리적 조치:</strong> 자체 서버실을 운영하지 않으며, 물리적 출입통제·저장 암호화·백업을 갖춘 수탁업체의 데이터센터를 사용합니다.</li>
         </ul>
       </section>
 
