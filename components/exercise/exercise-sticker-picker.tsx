@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { attachExerciseStickerAction, type StickerActionState } from "@/app/(app)/exercise-sticker-actions";
+import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
 import { ExerciseSticker } from "@/components/exercise/exercise-sticker";
 import { exerciseDateKey } from "@/lib/exercise/stickers";
 import type { ExerciseLogRow, ExerciseStickerRow } from "@/types/database";
@@ -44,7 +45,7 @@ export function ExerciseStickerPicker({ date, logs, stickers }: { readonly date:
       })}</div>
     </fieldset>
     <input name="stickerId" type="hidden" value={selectedStickerId} />
-    <label><span>날짜</span><input aria-label="운동 날짜" defaultValue={date} name="exerciseDate" required type="date" /></label>
+    <label><span>날짜</span><CalendarDateInput ariaLabel="운동 날짜" defaultValue={date} name="exerciseDate" required /></label>
     <label className="exercise-completed"><input defaultChecked name="completed" required type="checkbox" />운동 완료</label>
     <label><span>운동 시간(선택)</span><input inputMode="numeric" max="1440" min="1" name="durationMinutes" placeholder="예: 60" type="number" /></label>
     <label><span>메모(선택)</span><textarea maxLength={500} name="note" placeholder="기억하고 싶은 한 줄을 남겨보세요." /></label>

@@ -8,8 +8,9 @@ const task: TaskRow = { id: "t1", user_id: "u1", title: "결과 보고", area: "
 const sticker: CalendarStickerRow = { id: "s1", user_id: "u1", sticker_key: "vacation-ceremony", sticker_date: "2026-07-24", end_date: null, label: "방학식", note: null, created_at: "", updated_at: "" };
 
 describe("smart calendar", () => {
-  it("calculates Monday-first weekly ranges and period navigation", () => {
-    expect(calendarRange("2026-07-18", "week")).toEqual({ first: "2026-07-13", last: "2026-07-19" });
+  it("calculates Sunday-first weekly ranges by default and supports Monday-first ranges", () => {
+    expect(calendarRange("2026-07-18", "week")).toEqual({ first: "2026-07-12", last: "2026-07-18" });
+    expect(calendarRange("2026-07-18", "week", "monday")).toEqual({ first: "2026-07-13", last: "2026-07-19" });
     expect(shiftCalendarPeriod("2026-07-18", "week", 1)).toBe("2026-07-25");
     expect(shiftCalendarPeriod("2026-01-31", "month", 1)).toBe("2026-02-28");
   });

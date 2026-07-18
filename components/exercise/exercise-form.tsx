@@ -5,6 +5,7 @@ import type { RefObject } from "react";
 import { useActionState, useEffect, useState } from "react";
 
 import { saveExerciseAction } from "@/app/(app)/exercise-actions";
+import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
 import type { ExerciseActionState } from "@/app/(app)/exercise-actions";
 import {
   EXERCISE_INTENSITIES,
@@ -57,7 +58,7 @@ export function ExerciseForm({ onSaved, today, typeRef }: ExerciseFormProps) {
     </section>
     <div className="exercise-form__grid">
       <div className="field"><label className="field-label" htmlFor="exercise-type">운동 종류</label><select id="exercise-type" name="exerciseType" onChange={(event) => setExerciseType(exerciseTypeSchema.parse(event.target.value))} ref={typeRef} value={exerciseType}>{EXERCISE_TYPES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
-      <div className="field"><label className="field-label" htmlFor="exercise-date">날짜</label><input id="exercise-date" name="date" onChange={(event) => setDate(event.target.value)} required type="date" value={date} /></div>
+      <div className="field"><label className="field-label" htmlFor="exercise-date">날짜</label><CalendarDateInput id="exercise-date" name="date" onValueChange={setDate} required value={date} /></div>
       <div className="field"><label className="field-label" htmlFor="exercise-start-time">시작 시간</label><input id="exercise-start-time" name="startTime" onChange={(event) => setStartTime(event.target.value)} required type="time" value={startTime} /></div>
       <div className="field"><label className="field-label" htmlFor="exercise-duration">운동 시간(분)</label><input id="exercise-duration" max="1440" min="1" name="durationMinutes" onChange={(event) => setDurationMinutes(Number(event.target.value))} required type="number" value={durationMinutes} /></div>
       <div className="field exercise-form__wide"><label className="field-label" htmlFor="exercise-location">장소</label><input id="exercise-location" maxLength={100} name="location" placeholder="예: 학교 체육관" /></div>

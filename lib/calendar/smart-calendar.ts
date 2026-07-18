@@ -1,5 +1,6 @@
 import { calendarStickerByKey } from "@/lib/calendar-stickers/catalog";
-import { addCalendarDays, monthRange, shiftCalendarMonth, weekRange } from "@/lib/work-items/date";
+import { addCalendarDays, monthRange, shiftCalendarMonth } from "@/lib/work-items/date";
+import { DEFAULT_CALENDAR_WEEK_START, calendarWeekRange, type CalendarWeekStart } from "@/lib/calendar/preferences";
 import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
 
 export type CalendarView = "month" | "week";
@@ -15,8 +16,8 @@ export interface CalendarSearchResult {
   readonly area: EventRow["area"] | TaskRow["area"] | "sticker";
 }
 
-export function calendarRange(date: string, view: CalendarView) {
-  return view === "month" ? monthRange(date) : weekRange(date);
+export function calendarRange(date: string, view: CalendarView, weekStart: CalendarWeekStart = DEFAULT_CALENDAR_WEEK_START) {
+  return view === "month" ? monthRange(date) : calendarWeekRange(date, weekStart);
 }
 
 export function shiftCalendarPeriod(date: string, view: CalendarView, offset: number): string {

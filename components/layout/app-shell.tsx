@@ -10,6 +10,7 @@ import { AssistantContext } from "@/components/ai/assistant-context";
 import { HealthPresetPreferencesProvider } from "@/components/health-presets/health-preset-preferences-context";
 import type { AssistantSurface } from "@/components/ai/assistant-context";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
+import { CalendarPreferencesProvider } from "@/components/calendar/calendar-preferences-provider";
 import { CreateItemForm } from "@/components/layout/create-item-form";
 import { GlobalNavigation } from "@/components/layout/global-navigation";
 import { MobileBottomNavigation } from "@/components/layout/mobile-bottom-navigation";
@@ -100,6 +101,7 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
   }, [openCreate]);
 
   return (
+    <CalendarPreferencesProvider>
     <HealthPresetPreferencesProvider initialPreferences={presetPreferences}>
     <AssistantContext value={{ openAssistant }}>
       <AppShellCreateContext value={{ openCreate }}>
@@ -128,5 +130,6 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
       </AppShellCreateContext>
     </AssistantContext>
     </HealthPresetPreferencesProvider>
+    </CalendarPreferencesProvider>
   );
 }

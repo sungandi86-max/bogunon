@@ -4,6 +4,7 @@ import { useActionState, useRef, useState } from "react";
 
 import { attachCalendarStickerAction, removeCalendarStickerAction } from "@/app/(app)/calendar-sticker-actions";
 import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
+import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
 import { useAppShellCreate } from "@/components/layout/app-shell-create-context";
 import {
   PERSONAL_CALENDAR_STICKERS,
@@ -58,7 +59,7 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
       <button aria-controls="calendar-sticker-panel" aria-selected={category === "personal"} id="calendar-sticker-personal-tab" onClick={() => setCategory("personal")} role="tab" type="button">개인 일정</button>
     </div>
     <form action={attachAction} aria-labelledby={`calendar-sticker-${category}-tab`} className="school-sticker-picker__form" id="calendar-sticker-panel" role="tabpanel">
-      <div className="form-grid"><label className="field"><span className="field-label">시작일</span><input defaultValue={today} name="stickerDate" required type="date" /></label><label className="field"><span className="field-label">종료일</span><input min={today} name="endDate" type="date" /></label></div>
+      <div className="form-grid"><label className="field"><span className="field-label">시작일</span><CalendarDateInput defaultValue={today} name="stickerDate" required /></label><label className="field"><span className="field-label">종료일</span><CalendarDateInput min={today} name="endDate" /></label></div>
       <div className="school-sticker-grid">{catalog.map((item) => <button aria-label={`${item.label} 스티커 붙이기`} disabled={attachPending} key={item.key} name="stickerKey" type="submit" value={item.key}><CalendarDateSticker stickerKey={item.key} /></button>)}</div>
     </form>
     {selected.map((item) => <div className="school-sticker-picker__selected" key={item.id}><CalendarDateSticker stickerKey={item.sticker_key} /><div><strong>{item.label}</strong><small>{item.sticker_date}{item.end_date ? ` ~ ${item.end_date}` : ""}</small></div><form action={removeAction}><input name="stickerId" type="hidden" value={item.id} /><button className="text-action" disabled={removePending} type="submit">제거</button></form>{item.id === latest?.id && <button className="button button--secondary" onClick={openLinkedEvent} ref={eventButtonRef} type="button">{category === "personal" ? "개인 일정도 만들기" : "종일 학교 일정도 만들기"}</button>}</div>)}

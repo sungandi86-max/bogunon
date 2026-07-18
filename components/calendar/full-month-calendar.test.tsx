@@ -7,8 +7,10 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
 describe("FullMonthCalendar", () => {
   it("marks the supplied current date on its calendar cell", () => {
-    render(<FullMonthCalendar month="2026-07" today="2026-07-18" />);
+    const { container } = render(<FullMonthCalendar month="2026-07" today="2026-07-18" />);
 
+    expect(Array.from(container.querySelectorAll(".full-calendar__weekdays span"), (node) => node.textContent)).toEqual(["일", "월", "화", "수", "목", "금", "토"]);
+    expect(container.querySelectorAll(".full-calendar__cell")[3]).toHaveAccessibleName("2026-07-01, 일정 0개, 업무 0개");
     expect(screen.getByRole("gridcell", { name: "2026-07-18, 일정 0개, 업무 0개" })).toHaveClass("is-today");
   });
 

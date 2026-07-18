@@ -4,6 +4,7 @@ import { CalendarPlus, Check, ChevronDown, Clock3, GripVertical, ListTodo, Star 
 import { useMemo, useState } from "react";
 
 import { AnnualCustomItemForm } from "@/components/annual/annual-custom-item-form";
+import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
 import { useHealthPresetPreferences } from "@/components/health-presets/health-preset-preferences-context";
 import { useAppShellCreate } from "@/components/layout/app-shell-create-context";
 import {
@@ -76,7 +77,7 @@ export function AnnualPlanner({ year, currentYear, currentMonth, customItems, ex
         <AnnualCustomItemForm />
         <div className="annual-drag-copy">
           <label htmlFor="annual-drop-date">빠른 복사 날짜</label>
-          <input id="annual-drop-date" max={`${year}-12-31`} min={`${year}-01-01`} onChange={(event) => setDropDate(event.target.value)} type="date" value={dropDate} />
+          <CalendarDateInput id="annual-drop-date" max={`${year}-12-31`} min={`${year}-01-01`} name="annualDropDate" onValueChange={setDropDate} value={dropDate} />
           <button
             aria-label="선택한 날짜로 제안 업무 복사"
             className="annual-drop-target"

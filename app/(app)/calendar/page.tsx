@@ -4,7 +4,7 @@ import { MobileCreateButton } from "@/components/layout/mobile-create-button";
 import { PageHeader } from "@/components/layout/page-header";
 import { listAllCalendarStickers } from "@/lib/calendar-stickers/repository";
 import { calendarRange, type CalendarView } from "@/lib/calendar/smart-calendar";
-import { todayInSeoul } from "@/lib/work-items/date";
+import { addCalendarDays, todayInSeoul } from "@/lib/work-items/date";
 import { listWorkflowData } from "@/lib/work-items/phase5-repository";
 import { ensureRecurringEvents, ensureRecurringTasks, listAllEvents, listTasks } from "@/lib/work-items/repository";
 
@@ -14,7 +14,8 @@ export default async function CalendarPage({ searchParams }: { readonly searchPa
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(params.date ?? "") ? String(params.date) : today;
   const view: CalendarView = params.view === "week" ? "week" : "month";
   const { last } = calendarRange(selectedDate, view);
-  await Promise.all([ensureRecurringEvents(last), ensureRecurringTasks(last)]).catch(() => undefined);
+  const recurrenceEnd = view === "week" ? addCalendarDays(last, 7) : last;
+  await Promise.all([ensureRecurringEvents(recurrenceEnd), ensureRecurringTasks(recurrenceEnd)]).catch(() => undefined);
   const [events, tasks, workflow, schoolStickers] = await Promise.all([
     listAllEvents(), listTasks(), listWorkflowData(), listAllCalendarStickers().catch(() => []),
   ]);

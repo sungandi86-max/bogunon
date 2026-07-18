@@ -3,12 +3,15 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
+import { calendarMonthCells, weekdayLabels } from "@/lib/calendar/preferences";
 
-const weekdays = ["월", "화", "수", "목", "금", "토", "일"];
-const days = Array.from({ length: 42 }, (_, index) => index - 2);
 const markedDays = new Set([3, 7, 11, 17, 22, 28]);
 
 export function CompactMonthCalendar() {
+  const { weekStart } = useCalendarPreferences();
+  const weekdays = weekdayLabels(weekStart);
+  const days = calendarMonthCells("2026-07", weekStart);
   const [selectedDay, setSelectedDay] = useState(17);
   const dayRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
@@ -31,22 +34,23 @@ export function CompactMonthCalendar() {
         </div>
       </div>
       <div className="calendar-grid" aria-hidden="true">
-        {weekdays.map((weekday) => <span className="calendar-weekday" key={weekday}>{weekday}</span>)}
+        {weekdays.map((weekday) => <span className={`calendar-weekday${weekday === "일" ? " is-sunday" : weekday === "토" ? " is-saturday" : ""}`} key={weekday}>{weekday}</span>)}
       </div>
       <div className="calendar-grid" role="group" aria-label="2026년 7월 날짜 선택">
-        {days.map((day, index) => {
-          const isOutside = day < 1 || day > 31;
-          const displayDay = day < 1 ? 30 + day : day > 31 ? day - 31 : day;
-          const displayMonth = day < 1 ? 6 : day > 31 ? 8 : 7;
+        {days.map((date, index) => {
+          const isOutside = date === null;
+          const displayDay = date ? Number(date.slice(-2)) : 0;
+          if (isOutside) return <span aria-hidden="true" className="calendar-day is-outside" key={`empty-${index}`} />;
+          const weekday = new Date(`${date}T00:00:00Z`).getUTCDay();
           return (
             <button
-              aria-label={`${displayMonth}월 ${displayDay}일${markedDays.has(day) ? ", 등록 항목 있음" : ""}`}
-              aria-pressed={!isOutside && selectedDay === day}
-              className={`calendar-day${isOutside ? " is-outside" : ""}${
-                !isOutside && selectedDay === day ? " is-selected" : ""
-              }${day === 17 ? " is-today" : ""}`}
-              key={`${day}-${index}`}
-              onClick={() => !isOutside && setSelectedDay(day)}
+              aria-label={`7월 ${displayDay}일${markedDays.has(displayDay) ? ", 등록 항목 있음" : ""}`}
+              aria-pressed={selectedDay === displayDay}
+              className={`calendar-day${weekday === 0 ? " is-sunday" : weekday === 6 ? " is-saturday" : ""}${
+                selectedDay === displayDay ? " is-selected" : ""
+              }${displayDay === 17 ? " is-today" : ""}`}
+              key={date}
+              onClick={() => setSelectedDay(displayDay)}
               onKeyDown={(event) => {
                 const offsets: Partial<Record<string, number>> = {
                   ArrowLeft: -1,
@@ -60,14 +64,14 @@ export function CompactMonthCalendar() {
                 moveFocus(index, offset);
               }}
               ref={(element) => { dayRefs.current[index] = element; }}
-              tabIndex={!isOutside && selectedDay === day ? 0 : -1}
+              tabIndex={selectedDay === displayDay ? 0 : -1}
               type="button"
             >
               <span className="calendar-day__number">{displayDay}</span>
               <span className="calendar-day__markers" aria-hidden="true">
-                {markedDays.has(day) && <span className="marker" />}
-                {[11, 22].includes(day) && <span className="marker marker--deadline" />}
-                {day === 17 && <span className="marker marker--exercise" />}
+                {markedDays.has(displayDay) && <span className="marker" />}
+                {[11, 22].includes(displayDay) && <span className="marker marker--deadline" />}
+                {displayDay === 17 && <span className="marker marker--exercise" />}
               </span>
             </button>
           );

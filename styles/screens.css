@@ -75,16 +75,16 @@
 .calendar-icon-button:hover { background: var(--brand-50); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); margin-top: 12px; }
 .calendar-weekday { color: var(--ink-500); font-size: var(--text-xs); font-weight: var(--weight-semibold); line-height: 26px; text-align: center; }
-.calendar-weekday:nth-child(6) { color: var(--health); }
-.calendar-weekday:nth-child(7) { color: var(--deadline); }
+.calendar-weekday.is-saturday { color: var(--health); }
+.calendar-weekday.is-sunday { color: var(--deadline); }
 .calendar-day { align-items: center; background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm); cursor: pointer; display: flex; flex-direction: column; height: 42px; justify-content: center; min-width: 0; position: relative; }
 .calendar-day:hover { background: var(--brand-50); }
 .calendar-day.is-outside { color: var(--line-strong); }
 .calendar-day.is-selected { background: var(--action-50); border-color: var(--action-600); }
 .calendar-day.is-today .calendar-day__number { align-items: center; background: var(--action-500); border-radius: 999px; color: var(--brand-950); display: inline-flex; height: 26px; justify-content: center; width: 26px; }
 .calendar-day__number { color: var(--ink-950); font-size: var(--text-sm); font-variant-numeric: tabular-nums; }
-.calendar-day:nth-child(7n + 6) .calendar-day__number { color: var(--health); }
-.calendar-day:nth-child(7n) .calendar-day__number { color: var(--deadline); }
+.calendar-day.is-saturday .calendar-day__number { color: var(--health); }
+.calendar-day.is-sunday .calendar-day__number { color: var(--deadline); }
 .calendar-day.is-outside .calendar-day__number { color: var(--line-strong); }
 .calendar-day.is-today .calendar-day__number { color: var(--brand-950); }
 .calendar-day__markers { align-items: center; display: flex; gap: 3px; height: 7px; margin-top: 2px; }
@@ -108,8 +108,28 @@
 .full-calendar__weekdays, .full-calendar__row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .full-calendar__grid { display: block; }
 .full-calendar__weekdays span { border-right: 1px solid var(--line-subtle); color: var(--ink-500); font-size: var(--text-sm); font-weight: var(--weight-semibold); padding: var(--space-3) var(--space-5); }
-.full-calendar__weekdays span:nth-child(6), .full-calendar__row .full-calendar__cell:nth-child(6) time { color: var(--health); }
-.full-calendar__weekdays span:nth-child(7), .full-calendar__row .full-calendar__cell:nth-child(7) time { color: var(--deadline); }
+.full-calendar__weekdays .is-saturday, .full-calendar__cell.is-saturday time { color: var(--health); }
+.full-calendar__weekdays .is-sunday, .full-calendar__cell.is-sunday time { color: var(--deadline); }
+.calendar-date-input { min-width: 0; position: relative; width: 100%; }
+.calendar-date-input__control { align-items: stretch; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); display: grid; grid-template-columns: minmax(0, 1fr) var(--touch-target); min-height: var(--touch-target); overflow: hidden; }
+.calendar-date-input__control:focus-within { border-color: var(--action-500); box-shadow: var(--focus-ring); }
+.calendar-date-input__control input { background: transparent; border: 0; color: var(--ink-700); min-height: var(--touch-target); min-width: 0; padding: var(--space-4) var(--space-5); width: 100%; }
+.calendar-date-input__control input:focus { outline: 0; }
+.calendar-date-input__control button { align-items: center; background: transparent; border: 0; color: var(--action-700); display: inline-flex; justify-content: center; min-height: var(--touch-target); }
+.calendar-date-input__control button:hover { background: var(--action-50); }
+.calendar-date-input__popover { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); display: grid; gap: var(--space-4); left: 0; padding: var(--space-5); position: absolute; top: calc(100% + var(--space-2)); width: min(320px, calc(100vw - var(--space-12))); z-index: 30; }
+.form-grid > .field:nth-child(even) .calendar-date-input__popover { left: auto; right: 0; }
+.calendar-date-input__toolbar { align-items: center; display: grid; grid-template-columns: var(--touch-target) minmax(0, 1fr) var(--touch-target); }
+.calendar-date-input__toolbar strong { color: var(--brand-950); font-size: var(--text-base); text-align: center; }
+.calendar-date-input__toolbar button, .calendar-date-input__close { align-items: center; background: transparent; border: 0; border-radius: var(--radius-md); color: var(--ink-700); display: inline-flex; justify-content: center; min-height: var(--touch-target); }
+.calendar-date-input__toolbar button:hover, .calendar-date-input__close:hover { background: var(--action-50); color: var(--action-700); }
+.calendar-date-input__weekdays, .calendar-date-input__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.calendar-date-input__weekdays span { color: var(--ink-500); font-size: var(--text-meta); font-weight: var(--weight-semibold); text-align: center; }
+.calendar-date-input__grid button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-full); color: var(--ink-700); display: inline-flex; font-size: var(--text-sm); justify-content: center; min-height: var(--touch-target); min-width: 0; }
+.calendar-date-input__grid button:hover:not(:disabled) { background: var(--action-50); }
+.calendar-date-input__grid button[aria-pressed="true"] { background: var(--action-500); color: var(--brand-950); font-weight: var(--weight-bold); }
+.calendar-date-input__grid button:disabled { color: var(--ink-300); cursor: not-allowed; }
+.calendar-date-input__close { border-top: 1px solid var(--line-subtle); color: var(--action-700); width: 100%; }
 .full-calendar__cell { border-right: 1px solid var(--line-subtle); border-top: 1px solid var(--line-subtle); height: 86px; overflow: hidden; padding: var(--space-3); }
 .full-calendar__cell:last-child { border-right: 0; }
 .full-calendar__cell time { color: var(--ink-950); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
@@ -550,13 +570,15 @@
 .exercise-calendar-toolbar a:hover { background: var(--action-50); }
 .exercise-calendar-weekdays, .exercise-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .exercise-calendar-weekdays span { color: var(--ink-500); font-size: var(--text-meta); padding: var(--space-4); text-align: center; }
-.exercise-calendar-weekdays span:first-child { color: var(--deadline); }
-.exercise-calendar-weekdays span:last-child { color: var(--health); }
+.exercise-calendar-weekdays .is-sunday { color: var(--deadline); }
+.exercise-calendar-weekdays .is-saturday { color: var(--health); }
 .exercise-calendar-day { align-items: center; background: transparent; border: 1px solid var(--line-subtle); display: flex; flex-direction: column; min-height: 82px; min-width: 0; overflow: visible; padding: var(--space-3); position: relative; }
 .exercise-calendar-day:hover { background: var(--action-50); }
 .exercise-calendar-day.is-selected { background: var(--action-50); box-shadow: inset 0 0 0 2px var(--action-700); }
 .exercise-calendar-day__date { background: transparent; border: 0; cursor: pointer; min-height: 24px; padding: 0; }
 .exercise-calendar-day__date time { align-items: center; border-radius: var(--radius-full); color: var(--ink-700); display: inline-flex; font-size: var(--text-meta); height: 24px; justify-content: center; width: 24px; }
+.exercise-calendar-day.is-saturday .exercise-calendar-day__date time { color: var(--health); }
+.exercise-calendar-day.is-sunday .exercise-calendar-day__date time { color: var(--deadline); }
 .exercise-calendar-day.is-today .exercise-calendar-day__date time { background: var(--action-500); color: var(--brand-950); font-weight: var(--weight-bold); }
 .exercise-calendar-day__stickers { align-items: center; display: flex; flex: 0 0 auto; gap: 1px; justify-content: center; margin-top: var(--space-3); min-height: 32px; overflow: visible; position: relative; z-index: 1; }
 .exercise-calendar-day__stickers small { background: var(--surface); border-radius: var(--radius-full); bottom: -2px; color: var(--ink-700); font-size: 10px; font-weight: var(--weight-bold); line-height: 16px; min-width: 16px; padding-inline: 2px; position: absolute; right: -2px; }
@@ -599,6 +621,14 @@
 .settings-card__heading h2 { font-size: var(--text-card); margin: 0; }
 .settings-card__heading p { color: var(--ink-500); font-size: var(--text-support); margin: var(--space-2) 0 0; }
 .settings-field-grid { display: grid; gap: var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.calendar-week-start { border: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 0; }
+.calendar-week-start legend { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); grid-column: 1 / -1; margin-bottom: var(--space-1); }
+.calendar-week-start label { cursor: pointer; position: relative; }
+.calendar-week-start input { height: 1px; opacity: 0; position: absolute; width: 1px; }
+.calendar-week-start span { align-items: center; border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-700); display: flex; justify-content: center; min-height: var(--touch-target); padding-inline: var(--space-5); }
+.calendar-week-start input:checked + span { background: var(--action-50); border-color: var(--action-500); color: var(--action-700); font-weight: var(--weight-bold); }
+.calendar-week-start input:focus-visible + span { box-shadow: var(--focus-ring); }
+.calendar-preferences-card__note { color: var(--ink-500); font-size: var(--text-meta); margin: var(--space-4) 0 0; }
 .settings-toggle-row { align-items: center; border-top: 1px solid var(--line-subtle); cursor: pointer; display: grid; gap: var(--space-5); grid-template-columns: auto minmax(0, 1fr) auto; min-height: 68px; padding-block: var(--space-5); position: relative; }
 .settings-toggle-row:nth-of-type(1) { border-top: 0; }
 .settings-toggle-row > span:nth-child(2) { display: grid; }

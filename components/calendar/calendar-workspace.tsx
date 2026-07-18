@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { CalendarMovePanel } from "@/components/calendar/calendar-move-panel";
+import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
 import type { MovableCalendarItem } from "@/components/calendar/calendar-entry";
 import { EventList } from "@/components/calendar/event-list";
 import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
@@ -22,6 +23,7 @@ const options: ReadonlyArray<[CalendarFilter, string]> = [["all","전체"],["wor
 interface Props { readonly events: EventRow[]; readonly highlight?: string | undefined; readonly initialDate: string; readonly initialStickerOpen?: boolean; readonly initialView: CalendarView; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string; readonly toolbarAction?: ReactNode; readonly workflow: WorkflowData }
 
 export function CalendarWorkspace({ events, highlight, initialDate, initialStickerOpen = false, initialView, stickers, tasks, today, toolbarAction, workflow }: Props) {
+  const { weekStart } = useCalendarPreferences();
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filter, setFilter] = useState<CalendarFilter>("all");
@@ -48,7 +50,7 @@ export function CalendarWorkspace({ events, highlight, initialDate, initialStick
   const visibleTasks = useMemo(() => tasks.filter((task) => filter === "all" || (filter === "work" && task.area === "healthWork") || (filter === "school" && task.area === "schoolSchedule") || (filter === "personal" && task.area === "personal")), [filter, tasks]);
   const showEntries = !["stickers", "schoolStickers", "personalStickers"].includes(filter);
   const visibleStickers = useMemo(() => stickers.filter((item) => filter === "all" || filter === "stickers" || (filter === "schoolStickers" && calendarStickerCategory(item.sticker_key) === "school") || (filter === "personalStickers" && calendarStickerCategory(item.sticker_key) === "personal")), [filter, stickers]);
-  const range = calendarRange(selectedDate, initialView);
+  const range = calendarRange(selectedDate, initialView, weekStart);
   const periodEvents = visibleEvents.filter((event) => event.start_date <= range.last && event.end_date >= range.first);
   const periodTasks = visibleTasks.filter((task) => { const date = taskCalendarDate(task); return Boolean(date && date >= range.first && date <= range.last); });
   const results = useMemo(() => searchCalendar(query, events, tasks, stickers), [events, query, stickers, tasks]);

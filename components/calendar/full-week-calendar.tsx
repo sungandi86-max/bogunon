@@ -3,18 +3,19 @@
 import { CalendarEntry, type MovableCalendarItem } from "@/components/calendar/calendar-entry";
 import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
 import { StickerManagementButton } from "@/components/calendar/sticker-management-button";
+import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
 import { calendarStickerCategory } from "@/lib/calendar-stickers/catalog";
 import { dateSpan, taskCalendarDate } from "@/lib/calendar/smart-calendar";
-import { weekRange } from "@/lib/work-items/date";
+import { calendarWeekRange, weekdayLabels } from "@/lib/calendar/preferences";
 import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
-
-const weekdays = ["월", "화", "수", "목", "금", "토", "일"];
 
 interface Props { readonly date: string; readonly events: EventRow[]; readonly highlight?: string | undefined; readonly onDropDate: (value: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => void; readonly onMove: (value: MovableCalendarItem) => void; readonly onSelectDate: (date: string) => void; readonly selectedDate: string; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string }
 
 export function FullWeekCalendar({ date, events, highlight, onDropDate, onMove, onSelectDate, selectedDate, stickers, tasks, today }: Props) {
-  const range = weekRange(date);
+  const { weekStart } = useCalendarPreferences();
+  const range = calendarWeekRange(date, weekStart);
   const dates = dateSpan(range.first, range.last);
+  const weekdays = weekdayLabels(weekStart);
   const selectedEvents = events.filter((event) => event.start_date <= selectedDate && event.end_date >= selectedDate);
   const selectedTasks = tasks.filter((task) => taskCalendarDate(task) === selectedDate);
   return <section className="smart-week" aria-label={`${range.first}부터 ${range.last}까지 주간 캘린더`}>
