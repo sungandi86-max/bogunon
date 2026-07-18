@@ -1,3 +1,5 @@
+"use client";
+
 import { CalendarEntry, type MovableCalendarItem } from "@/components/calendar/calendar-entry";
 import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
 import { ExerciseSticker } from "@/components/exercise/exercise-sticker";
