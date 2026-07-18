@@ -76,8 +76,7 @@
   .summary-metric + .summary-metric { border-left: 1px solid var(--mobile-line-soft); }
   .summary-metric:nth-child(1) { background: var(--mobile-blue-soft); }
   .summary-metric:nth-child(2) { background: var(--mobile-orange-soft); }
-  .summary-metric:nth-child(3) { background: var(--mobile-lavender-soft); }
-  .summary-metric:nth-child(4) { background: var(--mobile-mint-soft); }
+  .summary-metric:nth-child(3) { background: var(--mobile-mint-soft); }
   .summary-metric svg { background: var(--mobile-icon-surface); border-radius: var(--radius-md); grid-column: 1; grid-row: 1; padding: var(--space-3); }
   .summary-metric span { color: var(--mobile-body); font-size: var(--text-meta); grid-column: 1 / -1; grid-row: 2; letter-spacing: 0; white-space: nowrap; }
   .summary-metric strong { color: var(--mobile-title); font-size: var(--text-xl); grid-column: 2; grid-row: 1; justify-self: end; margin-top: 0; }

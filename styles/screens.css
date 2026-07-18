@@ -145,7 +145,7 @@
 .operations-main .briefing-header { border-bottom: 1px solid var(--line); margin-bottom: var(--space-8); padding-bottom: var(--space-7); }
 .weekly-summary { margin-bottom: var(--space-8); }
 .weekly-summary .section-heading > span { color: var(--ink-500); font-size: var(--text-sm); }
-.weekly-summary__grid { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); overflow: hidden; }
+.weekly-summary__grid { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: hidden; }
 .summary-metric { display: grid; gap: var(--space-1) var(--space-4); grid-template-columns: auto 1fr; padding: var(--space-6) var(--space-7); }
 .summary-metric + .summary-metric { border-left: 1px solid var(--line-subtle); }
 .summary-metric svg { color: var(--action-700); grid-row: 1 / span 2; margin-top: 2px; }

@@ -25,6 +25,7 @@ describe("BriefingScreen", () => {
     expect(screen.getByRole("heading", { name: "오늘 요약" })).toBeInTheDocument();
     expect(screen.getAllByText("오늘 할 일").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("진행 중 업무 절차")).toBeInTheDocument();
+    expect(screen.queryByText("회신 대기")).not.toBeInTheDocument();
     expect(screen.getByText(/오늘 일정 0건/)).toBeInTheDocument();
     expect(screen.queryByText("저장 완료")).not.toBeInTheDocument();
     expect(screen.queryByText("동기화 완료")).not.toBeInTheDocument();
@@ -45,7 +46,7 @@ describe("BriefingScreen", () => {
     expect(screen.getByRole("dialog", { name: "새로 만들기" })).toBeInTheDocument();
   });
 
-  it("shows today's task, schedule, deadline, and waiting details from actual rows", () => {
+  it("shows today's task, schedule, and deadline without a waiting reply card", () => {
     const task: TaskRow = {
       id: "task-1", user_id: "user-1", title: "약품 점검", area: "healthWork",
       status: "waitingForReply", priority: "high", category: "medication",
@@ -65,6 +66,7 @@ describe("BriefingScreen", () => {
     render(<AppShell><BriefingScreen events={[event]} month="2026-07" tasks={[task]} today="2026-07-17" /></AppShell>);
 
     expect(screen.getByRole("heading", { name: "오늘 해야 할 일" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "회신 대기" })).not.toBeInTheDocument();
     expect(screen.getAllByText("약품 점검").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("오늘 1건")).toBeInTheDocument();
     expect(screen.getAllByText("09:00").length).toBeGreaterThanOrEqual(1);
