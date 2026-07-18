@@ -1,9 +1,10 @@
 "use client";
 
-import { CalendarPlus, Check, ChevronDown, Clock3, GripVertical, ListTodo } from "lucide-react";
+import { CalendarPlus, Check, ChevronDown, Clock3, GripVertical, ListTodo, Star } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { AnnualCustomItemForm } from "@/components/annual/annual-custom-item-form";
+import { useHealthPresetPreferences } from "@/components/health-presets/health-preset-preferences-context";
 import { useAppShellCreate } from "@/components/layout/app-shell-create-context";
 import {
   HEALTH_YEARLY_PRESETS,
@@ -28,15 +29,27 @@ const statusLabels = new Map<AnnualPresetStatus, string>([
 
 export function AnnualPlanner({ year, currentYear, currentMonth, customItems, existingItems }: AnnualPlannerProps) {
   const { openCreate } = useAppShellCreate();
+  const { isPending, preferenceFor, toggleFavorite, visiblePresets } = useHealthPresetPreferences();
   const [expandedMonths, setExpandedMonths] = useState<ReadonlySet<number>>(
     year === currentYear ? new Set([currentMonth]) : new Set(),
   );
   const [draggedPresetId, setDraggedPresetId] = useState<string>();
   const [dropDate, setDropDate] = useState("");
-  const months = useMemo(() => HEALTH_YEARLY_PRESETS.map((month) => ({
-    month: month.month,
-    items: [...month.items, ...customItems.filter((item) => item.month === month.month)],
-  })), [customItems]);
+  const months = useMemo(() => {
+    const visiblePresetKeys = new Set(visiblePresets.map((preset) => preset.key));
+    const presetRanks = new Map(visiblePresets.map((preset, index) => [preset.key, index]));
+    return HEALTH_YEARLY_PRESETS.map((month) => ({
+      month: month.month,
+      items: [...month.items, ...customItems.filter((item) => item.month === month.month)]
+        .filter((item) => !item.presetKey || visiblePresetKeys.has(item.presetKey))
+        .sort((left, right) => {
+          if (!left.presetKey && !right.presetKey) return 0;
+          if (!left.presetKey) return 1;
+          if (!right.presetKey) return -1;
+          return (presetRanks.get(left.presetKey) ?? 0) - (presetRanks.get(right.presetKey) ?? 0);
+        }),
+    }));
+  }, [customItems, visiblePresets]);
 
   function openPreset(trigger: HTMLButtonElement, preset: AnnualPlannerPreset, kind: WorkItemKind, date?: string) {
     openCreate(trigger, kind, yearlyPresetTemplate(preset, { year, kind, ...(date ? { date } : {}) }));
@@ -48,6 +61,10 @@ export function AnnualPlanner({ year, currentYear, currentMonth, customItems, ex
       if (next.has(month)) next.delete(month); else next.add(month);
       return next;
     });
+  }
+
+  function toggleAnnualFavorite(presetKey: string | undefined): void {
+    if (presetKey) toggleFavorite(presetKey);
   }
 
   const draggedPreset = months.flatMap((month) => month.items).find((item) => item.id === draggedPresetId);
@@ -103,6 +120,7 @@ export function AnnualPlanner({ year, currentYear, currentMonth, customItems, ex
                         <span className={preset.source === "custom" ? "annual-preset-dot annual-preset-dot--custom" : "annual-preset-dot"} />
                         <strong>{preset.title}</strong>
                         {status !== "none" && <small className={`annual-status annual-status--${status}`}><Check aria-hidden="true" size={12} />{statusLabels.get(status)}</small>}
+                        {preset.presetKey && <button aria-label={`${preset.title} ${preferenceFor(preset.presetKey)?.favorite ? "즐겨찾기 해제" : "즐겨찾기"}`} aria-pressed={preferenceFor(preset.presetKey)?.favorite ?? false} className="annual-preset-favorite" disabled={isPending} onClick={() => toggleAnnualFavorite(preset.presetKey)} type="button"><Star aria-hidden="true" fill={preferenceFor(preset.presetKey)?.favorite ? "currentColor" : "none"} size={15} /></button>}
                       </div>
                       <p>{preset.description}</p>
                       <div className="annual-preset-item__meta"><span><Clock3 aria-hidden="true" size={13} />{preset.estimatedMinutes}분</span><span>{preset.recommendedPeriod}</span>{preset.checklist.length > 0 && <span><ListTodo aria-hidden="true" size={13} />{preset.checklist.length}개</span>}</div>

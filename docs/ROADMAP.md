@@ -1162,7 +1162,7 @@ chore: complete MVP QA and deployment
 - [x] 추가됨·예정됨·완료됨 표시를 기존 Task·Event 조회로 계산
 - [x] PC 확인 기반 날짜 드롭과 Mobile 버튼 기반 추가 흐름
 - [x] 사용자 커스텀 항목 추가와 사용자별 RLS·pgTAP 자산
-- [ ] 기본 항목 숨김과 사용자 지정 순서 변경
+- [x] 공통 프리셋 즐겨찾기·숨김·사용자 지정 순서를 연간 플래너에 반영
 - [ ] 원격 프로젝트에 `20260718213000_upgrade_annual_planner.sql` 적용 후 커스텀 항목 로그인 QA
 
 이 작업은 기존 일정·업무 구조를 재사용하며 통계 기능, 새로운 AI 추천과 Phase 8을 시작하지 않는다.
@@ -1176,6 +1176,9 @@ chore: complete MVP QA and deployment
 - [x] Task·Event 생성 폼의 반복·체크리스트·알림 자동 입력
 - [x] 저장 전 DB 미반영과 기존 저장 RPC 재사용
 - [x] Client Component 전용 최근 사용 최대 4개와 SSR 안전성
-- [x] 새 migration과 전용 보건업무 데이터 구조 없음
+- [x] 공통 registry와 최근 사용을 유지한 사용자별 즐겨찾기·순서·숨김 설정
+- [x] Desktop 드래그와 키보드 위·아래 이동, Mobile 편집 모드 이동 지원
+- [x] 숨긴 프리셋 복원 및 즐겨찾기·순서·숨김 기본값 복원
+- [x] 사용자 설정 전용 최소 RLS migration과 SQL 검증 자산
 
 이 작업은 기존 일정·업무 생성 진입점만 보완하며 홈 리디자인, 통계, AI 추천과 Phase 8을 시작하지 않는다.

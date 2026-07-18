@@ -1,19 +1,45 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AnnualPlanner } from "@/components/annual/annual-planner";
+import { HealthPresetPreferencesProvider } from "@/components/health-presets/health-preset-preferences-context";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
+import { defaultHealthPresetPreferences } from "@/lib/work-items/health-preset-personalization";
+import type { HealthPresetPreference } from "@/lib/work-items/health-preset-personalization";
 
 const openCreate = vi.fn();
+const preferenceMocks = vi.hoisted(() => ({
+  refresh: vi.fn(),
+  reset: vi.fn(async () => ({ status: "success" as const, message: "기본 순서로 복원했습니다." })),
+  save: vi.fn(async (preferences: unknown) => {
+    void preferences;
+    return { status: "success" as const, message: "프리셋 설정을 저장했습니다." };
+  }),
+}));
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: preferenceMocks.refresh }) }));
+vi.mock("@/app/(app)/health-preset-preference-actions", () => ({
+  resetHealthPresetPreferencesAction: preferenceMocks.reset,
+  saveHealthPresetPreferencesAction: preferenceMocks.save,
+}));
 
 describe("AnnualPlanner", () => {
-  beforeEach(() => openCreate.mockClear());
+  beforeEach(() => {
+    openCreate.mockClear();
+    preferenceMocks.refresh.mockClear();
+    preferenceMocks.save.mockClear();
+  });
 
-  function renderPlanner(customItems: Parameters<typeof AnnualPlanner>[0]["customItems"] = []) {
+  function renderPlanner(
+    customItems: Parameters<typeof AnnualPlanner>[0]["customItems"] = [],
+    preferences: readonly HealthPresetPreference[] = defaultHealthPresetPreferences(),
+  ) {
     render(
-      <AppShellCreateContext value={{ openCreate }}>
-        <AnnualPlanner currentMonth={7} currentYear={2026} customItems={customItems} existingItems={[]} year={2026} />
-      </AppShellCreateContext>,
+      <HealthPresetPreferencesProvider initialPreferences={preferences}>
+        <AppShellCreateContext value={{ openCreate }}>
+          <AnnualPlanner currentMonth={7} currentYear={2026} customItems={customItems} existingItems={[]} year={2026} />
+        </AppShellCreateContext>
+      </HealthPresetPreferencesProvider>,
     );
   }
 
@@ -78,5 +104,18 @@ describe("AnnualPlanner", () => {
     fireEvent.click(screen.getByRole("button", { name: "우리 학교 점검 업무로 추가" }));
 
     expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "task", expect.objectContaining({ title: "우리 학교 점검", checklist: ["일정 확인"], requiredDate: true }));
+  });
+
+  it("shares favorite and hidden preferences with common annual presets", async () => {
+    const preferences = defaultHealthPresetPreferences().map((item) => item.presetId === "health-log" ? { ...item, hidden: true } : item);
+    renderPlanner([], preferences);
+
+    expect(screen.queryByText("보건일지 작성 시작")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "약품·응급물품 재고 확인 즐겨찾기" }));
+
+    await waitFor(() => expect(preferenceMocks.save).toHaveBeenCalledOnce());
+    expect(preferenceMocks.save.mock.calls[0]?.[0]).toEqual(expect.arrayContaining([
+      expect.objectContaining({ presetId: "emergency-supplies-check", favorite: true }),
+    ]));
   });
 });

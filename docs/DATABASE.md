@@ -139,3 +139,15 @@ AI 구조에는 delete operation이 없으므로 삭제 SQL·RPC와 연결하지
 - migration: `supabase/migrations/20260718213000_upgrade_annual_planner.sql`
 - 적용 확인: `supabase/sql/verify_annual_planner_custom_items.sql`
 - 로컬 pgTAP: `supabase/tests/annual_planner_custom_items.sql`
+
+## 보건업무 프리셋 사용자 설정 (2026-07-18)
+
+공통 프리셋 정의는 `lib/work-items/health-presets.ts`의 정적 registry로 유지한다. `health_preset_preferences`에는 사용자별 표시 설정만 저장하며 프리셋 본문, 체크리스트 또는 생성된 Task·Event를 복제하지 않는다.
+
+- 필드: `id`, `user_id`, `preset_id`, `favorite`, `hidden`, `sort_order`, `created_at`, `updated_at`
+- `(user_id, preset_id)`로 사용자별 프리셋 설정을 하나로 제한하고 `(user_id, sort_order)`로 순서를 하나로 제한한다.
+- SELECT·INSERT·UPDATE·DELETE 정책은 모두 `(select auth.uid()) = user_id`를 사용한다. 기본 순서 복원은 현재 사용자의 설정 행만 삭제한다.
+- 최근 사용 최대 4개는 localStorage에 남으며 이 테이블과 분리한다.
+- migration: `supabase/migrations/20260718223000_personalize_health_presets.sql`
+- 적용 확인: `supabase/sql/verify_health_preset_preferences.sql`
+- 로컬 pgTAP: `supabase/tests/health_preset_preferences.sql`

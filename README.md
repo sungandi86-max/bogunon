@@ -39,7 +39,7 @@ Smart Calendar는 월간·주간 보기, 오늘 이동, 서울 시간대 다음 
 
 연간 플래너는 1월부터 12월까지의 보건업무 제안을 보여 주고 기존 Task·Event 생성 폼으로 복사합니다. 제안을 고르는 것만으로 저장하지 않으며 날짜를 확인한 뒤 기존 캘린더 흐름으로 저장합니다. 기본 제안은 `lib/annual-planner/health-yearly-presets.ts`의 정적 데이터이고, 내 학교에 맞춘 사용자 항목을 사용하려면 `supabase/migrations/20260718213000_upgrade_annual_planner.sql`을 한 번 적용합니다. 검증 SQL은 `supabase/sql/verify_annual_planner_custom_items.sql`입니다.
 
-업무 화면과 모바일 새로 만들기 메뉴의 `빠른 보건업무`는 연간 플래너와 같은 `lib/work-items/health-presets.ts` registry를 사용합니다. 프리셋은 기존 Task·Event 생성 폼에 제목, 반복, 예상 시간, 체크리스트와 알림을 채울 뿐 선택만으로 저장하지 않습니다. 최근 사용한 프리셋 최대 4개는 브라우저 localStorage에만 보관하며 이 기능을 위한 DB 변경은 없습니다.
+업무 화면과 모바일 새로 만들기 메뉴의 `빠른 보건업무`는 연간 플래너와 같은 `lib/work-items/health-presets.ts` registry를 사용합니다. 프리셋은 기존 Task·Event 생성 폼에 제목, 반복, 예상 시간, 체크리스트와 알림을 채울 뿐 선택만으로 저장하지 않습니다. 최근 사용한 프리셋 최대 4개는 브라우저 localStorage에만 보관합니다. 계정별 즐겨찾기·순서·숨김을 사용하려면 `supabase/migrations/20260718223000_personalize_health_presets.sql`을 한 번 적용하고 `supabase/sql/verify_health_preset_preferences.sql`로 확인합니다. 공통 프리셋 내용은 DB에 복제하지 않습니다.
 
 ## 환경 변수
 

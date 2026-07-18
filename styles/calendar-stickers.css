@@ -22,15 +22,30 @@
 .school-sticker-picker__selected small { color: var(--color-text-secondary); }
 .today-school-stickers { margin: 0 0 12px; }
 .calendar-date-stickers { display: flex; align-items: center; gap: 3px; min-width: 0; }
+.calendar-sticker-management__trigger { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); cursor: pointer; display: inline-flex; justify-content: center; min-height: 32px; min-width: 32px; padding: 2px; position: relative; }
+.calendar-sticker-management__trigger::before { content: ""; inset: -6px; position: absolute; }
+.calendar-sticker-management__trigger:hover, .calendar-sticker-management__trigger:focus-visible { background: var(--action-50); outline: 2px solid var(--action-600); outline-offset: 1px; }
+.calendar-sticker-management__overlay { inset: 0; position: fixed; z-index: 90; }
+.calendar-sticker-management__panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); display: grid; gap: var(--space-4); left: var(--sticker-popover-left); padding: var(--space-6); position: fixed; top: var(--sticker-popover-top); width: 288px; }
+.calendar-sticker-management__panel header { align-items: center; display: flex; justify-content: space-between; }
+.calendar-sticker-management__panel h2 { font-size: var(--text-section); margin: 0; }
+.calendar-sticker-management__panel header button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-500); display: inline-flex; height: var(--touch-target); justify-content: center; width: var(--touch-target); }
+.calendar-sticker-management__preview { align-items: center; background: var(--action-50); border-radius: var(--radius-md); display: flex; justify-content: center; min-height: 72px; }
+.calendar-sticker-management__panel > strong { color: var(--brand-950); }
+.calendar-sticker-management__panel > time { color: var(--ink-500); font-size: var(--text-md); }
+.calendar-sticker-management__remove, .calendar-sticker-management__close { border-radius: var(--radius-md); font-weight: var(--weight-semibold); min-height: var(--touch-target); }
+.calendar-sticker-management__remove { background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 28%, var(--line)); color: var(--danger); }
+.calendar-sticker-management__close { background: var(--surface); border: 1px solid var(--line); color: var(--ink-700); }
 .personal-event-presets { border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface-soft); padding: 14px; }
 .personal-event-presets > div { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 6px; }
 .personal-event-presets button { min-height: 38px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); padding: 0 12px; }
 .personal-event-presets button[aria-pressed="true"] { border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary-strong); }
 .personal-event-presets small { color: var(--color-text-secondary); }
 .mobile-health-presets { border-bottom: 1px solid var(--mobile-line); padding-bottom: var(--space-5); }
-.mobile-health-presets > div:first-child { align-items: center; display: flex; justify-content: space-between; }
+.mobile-health-presets > div:first-child { align-items: center; display: flex; gap: var(--space-3); justify-content: space-between; }
 .mobile-health-presets h2 { color: var(--mobile-title); font-size: var(--text-section); margin: 0; }
-.mobile-health-presets > div:first-child button { background: transparent; border: 0; color: var(--action-700); font-size: var(--text-meta); font-weight: var(--weight-semibold); min-height: var(--touch-target); padding-inline: var(--space-3); }
+.mobile-health-presets > div:first-child button, .mobile-health-presets__management button { background: transparent; border: 0; color: var(--action-700); font-size: var(--text-meta); font-weight: var(--weight-semibold); min-height: var(--touch-target); padding-inline: var(--space-3); }
+.mobile-health-presets__tools { display: flex; }
 .mobile-health-presets__grid,
 .mobile-health-presets__recent > div { display: grid; gap: var(--space-2); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: var(--space-3); }
 .mobile-health-presets__recent { border-top: 1px solid var(--mobile-line-soft); margin-top: var(--space-4); padding-top: var(--space-4); }
@@ -38,8 +53,17 @@
 .mobile-health-presets__groups { display: grid; gap: var(--space-4); margin-top: var(--space-4); }
 .mobile-health-presets__groups h3 { color: var(--mobile-body); font-size: var(--text-meta); margin: 0; }
 .mobile-health-presets__groups .mobile-health-presets__grid { margin-top: var(--space-2); }
-.mobile-health-presets__grid button,
-.mobile-health-presets__recent button { background: var(--mobile-mint-soft); border: 1px solid var(--mobile-line); border-radius: var(--radius-md); color: var(--mobile-title); font-size: var(--text-meta); line-height: var(--leading-tight); min-height: var(--touch-target); overflow: hidden; padding: var(--space-3); text-align: left; white-space: normal; }
+.mobile-health-preset-item { background: var(--mobile-mint-soft); border: 1px solid var(--mobile-line); border-radius: var(--radius-md); display: grid; grid-template-columns: minmax(0, 1fr) auto; overflow: hidden; }
+.mobile-health-preset-item > button:first-child { background: transparent; border: 0; color: var(--mobile-title); font-size: var(--text-meta); line-height: var(--leading-tight); min-height: var(--touch-target); overflow: hidden; padding: var(--space-3); text-align: left; white-space: normal; }
+.mobile-health-preset-item__favorite, .mobile-health-preset-item__edit button { align-items: center; background: transparent; border: 0; color: var(--mobile-body); display: inline-flex; justify-content: center; min-height: var(--touch-target); min-width: var(--touch-target); }
+.mobile-health-preset-item__favorite[aria-pressed="true"] { background: var(--warning-soft); color: var(--warning); }
+.mobile-health-preset-item__edit { border-top: 1px solid var(--mobile-line-soft); display: flex; grid-column: 1 / -1; justify-content: flex-end; }
+.mobile-health-presets__management { align-items: center; display: flex; flex-wrap: wrap; justify-content: space-between; margin-top: var(--space-3); }
+.mobile-health-presets__management button { align-items: center; display: inline-flex; gap: var(--space-1); }
+.mobile-health-presets__hidden { border-top: 1px solid var(--mobile-line-soft); display: grid; gap: var(--space-2); margin-top: var(--space-3); padding-top: var(--space-3); }
+.mobile-health-presets__hidden button { align-items: center; background: var(--surface-subtle); border: 1px solid var(--mobile-line); border-radius: var(--radius-sm); color: var(--mobile-body); display: flex; font-size: var(--text-meta); gap: var(--space-2); min-height: var(--touch-target); padding: var(--space-2) var(--space-3); }
+.mobile-health-presets__hidden p, .mobile-health-presets__message { color: var(--mobile-body); font-size: var(--text-meta); margin: var(--space-2) 0 0; }
+.mobile-health-presets__recent strong span { color: var(--action-700); font-size: var(--text-2xs); margin-left: var(--space-1); }
 .mobile-health-presets__grid button:hover,
 .mobile-health-presets__grid button:focus-visible,
 .mobile-health-presets__recent button:hover,
@@ -105,4 +129,9 @@
   .smart-week__day { min-height: 220px; padding: var(--space-4); }
   .smart-week__selected { padding: var(--space-6); }
   .calendar-item__move { min-height: 32px; min-width: 32px; }
+}
+
+@media (max-width: 1023px) {
+  .calendar-sticker-management__overlay { background: rgb(36 50 71 / 24%); }
+  .calendar-sticker-management__panel { border: 0; border-radius: var(--radius-xl) var(--radius-xl) 0 0; bottom: 0; box-shadow: var(--mobile-sheet-shadow); gap: var(--space-5); left: 0; max-width: none; padding: var(--space-8) var(--space-6) calc(var(--space-7) + env(safe-area-inset-bottom)); top: auto; width: 100%; }
 }

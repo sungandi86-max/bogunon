@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { AiAssistantPanel } from "@/components/ai/ai-assistant-panel";
 import type { AssistantDraft } from "@/components/ai/ai-assistant-panel";
 import { AssistantContext } from "@/components/ai/assistant-context";
+import { HealthPresetPreferencesProvider } from "@/components/health-presets/health-preset-preferences-context";
 import type { AssistantSurface } from "@/components/ai/assistant-context";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
 import { CreateItemForm } from "@/components/layout/create-item-form";
@@ -16,11 +17,14 @@ import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-pan
 import { Button } from "@/components/ui/button";
 import type { AuthProfile } from "@/lib/auth/profile";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
+import { defaultHealthPresetPreferences } from "@/lib/work-items/health-preset-personalization";
+import type { HealthPresetPreference } from "@/lib/work-items/health-preset-personalization";
 import type { RecurrenceFrequency, TaskCategory, TaskPriority } from "@/types/database";
 
 interface AppShellProps {
   readonly children: ReactNode;
   readonly profile?: AuthProfile;
+  readonly presetPreferences?: readonly HealthPresetPreference[];
 }
 
 const fallbackProfile: AuthProfile = { email: "Google 계정", initial: "보" };
@@ -61,7 +65,7 @@ function templateFromAssistantDraft(draft: AssistantDraft, aiDraftId?: string): 
   };
 }
 
-export function AppShell({ children, profile = fallbackProfile }: AppShellProps) {
+export function AppShell({ children, presetPreferences = defaultHealthPresetPreferences(), profile = fallbackProfile }: AppShellProps) {
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [createKind, setCreateKind] = useState<"task" | "event">("task");
@@ -95,6 +99,7 @@ export function AppShell({ children, profile = fallbackProfile }: AppShellProps)
   }, [openCreate]);
 
   return (
+    <HealthPresetPreferencesProvider initialPreferences={presetPreferences}>
     <AssistantContext value={{ openAssistant }}>
       <AppShellCreateContext value={{ openCreate }}>
         <div className="app-shell">
@@ -120,5 +125,6 @@ export function AppShell({ children, profile = fallbackProfile }: AppShellProps)
         </div>
       </AppShellCreateContext>
     </AssistantContext>
+    </HealthPresetPreferencesProvider>
   );
 }

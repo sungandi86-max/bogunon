@@ -1,8 +1,21 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { MobileCreateButton } from "@/components/layout/mobile-create-button";
+
+const preferenceMocks = vi.hoisted(() => ({
+  reset: vi.fn(async () => ({ status: "success" as const, message: "기본 순서로 복원했습니다." })),
+  save: vi.fn(async (preferences: unknown) => {
+    void preferences;
+    return { status: "success" as const, message: "프리셋 설정을 저장했습니다." };
+  }),
+}));
+
+vi.mock("@/app/(app)/health-preset-preference-actions", () => ({
+  resetHealthPresetPreferencesAction: preferenceMocks.reset,
+  saveHealthPresetPreferencesAction: preferenceMocks.save,
+}));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/briefing",
@@ -10,6 +23,8 @@ vi.mock("next/navigation", () => ({
 }));
 
 describe("AppShell", () => {
+  beforeEach(() => vi.clearAllMocks());
+
   it("marks the current navigation item", () => {
     render(<AppShell><main>본문</main></AppShell>);
 
@@ -58,6 +73,28 @@ describe("AppShell", () => {
     expect(within(menu).getByRole("link", { name: /업무 절차 시작/ })).toBeInTheDocument();
     expect(within(menu).getByRole("link", { name: /빠른 메모/ })).toBeInTheDocument();
     expect(within(menu).getByRole("button", { name: /^작성 도움/ })).toBeInTheDocument();
+  });
+
+  it("personalizes mobile favorites, ordering, hidden presets, and restores defaults", async () => {
+    render(<AppShell><main>본문</main></AppShell>);
+    fireEvent.click(screen.getByRole("button", { name: "빠른 새로 만들기" }));
+    const menu = screen.getByRole("dialog", { name: "새로 만들기" });
+
+    await act(async () => fireEvent.click(within(menu).getByRole("button", { name: "보건일지 작성 즐겨찾기" })));
+    expect(preferenceMocks.save).toHaveBeenCalledOnce();
+
+    fireEvent.click(within(menu).getByRole("button", { name: "편집" }));
+    await act(async () => fireEvent.click(within(menu).getByRole("button", { name: "보건소식지 작성·게시 위로 이동" })));
+    expect(preferenceMocks.save).toHaveBeenCalledTimes(2);
+
+    await act(async () => fireEvent.click(within(menu).getByRole("button", { name: "보건실 침구 세탁 숨기기" })));
+    expect(preferenceMocks.save).toHaveBeenCalledTimes(3);
+    expect(within(menu).queryByRole("button", { name: "보건실 침구 세탁 보건업무 프리셋 적용" })).not.toBeInTheDocument();
+
+    fireEvent.click(within(menu).getByRole("button", { name: "숨긴 프리셋 관리" }));
+    expect(within(menu).getByRole("button", { name: "보건실 침구 세탁 복원" })).toBeInTheDocument();
+    await act(async () => fireEvent.click(within(menu).getByRole("button", { name: "기본 순서로 복원" })));
+    expect(preferenceMocks.reset).toHaveBeenCalledOnce();
   });
 
   it("opens the create panel, closes with Escape, and returns focus", () => {

@@ -213,6 +213,17 @@ export type EventReminderRow = {
   updated_at: string;
 };
 
+export type HealthPresetPreferenceRow = {
+  id: string;
+  user_id: string;
+  preset_id: string;
+  favorite: boolean;
+  hidden: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type AiPreferencesRow = {
   id: string;
   user_id: string;
@@ -308,6 +319,12 @@ export type Database = {
         Row: UserSettingsRow;
         Insert: Insert<UserSettingsRow, "id" | "week_starts_on" | "default_event_minutes" | "event_reminders_enabled" | "task_due_reminders_enabled" | "exercise_enabled" | "writing_assistance_enabled" | "display_density" | "created_at" | "updated_at">;
         Update: Partial<UserSettingsRow>;
+        Relationships: [];
+      };
+      health_preset_preferences: {
+        Row: HealthPresetPreferenceRow;
+        Insert: Insert<HealthPresetPreferenceRow, "id" | "favorite" | "hidden" | "created_at" | "updated_at">;
+        Update: Partial<HealthPresetPreferenceRow>;
         Relationships: [];
       };
       task_templates: {

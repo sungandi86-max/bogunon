@@ -1,13 +1,14 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ClipboardList, Dumbbell, FilePenLine, GitBranch, Home, Plus, Settings, Sticker, StickyNote, UserRound } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, ChevronUp, ClipboardList, Dumbbell, Eye, EyeOff, FilePenLine, GitBranch, Home, Plus, RotateCcw, Settings, Star, Sticker, StickyNote, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
 
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
+import { useHealthPresetPreferences } from "@/components/health-presets/health-preset-preferences-context";
 import { useRecentHealthPresets } from "@/components/health-presets/use-recent-health-presets";
-import { HEALTH_PRESET_GROUPS, healthPresetsForSurface } from "@/lib/work-items/health-presets";
+import { HEALTH_PRESET_GROUPS } from "@/lib/work-items/health-presets";
 import type { HealthPresetDefinition } from "@/lib/work-items/health-presets";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
 
@@ -28,10 +29,13 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
   const pathname = usePathname();
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
   const [showAllHealthPresets, setShowAllHealthPresets] = useState(false);
+  const [editingHealthPresets, setEditingHealthPresets] = useState(false);
+  const [showHiddenHealthPresets, setShowHiddenHealthPresets] = useState(false);
   const { presets: recentHealthPresets, remember: rememberHealthPreset } = useRecentHealthPresets();
+  const { hiddenPresets, isPending, message, movePreset, preferenceFor, resetPreferences, setHidden, toggleFavorite, visiblePresets } = useHealthPresetPreferences();
   const launcherRef = useRef<HTMLButtonElement>(null);
-  const healthPresets = healthPresetsForSurface("mobile");
-  const quickHealthPresets = healthPresets.slice(0, 6);
+  const quickHealthPresets = visiblePresets.slice(0, 6);
+  const visibleRecentHealthPresets = recentHealthPresets.filter((preset) => !preferenceFor(preset.key)?.hidden);
 
   function chooseCreate(trigger: HTMLButtonElement, kind: "task" | "event", template?: TemplateDefinition): void {
     setCreateMenuOpen(false);
@@ -46,6 +50,19 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
   function chooseHealthPreset(trigger: HTMLButtonElement, preset: HealthPresetDefinition): void {
     rememberHealthPreset(preset.key);
     chooseCreate(trigger, preset.kind, preset);
+  }
+
+  function healthPresetButton(preset: HealthPresetDefinition, recent = false) {
+    const preference = preferenceFor(preset.key);
+    return <div className="mobile-health-preset-item" key={preset.key}>
+      <button aria-label={recent ? `${preset.name} 최근 사용` : `${preset.name} 보건업무 프리셋 적용`} onClick={(event) => chooseHealthPreset(event.currentTarget, preset)} type="button">{preset.name}</button>
+      <button aria-label={`${preset.name} ${preference?.favorite ? "즐겨찾기 해제" : "즐겨찾기"}`} aria-pressed={preference?.favorite ?? false} className="mobile-health-preset-item__favorite" disabled={isPending} onClick={() => toggleFavorite(preset.key)} type="button"><Star aria-hidden="true" fill={preference?.favorite ? "currentColor" : "none"} size={15} /></button>
+      {editingHealthPresets && <div className="mobile-health-preset-item__edit">
+        <button aria-label={`${preset.name} 위로 이동`} disabled={isPending} onClick={() => movePreset(preset.key, -1)} type="button"><ChevronUp aria-hidden="true" size={14} /></button>
+        <button aria-label={`${preset.name} 아래로 이동`} disabled={isPending} onClick={() => movePreset(preset.key, 1)} type="button"><ChevronDown aria-hidden="true" size={14} /></button>
+        <button aria-label={`${preset.name} 숨기기`} disabled={isPending} onClick={() => setHidden(preset.key, true)} type="button"><EyeOff aria-hidden="true" size={14} /></button>
+      </div>}
+    </div>;
   }
 
   return (
@@ -64,7 +81,7 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
           aria-haspopup="dialog"
           aria-label="빠른 새로 만들기"
           className="mobile-create-fab"
-          onClick={() => { setShowAllHealthPresets(false); setCreateMenuOpen(true); }}
+          onClick={() => { setShowAllHealthPresets(false); setEditingHealthPresets(false); setShowHiddenHealthPresets(false); setCreateMenuOpen(true); }}
           ref={launcherRef}
           type="button"
         >
@@ -79,13 +96,19 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
       >
         <div className="mobile-create-menu">
           <section className="mobile-health-presets" aria-labelledby="mobile-health-presets-title">
-            <div><h2 id="mobile-health-presets-title">빠른 보건업무</h2><button aria-expanded={showAllHealthPresets} aria-label={showAllHealthPresets ? "보건업무 간단히 보기" : "보건업무 전체 보기"} onClick={() => setShowAllHealthPresets((value) => !value)} type="button">{showAllHealthPresets ? "간단히 보기" : "전체 보기"}</button></div>
-            {recentHealthPresets.length > 0 && <div className="mobile-health-presets__recent"><strong>최근 사용</strong><div>{recentHealthPresets.map((preset) => <button aria-label={`${preset.name} 최근 사용`} key={preset.key} onClick={(event) => chooseHealthPreset(event.currentTarget, preset)} type="button">{preset.name}</button>)}</div></div>}
-            {!showAllHealthPresets ? <div className="mobile-health-presets__grid">{quickHealthPresets.map((preset) => <button aria-label={`${preset.name} 보건업무 프리셋 적용`} key={preset.key} onClick={(event) => chooseHealthPreset(event.currentTarget, preset)} type="button">{preset.name}</button>)}</div> : (
+            <div><h2 id="mobile-health-presets-title">빠른 보건업무</h2><div className="mobile-health-presets__tools"><button aria-pressed={editingHealthPresets} onClick={() => { setEditingHealthPresets((value) => !value); setShowAllHealthPresets(true); }} type="button">{editingHealthPresets ? "완료" : "편집"}</button><button aria-expanded={showAllHealthPresets} aria-label={showAllHealthPresets ? "보건업무 간단히 보기" : "보건업무 전체 보기"} onClick={() => setShowAllHealthPresets((value) => !value)} type="button">{showAllHealthPresets ? "간단히 보기" : "전체 보기"}</button></div></div>
+            {visibleRecentHealthPresets.length > 0 && <div className="mobile-health-presets__recent"><strong>최근 사용 <span>자동</span></strong><div>{visibleRecentHealthPresets.map((preset) => healthPresetButton(preset, true))}</div></div>}
+            {message && <p className="mobile-health-presets__message" role="status">{message}</p>}
+            {editingHealthPresets ? <div className="mobile-health-presets__grid mobile-health-presets__grid--editing">{visiblePresets.map((preset) => healthPresetButton(preset))}</div> : !showAllHealthPresets ? <div className="mobile-health-presets__grid">{quickHealthPresets.map((preset) => healthPresetButton(preset))}</div> : (
               <div className="mobile-health-presets__groups">
-                {HEALTH_PRESET_GROUPS.map((group) => <section aria-labelledby={`mobile-health-preset-group-${group}`} key={group}><h3 id={`mobile-health-preset-group-${group}`}>{group}</h3><div className="mobile-health-presets__grid">{healthPresets.filter((preset) => preset.group === group).map((preset) => <button aria-label={`${preset.name} 보건업무 프리셋 적용`} key={preset.key} onClick={(event) => chooseHealthPreset(event.currentTarget, preset)} type="button">{preset.name}</button>)}</div></section>)}
+                {HEALTH_PRESET_GROUPS.map((group) => {
+                  const groupPresets = visiblePresets.filter((preset) => preset.group === group);
+                  return groupPresets.length > 0 ? <section aria-labelledby={`mobile-health-preset-group-${group}`} key={group}><h3 id={`mobile-health-preset-group-${group}`}>{group}</h3><div className="mobile-health-presets__grid">{groupPresets.map((preset) => healthPresetButton(preset))}</div></section> : null;
+                })}
               </div>
             )}
+            <div className="mobile-health-presets__management"><button aria-expanded={showHiddenHealthPresets} onClick={() => setShowHiddenHealthPresets((value) => !value)} type="button">숨긴 프리셋 관리</button>{editingHealthPresets && <button disabled={isPending} onClick={resetPreferences} type="button"><RotateCcw aria-hidden="true" size={14} />기본 순서로 복원</button>}</div>
+            {showHiddenHealthPresets && <div className="mobile-health-presets__hidden">{hiddenPresets.length > 0 ? hiddenPresets.map((preset) => <button disabled={isPending} key={preset.key} onClick={() => setHidden(preset.key, false)} type="button"><Eye aria-hidden="true" size={14} />{preset.name} 복원</button>) : <p>숨긴 프리셋이 없습니다.</p>}</div>}
           </section>
           <button onClick={(event) => chooseCreate(event.currentTarget, "task")} type="button"><ClipboardList aria-hidden="true" size={20} /><span><strong>업무 추가</strong><small>할 일과 마감일을 정리합니다.</small></span></button>
           <button onClick={(event) => chooseCreate(event.currentTarget, "event")} type="button"><CalendarPlus aria-hidden="true" size={20} /><span><strong>일정 추가</strong><small>날짜와 시간이 있는 일정을 등록합니다.</small></span></button>
