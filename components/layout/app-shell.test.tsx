@@ -28,10 +28,10 @@ describe("AppShell", () => {
     fireEvent.click(launcher);
     const menu = screen.getByRole("dialog", { name: "새로 만들기" });
     expect(within(menu).getByRole("link", { name: /업무 절차 시작/ })).toHaveAttribute("href", "/workflows");
-    expect(within(menu).getByRole("link", { name: /운동 기록/ })).toHaveAttribute("href", "/exercise?create=1");
+    expect(within(menu).getByRole("link", { name: /운동 스티커 붙이기/ })).toHaveAttribute("href", "/exercise?create=sticker");
     expect(within(menu).getByRole("link", { name: /빠른 메모/ })).toHaveAttribute("href", "/briefing#quick-note");
 
-    fireEvent.click(within(menu).getByRole("button", { name: /업무 만들기/ }));
+    fireEvent.click(within(menu).getByRole("button", { name: /업무 추가/ }));
     expect(screen.getByLabelText("제목")).toHaveFocus();
 
     fireEvent.keyDown(document, { key: "Escape" });

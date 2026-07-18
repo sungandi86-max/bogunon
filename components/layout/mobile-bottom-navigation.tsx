@@ -65,10 +65,10 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
         title="새로 만들기"
       >
         <div className="mobile-create-menu">
-          <button onClick={(event) => chooseCreate(event.currentTarget, "task")} type="button"><ClipboardList aria-hidden="true" size={20} /><span><strong>업무 만들기</strong><small>할 일과 마감일을 정리합니다.</small></span></button>
-          <button onClick={(event) => chooseCreate(event.currentTarget, "event")} type="button"><CalendarPlus aria-hidden="true" size={20} /><span><strong>일정 만들기</strong><small>날짜와 시간이 있는 일정을 등록합니다.</small></span></button>
+          <button onClick={(event) => chooseCreate(event.currentTarget, "task")} type="button"><ClipboardList aria-hidden="true" size={20} /><span><strong>업무 추가</strong><small>할 일과 마감일을 정리합니다.</small></span></button>
+          <button onClick={(event) => chooseCreate(event.currentTarget, "event")} type="button"><CalendarPlus aria-hidden="true" size={20} /><span><strong>일정 추가</strong><small>날짜와 시간이 있는 일정을 등록합니다.</small></span></button>
+          <Link href="/exercise?create=sticker" onClick={() => setCreateMenuOpen(false)}><Dumbbell aria-hidden="true" size={20} /><span><strong>운동 스티커 붙이기</strong><small>오늘 한 운동을 한 번의 탭으로 남깁니다.</small></span></Link>
           <Link href="/workflows" onClick={() => setCreateMenuOpen(false)}><GitBranch aria-hidden="true" size={20} /><span><strong>업무 절차 시작</strong><small>단계가 있는 보건업무를 시작합니다.</small></span></Link>
-          <Link href="/exercise?create=1" onClick={() => setCreateMenuOpen(false)}><Dumbbell aria-hidden="true" size={20} /><span><strong>운동 기록</strong><small>운동 일정과 완료 기록을 남깁니다.</small></span></Link>
           <Link href="/briefing#quick-note" onClick={() => setCreateMenuOpen(false)}><StickyNote aria-hidden="true" size={20} /><span><strong>빠른 메모</strong><small>떠오른 내용을 바로 정리합니다.</small></span></Link>
           <button onClick={(event) => chooseAssistant(event.currentTarget)} type="button"><FilePenLine aria-hidden="true" size={20} /><span><strong>작성 도움</strong><small>내용과 체크리스트 제안을 확인합니다.</small></span></button>
         </div>

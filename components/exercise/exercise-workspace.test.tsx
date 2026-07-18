@@ -3,72 +3,46 @@ import { describe, expect, it, vi } from "vitest";
 
 import { ExerciseWorkspace } from "@/components/exercise/exercise-workspace";
 import { serializeExerciseMetadata } from "@/lib/exercise/domain";
-import type { EventRow } from "@/types/database";
+import type { EventRow, ExerciseLogRow, ExerciseStickerRow } from "@/types/database";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
-vi.mock("@/app/(app)/exercise-actions", () => ({
-  saveExerciseAction: vi.fn(async () => ({ status: "success", message: "운동 기록을 저장했습니다." })),
-  setExerciseStatusAction: vi.fn(),
+vi.mock("@/app/(app)/exercise-sticker-actions", () => ({
+  attachExerciseStickerAction: vi.fn(async () => ({ status: "success", message: "운동 스티커를 붙였어요." })),
+  removeExerciseStickerAction: vi.fn(async () => ({ status: "success", message: "운동 스티커를 떼었어요." })),
+  updateExerciseStickerDetailsAction: vi.fn(async () => ({ status: "success", message: "운동 기록을 저장했어요." })),
+  saveCustomExerciseStickerAction: vi.fn(async () => ({ status: "success", message: "내 스티커를 만들었어요." })),
+  removeCustomExerciseStickerAction: vi.fn(async () => ({ status: "success", message: "내 스티커를 삭제했어요." })),
 }));
 
-const event = (id: string, status: "planned" | "completed" | "cancelled"): EventRow => ({
-  id,
-  user_id: "user-1",
-  title: "배드민턴",
-  area: "exercise",
-  start_date: "2026-07-18",
-  end_date: "2026-07-18",
-  is_all_day: false,
-  start_time: "19:00:00",
-  end_time: "20:30:00",
-  memo: "체육관 앞에서 만나기",
-  description: serializeExerciseMetadata({ durationMinutes: 90, intensity: "moderate", location: "학교 체육관", recurrence: "weekly", status }),
-  created_at: "2026-07-18T00:00:00.000Z",
-  updated_at: "2026-07-18T00:00:00.000Z",
-});
+const sticker: ExerciseStickerRow = { id: "10000000-0000-4000-8000-000000000001", user_id: null, label: "배드민턴", icon_key: "badminton", color_key: "mint", display_order: 10, is_default: true, created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
+const log: ExerciseLogRow = { id: "20000000-0000-4000-8000-000000000001", user_id: "user-1", sticker_id: sticker.id, exercise_date: "2026-07-18", duration_minutes: null, note: null, created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
+const event: EventRow = { id: "event-1", user_id: "user-1", title: "배드민턴", area: "exercise", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: false, start_time: "19:00:00", end_time: "20:30:00", memo: "[QA-EX] 운동 전용 폼 저장 및 새로고침 검증", description: serializeExerciseMetadata({ durationMinutes: 90, intensity: "moderate", location: "학교 체육관", recurrence: "weekly", status: "planned" }), created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
 
 describe("ExerciseWorkspace", () => {
-  it("opens the contextual form from the floating navigation route", () => {
-    render(<ExerciseWorkspace events={[]} initialOpen today="2026-07-18" />);
-
-    expect(screen.getByRole("dialog", { name: "운동 기록 추가" })).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "운동 종류" })).toBeInTheDocument();
+  it("opens the instant sticker picker from the navigation route", () => {
+    render(<ExerciseWorkspace events={[]} initialOpen logs={[]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
+    expect(screen.getByRole("dialog", { name: "오늘 운동했나요?" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "2026-07-18에 배드민턴 스티커 붙이기" }).length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByLabelText("강도")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("장소")).not.toBeInTheDocument();
   });
 
-  it("opens a contextual exercise form without generic work fields", () => {
-    render(<ExerciseWorkspace events={[]} today="2026-07-18" />);
-    fireEvent.click(screen.getByRole("button", { name: "운동 기록 추가" }));
-
-    expect(screen.getByRole("dialog", { name: "운동 기록 추가" })).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "운동 종류" })).toBeInTheDocument();
-    expect(screen.getByLabelText("운동 시간(분)")).toBeInTheDocument();
-    expect(screen.getByRole("combobox", { name: "강도" })).toBeInTheDocument();
-    expect(screen.queryByRole("combobox", { name: "항목 종류" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("combobox", { name: "업무 카테고리" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("combobox", { name: "우선순위" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /AI/ })).not.toBeInTheDocument();
+  it("opens the same sticker picker from the page action", () => {
+    render(<ExerciseWorkspace events={[]} logs={[]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
+    fireEvent.click(screen.getByRole("button", { name: "운동 스티커 붙이기" }));
+    expect(screen.getByRole("dialog", { name: "오늘 운동했나요?" })).toBeInTheDocument();
   });
 
-  it("fills exercise fields from Korean quick input", () => {
-    render(<ExerciseWorkspace events={[]} today="2026-07-18" />);
-    fireEvent.click(screen.getByRole("button", { name: "운동 기록 추가" }));
-    fireEvent.change(screen.getByPlaceholderText("예: 오늘 저녁 7시 배드민턴 2시간"), { target: { value: "오늘 저녁 7시 배드민턴 2시간" } });
-    fireEvent.click(screen.getByRole("button", { name: "입력 해석" }));
-
-    expect(screen.getByRole("combobox", { name: "운동 종류" })).toHaveValue("badminton");
-    expect(screen.getByLabelText("날짜")).toHaveValue("2026-07-18");
-    expect(screen.getByLabelText("시작 시간")).toHaveValue("19:00");
-    expect(screen.getByLabelText("운동 시간(분)")).toHaveValue(120);
+  it("renders saved stickers on the calendar and keeps optional details behind the record", () => {
+    render(<ExerciseWorkspace events={[]} logs={[log]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
+    expect(screen.getAllByLabelText(/배드민턴 운동 스티커/).length).toBeGreaterThan(0);
+    expect(screen.getByText("배드민턴 했다!")).toBeInTheDocument();
+    expect(screen.getByText("이번 달 운동 1일 · 연속 1일")).toBeInTheDocument();
   });
 
-  it("separates planned exercise from completed and cancelled history", () => {
-    render(<ExerciseWorkspace events={[event("planned", "planned"), event("completed", "completed"), event("cancelled", "cancelled")]} today="2026-07-18" />);
-
-    expect(screen.getByRole("heading", { name: "예정된 운동" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "완료·취소 기록" })).toBeInTheDocument();
-    expect(screen.getByText("예정")).toBeInTheDocument();
-    expect(screen.getByText("완료")).toBeInTheDocument();
-    expect(screen.getByText("취소")).toBeInTheDocument();
-    expect(screen.getAllByText("매주 반복")).toHaveLength(3);
+  it("preserves legacy event-based exercise records in a separate section", () => {
+    render(<ExerciseWorkspace events={[event]} logs={[]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
+    expect(screen.getByRole("heading", { name: "기존 운동 일정" })).toBeInTheDocument();
+    expect(screen.getByText("[QA-EX] 운동 전용 폼 저장 및 새로고침 검증")).toBeInTheDocument();
   });
 });

@@ -455,3 +455,123 @@
 .exercise-form input, .exercise-form select, .exercise-form textarea { width: 100%; }
 .exercise-form textarea { min-height: 96px; resize: vertical; }
 .exercise-quick-result { color: var(--success); font-size: var(--text-xs); margin: var(--space-3) 0 0; }
+
+.mobile-daily-schedule, .today-exercise-card { display: none; }
+.exercise-sticker { align-items: center; border-radius: var(--radius-full); box-sizing: border-box; display: inline-flex; flex: 0 0 auto; justify-content: center; padding: 2px; position: relative; transition: transform 160ms ease, box-shadow 160ms ease; }
+.exercise-sticker img { display: block; height: 100%; width: 100%; }
+.exercise-sticker--mint { background: var(--mobile-mint-soft); }
+.exercise-sticker--pink { background: var(--mobile-pink-soft); }
+.exercise-sticker--yellow, .exercise-sticker--cream { background: color-mix(in srgb, var(--pastel-yellow) 38%, white); }
+.exercise-sticker--coral { background: var(--mobile-orange-soft); }
+.exercise-sticker--blue, .exercise-sticker--sky { background: var(--mobile-blue-soft); }
+.exercise-sticker--lavender { background: var(--mobile-lavender-soft); }
+.exercise-sticker--aqua { background: var(--brand-50); }
+.exercise-sticker--xs { height: 24px; width: 24px; }
+.exercise-sticker--sm { height: 32px; width: 32px; }
+.exercise-sticker--md { height: 48px; width: 48px; }
+.exercise-sticker--lg { height: 72px; width: 72px; }
+.exercise-sticker.is-selected { box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--action-500); transform: scale(1.04); }
+.exercise-sticker.is-disabled { filter: grayscale(.8); opacity: .45; }
+.exercise-sticker__check { align-items: center; background: var(--action-600); border: 2px solid var(--surface); border-radius: var(--radius-full); bottom: -2px; color: var(--surface); display: inline-flex; font-size: 10px; font-weight: var(--weight-bold); height: 20px; justify-content: center; position: absolute; right: -2px; width: 20px; }
+.exercise-picker { display: grid; gap: var(--space-6); }
+.exercise-picker__grid { display: grid; gap: var(--space-5); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.exercise-picker form { min-width: 0; }
+.exercise-picker button { align-items: center; background: transparent; border: 1px solid transparent; border-radius: var(--radius-lg); cursor: pointer; display: flex; flex-direction: column; gap: var(--space-3); min-height: 96px; padding: var(--space-4); width: 100%; }
+.exercise-picker button:hover { background: var(--action-50); border-color: var(--action-100); }
+.exercise-picker button > span:last-child { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); line-height: var(--leading-tight); text-align: center; }
+.exercise-picker--compact .exercise-picker__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.exercise-picker--compact button { min-height: 76px; padding: var(--space-3); }
+.sticker-toast { background: var(--success-soft); border: 1px solid rgb(45 122 87 / .18); border-radius: var(--radius-md); color: var(--success); font-size: var(--text-sm); margin: 0; padding: var(--space-5) var(--space-6); }
+.sticker-toast--error { background: var(--danger-soft); color: var(--danger); }
+.exercise-calendar-layout { display: grid; gap: var(--space-10); grid-template-columns: minmax(0, 1.65fr) minmax(300px, .75fr); }
+.exercise-month-card, .exercise-date-panel, .custom-sticker-builder, .settings-card, .settings-error { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
+.exercise-month-card { padding: var(--space-10); }
+.exercise-calendar-toolbar { align-items: center; display: flex; gap: var(--space-8); justify-content: space-between; margin-bottom: var(--space-8); }
+.exercise-calendar-toolbar p { color: var(--ink-500); font-size: var(--text-sm); margin: 0 0 var(--space-2); }
+.exercise-calendar-toolbar h2 { color: var(--brand-950); font-size: var(--text-card); margin: 0; }
+.exercise-calendar-toolbar > div:last-child { align-items: center; display: flex; gap: var(--space-2); }
+.exercise-calendar-toolbar a { align-items: center; border-radius: var(--radius-md); color: var(--action-700); display: inline-flex; font-size: var(--text-sm); font-weight: var(--weight-semibold); height: var(--touch-target); justify-content: center; min-width: var(--touch-target); padding-inline: var(--space-4); }
+.exercise-calendar-toolbar a:hover { background: var(--action-50); }
+.exercise-calendar-weekdays, .exercise-calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.exercise-calendar-weekdays span { color: var(--ink-500); font-size: var(--text-meta); padding: var(--space-4); text-align: center; }
+.exercise-calendar-weekdays span:first-child { color: var(--deadline); }
+.exercise-calendar-weekdays span:last-child { color: var(--health); }
+.exercise-calendar-grid > button, .exercise-calendar-day { background: transparent; border: 1px solid var(--line-subtle); min-height: 82px; min-width: 0; padding: var(--space-3); position: relative; }
+.exercise-calendar-grid > button { cursor: pointer; }
+.exercise-calendar-grid > button:hover { background: var(--action-50); }
+.exercise-calendar-grid > button.is-selected { background: var(--action-50); box-shadow: inset 0 0 0 2px var(--action-500); }
+.exercise-calendar-grid > button time { align-items: center; border-radius: var(--radius-full); color: var(--ink-700); display: inline-flex; font-size: var(--text-meta); height: 24px; justify-content: center; width: 24px; }
+.exercise-calendar-grid > button.is-today time { background: var(--action-500); color: var(--brand-950); font-weight: var(--weight-bold); }
+.exercise-calendar-day__stickers { align-items: center; display: flex; gap: 1px; justify-content: center; margin-top: var(--space-3); min-height: 28px; }
+.exercise-calendar-day__stickers small { color: var(--ink-500); font-size: var(--text-meta); font-weight: var(--weight-bold); }
+.exercise-date-panel { align-self: start; display: grid; gap: var(--space-8); padding: var(--space-10); }
+.exercise-date-panel > div:first-child p { color: var(--ink-500); font-size: var(--text-meta); margin: 0; }
+.exercise-date-panel > div:first-child h2 { font-size: var(--text-card); margin: var(--space-2) 0 0; }
+.exercise-day-empty { color: var(--ink-500); font-size: var(--text-sm); margin: 0; }
+.exercise-day-logs { border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-3); padding-top: var(--space-6); }
+.exercise-log-detail summary { align-items: center; cursor: pointer; display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr) auto; list-style: none; min-height: var(--touch-target); }
+.exercise-log-detail summary::-webkit-details-marker { display: none; }
+.exercise-log-detail summary span { color: var(--action-700); font-size: var(--text-meta); }
+.exercise-log-detail form { display: grid; gap: var(--space-5); padding: var(--space-5) 0; }
+.exercise-log-detail label, .custom-sticker-builder label, .settings-field-grid label { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); }
+.exercise-log-detail input, .exercise-log-detail textarea, .custom-sticker-builder input, .custom-sticker-builder select, .settings-field-grid select { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); min-height: var(--touch-target); padding: var(--space-4) var(--space-5); }
+.exercise-log-detail textarea { min-height: 80px; resize: vertical; }
+.custom-sticker-builder { margin-top: var(--space-10); padding: var(--space-8); }
+.custom-sticker-builder > summary { color: var(--action-700); cursor: pointer; font-weight: var(--weight-bold); min-height: var(--touch-target); padding: var(--space-3); }
+.custom-sticker-builder > form { display: grid; gap: var(--space-7); padding-top: var(--space-6); }
+.custom-sticker-builder fieldset { border: 0; margin: 0; padding: 0; }
+.custom-sticker-builder legend { font-size: var(--text-sm); font-weight: var(--weight-semibold); margin-bottom: var(--space-4); }
+.custom-sticker-icons { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.custom-sticker-icons label { align-items: center; border: 1px solid var(--line); border-radius: var(--radius-md); cursor: pointer; display: flex; flex-direction: row; gap: var(--space-2); padding: var(--space-3); }
+.custom-sticker-icons input { height: 18px; min-height: 0; width: 18px; }
+.custom-sticker-list { border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-4); margin-top: var(--space-8); padding-top: var(--space-7); }
+.custom-sticker-list h3 { font-size: var(--text-section); margin: 0; }
+.custom-sticker-list details { border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-4); }
+.custom-sticker-list summary { align-items: center; cursor: pointer; display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr) auto; list-style: none; min-height: var(--touch-target); }
+.custom-sticker-list summary::-webkit-details-marker { display: none; }
+.custom-sticker-list summary span { color: var(--action-700); font-size: var(--text-meta); }
+.custom-sticker-list form { display: grid; gap: var(--space-4); padding-top: var(--space-5); }
+.legacy-exercise-section { margin-top: var(--space-12); }
+.exercise-sheet-intro { color: var(--ink-700); margin: 0 0 var(--space-7); }
+.settings-form { display: grid; gap: var(--space-8); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.settings-card { overflow: hidden; padding: var(--space-10); }
+.settings-card__heading { align-items: flex-start; display: flex; gap: var(--space-5); margin-bottom: var(--space-8); }
+.settings-card__heading > svg, .settings-row-icon { align-items: center; background: var(--action-50); border-radius: var(--radius-md); color: var(--action-700); display: inline-flex; flex: 0 0 auto; height: 40px; justify-content: center; width: 40px; }
+.settings-card__heading h2 { font-size: var(--text-card); margin: 0; }
+.settings-card__heading p { color: var(--ink-500); font-size: var(--text-support); margin: var(--space-2) 0 0; }
+.settings-field-grid { display: grid; gap: var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.settings-toggle-row { align-items: center; border-top: 1px solid var(--line-subtle); cursor: pointer; display: grid; gap: var(--space-5); grid-template-columns: auto minmax(0, 1fr) auto; min-height: 68px; padding-block: var(--space-5); position: relative; }
+.settings-toggle-row:nth-of-type(1) { border-top: 0; }
+.settings-toggle-row > span:nth-child(2) { display: grid; }
+.settings-toggle-row strong { font-size: var(--text-base); }
+.settings-toggle-row small { color: var(--ink-500); font-size: var(--text-meta); margin-top: var(--space-1); }
+.settings-toggle-row input { height: 1px; opacity: 0; position: absolute; width: 1px; }
+.settings-switch { background: var(--line-strong); border-radius: var(--radius-full); display: block; height: 26px; padding: 3px; transition: background 160ms ease; width: 46px; }
+.settings-switch span { background: var(--surface); border-radius: var(--radius-full); box-shadow: var(--shadow-sm); display: block; height: 20px; transition: transform 160ms ease; width: 20px; }
+.settings-toggle-row input:checked + .settings-switch { background: var(--action-500); }
+.settings-toggle-row input:checked + .settings-switch span { transform: translateX(20px); }
+.settings-toggle-row input:focus-visible + .settings-switch { box-shadow: var(--focus-ring); }
+.density-options { border: 0; margin: 0; padding: 0; }
+.density-options legend { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); margin-bottom: var(--space-4); }
+.density-options { display: grid; gap: var(--space-3); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.density-options label { cursor: pointer; }
+.density-options input { opacity: 0; position: absolute; }
+.density-options span { align-items: center; border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; justify-content: center; min-height: var(--touch-target); }
+.density-options input:checked + span { background: var(--action-50); border-color: var(--action-500); color: var(--action-700); font-weight: var(--weight-bold); }
+.settings-account { grid-column: 1 / -1; }
+.settings-account__row { align-items: center; display: flex; gap: var(--space-8); justify-content: space-between; }
+.settings-account__row > div { display: grid; gap: var(--space-2); }
+.settings-account__row span { align-items: center; color: var(--success); display: inline-flex; font-size: var(--text-meta); gap: var(--space-3); }
+.settings-account__row i, .mobile-briefing-brand small i { background: currentColor; border-radius: var(--radius-full); height: 7px; width: 7px; }
+.settings-account__row button { align-items: center; background: transparent; border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-700); display: inline-flex; gap: var(--space-3); min-height: var(--touch-target); padding: 0 var(--space-6); }
+.settings-save-bar { align-items: center; background: rgb(255 255 255 / .94); border: 1px solid var(--line); border-radius: var(--radius-lg); bottom: var(--space-6); box-shadow: var(--shadow-md); display: flex; gap: var(--space-8); grid-column: 1 / -1; justify-content: space-between; padding: var(--space-5); position: sticky; z-index: 5; }
+.settings-save-bar .form-message { margin: 0; }
+.settings-error { padding: var(--space-12); text-align: center; }
+.settings-error h2 { font-size: var(--text-card); margin: 0; }
+.settings-error p { color: var(--ink-500); margin: var(--space-3) 0 var(--space-8); }
+.settings-skeleton { animation: settings-pulse 1.4s ease-in-out infinite; background: var(--line-subtle); border-radius: var(--radius-lg); }
+.settings-skeleton--title { height: 64px; margin-bottom: var(--space-10); width: min(320px, 80%); }
+.settings-skeleton-grid { display: grid; gap: var(--space-8); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.settings-skeleton--card { height: 240px; }
+@keyframes settings-pulse { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .exercise-sticker, .settings-switch, .settings-switch span, .settings-skeleton { animation: none; transition: none; } }

@@ -31,6 +31,8 @@ Phase 7 AI는 PC 사이드바, 브리핑, 빠른 추가, 업무, Workflow와 연
 
 선택적 AI 기록을 사용하려면 Phase 5·6 migration 뒤에 `supabase/migrations/20260718130000_phase_7_ai_data.sql`을 적용합니다. 이 migration은 기록 기본값이 꺼진 `ai_preferences`와 사용자별 RLS가 적용된 `ai_requests`, `ai_action_drafts`를 추가합니다. DB 검증 원본은 `supabase/tests/phase_7_ai_data.sql`입니다.
 
+모바일 일정 중심 홈, 운동 스티커 기록과 실제 설정 폼은 `supabase/migrations/20260718143000_mobile_exercise_stickers_settings.sql`을 추가 적용합니다. 기존 Event 기반 운동 기록은 삭제하거나 자동 변환하지 않으며 운동 화면의 `기존 운동 일정`에서 별도로 유지합니다. 읽기 전용 적용 확인 쿼리는 `supabase/sql/verify_mobile_exercise_stickers_settings.sql`, 로컬 pgTAP 자산은 `supabase/tests/mobile_exercise_stickers_settings.sql`입니다.
+
 ## 환경 변수
 
 `.env.example`을 참고해 로컬 환경에 다음 변수를 설정합니다. 실제 URL과 키는 저장소에 커밋하지 않습니다.
@@ -67,7 +69,7 @@ npm run build
 git diff --check
 ```
 
-반응형 UI는 1440×900, 1280×800, 768×1024, 375×812 브라우저 크기에서 사이드바·운영 열 전환, 가로 오버플로, 빠른 추가 패널 포커스를 수동 확인합니다.
+반응형 UI는 1440×900, 1280×800, 768×1024, 360×800, 390×844, 412×915 브라우저 크기에서 사이드바·운영 열 전환, 가로 오버플로, 빠른 추가 패널과 운동 스티커 sheet 포커스를 수동 확인합니다.
 
 ## 확정 문서
 

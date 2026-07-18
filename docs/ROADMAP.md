@@ -1131,3 +1131,13 @@ chore: complete MVP QA and deployment
 - AI 기능
 - 사용자 간 공유
 - Reminder
+# Phase 7 후속 제품 리파인 (Phase 8 아님)
+
+- [x] 모바일 브리핑을 다음 일정·오늘 업무·오늘 일정 우선으로 재정렬
+- [x] 운동 Event 기본 생성 대신 별도 운동 스티커·로그 구조와 월간 캘린더 추가
+- [x] 기존 Event 기반 운동 기록 보존
+- [x] 로그인 사용자 설정 기본값·조회·upsert·loading·retry 구현
+- [x] 운동 스티커 및 설정 RLS migration·pgTAP 자산 추가
+- [ ] 실제 Supabase 프로젝트에 `20260718143000_mobile_exercise_stickers_settings.sql` 적용 후 로그인 브라우저 CRUD QA
+
+이 보완 작업은 기존 Phase 7 기능을 유지하는 제품 리파인이며 Phase 8 범위를 시작하지 않는다.

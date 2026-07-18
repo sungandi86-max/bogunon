@@ -110,3 +110,12 @@ AI 구조에는 delete operation이 없으므로 삭제 SQL·RPC와 연결하지
 ### Phase 7 DB QA
 
 `supabase/tests/phase_7_ai_data.sql`에서 세 테이블과 인덱스, history 기본값 off, 문맥 snapshot 부재, 12개 own-row 정책, 사용자 A/B 격리, `user_id` 변조·교차 사용자 외래키 차단과 `anon` 무권한을 검증한다. AI 기록 테스트는 Phase 5·6 RLS 회귀 검증과 함께 실행한다.
+# 모바일 운동 스티커·설정 migration (2026-07-18)
+
+`supabase/migrations/20260718143000_mobile_exercise_stickers_settings.sql`은 `exercise_stickers`, `exercise_logs`, `user_settings`를 추가한다. 기본 스티커 9개는 고정 UUID와 partial unique index로 안전하게 seed한다. 기존 `events` 행은 변경하지 않는다.
+
+- 세 테이블 모두 RLS를 활성화하고 `anon` 권한을 명시적으로 철회한다.
+- 기본 스티커는 인증 사용자가 읽을 수 있고 사용자 스티커·로그·설정은 본인 행만 CRUD한다.
+- 로그 insert/update 정책은 참조 스티커가 기본 또는 본인 소유인지 함께 검사한다.
+- 적용 확인: `supabase/sql/verify_mobile_exercise_stickers_settings.sql`
+- 로컬 pgTAP: `supabase/tests/mobile_exercise_stickers_settings.sql`

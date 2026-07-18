@@ -1,32 +1,35 @@
 "use client";
 
-import { Dumbbell, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useRef, useState } from "react";
 
+import { CustomExerciseStickerForm } from "@/components/exercise/custom-exercise-sticker-form";
 import { ExerciseCard } from "@/components/exercise/exercise-card";
-import { ExerciseForm } from "@/components/exercise/exercise-form";
+import { ExerciseStickerCalendar } from "@/components/exercise/exercise-sticker-calendar";
+import { ExerciseStickerPicker } from "@/components/exercise/exercise-sticker-picker";
 import { PageHeader } from "@/components/layout/page-header";
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
 import { Button } from "@/components/ui/button";
 import { exerciseRecordFromEvent } from "@/lib/exercise/domain";
-import type { EventRow } from "@/types/database";
+import type { EventRow, ExerciseLogRow, ExerciseStickerRow } from "@/types/database";
 
 interface ExerciseWorkspaceProps {
+  readonly dataAvailable?: boolean;
   readonly events: readonly EventRow[];
   readonly initialOpen?: boolean;
+  readonly logs?: readonly ExerciseLogRow[];
+  readonly month?: string;
+  readonly stickers?: readonly ExerciseStickerRow[];
   readonly today: string;
 }
 
-export function ExerciseWorkspace({ events, initialOpen = false, today }: ExerciseWorkspaceProps) {
+export function ExerciseWorkspace({ dataAvailable = true, events, initialOpen = false, logs = [], month, stickers = [], today }: ExerciseWorkspaceProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(initialOpen);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const typeRef = useRef<HTMLSelectElement>(null);
-  const router = useRouter();
   const records = events.map(exerciseRecordFromEvent).sort((left, right) => `${left.date}${left.startTime}`.localeCompare(`${right.date}${right.startTime}`));
-  const planned = records.filter((record) => record.status === "planned");
-  const history = records.filter((record) => record.status !== "planned");
 
   function openPanel(button: HTMLButtonElement): void {
     triggerRef.current = button;
@@ -34,25 +37,16 @@ export function ExerciseWorkspace({ events, initialOpen = false, today }: Exerci
   }
 
   function createButton(): ReactNode {
-    return <Button onClick={(event) => openPanel(event.currentTarget)}><Plus aria-hidden="true" size={17} />운동 기록 추가</Button>;
-  }
-
-  function closeAfterSave(): void {
-    setOpen(false);
-    router.refresh();
+    return <Button onClick={(event) => openPanel(event.currentTarget)}><Plus aria-hidden="true" size={17} />운동 스티커 붙이기</Button>;
   }
 
   return <main className="page-canvas exercise-page">
-    <PageHeader action={records.length ? createButton() : undefined} description="예정된 운동과 최근 기록을 한곳에서 관리합니다." title="운동" />
-    {records.length === 0 ? <section className="empty-state empty-state--featured exercise-empty">
-      <span className="empty-state__icon"><Dumbbell aria-hidden="true" size={24} /></span>
-      <div className="empty-state__content"><h3>첫 운동 기록을 남겨보세요.</h3><p>운동 일정과 최근 기록을 한곳에서 관리할 수 있습니다.</p>{createButton()}</div>
-    </section> : <div className="exercise-sections">
-      <section aria-labelledby="planned-exercise-title"><div className="section-title-row"><div><h2 id="planned-exercise-title">예정된 운동</h2><p>앞으로 진행할 운동 일정입니다.</p></div><span>{planned.length}개</span></div>{planned.length ? <div className="exercise-grid">{planned.map((record) => <ExerciseCard key={record.id} record={record} />)}</div> : <div className="empty-state"><div><h3>예정된 운동이 없습니다.</h3><p>새 운동 일정을 추가해 보세요.</p></div></div>}</section>
-      <section aria-labelledby="exercise-history-title"><div className="section-title-row"><div><h2 id="exercise-history-title">완료·취소 기록</h2><p>완료했거나 취소한 운동 기록입니다.</p></div><span>{history.length}개</span></div>{history.length ? <div className="exercise-grid">{history.map((record) => <ExerciseCard key={record.id} record={record} />)}</div> : <div className="empty-state"><div><h3>아직 지난 기록이 없습니다.</h3><p>운동을 완료하면 이곳에 모아 보여드립니다.</p></div></div>}</section>
-    </div>}
-    <ResponsiveDetailPanel footer={<><Button onClick={() => setOpen(false)} variant="secondary">취소</Button><Button form="exercise-create-form" type="submit">저장</Button></>} initialFocusRef={typeRef} onClose={() => setOpen(false)} open={open} returnFocusRef={triggerRef} title="운동 기록 추가">
-      <ExerciseForm onSaved={closeAfterSave} today={today} typeRef={typeRef} />
+    <PageHeader action={dataAvailable ? createButton() : undefined} description="운동한 날에 가볍게 성취 스티커를 남겨보세요." title="운동" />
+    {dataAvailable ? <><ExerciseStickerCalendar initialDate={today} logs={logs} month={month ?? today.slice(0, 7)} stickers={stickers} /><CustomExerciseStickerForm stickers={stickers} /></> : <section className="settings-error" role="alert"><h2>운동 스티커를 불러오지 못했습니다.</h2><p>데이터 연결을 확인한 뒤 다시 시도해 주세요. 기존 운동 일정은 아래에서 계속 확인할 수 있습니다.</p><button className="button button--secondary" onClick={() => router.refresh()} type="button">다시 시도</button></section>}
+    {records.length > 0 && <section className="legacy-exercise-section" aria-labelledby="legacy-exercise-title"><div className="section-title-row"><div><h2 id="legacy-exercise-title">기존 운동 일정</h2><p>이전에 일정으로 등록한 운동 기록은 그대로 보존합니다.</p></div><span>{records.length}개</span></div><div className="exercise-grid">{records.map((record) => <ExerciseCard key={record.id} record={record} />)}</div></section>}
+    <ResponsiveDetailPanel onClose={() => setOpen(false)} open={dataAvailable && open} returnFocusRef={triggerRef} title="오늘 운동했나요?">
+      <p className="exercise-sheet-intro">스티커를 탭하면 오늘 날짜에 바로 기록됩니다.</p>
+      <ExerciseStickerPicker date={today} logs={logs} stickers={stickers} />
     </ResponsiveDetailPanel>
   </main>;
 }

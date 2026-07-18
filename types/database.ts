@@ -61,6 +61,56 @@ export type EventRow = {
   updated_at: string;
 };
 
+export type ExerciseStickerIconKey =
+  | "badminton"
+  | "badminton_lesson"
+  | "walking"
+  | "running"
+  | "strength"
+  | "stretching"
+  | "cycling"
+  | "swimming"
+  | "other";
+
+export type ExerciseStickerColorKey = "mint" | "pink" | "yellow" | "coral" | "blue" | "lavender" | "sky" | "aqua" | "cream";
+
+export type ExerciseStickerRow = {
+  id: string;
+  user_id: string | null;
+  label: string;
+  icon_key: ExerciseStickerIconKey;
+  color_key: ExerciseStickerColorKey;
+  display_order: number;
+  is_default: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ExerciseLogRow = {
+  id: string;
+  user_id: string;
+  sticker_id: string;
+  exercise_date: string;
+  duration_minutes: number | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UserSettingsRow = {
+  id: string;
+  user_id: string;
+  week_starts_on: "monday";
+  default_event_minutes: number;
+  event_reminders_enabled: boolean;
+  task_due_reminders_enabled: boolean;
+  exercise_enabled: boolean;
+  writing_assistance_enabled: boolean;
+  display_density: "default" | "comfortable" | "compact";
+  created_at: string;
+  updated_at: string;
+};
+
 export type TaskTemplateRow = {
   id: string;
   user_id: string;
@@ -195,6 +245,24 @@ export type Database = {
         Row: EventRow;
         Insert: Insert<EventRow, "id" | "is_all_day" | "start_time" | "end_time" | "memo" | "description" | "created_at" | "updated_at">;
         Update: Partial<EventRow>;
+        Relationships: [];
+      };
+      exercise_stickers: {
+        Row: ExerciseStickerRow;
+        Insert: Insert<ExerciseStickerRow, "id" | "user_id" | "display_order" | "is_default" | "created_at" | "updated_at">;
+        Update: Partial<ExerciseStickerRow>;
+        Relationships: [];
+      };
+      exercise_logs: {
+        Row: ExerciseLogRow;
+        Insert: Insert<ExerciseLogRow, "id" | "duration_minutes" | "note" | "created_at" | "updated_at">;
+        Update: Partial<ExerciseLogRow>;
+        Relationships: [];
+      };
+      user_settings: {
+        Row: UserSettingsRow;
+        Insert: Insert<UserSettingsRow, "id" | "week_starts_on" | "default_event_minutes" | "event_reminders_enabled" | "task_due_reminders_enabled" | "exercise_enabled" | "writing_assistance_enabled" | "display_density" | "created_at" | "updated_at">;
+        Update: Partial<UserSettingsRow>;
         Relationships: [];
       };
       task_templates: {
