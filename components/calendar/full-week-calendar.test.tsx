@@ -6,6 +6,8 @@ import type { EventRow } from "@/types/database";
 
 const event: EventRow = { id: "event-1", user_id: "user", title: "병원", area: "personal", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: false, start_time: "18:00:00", end_time: "19:00:00", memo: null, description: null, created_at: "", updated_at: "" };
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+
 describe("FullWeekCalendar", () => {
   it("renders a Monday-to-Sunday week and the selected day's personal event", () => {
     render(<FullWeekCalendar date="2026-07-18" events={[event]} exerciseLogs={[]} exerciseStickers={[]} onDropDate={vi.fn()} onMove={vi.fn()} onSelectDate={vi.fn()} selectedDate="2026-07-18" stickers={[]} tasks={[]} today="2026-07-18" />);

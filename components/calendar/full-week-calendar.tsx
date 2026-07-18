@@ -2,6 +2,7 @@
 
 import { CalendarEntry, type MovableCalendarItem } from "@/components/calendar/calendar-entry";
 import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
+import { StickerManagementButton } from "@/components/calendar/sticker-management-button";
 import { ExerciseSticker } from "@/components/exercise/exercise-sticker";
 import { calendarStickerCategory } from "@/lib/calendar-stickers/catalog";
 import { dateSpan, taskCalendarDate } from "@/lib/calendar/smart-calendar";
@@ -29,9 +30,9 @@ export function FullWeekCalendar({ date, events, exerciseLogs, exerciseStickers,
       const hidden = Math.max(0, daySchoolStickers.length - 1) + Math.max(0, dayPersonalStickers.length - 1) + Math.max(0, entries.length - 3) + Math.max(0, dayExercise.length - 1);
       return <div className={`smart-week__day${day === selectedDate ? " is-selected" : ""}${day === today ? " is-today" : ""}`} key={day} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); const raw = event.dataTransfer.getData("application/x-bogunon-calendar"); if (!raw) return; try { const moved = JSON.parse(raw) as { id: string; kind: "event" | "task"; date: string }; onDropDate({ ...moved, newDate: day }); } catch { return; } }}>
         <button aria-pressed={day === selectedDate} className="smart-week__date" onClick={() => onSelectDate(day)} type="button"><span>{weekdays[index]}</span><time dateTime={day}>{Number(day.slice(8))}</time></button>
-        <div className={`calendar-date-stickers${daySchoolStickers.length > 0 ? " has-school" : ""}`}>{daySchoolStickers.slice(0, 1).map((item) => <CalendarDateSticker compact highlighted={highlight === `sticker:${item.id}`} key={item.id} stickerKey={item.sticker_key} />)}{dayPersonalStickers.slice(0, 1).map((item) => <CalendarDateSticker compact highlighted={highlight === `sticker:${item.id}`} key={item.id} stickerKey={item.sticker_key} />)}</div>
+        <div className={`calendar-date-stickers${daySchoolStickers.length > 0 ? " has-school" : ""}`}>{daySchoolStickers.slice(0, 1).map((item) => <StickerManagementButton date={day} key={item.id} label={item.label} recordId={item.id} recordType="calendar"><CalendarDateSticker compact highlighted={highlight === `sticker:${item.id}`} stickerKey={item.sticker_key} /></StickerManagementButton>)}{dayPersonalStickers.slice(0, 1).map((item) => <StickerManagementButton date={day} key={item.id} label={item.label} recordId={item.id} recordType="calendar"><CalendarDateSticker compact highlighted={highlight === `sticker:${item.id}`} stickerKey={item.sticker_key} /></StickerManagementButton>)}</div>
         <div className="smart-week__entries">{entries.slice(0, 3).map(({ item, kind }) => <CalendarEntry compact highlighted={highlight === `${kind}:${item.id}`} item={item} key={`${kind}-${item.id}`} kind={kind} onMove={onMove} />)}</div>
-        {dayExercise.length > 0 && <div className="smart-week__exercise">{dayExercise.slice(0, 1).map((log) => { const sticker = exerciseStickers.find((item) => item.id === log.sticker_id); return sticker ? <ExerciseSticker key={log.id} size="xs" sticker={sticker} /> : null; })}</div>}
+        {dayExercise.length > 0 && <div className="smart-week__exercise">{dayExercise.slice(0, 1).map((log) => { const sticker = exerciseStickers.find((item) => item.id === log.sticker_id); return sticker ? <StickerManagementButton date={day} key={log.id} label={sticker.label} recordId={log.id} recordType="exercise"><ExerciseSticker size="xs" sticker={sticker} /></StickerManagementButton> : null; })}</div>}
         {hidden > 0 && <small>+{hidden}</small>}
       </div>;
     })}</div></div>

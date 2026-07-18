@@ -14,6 +14,7 @@ const iconSchema = z.enum(["badminton", "badminton_lesson", "walking", "running"
 
 function refreshExercise(): void {
   revalidatePath("/exercise");
+  revalidatePath("/calendar");
   revalidatePath("/briefing");
 }
 

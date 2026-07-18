@@ -207,8 +207,8 @@
   .exercise-calendar-toolbar > div:last-child { flex-wrap: wrap; justify-content: flex-end; }
   .exercise-calendar-toolbar strong { white-space: nowrap; }
   .exercise-calendar-toolbar a { padding-inline: var(--space-3); }
-  .exercise-calendar-grid > button, .exercise-calendar-day { min-height: 60px; padding: 2px; }
-  .exercise-calendar-grid > button.is-selected { box-shadow: inset 0 0 0 1px var(--action-700); }
+  .exercise-calendar-day { min-height: 60px; padding: 2px; }
+  .exercise-calendar-day.is-selected { box-shadow: inset 0 0 0 1px var(--action-700); }
   .exercise-calendar-day__stickers { gap: 0; margin-top: 0; min-height: 30px; }
   .exercise-calendar-day__stickers .exercise-sticker--sm { height: 26px; margin-inline: -5px; width: 26px; }
   .exercise-date-panel { border-radius: var(--mobile-card-radius); margin-top: var(--space-6); padding: var(--space-8); }

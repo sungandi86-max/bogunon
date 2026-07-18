@@ -28,6 +28,7 @@ describe("exercise sticker actions", () => {
     await expect(removeExerciseStickerAction({ status: "idle" }, removeForm)).resolves.toMatchObject({ status: "success" });
     expect(removeExerciseLog).toHaveBeenCalledWith(logId);
     expect(revalidatePath).toHaveBeenCalledWith("/exercise");
+    expect(revalidatePath).toHaveBeenCalledWith("/calendar");
     expect(revalidatePath).toHaveBeenCalledWith("/briefing");
     const updateForm = new FormData(); updateForm.set("logId", logId); updateForm.set("durationMinutes", ""); updateForm.set("note", "");
     await updateExerciseStickerDetailsAction({ status: "idle" }, updateForm);

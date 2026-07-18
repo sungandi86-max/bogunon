@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
+
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
 describe("FullMonthCalendar", () => {
   it("marks the supplied current date on its calendar cell", () => {
@@ -23,5 +25,13 @@ describe("FullMonthCalendar", () => {
     expect(cell).toHaveTextContent("개인");
     expect(cell).toHaveTextContent("방학식");
     expect(cell).toHaveTextContent("병원");
+  });
+
+  it("opens record-specific sticker management from the sticker instead of the date cell", () => {
+    render(<FullMonthCalendar month="2026-07" today="2026-07-18" schoolStickers={[
+      { id: "a5000000-0000-4000-8000-000000000003", user_id: "user", sticker_key: "personal.hospital", sticker_date: "2026-07-18", end_date: null, label: "병원", note: null, created_at: "", updated_at: "" },
+    ]} />);
+
+    expect(screen.getByRole("button", { name: "7월 18일 병원 스티커 관리" })).toBeInTheDocument();
   });
 });
