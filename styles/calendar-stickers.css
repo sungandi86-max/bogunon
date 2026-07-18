@@ -10,6 +10,9 @@
 .school-sticker-picker { margin-top: 18px; border: 1px solid var(--color-border); border-radius: 20px; background: var(--color-surface); padding: 20px; box-shadow: var(--shadow-card); }
 .school-sticker-picker__heading strong { display: block; font-size: 17px; }
 .school-sticker-picker__heading span { color: var(--color-text-secondary); font-size: 13px; }
+.calendar-sticker-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; margin-top: 14px; border-radius: 14px; background: var(--color-surface-soft); padding: 4px; }
+.calendar-sticker-tabs button { min-height: 44px; border: 0; border-radius: 11px; background: transparent; color: var(--color-text-secondary); font-weight: 700; }
+.calendar-sticker-tabs button[aria-selected="true"] { background: var(--color-surface); color: var(--color-primary-strong); box-shadow: var(--shadow-soft); }
 .school-sticker-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
 .school-sticker-grid button { min-height: 76px; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface-soft); }
 .school-sticker-grid button:hover { border-color: var(--color-primary); background: var(--color-primary-soft); }
@@ -18,6 +21,7 @@
 .school-sticker-picker__selected > div { display: grid; margin-right: auto; }
 .school-sticker-picker__selected small { color: var(--color-text-secondary); }
 .today-school-stickers { margin: 0 0 12px; }
+.calendar-date-stickers { display: flex; align-items: center; gap: 3px; min-width: 0; }
 .personal-event-presets { border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface-soft); padding: 14px; }
 .personal-event-presets > div { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 6px; }
 .personal-event-presets button { min-height: 38px; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); padding: 0 12px; }

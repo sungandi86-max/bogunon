@@ -1,10 +1,5 @@
-import Image from "next/image";
-
-import { calendarStickerByKey } from "@/lib/calendar-stickers/catalog";
+import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
 
 export function SchoolCalendarSticker({ stickerKey, compact = false, highlighted = false }: { readonly stickerKey: string; readonly compact?: boolean; readonly highlighted?: boolean }) {
-  const definition = calendarStickerByKey(stickerKey);
-  if (!definition) return <span className="school-sticker-fallback" aria-label="학교 날짜 스티커">학교</span>;
-  const size = compact ? 24 : 34;
-  return <span className={`school-calendar-sticker${compact ? " is-compact" : ""}${highlighted ? " is-highlighted" : ""}`} title={definition.label}><Image alt="" aria-hidden="true" height={size} src={definition.assetPath} width={size} /><span>{definition.label}</span></span>;
+  return <CalendarDateSticker compact={compact} highlighted={highlighted} stickerKey={stickerKey} />;
 }

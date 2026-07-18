@@ -47,4 +47,19 @@ describe("calendar sticker actions", () => {
     await expect(removeCalendarStickerAction({ status: "idle" }, remove)).resolves.toMatchObject({ status: "success" });
     expect(deleteCalendarSticker).toHaveBeenCalledWith("a5000000-0000-4000-8000-000000000003");
   });
+
+  it("stores a personal sticker through the existing owned calendar sticker path", async () => {
+    const form = new FormData();
+    form.set("stickerKey", "personal.hospital");
+    form.set("stickerDate", "2026-07-18");
+
+    await expect(attachCalendarStickerAction({ status: "idle" }, form)).resolves.toMatchObject({ status: "success" });
+    expect(upsertCalendarSticker).toHaveBeenCalledWith({
+      stickerKey: "personal.hospital",
+      stickerDate: "2026-07-18",
+      endDate: null,
+      label: "병원",
+      note: null,
+    });
+  });
 });

@@ -14,10 +14,14 @@ describe("FullMonthCalendar", () => {
     render(<FullMonthCalendar month="2026-07" today="2026-07-18" events={[
       { id: "event-school", user_id: "user", title: "방학식", area: "schoolSchedule", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: true, start_time: null, end_time: null, memo: null, description: null, created_at: "", updated_at: "" },
       { id: "event-personal", user_id: "user", title: "병원", area: "personal", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: false, start_time: "18:00", end_time: "19:00", memo: null, description: null, created_at: "", updated_at: "" },
-    ]} schoolStickers={[{ id: "sticker", user_id: "user", sticker_key: "vacation-ceremony", sticker_date: "2026-07-18", end_date: null, label: "방학식", note: null, created_at: "", updated_at: "" }]} />);
+    ]} schoolStickers={[
+      { id: "sticker", user_id: "user", sticker_key: "vacation-ceremony", sticker_date: "2026-07-18", end_date: null, label: "방학식", note: null, created_at: "", updated_at: "" },
+      { id: "personal-sticker", user_id: "user", sticker_key: "personal.hospital", sticker_date: "2026-07-18", end_date: null, label: "병원", note: null, created_at: "", updated_at: "" },
+    ]} />);
     const cell = screen.getByRole("gridcell", { name: /2026-07-18, 일정 2개, 업무 0개/ });
     expect(cell).toHaveTextContent("학교");
     expect(cell).toHaveTextContent("개인");
     expect(cell).toHaveTextContent("방학식");
+    expect(cell).toHaveTextContent("병원");
   });
 });
