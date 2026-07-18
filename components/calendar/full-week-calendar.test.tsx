@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
 describe("FullWeekCalendar", () => {
   it("renders a Monday-to-Sunday week and the selected day's personal event", () => {
-    render(<FullWeekCalendar date="2026-07-18" events={[event]} exerciseLogs={[]} exerciseStickers={[]} onDropDate={vi.fn()} onMove={vi.fn()} onSelectDate={vi.fn()} selectedDate="2026-07-18" stickers={[]} tasks={[]} today="2026-07-18" />);
+    render(<FullWeekCalendar date="2026-07-18" events={[event]} onDropDate={vi.fn()} onMove={vi.fn()} onSelectDate={vi.fn()} selectedDate="2026-07-18" stickers={[]} tasks={[]} today="2026-07-18" />);
     expect(screen.getAllByRole("button", { name: /요일|월|화|수|목|금|토|일/ }).length).toBeGreaterThanOrEqual(7);
     expect(screen.getAllByText("병원").length).toBeGreaterThan(0);
     expect(screen.getAllByText("개인").length).toBeGreaterThan(0);

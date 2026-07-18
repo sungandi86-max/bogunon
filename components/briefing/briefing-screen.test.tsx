@@ -79,7 +79,7 @@ describe("BriefingScreen", () => {
     expect(screen.queryByText("홈에서는 숨기는 일정 설명")).not.toBeInTheDocument();
   });
 
-  it("uses the same normalized exercise date source as the monthly calendar", () => {
+  it("keeps today's exercise record separate from the integrated calendar", () => {
     const sticker: ExerciseStickerRow = { id: "10000000-0000-4000-8000-000000000001", user_id: null, label: "배드민턴", icon_key: "badminton", color_key: "mint", display_order: 10, is_default: true, created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
     const exerciseLog: ExerciseLogRow = { id: "20000000-0000-4000-8000-000000000001", user_id: "user-1", sticker_id: sticker.id, exercise_date: "2026-07-18T00:00:00.000Z", duration_minutes: null, note: null, created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
 
@@ -87,5 +87,8 @@ describe("BriefingScreen", () => {
 
     expect(screen.getByText("배드민턴 했다!")).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "배드민턴 운동 스티커, 완료" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "수정" })).toHaveAttribute("href", "/exercise?date=2026-07-18");
+    expect(screen.getByRole("link", { name: "운동 기록 보기" })).toHaveAttribute("href", "/exercise");
+    expect(screen.queryByRole("link", { name: "운동 달력" })).not.toBeInTheDocument();
   });
 });

@@ -30,7 +30,8 @@ describe("AppShell", () => {
 
     expect(screen.getAllByRole("link", { name: "오늘" })).toHaveLength(2);
     expect(screen.getAllByRole("link", { name: "오늘" }).every((link) => link.getAttribute("aria-current") === "page")).toBe(true);
-    expect(screen.getAllByRole("link", { name: "업무 절차" })).toHaveLength(2);
+    expect(screen.getAllByRole("link", { name: "업무 절차" })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: "운동" })).toHaveLength(2);
     expect(screen.getByText("보건업무")).toBeInTheDocument();
     expect(screen.getByText("나의 기록")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "AI 업무 도우미" })).not.toBeInTheDocument();
@@ -44,8 +45,8 @@ describe("AppShell", () => {
     const menu = screen.getByRole("dialog", { name: "새로 만들기" });
     expect(within(menu).getByRole("heading", { name: "빠른 보건업무" })).toBeInTheDocument();
     expect(within(menu).getAllByRole("button", { name: /보건업무 프리셋 적용$/ })).toHaveLength(6);
-    expect(within(menu).getByRole("link", { name: /업무 절차 시작/ })).toHaveAttribute("href", "/workflows");
-    expect(within(menu).getByRole("link", { name: /운동 스티커 붙이기/ })).toHaveAttribute("href", "/exercise?create=sticker");
+    expect(within(menu).queryByRole("link", { name: /업무 절차 시작/ })).not.toBeInTheDocument();
+    expect(within(menu).getByRole("link", { name: /운동 기록/ })).toHaveAttribute("href", "/exercise?create=sticker");
     expect(within(menu).getByRole("link", { name: /빠른 메모/ })).toHaveAttribute("href", "/briefing#quick-note");
 
     fireEvent.click(within(menu).getByRole("button", { name: /업무 추가/ }));
@@ -68,9 +69,9 @@ describe("AppShell", () => {
     expect(within(menu).getByRole("button", { name: /^업무 추가/ })).toBeInTheDocument();
     expect(within(menu).getByRole("button", { name: /^일정 추가/ })).toBeInTheDocument();
     expect(within(menu).getByRole("button", { name: /^개인 일정 추가/ })).toBeInTheDocument();
-    expect(within(menu).getByRole("link", { name: /운동 스티커 붙이기/ })).toBeInTheDocument();
+    expect(within(menu).getByRole("link", { name: /운동 기록/ })).toBeInTheDocument();
     expect(within(menu).getByRole("link", { name: /날짜 스티커 붙이기/ })).toBeInTheDocument();
-    expect(within(menu).getByRole("link", { name: /업무 절차 시작/ })).toBeInTheDocument();
+    expect(within(menu).queryByRole("link", { name: /업무 절차 시작/ })).not.toBeInTheDocument();
     expect(within(menu).getByRole("link", { name: /빠른 메모/ })).toBeInTheDocument();
     expect(within(menu).getByRole("button", { name: /^작성 도움/ })).toBeInTheDocument();
   });

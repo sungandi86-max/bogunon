@@ -519,14 +519,19 @@
 .exercise-sticker.is-selected { box-shadow: 0 0 0 3px var(--surface), 0 0 0 6px var(--action-700); transform: scale(1.04); }
 .exercise-sticker.is-disabled { filter: grayscale(.8); opacity: .45; }
 .exercise-sticker__check { align-items: center; background: var(--action-700); border: 2px solid var(--surface); border-radius: var(--radius-full); bottom: -2px; color: var(--surface); display: inline-flex; font-size: 10px; font-weight: var(--weight-bold); height: 20px; justify-content: center; position: absolute; right: -2px; width: 20px; }
-.exercise-picker { display: grid; gap: var(--space-6); }
+.exercise-record-form { display: grid; gap: var(--space-6); }
+.exercise-record-form fieldset { border: 0; margin: 0; padding: 0; }
+.exercise-record-form legend, .exercise-record-form label > span { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); margin-bottom: var(--space-3); }
+.exercise-record-form > label { display: grid; gap: var(--space-2); }
+.exercise-record-form input:not([type="checkbox"]), .exercise-record-form textarea { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); min-height: var(--touch-target); padding: var(--space-4) var(--space-5); width: 100%; }
+.exercise-record-form textarea { min-height: 84px; resize: vertical; }
+.exercise-completed { align-items: center; display: flex !important; min-height: var(--touch-target); }
+.exercise-completed input { height: 20px; width: 20px; }
 .exercise-picker__grid { display: grid; gap: var(--space-5); grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.exercise-picker form { min-width: 0; }
-.exercise-picker button { align-items: center; background: transparent; border: 1px solid transparent; border-radius: var(--radius-lg); cursor: pointer; display: flex; flex-direction: column; gap: var(--space-3); min-height: 96px; padding: var(--space-4); width: 100%; }
-.exercise-picker button:hover { background: var(--action-50); border-color: var(--action-100); }
-.exercise-picker button > span:last-child { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); line-height: var(--leading-tight); text-align: center; }
-.exercise-picker--compact .exercise-picker__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.exercise-picker--compact button { min-height: 76px; padding: var(--space-3); }
+.exercise-picker__grid button { align-items: center; background: transparent; border: 1px solid transparent; border-radius: var(--radius-lg); cursor: pointer; display: flex; flex-direction: column; gap: var(--space-2); min-height: 96px; padding: var(--space-4); width: 100%; }
+.exercise-picker__grid button:hover, .exercise-picker__grid button[aria-pressed="true"] { background: var(--action-50); border-color: var(--action-100); }
+.exercise-picker__grid button > span { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); line-height: var(--leading-tight); text-align: center; }
+.exercise-picker__grid button small { color: var(--ink-500); font-size: var(--text-xs); }
 .sticker-toast { background: var(--success-soft); border: 1px solid rgb(45 122 87 / .18); border-radius: var(--radius-md); color: var(--success); font-size: var(--text-sm); margin: 0; padding: var(--space-5) var(--space-6); }
 .sticker-toast--error { background: var(--danger-soft); color: var(--danger); }
 .exercise-calendar-layout { display: grid; gap: var(--space-10); grid-template-columns: minmax(0, 1.65fr) minmax(300px, .75fr); }
@@ -562,6 +567,8 @@
 .exercise-log-detail label, .custom-sticker-builder label, .settings-field-grid label { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); }
 .exercise-log-detail input, .exercise-log-detail textarea, .custom-sticker-builder input, .custom-sticker-builder select, .settings-field-grid select { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); min-height: var(--touch-target); padding: var(--space-4) var(--space-5); }
 .exercise-log-detail textarea { min-height: 80px; resize: vertical; }
+.exercise-log-detail__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.recent-exercise-section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); margin-top: var(--space-10); padding: var(--space-8); }
 .custom-sticker-builder { margin-top: var(--space-10); padding: var(--space-8); }
 .custom-sticker-builder > summary { color: var(--action-700); cursor: pointer; font-weight: var(--weight-bold); min-height: var(--touch-target); padding: var(--space-3); }
 .custom-sticker-builder > form { display: grid; gap: var(--space-7); padding-top: var(--space-6); }

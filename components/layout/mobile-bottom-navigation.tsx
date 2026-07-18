@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ChevronDown, ChevronUp, ClipboardList, Dumbbell, Eye, EyeOff, FilePenLine, GitBranch, Home, Plus, RotateCcw, Settings, Star, Sticker, StickyNote, UserRound } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, ChevronUp, ClipboardList, Dumbbell, Eye, EyeOff, FilePenLine, Home, Plus, RotateCcw, Settings, Star, Sticker, StickyNote, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
@@ -16,7 +16,7 @@ const links = [
   ["오늘", "/briefing", Home],
   ["업무", "/tasks", ClipboardList],
   ["일정", "/calendar", CalendarDays],
-  ["업무 절차", "/workflows", GitBranch],
+  ["운동", "/exercise", Dumbbell],
   ["설정", "/settings", Settings],
 ] as const;
 
@@ -113,9 +113,8 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
           <button onClick={(event) => chooseCreate(event.currentTarget, "task")} type="button"><ClipboardList aria-hidden="true" size={20} /><span><strong>업무 추가</strong><small>할 일과 마감일을 정리합니다.</small></span></button>
           <button onClick={(event) => chooseCreate(event.currentTarget, "event")} type="button"><CalendarPlus aria-hidden="true" size={20} /><span><strong>일정 추가</strong><small>날짜와 시간이 있는 일정을 등록합니다.</small></span></button>
           <button onClick={(event) => chooseCreate(event.currentTarget, "event", { key: "personal-event", name: "개인 일정", kind: "event", area: "personal", category: "event", title: "", description: "", priority: "normal", estimatedMinutes: 30, recommendedTiming: "선택한 날짜", recurrenceFrequency: null, checklist: [], memo: "", isAllDay: false })} type="button"><UserRound aria-hidden="true" size={20} /><span><strong>개인 일정 추가</strong><small>병원, 약속, 여행 등 개인 일정을 등록합니다.</small></span></button>
-          <Link href="/exercise?create=sticker" onClick={() => setCreateMenuOpen(false)}><Dumbbell aria-hidden="true" size={20} /><span><strong>운동 스티커 붙이기</strong><small>오늘 한 운동을 한 번의 탭으로 남깁니다.</small></span></Link>
+          <Link href="/exercise?create=sticker" onClick={() => setCreateMenuOpen(false)}><Dumbbell aria-hidden="true" size={20} /><span><strong>운동 기록</strong><small>운동 종류와 간단한 기록을 남깁니다.</small></span></Link>
           <Link href="/calendar?create=sticker" onClick={() => setCreateMenuOpen(false)}><Sticker aria-hidden="true" size={20} /><span><strong>날짜 스티커 붙이기</strong><small>학교 일정과 개인 약속을 날짜에 표시합니다.</small></span></Link>
-          <Link href="/workflows" onClick={() => setCreateMenuOpen(false)}><GitBranch aria-hidden="true" size={20} /><span><strong>업무 절차 시작</strong><small>단계가 있는 보건업무를 시작합니다.</small></span></Link>
           <Link href="/briefing#quick-note" onClick={() => setCreateMenuOpen(false)}><StickyNote aria-hidden="true" size={20} /><span><strong>빠른 메모</strong><small>떠오른 내용을 바로 정리합니다.</small></span></Link>
           <button onClick={(event) => chooseAssistant(event.currentTarget)} type="button"><FilePenLine aria-hidden="true" size={20} /><span><strong>작성 도움</strong><small>내용과 체크리스트 제안을 확인합니다.</small></span></button>
         </div>

@@ -14,16 +14,20 @@ const iconSchema = z.enum(["badminton", "badminton_lesson", "walking", "running"
 
 function refreshExercise(): void {
   revalidatePath("/exercise");
-  revalidatePath("/calendar");
   revalidatePath("/briefing");
 }
 
 export async function attachExerciseStickerAction(_state: StickerActionState, formData: FormData): Promise<StickerActionState> {
   const stickerId = idSchema.safeParse(String(formData.get("stickerId") ?? ""));
   const date = dateSchema.safeParse(String(formData.get("exerciseDate") ?? ""));
-  if (!stickerId.success || !date.success) return { status: "error", message: "날짜와 운동 스티커를 확인해 주세요." };
+  const durationText = String(formData.get("durationMinutes") ?? "").trim();
+  const durationMinutes = durationText ? Number(durationText) : null;
+  const note = String(formData.get("note") ?? "").trim() || null;
+  const completed = formData.get("completed") === "on";
+  const detailsInvalid = durationMinutes !== null && (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > 1440);
+  if (!stickerId.success || !date.success || !completed || detailsInvalid || (note?.length ?? 0) > 500) return { status: "error", message: "운동 종류, 날짜와 선택 정보를 확인해 주세요." };
   try {
-    const result = await saveExerciseLog(stickerId.data, date.data);
+    const result = await saveExerciseLog({ stickerId: stickerId.data, exerciseDate: date.data, durationMinutes, note });
     refreshExercise();
     return result === "duplicate"
       ? { status: "success", message: "이미 붙인 운동 스티커예요." }

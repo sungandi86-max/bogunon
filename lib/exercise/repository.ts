@@ -23,9 +23,23 @@ export async function listExerciseStickerData(first: string, last: string): Prom
   return { stickers: stickersResult.data, logs: logsResult.data };
 }
 
-export async function saveExerciseLog(stickerId: string, exerciseDate: string): Promise<"created" | "duplicate"> {
+export async function listRecentExerciseLogs(limit = 5): Promise<ExerciseLogRow[]> {
   const { supabase, userId } = await ownedClient();
-  const { error } = await supabase.from("exercise_logs").insert({ user_id: userId, sticker_id: stickerId, exercise_date: exerciseDate });
+  const { data, error } = await supabase.from("exercise_logs").select("*").eq("user_id", userId).order("exercise_date", { ascending: false }).order("created_at", { ascending: false }).limit(limit);
+  if (error) throw new Error("최근 운동 기록을 불러오지 못했습니다.");
+  return data;
+}
+
+export interface SaveExerciseLogValues {
+  readonly stickerId: string;
+  readonly exerciseDate: string;
+  readonly durationMinutes: number | null;
+  readonly note: string | null;
+}
+
+export async function saveExerciseLog(values: SaveExerciseLogValues): Promise<"created" | "duplicate"> {
+  const { supabase, userId } = await ownedClient();
+  const { error } = await supabase.from("exercise_logs").insert({ user_id: userId, sticker_id: values.stickerId, exercise_date: values.exerciseDate, duration_minutes: values.durationMinutes, note: values.note });
   if (!error) return "created";
   if (error.code === "23505") return "duplicate";
   throw new Error("운동 스티커를 저장하지 못했습니다.");

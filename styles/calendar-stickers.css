@@ -5,7 +5,6 @@
 .school-calendar-sticker { display: inline-flex; align-items: center; gap: 6px; color: var(--color-text); font-size: 12px; font-weight: 700; }
 .school-calendar-sticker img { filter: drop-shadow(0 4px 7px rgb(58 80 90 / 10%)); }
 .school-calendar-sticker.is-compact { width: max-content; max-width: 100%; gap: 3px; margin-top: 2px; font-size: 10px; }
-.calendar-exercise-stickers { position: absolute; right: 6px; bottom: 5px; z-index: 1; }
 .school-sticker-fallback { border-radius: 8px; background: var(--color-warning-soft); padding: 3px 6px; font-size: 10px; }
 .school-sticker-picker { margin-top: 18px; border: 1px solid var(--color-border); border-radius: 20px; background: var(--color-surface); padding: 20px; box-shadow: var(--shadow-card); }
 .school-sticker-picker__heading strong { display: block; font-size: 17px; }
@@ -99,7 +98,6 @@
 .smart-week__day.is-today .smart-week__date > time { background: var(--action-500); border-radius: var(--radius-full); color: var(--brand-950); }
 .smart-week__day.is-selected { background: var(--action-50); box-shadow: inset 0 -3px 0 var(--action-600); }
 .smart-week__entries { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
-.smart-week__exercise { bottom: var(--space-4); position: absolute; right: var(--space-4); }
 .smart-week__selected { border-top: 1px solid var(--line); padding: var(--space-8); }
 .smart-week__selected h2 { font-size: var(--text-section); margin: 0 0 var(--space-5); }
 .smart-week__selected > div { display: grid; gap: var(--space-3); }
@@ -117,7 +115,6 @@
   .school-sticker-grid button { min-height: 84px; }
   .school-calendar-sticker.is-compact span { display: none; }
   .full-calendar__cell .school-calendar-sticker.is-compact { display: inline-flex; }
-  .calendar-exercise-stickers { right: 3px; bottom: 3px; }
   .calendar-filter button { min-height: 44px; }
   .smart-calendar-toolbar { align-items: stretch; }
   .smart-calendar-toolbar__period { flex: 1 1 100%; }

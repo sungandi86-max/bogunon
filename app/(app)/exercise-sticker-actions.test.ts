@@ -13,14 +13,17 @@ const logId = "20000000-0000-4000-8000-000000000001";
 describe("exercise sticker actions", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("stores a date and sticker only, and reports duplicate taps without another row", async () => {
+  it("stores a confirmed exercise record with optional details and reports duplicates", async () => {
     vi.mocked(saveExerciseLog).mockResolvedValueOnce("created").mockResolvedValueOnce("duplicate");
     const form = new FormData();
     form.set("stickerId", stickerId);
     form.set("exerciseDate", "2026-07-18");
+    form.set("completed", "on");
+    form.set("durationMinutes", "60");
+    form.set("note", "가볍게 운동함");
     await expect(attachExerciseStickerAction({ status: "idle" }, form)).resolves.toMatchObject({ status: "success" });
     await expect(attachExerciseStickerAction({ status: "idle" }, form)).resolves.toEqual({ status: "success", message: "이미 붙인 운동 스티커예요." });
-    expect(saveExerciseLog).toHaveBeenCalledWith(stickerId, "2026-07-18");
+    expect(saveExerciseLog).toHaveBeenCalledWith({ stickerId, exerciseDate: "2026-07-18", durationMinutes: 60, note: "가볍게 운동함" });
   });
 
   it("removes a selected sticker and keeps optional details nullable", async () => {
@@ -28,7 +31,7 @@ describe("exercise sticker actions", () => {
     await expect(removeExerciseStickerAction({ status: "idle" }, removeForm)).resolves.toMatchObject({ status: "success" });
     expect(removeExerciseLog).toHaveBeenCalledWith(logId);
     expect(revalidatePath).toHaveBeenCalledWith("/exercise");
-    expect(revalidatePath).toHaveBeenCalledWith("/calendar");
+    expect(revalidatePath).not.toHaveBeenCalledWith("/calendar");
     expect(revalidatePath).toHaveBeenCalledWith("/briefing");
     const updateForm = new FormData(); updateForm.set("logId", logId); updateForm.set("durationMinutes", ""); updateForm.set("note", "");
     await updateExerciseStickerDetailsAction({ status: "idle" }, updateForm);
