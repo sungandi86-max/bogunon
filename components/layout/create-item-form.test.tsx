@@ -47,4 +47,13 @@ describe("CreateItemForm Phase 5 workflows", () => {
     fireEvent.click(checklistControls.getAllByRole("button", { name: "삭제" })[0]!);
     expect(screen.queryByDisplayValue("둘째 항목")).not.toBeInTheDocument();
   });
+
+  it("keeps personal quick choices as editable event form defaults", () => {
+    render(<CreateItemForm defaultKind="event" initialTemplate={{ key: "personal", name: "개인 일정", kind: "event", area: "personal", category: "event", title: "", description: "", priority: "normal", estimatedMinutes: 30, recommendedTiming: "선택", recurrenceFrequency: null, checklist: [], memo: "", isAllDay: false }} />);
+    fireEvent.click(screen.getByRole("button", { name: "병원" }));
+    expect(screen.getByRole("textbox", { name: "제목" })).toHaveValue("병원");
+    expect(screen.getByRole("combobox", { name: "영역" })).toHaveValue("personal");
+    expect(screen.getByRole("combobox", { name: "색상" })).toHaveValue("lavender");
+    expect(screen.queryByRole("combobox", { name: "업무 카테고리" })).not.toBeInTheDocument();
+  });
 });

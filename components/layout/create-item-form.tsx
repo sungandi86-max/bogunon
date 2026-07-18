@@ -9,6 +9,7 @@ import type { WorkItemActionState } from "@/app/(app)/work-item-actions";
 import { TASK_CATEGORY_OPTIONS } from "@/lib/work-items/categories";
 import { parseKoreanQuickInput } from "@/lib/work-items/workflow";
 import type { QuickInputResult, TemplateDefinition } from "@/lib/work-items/workflow";
+import { EVENT_COLOR_KEYS, PERSONAL_EVENT_PRESETS } from "@/lib/work-items/personal-event-presets";
 import type { EventLinkRow, EventReminderRow, EventRow, TaskChecklistItemRow, TaskLinkRow, TaskReminderRow, TaskRow } from "@/types/database";
 import { AssistantTrigger } from "@/components/ai/assistant-trigger";
 
@@ -27,10 +28,10 @@ interface CreateItemFormProps {
   readonly titleRef?: RefObject<HTMLInputElement | null>;
 }
 
-const areas = [
-  ["healthWork", "보건업무"], ["schoolSchedule", "학교일정"], ["exercise", "운동"],
-  ["personal", "개인일정"], ["project", "프로젝트"],
+const eventAreas = [
+  ["healthWork", "업무"], ["schoolSchedule", "학교"], ["personal", "개인"],
 ] as const;
+const taskAreas = [...eventAreas, ["exercise", "운동"], ["project", "프로젝트"]] as const;
 const initialActionState: WorkItemActionState = { status: "idle" };
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 
@@ -45,22 +46,27 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [category, setCategory] = useState(task?.category ?? initialTemplate?.category ?? "other");
   const [status, setStatus] = useState(task?.status ?? "planned");
   const [priority, setPriority] = useState(task?.priority ?? initialTemplate?.priority ?? "normal");
-  const [recurrence, setRecurrence] = useState(task?.recurrence_frequency ?? initialTemplate?.recurrenceFrequency ?? "");
+  const [recurrence, setRecurrence] = useState(task?.recurrence_frequency ?? event?.recurrence_frequency ?? initialTemplate?.recurrenceFrequency ?? "");
   const [scheduledDate, setScheduledDate] = useState(task?.scheduled_date ?? initialTemplate?.scheduledDate ?? "");
   const [startDate, setStartDate] = useState(event?.start_date ?? initialTemplate?.startDate ?? "");
   const [endDate, setEndDate] = useState(event?.end_date ?? initialTemplate?.endDate ?? initialTemplate?.startDate ?? "");
   const [startTime, setStartTime] = useState(event?.start_time?.slice(0, 5) ?? initialTemplate?.startTime ?? "");
   const [allDay, setAllDay] = useState(event?.is_all_day ?? initialTemplate?.isAllDay ?? true);
+  const [location, setLocation] = useState(event?.location ?? "");
+  const [eventColor, setEventColor] = useState(event?.color_key ?? (initialTemplate?.area === "personal" ? "lavender" : initialTemplate?.area === "schoolSchedule" ? "yellow" : "mint"));
   const [memo, setMemo] = useState(initialItem?.memo ?? initialTemplate?.memo ?? "");
   const [estimatedMinutes, setEstimatedMinutes] = useState(task?.estimated_minutes?.toString() ?? initialTemplate?.estimatedMinutes?.toString() ?? "");
   const [checklist, setChecklist] = useState<ChecklistDraft[]>(checklistItems.length
     ? checklistItems.map((item) => ({ title: item.title, isCompleted: item.is_completed }))
     : initialTemplate?.checklist.map((item) => ({ title: item, isCompleted: false })) ?? []);
   const [linkDrafts, setLinkDrafts] = useState<LinkDraft[]>(links.map((item) => ({ title: item.title, url: item.url })));
-  const [reminderDrafts, setReminderDrafts] = useState<ReminderDraft[]>(reminders.map((item) => ({ offsetMinutes: item.offset_minutes, referenceType: "reference_type" in item ? item.reference_type : "scheduled" })));
+  const [reminderDrafts, setReminderDrafts] = useState<ReminderDraft[]>(reminders.length
+    ? reminders.map((item) => ({ offsetMinutes: item.offset_minutes, referenceType: "reference_type" in item ? item.reference_type : "scheduled" }))
+    : initialTemplate?.reminderOffsets?.map((offsetMinutes) => ({ offsetMinutes, referenceType: initialTemplate.kind === "task" ? "due" : "scheduled" })) ?? []);
   const [quickText, setQuickText] = useState("");
   const [quickPreview, setQuickPreview] = useState<QuickInputResult | null>(null);
   const [state, action, pending] = useActionState(saveWorkItemAction, initialActionState);
+  const availableAreas = kind === "task" || area === "exercise" || area === "project" ? taskAreas : eventAreas;
 
   useEffect(() => { if (state.status === "success") onSaved?.(); }, [onSaved, state.status]);
   const formKey = initialItem?.id ?? "create";
@@ -101,6 +107,13 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
     });
   }
 
+  function applyPersonalPreset(preset: (typeof PERSONAL_EVENT_PRESETS)[number]) {
+    setKind("event");
+    setArea("personal");
+    setTitle(preset.title);
+    setEventColor(preset.colorKey);
+  }
+
   return (
     <form action={action} className="work-item-form" id={initialItem ? `edit-${initialItem.id}` : "create-work-item-form"}>
       <input name="id" type="hidden" value={initialItem?.id ?? ""} />
@@ -121,7 +134,9 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
       <div className="field"><label className="field-label" htmlFor={`${formKey}-kind`}>항목 종류</label>{initialItem && <input name="kind" type="hidden" value={kind} />}<select disabled={Boolean(initialItem)} id={`${formKey}-kind`} name={initialItem ? undefined : "kind"} onChange={(e) => setKind(e.target.value === "event" ? "event" : "task")} value={kind}><option value="task">업무</option><option value="event">일정</option></select></div>
       <div className="field"><label className="field-label" htmlFor={`${formKey}-title`}>제목</label><input id={`${formKey}-title`} maxLength={120} name="title" onChange={(e) => setTitle(e.target.value)} placeholder="업무 또는 일정 제목" ref={titleRef} required value={title} /></div>
       <div className="field"><label className="field-label" htmlFor={`${formKey}-description`}>설명</label><textarea id={`${formKey}-description`} name="description" onChange={(e) => setDescription(e.target.value)} placeholder="업무 단위의 설명을 기록하세요." value={description} /></div>
-      <div className="field"><label className="field-label" htmlFor={`${formKey}-area`}>영역</label><select id={`${formKey}-area`} name="area" onChange={(e) => setArea(e.target.value as typeof area)} value={area}>{areas.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+      <div className="field"><label className="field-label" htmlFor={`${formKey}-area`}>영역</label><select id={`${formKey}-area`} name="area" onChange={(e) => setArea(e.target.value as typeof area)} value={area}>{availableAreas.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+
+      {kind === "event" && area === "personal" && !initialItem && <section className="personal-event-presets" aria-label="개인 일정 빠른 항목"><strong>빠른 항목</strong><div>{PERSONAL_EVENT_PRESETS.map((preset) => <button aria-pressed={title === preset.title && eventColor === preset.colorKey} key={preset.key} onClick={() => applyPersonalPreset(preset)} type="button">{preset.title}</button>)}</div><small>제목과 색상만 채워집니다. 날짜와 시간을 확인한 뒤 저장하세요.</small></section>}
 
       {kind === "task" ? <div className="form-grid">
         <div className="field"><label className="field-label" htmlFor={`${formKey}-category`}>업무 카테고리</label><select id={`${formKey}-category`} name="category" onChange={(e) => setCategory(e.target.value as typeof category)} value={category}>{TASK_CATEGORY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
@@ -137,6 +152,9 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
         <div className="field"><label className="field-label" htmlFor={`${formKey}-end`}>종료일</label><input id={`${formKey}-end`} name="endDate" onChange={(e) => setEndDate(e.target.value)} required type="date" value={endDate} /></div>
         <label className="checkbox-field"><input checked={allDay} name="isAllDay" onChange={(e) => setAllDay(e.target.checked)} type="checkbox" />종일 일정</label>
         {!allDay && <><div className="field"><label className="field-label" htmlFor={`${formKey}-start-time`}>시작 시간</label><input id={`${formKey}-start-time`} name="startTime" onChange={(e) => setStartTime(e.target.value)} required type="time" value={startTime} /></div><div className="field"><label className="field-label" htmlFor={`${formKey}-end-time`}>종료 시간</label><input defaultValue={event?.end_time?.slice(0, 5) ?? initialTemplate?.endTime ?? ""} id={`${formKey}-end-time`} name="endTime" type="time" /></div></>}
+        <div className="field"><label className="field-label" htmlFor={`${formKey}-location`}>장소</label><input id={`${formKey}-location`} maxLength={120} name="location" onChange={(e) => setLocation(e.target.value)} placeholder="선택 입력" value={location} /></div>
+        <div className="field"><label className="field-label" htmlFor={`${formKey}-event-recurrence`}>반복</label><select id={`${formKey}-event-recurrence`} name="recurrenceFrequency" onChange={(e) => setRecurrence(e.target.value)} value={recurrence}><option value="">반복 안 함</option><option value="daily">매일</option><option value="weekly">매주</option><option value="monthly">매월</option><option value="yearly">매년</option></select></div>
+        <div className="field"><label className="field-label" htmlFor={`${formKey}-event-color`}>색상</label><select id={`${formKey}-event-color`} name="colorKey" onChange={(e) => setEventColor(e.target.value as typeof eventColor)} value={eventColor}>{EVENT_COLOR_KEYS.map((color) => <option key={color} value={color}>{({ mint: "민트", blue: "블루", yellow: "옐로", coral: "코랄", lavender: "라벤더", pink: "핑크" } as const)[color]}</option>)}</select></div>
       </div>}
 
       {kind === "task" && <section className="form-collection"><div className="form-collection__heading"><div><strong>체크리스트</strong><span>{checklist.length}개 항목</span></div><button onClick={() => setChecklist((items) => [...items, { title: "", isCompleted: false }])} type="button"><Plus size={15} />추가</button></div>{checklist.map((item, index) => <div className="collection-row" key={index}><input aria-label={`체크리스트 ${index + 1}`} onChange={(e) => updateChecklist(index, e.target.value)} placeholder="세부 업무" value={item.title} /><button aria-label="위로 이동" disabled={index === 0} onClick={() => moveChecklist(index, -1)} type="button"><ArrowUp size={14} /></button><button aria-label="아래로 이동" disabled={index === checklist.length - 1} onClick={() => moveChecklist(index, 1)} type="button"><ArrowDown size={14} /></button><button aria-label="삭제" onClick={() => setChecklist((items) => items.filter((_, itemIndex) => itemIndex !== index))} type="button"><Trash2 size={14} /></button></div>)}</section>}

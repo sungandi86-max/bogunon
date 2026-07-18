@@ -60,11 +60,22 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
       const startDate = String(formData.get("startDate") ?? "");
       const endDate = String(formData.get("endDate") ?? startDate);
       const isAllDay = formData.get("isAllDay") === "on";
+      const recurrenceValue = optional(formData, "recurrenceFrequency");
+      const recurrenceFrequency = RECURRENCE_FREQUENCIES.find((frequency) => frequency === recurrenceValue) ?? null;
+      const colorRaw = optional(formData, "colorKey");
+      const eventColors = ["mint", "blue", "yellow", "coral", "lavender", "pink"] as const;
+      const colorKey = eventColors.find((color) => color === colorRaw) ?? null;
       if (!startDate || !endDate || endDate < startDate) return { status: "error", message: "일정 날짜를 확인해 주세요." };
+      if (recurrenceValue && !recurrenceFrequency) return { status: "error", message: "반복 주기를 확인해 주세요." };
+      if (colorRaw && !colorKey) return { status: "error", message: "일정 색상을 확인해 주세요." };
       await saveEventBundle({
         title, area: areaValue, start_date: startDate, end_date: endDate, is_all_day: isAllDay,
         start_time: isAllDay ? null : optional(formData, "startTime"),
         end_time: isAllDay ? null : optional(formData, "endTime"),
+        location: optional(formData, "location"), color_key: colorKey,
+        recurrence_frequency: recurrenceFrequency, recurrence_source_id: null,
+        recurrence_date: recurrenceFrequency ? startDate : null,
+        recurrence_generated_through: recurrenceFrequency ? startDate : null,
         memo: optional(formData, "memo"), description: optional(formData, "description"),
       }, { links: relations.links, reminders: relations.reminders }, id);
     } else {

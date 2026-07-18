@@ -33,6 +33,8 @@ Phase 7 AI는 PC 사이드바, 브리핑, 빠른 추가, 업무, Workflow와 연
 
 모바일 일정 중심 홈, 운동 스티커 기록과 실제 설정 폼은 `supabase/migrations/20260718143000_mobile_exercise_stickers_settings.sql`을 추가 적용합니다. 기존 Event 기반 운동 기록은 삭제하거나 자동 변환하지 않으며 운동 화면의 `기존 운동 일정`에서 별도로 유지합니다. 읽기 전용 적용 확인 쿼리는 `supabase/sql/verify_mobile_exercise_stickers_settings.sql`, 로컬 pgTAP 자산은 `supabase/tests/mobile_exercise_stickers_settings.sql`입니다.
 
+학교 날짜 스티커와 개인 반복 일정을 사용하려면 이어서 `supabase/migrations/20260718170000_add_school_calendar_stickers.sql`, `supabase/migrations/20260718171000_extend_event_schedule_fields.sql`을 순서대로 적용합니다. 보건업무 빠른 프리셋은 정적 설정으로만 제공되어 별도 migration이 필요하지 않으며, 저장 후에는 일반 Task 또는 Event가 됩니다.
+
 ## 환경 변수
 
 `.env.example`을 참고해 로컬 환경에 다음 변수를 설정합니다. 실제 URL과 키는 저장소에 커밋하지 않습니다.

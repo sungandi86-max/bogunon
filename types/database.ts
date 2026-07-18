@@ -1,4 +1,5 @@
 import type { WorkflowDatabaseTables } from "@/types/workflows";
+import type { CalendarStickerKey } from "@/lib/calendar-stickers/catalog";
 
 export type Area = "healthWork" | "schoolSchedule" | "exercise" | "personal" | "project";
 export type TaskStatus = "planned" | "inProgress" | "waitingForReply" | "needsCheck" | "completed" | "onHold";
@@ -55,6 +56,12 @@ export type EventRow = {
   is_all_day: boolean;
   start_time: string | null;
   end_time: string | null;
+  location?: string | null;
+  color_key?: "mint" | "blue" | "yellow" | "coral" | "lavender" | "pink" | null;
+  recurrence_frequency?: RecurrenceFrequency | null;
+  recurrence_source_id?: string | null;
+  recurrence_date?: string | null;
+  recurrence_generated_through?: string | null;
   memo: string | null;
   description: string | null;
   created_at: string;
@@ -92,6 +99,18 @@ export type ExerciseLogRow = {
   sticker_id: string;
   exercise_date: string;
   duration_minutes: number | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CalendarStickerRow = {
+  id: string;
+  user_id: string;
+  sticker_key: CalendarStickerKey;
+  sticker_date: string;
+  end_date: string | null;
+  label: string;
   note: string | null;
   created_at: string;
   updated_at: string;
@@ -243,7 +262,7 @@ export type Database = {
       };
       events: {
         Row: EventRow;
-        Insert: Insert<EventRow, "id" | "is_all_day" | "start_time" | "end_time" | "memo" | "description" | "created_at" | "updated_at">;
+        Insert: Insert<EventRow, "id" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
         Update: Partial<EventRow>;
         Relationships: [];
       };
@@ -257,6 +276,12 @@ export type Database = {
         Row: ExerciseLogRow;
         Insert: Insert<ExerciseLogRow, "id" | "duration_minutes" | "note" | "created_at" | "updated_at">;
         Update: Partial<ExerciseLogRow>;
+        Relationships: [];
+      };
+      calendar_stickers: {
+        Row: CalendarStickerRow;
+        Insert: Insert<CalendarStickerRow, "id" | "end_date" | "note" | "created_at" | "updated_at">;
+        Update: Partial<CalendarStickerRow>;
         Relationships: [];
       };
       user_settings: {
@@ -310,6 +335,10 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      save_event_bundle_v2: {
+        Args: { p_item_id: string | null; p_values: Json; p_links?: Json; p_reminders?: Json };
+        Returns: string;
+      };
       save_work_item_bundle: {
         Args: { p_kind: string; p_item_id: string | null; p_values: Json; p_checklist?: Json; p_links?: Json; p_reminders?: Json };
         Returns: string;

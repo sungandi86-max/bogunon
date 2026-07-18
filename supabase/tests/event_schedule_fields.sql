@@ -1,0 +1,12 @@
+begin;
+select plan(8);
+select has_column('public','events','location','events.location exists');
+select has_column('public','events','color_key','events.color_key exists');
+select has_column('public','events','recurrence_frequency','event recurrence exists');
+select has_column('public','events','recurrence_source_id','event recurrence source exists');
+select has_column('public','events','recurrence_date','event recurrence date exists');
+select has_index('public','events','events_user_recurrence_occurrence_key','recurring event uniqueness index exists');
+select has_function('public','save_event_bundle_v2',array['uuid','jsonb','jsonb','jsonb'],'atomic event bundle RPC exists');
+select is((select prosecdef from pg_proc where oid = 'public.save_event_bundle_v2(uuid,jsonb,jsonb,jsonb)'::regprocedure), false, 'event RPC uses invoker rights');
+select * from finish();
+rollback;

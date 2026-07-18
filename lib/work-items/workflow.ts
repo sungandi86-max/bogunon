@@ -33,6 +33,7 @@ export type TemplateDefinition = {
   readonly isAllDay?: boolean;
   readonly aiDraftId?: string;
   readonly customId?: string;
+  readonly reminderOffsets?: readonly number[];
 };
 
 export const BUILT_IN_TEMPLATES = [
@@ -229,6 +230,8 @@ export function eventDuplicateValues(source: EventRow, options: { readonly date:
   return {
     title: `${source.title} 복사본`, area: source.area, start_date: date, end_date: date,
     is_all_day: source.is_all_day, start_time: source.start_time, end_time: source.end_time,
+    location: source.location ?? null, color_key: source.color_key ?? null,
+    recurrence_frequency: null, recurrence_source_id: null, recurrence_date: null, recurrence_generated_through: null,
     description: options.includeDescription ? source.description : null,
     memo: options.includeMemo ? source.memo : null,
   };

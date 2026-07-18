@@ -119,3 +119,12 @@ AI 구조에는 delete operation이 없으므로 삭제 SQL·RPC와 연결하지
 - 로그 insert/update 정책은 참조 스티커가 기본 또는 본인 소유인지 함께 검사한다.
 - 적용 확인: `supabase/sql/verify_mobile_exercise_stickers_settings.sql`
 - 로컬 pgTAP: `supabase/tests/mobile_exercise_stickers_settings.sql`
+
+## 학교 날짜 스티커와 일정 영역 확장 (2026-07-18)
+
+`20260718170000_add_school_calendar_stickers.sql`은 운동 완료 기록과 분리된 사용자별 `calendar_stickers`를 추가한다. 스티커 정의와 SVG는 애플리케이션의 정적 자산이며 DB에는 key, 날짜 범위, 선택 메모만 저장한다. `(user_id, sticker_date, sticker_key)` 고유 제약과 own-row RLS 네 정책으로 중복·교차 사용자 접근을 막는다.
+
+`20260718171000_extend_event_schedule_fields.sql`은 기존 `events.area`를 그대로 사용하면서 장소, 파스텔 색상과 반복 일정 필드를 nullable로 추가한다. 기존 Event 행은 변경·삭제하지 않는다. `save_event_bundle_v2`는 Event와 링크·알림을 한 트랜잭션으로 저장하고 호출자의 `auth.uid()`를 사용한다.
+
+- 적용 확인: `supabase/sql/verify_school_calendar_stickers.sql`, `supabase/sql/verify_event_schedule_fields.sql`
+- 로컬 pgTAP: `supabase/tests/school_calendar_stickers.sql`, `supabase/tests/event_schedule_fields.sql`
