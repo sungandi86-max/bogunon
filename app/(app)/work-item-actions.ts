@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
+import { moveCalendarItem, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
 import {
   duplicateEvent,
   duplicateTask,
@@ -144,6 +144,22 @@ export async function toggleChecklistItemAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   if (id) await setChecklistItemCompleted(id, formData.get("completed") === "true");
   refreshWorkItems();
+}
+
+export async function moveCalendarItemAction(_state: WorkItemActionState, formData: FormData): Promise<WorkItemActionState> {
+  const kind = formData.get("kind") === "event" ? "event" : "task";
+  const id = String(formData.get("id") ?? "");
+  const newDate = String(formData.get("newDate") ?? "");
+  const scopeValue = String(formData.get("scope") ?? "instance");
+  const scope = scopeValue === "following" || scopeValue === "series" ? scopeValue : "instance";
+  if (!id || !/^\d{4}-\d{2}-\d{2}$/.test(newDate)) return { status: "error", message: "새 날짜를 확인해 주세요." };
+  try {
+    await moveCalendarItem(kind, id, newDate, scope);
+    refreshWorkItems();
+    return { status: "success", message: "날짜를 변경했습니다." };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "날짜를 변경하지 못했습니다." };
+  }
 }
 
 export async function duplicateWorkItemAction(formData: FormData) {

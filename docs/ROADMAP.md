@@ -1140,4 +1140,16 @@ chore: complete MVP QA and deployment
 - [x] 운동 스티커 및 설정 RLS migration·pgTAP 자산 추가
 - [ ] 실제 Supabase 프로젝트에 `20260718143000_mobile_exercise_stickers_settings.sql` 적용 후 로그인 브라우저 CRUD QA
 
+## Smart Calendar 후속 개선 (Phase 8 아님)
+
+- [x] 월간·주간 보기 전환과 세션 내 보기 유지
+- [x] 이전·다음 기간과 오늘 날짜 이동
+- [x] 서울 시간대 기준 다음 일정·진행 중 일정 카운트다운
+- [x] 일정·날짜가 있는 업무의 확인 기반 날짜 이동
+- [x] 반복 이동 범위(`instance`, `following`, `series`)의 원자적 RPC 구현
+- [x] 일정·업무·학교 날짜 스티커 검색과 결과 날짜 강조
+- [x] 월간·주간 공통 영역·운동·날짜 스티커 필터
+- [ ] 원격 프로젝트에 Smart Calendar 이동 RPC 적용 후 반복 범위 브라우저 QA
+- [ ] Desktop·Tablet·Mobile 실제 브라우저 최종 확인
+
 이 보완 작업은 기존 Phase 7 기능을 유지하는 제품 리파인이며 Phase 8 범위를 시작하지 않는다.

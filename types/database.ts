@@ -335,6 +335,10 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      move_calendar_item: {
+        Args: { p_kind: string; p_item_id: string; p_new_date: string; p_scope?: string };
+        Returns: string;
+      };
       save_event_bundle_v2: {
         Args: { p_item_id: string | null; p_values: Json; p_links?: Json; p_reminders?: Json };
         Returns: string;

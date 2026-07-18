@@ -27,6 +27,49 @@
 .mobile-health-presets > div:first-child { display: flex; justify-content: space-between; align-items: center; }
 .mobile-health-presets > div:last-child { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
 .mobile-health-presets button { min-height: 44px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-primary-soft); padding: 8px; font-size: 12px; text-align: left; }
+.smart-calendar-toolbar { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-4); justify-content: space-between; margin-bottom: var(--space-5); }
+.smart-calendar-toolbar__period { align-items: center; display: flex; gap: var(--space-2); }
+.smart-calendar-toolbar__period > button:not(.button) { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-700); display: inline-flex; height: var(--touch-target); justify-content: center; width: var(--touch-target); }
+.smart-calendar-toolbar__period strong { min-width: 132px; text-align: center; }
+.calendar-search { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; margin-bottom: var(--space-5); padding: 0 var(--space-5); position: relative; }
+.calendar-search > input { background: transparent; border: 0; flex: 1; min-height: var(--touch-target); min-width: 0; outline: 0; padding: 0 var(--space-4); }
+.calendar-search > button { align-items: center; background: transparent; border: 0; color: var(--ink-500); display: inline-flex; height: var(--touch-target); justify-content: center; width: var(--touch-target); }
+.calendar-search__results { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); display: grid; left: 0; max-height: 360px; overflow-y: auto; padding: var(--space-3); position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 25; }
+.calendar-search__results button { background: transparent; border: 0; border-radius: var(--radius-md); display: grid; gap: var(--space-1); min-height: var(--touch-target); padding: var(--space-4) var(--space-5); text-align: left; }
+.calendar-search__results button:hover, .calendar-search__results button:focus-visible { background: var(--action-50); }
+.calendar-search__results span, .calendar-search__results p { color: var(--ink-500); font-size: var(--text-sm); }
+.calendar-item { position: relative; }
+.calendar-item__title { overflow: hidden; text-overflow: ellipsis; }
+.calendar-item__move { align-items: center; background: transparent; border: 0; color: var(--ink-500); display: inline-flex; flex: none; justify-content: center; margin-left: auto; min-height: 24px; min-width: 24px; padding: 0; }
+.calendar-item.is-highlighted { background: var(--warning-soft); box-shadow: inset 0 0 0 2px var(--warning); }
+.school-calendar-sticker.is-highlighted { border-radius: var(--radius-sm); background: var(--warning-soft); box-shadow: 0 0 0 2px var(--warning); }
+.full-calendar__cell { position: relative; }
+.full-calendar__cell.is-selected { background: var(--action-50); box-shadow: inset 0 0 0 1px var(--action-600); }
+.calendar-date-button { background: transparent; border: 0; color: inherit; cursor: pointer; padding: 0; }
+.calendar-overflow { bottom: var(--space-2); color: var(--ink-500); font-weight: var(--weight-bold); left: var(--space-3); position: absolute; }
+.smart-week { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; }
+.smart-week__scroller { max-width: 100%; overflow-x: auto; }
+.smart-week__grid { display: grid; grid-template-columns: repeat(7, minmax(132px, 1fr)); min-width: 924px; }
+.smart-week__day { background: var(--surface); border: 0; border-right: 1px solid var(--line-subtle); color: var(--ink-700); min-height: 290px; padding: var(--space-5); position: relative; text-align: left; }
+.smart-week__day:last-child { border-right: 0; }
+.smart-week__date { background: transparent; border: 0; color: inherit; cursor: pointer; display: block; padding: 0; text-align: left; width: 100%; }
+.smart-week__date > span { color: var(--ink-500); display: block; font-size: var(--text-sm); }
+.smart-week__date > time { align-items: center; display: inline-flex; font-size: var(--text-lg); font-weight: var(--weight-bold); height: 30px; justify-content: center; margin: var(--space-2) 0; width: 30px; }
+.smart-week__day.is-today .smart-week__date > time { background: var(--action-500); border-radius: var(--radius-full); color: var(--brand-950); }
+.smart-week__day.is-selected { background: var(--action-50); box-shadow: inset 0 -3px 0 var(--action-600); }
+.smart-week__entries { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+.smart-week__exercise { bottom: var(--space-4); position: absolute; right: var(--space-4); }
+.smart-week__selected { border-top: 1px solid var(--line); padding: var(--space-8); }
+.smart-week__selected h2 { font-size: var(--text-section); margin: 0 0 var(--space-5); }
+.smart-week__selected > div { display: grid; gap: var(--space-3); }
+.smart-week__selected p { color: var(--ink-500); margin: 0; }
+.calendar-move-focus { height: 0; opacity: 0; position: fixed; width: 0; }
+.calendar-move-form { display: grid; gap: var(--space-8); }
+.calendar-move-summary { display: grid; gap: var(--space-3); grid-template-columns: auto minmax(0, 1fr); }
+.calendar-move-summary span { color: var(--ink-500); }
+.calendar-move-summary input { min-height: var(--touch-target); }
+.calendar-move-form fieldset { border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-4); margin: 0; padding: var(--space-6); }
+.calendar-move-form label { align-items: center; display: flex; gap: var(--space-3); min-height: var(--touch-target); }
 @media (max-width: 767px) {
   .school-sticker-picker { padding: 16px; }
   .school-sticker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -35,4 +78,14 @@
   .full-calendar__cell .school-calendar-sticker.is-compact { display: inline-flex; }
   .calendar-exercise-stickers { right: 3px; bottom: 3px; }
   .calendar-filter button { min-height: 44px; }
+  .smart-calendar-toolbar { align-items: stretch; }
+  .smart-calendar-toolbar__period { flex: 1 1 100%; }
+  .smart-calendar-toolbar__period strong { flex: 1; min-width: 0; }
+  .smart-calendar-toolbar > .calendar-view-switch { order: 2; }
+  .smart-calendar-toolbar > :last-child { margin-left: auto; order: 2; }
+  .calendar-search__results { bottom: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + var(--space-8)); max-height: none; position: fixed; top: 72px; }
+  .smart-week__grid { grid-template-columns: repeat(7, 118px); min-width: 826px; }
+  .smart-week__day { min-height: 220px; padding: var(--space-4); }
+  .smart-week__selected { padding: var(--space-6); }
+  .calendar-item__move { min-height: 32px; min-width: 32px; }
 }

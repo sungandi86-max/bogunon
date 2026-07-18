@@ -20,8 +20,8 @@ export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [
   const eventsToday = events.filter((event) => event.start_date <= today && event.end_date >= today);
   const waitingTasks = activeTasks.filter((task) => task.status === "waitingForReply");
   const priorityTasks = activeTasks.filter((task) => task.priority === "high" && (task.scheduled_date === today || task.due_date === today));
-  const sortedEventsToday = sortTodayEvents(eventsToday);
   const currentTime = new Date(nowIso ?? `${today}T00:00:00+09:00`);
+  const sortedEventsToday = sortTodayEvents(eventsToday, currentTime);
   const nextEvent = nextScheduledEvent(events, currentTime)?.event;
   const workflowItems = buildWorkflowBriefingItems(workflow);
   const todayStickers = calendarStickers.filter((item) => item.sticker_date <= today && (item.end_date ?? item.sticker_date) >= today);

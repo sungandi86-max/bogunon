@@ -20,9 +20,9 @@ const event = (id: string, title: string, startTime: string | null, area: EventR
 });
 
 describe("mobile home schedule", () => {
-  it("sorts all-day first and timed events chronologically while excluding exercise events", () => {
+  it("sorts timed events before all-day items while excluding exercise events", () => {
     const values = [event("3", "저녁", "19:00"), event("1", "종일", null), event("2", "오후", "14:00"), event("4", "운동", "10:00", "exercise")];
-    expect(sortTodayEvents(values).map((item) => item.id)).toEqual(["1", "2", "3"]);
+    expect(sortTodayEvents(values).map((item) => item.id)).toEqual(["2", "3", "1"]);
   });
 
   it("returns the nearest future timed event and a Korean remaining-time label", () => {
@@ -37,6 +37,11 @@ describe("mobile home schedule", () => {
 
   it("finds the nearest event on a later date when today has no remaining event", () => {
     const values = [event("1", "지난 일정", "09:00"), event("2", "내일 회의", "09:00", "schoolSchedule", "2026-07-19")];
-    expect(nextScheduledEvent(values, new Date("2026-07-18T11:20:00+09:00"))).toMatchObject({ event: { id: "2" }, remainingLabel: "21시간 40분 후" });
+    expect(nextScheduledEvent(values, new Date("2026-07-18T11:20:00+09:00"))).toMatchObject({ event: { id: "2" }, remainingLabel: "내일 · 21시간 40분 후" });
+  });
+
+  it("reports an in-progress event and its remaining duration", () => {
+    const current = { ...event("1", "진행 중 회의", "10:00"), end_time: "12:00:00" };
+    expect(nextScheduledEvent([current], new Date("2026-07-18T11:25:00+09:00"))).toMatchObject({ state: "inProgress", remainingLabel: "진행 중 · 종료까지 35분" });
   });
 });

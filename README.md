@@ -35,6 +35,8 @@ Phase 7 AI는 PC 사이드바, 브리핑, 빠른 추가, 업무, Workflow와 연
 
 학교 날짜 스티커와 개인 반복 일정을 사용하려면 이어서 `supabase/migrations/20260718170000_add_school_calendar_stickers.sql`, `supabase/migrations/20260718171000_extend_event_schedule_fields.sql`을 순서대로 적용합니다. 보건업무 빠른 프리셋은 정적 설정으로만 제공되어 별도 migration이 필요하지 않으며, 저장 후에는 일반 Task 또는 Event가 됩니다.
 
+Smart Calendar는 월간·주간 보기, 오늘 이동, 서울 시간대 다음 일정 카운트다운, 현재 사용자 일정·업무·학교 날짜 스티커 검색을 제공합니다. 일정과 날짜가 있는 업무는 날짜 변경 메뉴로 이동할 수 있고 PC에서는 드래그가 같은 확인 패널을 엽니다. 반복 항목 이동은 한 건·이후 항목·전체 시리즈 범위를 선택하며 `move_calendar_item` RPC 한 트랜잭션으로 저장합니다. 원격 프로젝트에는 기존 migration 뒤에 `supabase/migrations/20260718190000_smart_calendar_moves.sql`을 한 번 적용하고 `supabase/sql/verify_smart_calendar_moves.sql`로 권한과 `SECURITY INVOKER` 상태를 확인합니다.
+
 ## 환경 변수
 
 `.env.example`을 참고해 로컬 환경에 다음 변수를 설정합니다. 실제 URL과 키는 저장소에 커밋하지 않습니다.

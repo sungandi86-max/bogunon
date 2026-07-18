@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatSeoulDateTime, monthRange, todayInSeoul } from "@/lib/work-items/date";
+import { addCalendarDays, formatSeoulDateTime, monthRange, shiftCalendarMonth, todayInSeoul, weekRange } from "@/lib/work-items/date";
 
 describe("work item dates", () => {
   it("uses the Seoul calendar date", () => {
@@ -20,5 +20,16 @@ describe("work item dates", () => {
 
     // Then
     expect(result).toBe("2026. 07. 18. 00:09:05");
+  });
+});
+
+describe("calendar date navigation", () => {
+  it("uses Monday-first week boundaries without local timezone drift", () => {
+    expect(weekRange("2026-07-18")).toEqual({ first: "2026-07-13", last: "2026-07-19" });
+    expect(addCalendarDays("2026-07-18", 1)).toBe("2026-07-19");
+  });
+
+  it("clamps month navigation to the target month", () => {
+    expect(shiftCalendarMonth("2026-01-31", 1)).toBe("2026-02-28");
   });
 });

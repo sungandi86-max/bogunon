@@ -49,6 +49,13 @@ export async function listCalendarStickers(first: string, last: string): Promise
   return data;
 }
 
+export async function listAllCalendarStickers(): Promise<CalendarStickerRow[]> {
+  const { supabase, userId } = await ownedClient();
+  const { data, error } = await supabase.from("calendar_stickers").select("*").eq("user_id", userId).order("sticker_date");
+  if (error) throw new Error("학교 일정 스티커를 불러오지 못했습니다.");
+  return data;
+}
+
 export async function createCalendarSticker(values: CalendarStickerWriteValues): Promise<CalendarStickerRow> {
   const { supabase, userId } = await ownedClient();
   const { data, error } = await supabase

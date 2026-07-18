@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { saveWorkItemAction } from "@/app/(app)/work-item-actions";
+import { moveCalendarItemAction, saveWorkItemAction } from "@/app/(app)/work-item-actions";
 import { deleteWorkItemAction, toggleTaskAction } from "@/app/(app)/work-item-actions";
-import { removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
+import { moveCalendarItem, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
 import { saveEventBundle, saveTaskBundle } from "@/lib/work-items/phase5-repository";
 import { markAiDraftApplied } from "@/lib/ai/history";
 
@@ -10,6 +10,7 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 vi.mock("@/lib/work-items/repository", () => ({
   removeWorkItem: vi.fn(),
   setTaskCompleted: vi.fn(),
+  moveCalendarItem: vi.fn(),
   listAllEvents: vi.fn(),
   listTasks: vi.fn(),
 }));
@@ -150,5 +151,13 @@ describe("saveWorkItemAction", () => {
     deleteData.set("kind", "event");
     await deleteWorkItemAction(deleteData);
     expect(vi.mocked(removeWorkItem)).toHaveBeenCalledWith("events", "event-id");
+  });
+
+  it("passes the selected recurrence scope to the atomic calendar move", async () => {
+    const formData = new FormData();
+    formData.set("id", "event-id"); formData.set("kind", "event");
+    formData.set("newDate", "2026-07-25"); formData.set("scope", "following");
+    await expect(moveCalendarItemAction({ status: "idle" }, formData)).resolves.toEqual({ status: "success", message: "날짜를 변경했습니다." });
+    expect(vi.mocked(moveCalendarItem)).toHaveBeenCalledWith("event", "event-id", "2026-07-25", "following");
   });
 });

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { occurrenceDatesThrough, shiftFromAnchor } from "@/lib/work-items/recurrence";
 import type { Database, EventRow, TaskRow } from "@/types/database";
+import type { CalendarItemKind, CalendarMoveScope } from "@/lib/calendar/smart-calendar";
 
 export type TaskWriteValues = Omit<
   TaskRow,
@@ -202,4 +203,15 @@ export async function setTaskCompleted(id: string, completed: boolean) {
     completed_at: completed ? new Date().toISOString() : null,
   }).eq("id", id).eq("user_id", userId);
   if (error) throw new Error("완료 상태를 변경하지 못했습니다.");
+}
+
+export async function moveCalendarItem(kind: CalendarItemKind, id: string, newDate: string, scope: CalendarMoveScope): Promise<void> {
+  const { supabase } = await ownedClient();
+  const { error } = await supabase.rpc("move_calendar_item", {
+    p_kind: kind,
+    p_item_id: id,
+    p_new_date: newDate,
+    p_scope: scope,
+  });
+  if (error) throw new Error("날짜를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.");
 }
