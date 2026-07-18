@@ -43,7 +43,7 @@
   --sidebar-width: 220px;
   --sidebar-compact-width: 80px;
   --mobile-header-height: 52px;
-  --mobile-nav-height: 64px;
+  --mobile-nav-height: 58px;
   --brand-950: #243247;
   --brand-900: #344054;
   --brand-800: #536174;
@@ -137,7 +137,8 @@
   --mobile-nav-radius: 30px;
   --mobile-nav-inset: 16px;
   --mobile-nav-bottom: 12px;
-  --mobile-fab-size: 58px;
+  --mobile-fab-size: 54px;
+  --mobile-content-bottom-space: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + var(--mobile-fab-size) + var(--space-12));
   --mobile-glass: rgb(255 255 255 / 0.82);
   --mobile-nav-surface: rgb(255 255 255 / 0.96);
   --mobile-pill-surface: rgb(255 255 255 / 0.72);

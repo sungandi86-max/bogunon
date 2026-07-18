@@ -51,7 +51,7 @@ describe("BriefingScreen", () => {
     const event: EventRow = {
       id: "event-1", user_id: "user-1", title: "학생건강검진", area: "healthWork",
       start_date: "2026-07-17", end_date: "2026-07-17", is_all_day: false,
-      start_time: "09:00:00", end_time: null, memo: null, description: null,
+      start_time: "09:00:00", end_time: null, memo: "홈에서는 숨기는 일정 설명", description: null,
       created_at: "2026-07-17T00:00:00Z", updated_at: "2026-07-17T00:00:00Z",
     };
 
@@ -62,5 +62,7 @@ describe("BriefingScreen", () => {
     expect(screen.getByText("오늘 1건")).toBeInTheDocument();
     expect(screen.getAllByText("09:00").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("학생건강검진").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("가장 가까운 일정")).not.toBeInTheDocument();
+    expect(screen.queryByText("홈에서는 숨기는 일정 설명")).not.toBeInTheDocument();
   });
 });

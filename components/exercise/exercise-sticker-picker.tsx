@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -18,12 +18,21 @@ export function ExerciseStickerPicker({ date, logs, stickers, compact = false }:
   const [removeState, removeAction, removePending] = useActionState(removeExerciseStickerAction, initialState);
   const router = useRouter();
   const state = removeState.status !== "idle" ? removeState : saveState;
+  const [dismissedMessage, setDismissedMessage] = useState<StickerActionState | null>(null);
+  const handledMessage = useRef<StickerActionState | null>(null);
 
   useEffect(() => {
-    if (state.status === "success") router.refresh();
+    if (!state.message || state.status !== "success") return;
+    if (handledMessage.current !== state) {
+      handledMessage.current = state;
+      router.refresh();
+    }
+    const timeout = window.setTimeout(() => setDismissedMessage(state), 3200);
+    return () => window.clearTimeout(timeout);
   }, [router, state]);
 
   const visibleStickers = compact ? stickers.slice(0, 4) : stickers;
+  const visibleMessage = state !== dismissedMessage ? state : null;
   return (
     <div className={compact ? "exercise-picker exercise-picker--compact" : "exercise-picker"}>
       <div className="exercise-picker__grid">
@@ -48,7 +57,7 @@ export function ExerciseStickerPicker({ date, logs, stickers, compact = false }:
           );
         })}
       </div>
-      {state.message && <p aria-live="polite" className={`sticker-toast${state.status === "error" ? " sticker-toast--error" : ""}`}>{state.message}</p>}
+      {visibleMessage?.message && <p aria-live="polite" className={`sticker-toast${visibleMessage.status === "error" ? " sticker-toast--error" : ""}`}>{visibleMessage.message}</p>}
     </div>
   );
 }
