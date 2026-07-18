@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { updateSession } from "@/lib/supabase/proxy";
+import { proxy as appProxy } from "@/proxy";
 
 type ProxyCookieAdapter = {
   readonly setAll: (
@@ -68,6 +69,30 @@ describe("Supabase session proxy", () => {
 
     expect(response.headers.get("location")).toBeNull();
     expect(getClaims).not.toHaveBeenCalled();
+  });
+
+  it.each(["/privacy", "/terms"])(
+    "keeps the public legal path %s outside authentication",
+    async (pathname) => {
+      const response = await updateSession(new NextRequest(`https://bogunon.example${pathname}`));
+
+      expect(response.headers.get("location")).toBeNull();
+      expect(getClaims).not.toHaveBeenCalled();
+    },
+  );
+
+  it("adds strict browser security headers to application responses", async () => {
+    const response = await appProxy(new NextRequest("https://bogunon.example/privacy"));
+
+    expect(response.headers.get("content-security-policy")).toContain("default-src 'self'");
+    expect(response.headers.get("content-security-policy")).toMatch(/script-src 'self' 'nonce-[^']+'/);
+    expect(response.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
+    expect(response.headers.get("x-frame-options")).toBe("DENY");
+    expect(response.headers.get("x-content-type-options")).toBe("nosniff");
+    expect(response.headers.get("referrer-policy")).toBe("strict-origin-when-cross-origin");
+    expect(response.headers.get("permissions-policy")).toBe(
+      "camera=(), geolocation=(), microphone=()",
+    );
   });
 
   it("preserves the destination when an existing session has expired", async () => {

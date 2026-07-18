@@ -1,4 +1,5 @@
 import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 import { AuthErrorMessage } from "@/components/auth/auth-error-message";
 import { GoogleLoginButton } from "@/components/auth/google-login-button";
@@ -27,6 +28,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <AuthErrorMessage code={errorCode} />
         <GoogleLoginButton disabled={!configured} nextPath={nextPath} />
         <p className="login-privacy"><ShieldCheck aria-hidden="true" size={16} /> 학생 이름, 학번, 질병명, 상담 내용 등 개인 건강정보를 입력하지 마세요.</p>
+        <nav aria-label="법적 고지" className="login-legal-links">
+          <Link href="/privacy">개인정보처리방침</Link>
+          <Link href="/terms">이용약관</Link>
+        </nav>
       </section>
     </main>
   );

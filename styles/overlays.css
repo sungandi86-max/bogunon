@@ -91,3 +91,5 @@
 .google-button { width: 100%; }
 .auth-error { background: var(--danger-soft); border-left: 3px solid var(--danger); color: var(--danger); font-size: var(--text-md); margin: 0 0 var(--space-8); padding: var(--space-5) var(--space-6); word-break: keep-all; }
 .login-privacy { border-top: 1px solid var(--line); color: var(--ink-700); font-size: var(--text-sm); margin: var(--space-14) 0 0; padding-top: var(--space-10); word-break: keep-all; }
+.login-legal-links { display: flex; gap: var(--space-8); margin-top: var(--space-8); }
+.login-legal-links a { color: var(--action-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
