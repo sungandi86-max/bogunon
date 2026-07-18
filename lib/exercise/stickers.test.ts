@@ -1,10 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   DEFAULT_EXERCISE_STICKERS,
   exerciseAssetPath,
   exerciseCalendarSummary,
+  exerciseDateKey,
   exerciseStreak,
+  groupExerciseLogsByDate,
 } from "@/lib/exercise/stickers";
 import type { ExerciseLogRow } from "@/types/database";
 
@@ -40,7 +42,28 @@ describe("exercise stickers", () => {
 
   it("shows two stickers and a remaining count when a day has three or more logs", () => {
     const logs = [log("1", "2026-07-18", "a"), log("2", "2026-07-18", "b"), log("3", "2026-07-18", "c")];
-    expect(exerciseCalendarSummary(logs, "2026-07-18")).toEqual({ visible: logs.slice(0, 2), remaining: 1 });
+    expect(exerciseCalendarSummary(groupExerciseLogsByDate(logs), "2026-07-18")).toEqual({ visible: [logs[2], logs[1]], remaining: 1 });
+  });
+
+  it("normalizes exercise dates to one timezone-safe YYYY-MM-DD key", () => {
+    expect(exerciseDateKey("2026-07-18")).toBe("2026-07-18");
+    expect(exerciseDateKey("2026-07-18T00:00:00.000Z")).toBe("2026-07-18");
+    expect(exerciseDateKey("2026-02-30")).toBeNull();
+  });
+
+  it("groups the calendar and selected-date panel with the same date key", () => {
+    const exact = log("1", "2026-07-18", "a");
+    const timestamp = log("2", "2026-07-18T00:00:00.000Z", "b");
+    expect(groupExerciseLogsByDate([exact, timestamp])).toEqual({
+      "2026-07-18": [exact, timestamp],
+    });
+  });
+
+  it("falls back to the local other sticker for an unknown asset key", () => {
+    const warning = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    expect(exerciseAssetPath("unknown_icon_key")).toBe("/stickers/exercise/other.svg");
+    expect(warning).toHaveBeenCalledWith("[exercise] Unknown sticker asset key: unknown_icon_key");
+    warning.mockRestore();
   });
 
   it("calculates a unique-day current streak ending on the reference date", () => {

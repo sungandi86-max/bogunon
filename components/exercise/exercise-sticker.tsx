@@ -11,10 +11,11 @@ interface ExerciseStickerProps {
   readonly selected?: boolean;
   readonly completed?: boolean;
   readonly disabled?: boolean;
+  readonly eager?: boolean;
   readonly removable?: boolean;
 }
 
-export function ExerciseSticker({ sticker, size = "md", selected = false, completed = false, disabled = false, removable = false }: ExerciseStickerProps) {
+export function ExerciseSticker({ sticker, size = "md", selected = false, completed = false, disabled = false, eager = false, removable = false }: ExerciseStickerProps) {
   const pixels = sizes[size];
   const showCheck = selected || completed;
   return (
@@ -23,7 +24,7 @@ export function ExerciseSticker({ sticker, size = "md", selected = false, comple
       className={`exercise-sticker exercise-sticker--${size} exercise-sticker--${sticker.color_key ?? "mint"}${selected ? " is-selected" : ""}${completed ? " is-completed" : ""}${disabled ? " is-disabled" : ""}${removable ? " is-removable" : ""}`}
       role="img"
     >
-      <Image alt="" aria-hidden="true" height={pixels} src={exerciseAssetPath(sticker.icon_key)} width={pixels} />
+      <Image alt="" aria-hidden="true" height={pixels} loading={eager ? "eager" : "lazy"} src={exerciseAssetPath(sticker.icon_key)} width={pixels} />
       {showCheck && <span aria-hidden="true" className="exercise-sticker__check">✓</span>}
     </span>
   );

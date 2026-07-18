@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { revalidatePath } from "next/cache";
 
 import { attachExerciseStickerAction, removeExerciseStickerAction, saveCustomExerciseStickerAction, updateExerciseStickerDetailsAction } from "@/app/(app)/exercise-sticker-actions";
 import { removeExerciseLog, saveCustomExerciseSticker, saveExerciseLog, updateExerciseLog } from "@/lib/exercise/repository";
@@ -26,6 +27,8 @@ describe("exercise sticker actions", () => {
     const removeForm = new FormData(); removeForm.set("logId", logId);
     await expect(removeExerciseStickerAction({ status: "idle" }, removeForm)).resolves.toMatchObject({ status: "success" });
     expect(removeExerciseLog).toHaveBeenCalledWith(logId);
+    expect(revalidatePath).toHaveBeenCalledWith("/exercise");
+    expect(revalidatePath).toHaveBeenCalledWith("/briefing");
     const updateForm = new FormData(); updateForm.set("logId", logId); updateForm.set("durationMinutes", ""); updateForm.set("note", "");
     await updateExerciseStickerDetailsAction({ status: "idle" }, updateForm);
     expect(updateExerciseLog).toHaveBeenCalledWith(logId, null, null);

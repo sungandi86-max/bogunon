@@ -9,6 +9,7 @@ import {
   type StickerActionState,
 } from "@/app/(app)/exercise-sticker-actions";
 import { ExerciseSticker } from "@/components/exercise/exercise-sticker";
+import { exerciseDateKey } from "@/lib/exercise/stickers";
 import type { ExerciseLogRow, ExerciseStickerRow } from "@/types/database";
 
 const initialState: StickerActionState = { status: "idle" };
@@ -37,7 +38,7 @@ export function ExerciseStickerPicker({ date, logs, stickers, compact = false }:
     <div className={compact ? "exercise-picker exercise-picker--compact" : "exercise-picker"}>
       <div className="exercise-picker__grid">
         {visibleStickers.map((sticker) => {
-          const existing = logs.find((log) => log.sticker_id === sticker.id && log.exercise_date === date);
+          const existing = logs.find((log) => log.sticker_id === sticker.id && exerciseDateKey(log.exercise_date) === date);
           return existing ? (
             <form action={removeAction} key={sticker.id} onSubmit={(event) => { if (!window.confirm(`${sticker.label} 스티커를 이 날짜에서 제거할까요?`)) event.preventDefault(); }}>
               <input name="logId" type="hidden" value={existing.id} />

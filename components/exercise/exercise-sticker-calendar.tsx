@@ -7,7 +7,7 @@ import { useState } from "react";
 import { ExerciseLogDetails } from "@/components/exercise/exercise-log-details";
 import { ExerciseSticker } from "@/components/exercise/exercise-sticker";
 import { ExerciseStickerPicker } from "@/components/exercise/exercise-sticker-picker";
-import { exerciseCalendarSummary, exerciseStreak } from "@/lib/exercise/stickers";
+import { exerciseCalendarSummary, exerciseStreak, groupExerciseLogsByDate } from "@/lib/exercise/stickers";
 import type { ExerciseLogRow, ExerciseStickerRow } from "@/types/database";
 
 function shiftMonth(month: string, amount: number): string {
@@ -25,12 +25,13 @@ export function ExerciseStickerCalendar({ initialDate, logs, month, stickers }: 
     const day = index - leading + 1;
     return day >= 1 && day <= lastDay ? `${month}-${String(day).padStart(2, "0")}` : null;
   });
-  const selectedLogs = logs.filter((log) => log.exercise_date === selectedDate);
-  const uniqueDays = new Set(logs.map((log) => log.exercise_date)).size;
+  const logsByDate = groupExerciseLogsByDate(logs);
+  const selectedLogs = logsByDate[selectedDate] ?? [];
+  const uniqueDays = Object.keys(logsByDate).length;
   const stickerById = new Map(stickers.map((sticker) => [sticker.id, sticker]));
   return <div className="exercise-calendar-layout"><section className="exercise-month-card" aria-labelledby="exercise-calendar-title"><div className="exercise-calendar-toolbar"><div><p>이번 달 운동 {uniqueDays}일 · 연속 {exerciseStreak(logs, initialDate)}일</p><h2 id="exercise-calendar-title">{first.getUTCFullYear()}년 {first.getUTCMonth() + 1}월</h2></div><div><Link aria-label="이전 달" href={`/exercise?month=${shiftMonth(month, -1)}`}><ChevronLeft aria-hidden="true" size={20} /></Link><Link href={`/exercise?month=${initialDate.slice(0, 7)}`}>오늘</Link><Link aria-label="다음 달" href={`/exercise?month=${shiftMonth(month, 1)}`}><ChevronRight aria-hidden="true" size={20} /></Link></div></div><div className="exercise-calendar-weekdays" aria-hidden="true">{["일", "월", "화", "수", "목", "금", "토"].map((day) => <span key={day}>{day}</span>)}</div><div className="exercise-calendar-grid">{cells.map((date, index) => {
     if (!date) return <span aria-hidden="true" className="exercise-calendar-day is-empty" key={`empty-${index}`} />;
-    const summary = exerciseCalendarSummary(logs, date);
-    return <button aria-pressed={selectedDate === date} className={`${date === initialDate ? "is-today " : ""}${selectedDate === date ? "is-selected" : ""}`} key={date} onClick={() => setSelectedDate(date)} type="button"><time dateTime={date}>{Number(date.slice(-2))}</time><span className="exercise-calendar-day__stickers">{summary.visible.map((log) => { const sticker = stickerById.get(log.sticker_id); return sticker ? <ExerciseSticker key={log.id} sticker={sticker} size="xs" /> : null; })}{summary.remaining > 0 && <small>+{summary.remaining}</small>}</span></button>;
+    const summary = exerciseCalendarSummary(logsByDate, date);
+    return <button aria-pressed={selectedDate === date} className={`${date === initialDate ? "is-today " : ""}${selectedDate === date ? "is-selected" : ""}`} key={date} onClick={() => setSelectedDate(date)} type="button"><time dateTime={date}>{Number(date.slice(-2))}</time><span className="exercise-calendar-day__stickers">{summary.visible.map((log) => { const sticker = stickerById.get(log.sticker_id); return sticker ? <ExerciseSticker eager key={log.id} sticker={sticker} size="sm" /> : null; })}{summary.remaining > 0 && <small>+{summary.remaining}</small>}</span></button>;
   })}</div></section><aside className="exercise-date-panel"><div><p>선택한 날짜</p><h2>{selectedDate.replaceAll("-", ". ")}</h2></div><ExerciseStickerPicker date={selectedDate} logs={logs} stickers={stickers} /><ExerciseLogDetails logs={selectedLogs} stickers={stickers} /></aside></div>;
 }

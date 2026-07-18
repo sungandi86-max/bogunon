@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { BriefingScreen } from "@/components/briefing/briefing-screen";
 import { AppShell } from "@/components/layout/app-shell";
-import type { EventRow, TaskRow } from "@/types/database";
+import type { EventRow, ExerciseLogRow, ExerciseStickerRow, TaskRow } from "@/types/database";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/briefing",
@@ -64,5 +64,15 @@ describe("BriefingScreen", () => {
     expect(screen.getAllByText("학생건강검진").length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText("가장 가까운 일정")).not.toBeInTheDocument();
     expect(screen.queryByText("홈에서는 숨기는 일정 설명")).not.toBeInTheDocument();
+  });
+
+  it("uses the same normalized exercise date source as the monthly calendar", () => {
+    const sticker: ExerciseStickerRow = { id: "10000000-0000-4000-8000-000000000001", user_id: null, label: "배드민턴", icon_key: "badminton", color_key: "mint", display_order: 10, is_default: true, created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
+    const exerciseLog: ExerciseLogRow = { id: "20000000-0000-4000-8000-000000000001", user_id: "user-1", sticker_id: sticker.id, exercise_date: "2026-07-18T00:00:00.000Z", duration_minutes: null, note: null, created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
+
+    render(<AppShell><BriefingScreen events={[]} exerciseLogs={[exerciseLog]} exerciseStickers={[sticker]} month="2026-07" tasks={[]} today="2026-07-18" /></AppShell>);
+
+    expect(screen.getByText("배드민턴 했다!")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "배드민턴 운동 스티커, 완료" })).toBeInTheDocument();
   });
 });

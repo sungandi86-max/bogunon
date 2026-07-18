@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ExerciseWorkspace } from "@/components/exercise/exercise-workspace";
@@ -35,9 +35,17 @@ describe("ExerciseWorkspace", () => {
 
   it("renders saved stickers on the calendar and keeps optional details behind the record", () => {
     render(<ExerciseWorkspace events={[]} logs={[log]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
-    expect(screen.getAllByLabelText(/배드민턴 운동 스티커/).length).toBeGreaterThan(0);
+    const calendarDay = screen.getByRole("button", { name: /18.*배드민턴 운동 스티커/ });
+    expect(within(calendarDay).getByRole("img", { name: "배드민턴 운동 스티커" })).toHaveClass("exercise-sticker--sm");
     expect(screen.getByText("배드민턴 했다!")).toBeInTheDocument();
     expect(screen.getByText("이번 달 운동 1일 · 연속 1일")).toBeInTheDocument();
+  });
+
+  it("keeps the selected-date panel inside the visible month after month navigation", () => {
+    const { rerender } = render(<ExerciseWorkspace events={[]} logs={[]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
+    fireEvent.click(screen.getByRole("button", { name: "19" }));
+    rerender(<ExerciseWorkspace events={[]} logs={[]} month="2026-08" stickers={[sticker]} today="2026-07-18" />);
+    expect(screen.getByRole("heading", { name: "2026. 08. 01" })).toBeInTheDocument();
   });
 
   it("preserves legacy event-based exercise records in a separate section", () => {

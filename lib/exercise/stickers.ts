@@ -30,12 +30,36 @@ const assetNames: Readonly<Record<ExerciseStickerIconKey, string>> = {
   other: "other",
 };
 
-export function exerciseAssetPath(iconKey: ExerciseStickerIconKey): string {
-  return `/stickers/exercise/${assetNames[iconKey]}.svg`;
+export function exerciseAssetPath(iconKey: string): string {
+  const assetName = assetNames[iconKey as ExerciseStickerIconKey];
+  if (!assetName && process.env.NODE_ENV !== "production") console.warn(`[exercise] Unknown sticker asset key: ${iconKey}`);
+  return `/stickers/exercise/${assetName ?? assetNames.other}.svg`;
 }
 
-export function exerciseCalendarSummary(logs: readonly ExerciseLogRow[], date: string) {
-  const matches = logs.filter((log) => log.exercise_date === date);
+export function exerciseDateKey(value: string): string | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/.exec(value);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysByMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > (daysByMonth[month - 1] ?? 0)) return null;
+  return `${match[1]}-${match[2]}-${match[3]}`;
+}
+
+export function groupExerciseLogsByDate(logs: readonly ExerciseLogRow[]): Readonly<Record<string, readonly ExerciseLogRow[]>> {
+  const groups: Record<string, ExerciseLogRow[]> = {};
+  for (const log of logs) {
+    const key = exerciseDateKey(log.exercise_date);
+    if (!key) continue;
+    groups[key] = [...(groups[key] ?? []), log];
+  }
+  return groups;
+}
+
+export function exerciseCalendarSummary(logsByDate: Readonly<Record<string, readonly ExerciseLogRow[]>>, date: string) {
+  const matches = [...(logsByDate[date] ?? [])].sort((left, right) => right.created_at.localeCompare(left.created_at) || right.id.localeCompare(left.id));
   return { visible: matches.slice(0, 2), remaining: Math.max(0, matches.length - 2) } as const;
 }
 
@@ -46,7 +70,7 @@ function previousDate(date: string): string {
 }
 
 export function exerciseStreak(logs: readonly ExerciseLogRow[], referenceDate: string): number {
-  const dates = new Set(logs.map((log) => log.exercise_date));
+  const dates = new Set(Object.keys(groupExerciseLogsByDate(logs)));
   let cursor = referenceDate;
   let count = 0;
   while (dates.has(cursor)) {
