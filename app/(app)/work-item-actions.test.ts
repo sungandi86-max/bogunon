@@ -38,6 +38,19 @@ describe("saveWorkItemAction", () => {
     });
   });
 
+  it("rejects new project-area tasks while preserving legacy rows for read paths", async () => {
+    const formData = new FormData();
+    formData.set("kind", "task");
+    formData.set("title", "새 프로젝트");
+    formData.set("area", "project");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "error",
+      message: "유효한 영역을 선택해 주세요.",
+    });
+    expect(vi.mocked(saveTaskBundle)).not.toHaveBeenCalled();
+  });
+
   it("rejects an event whose end date precedes its start date", async () => {
     const formData = new FormData();
     formData.set("kind", "event");

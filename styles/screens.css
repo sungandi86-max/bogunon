@@ -188,10 +188,8 @@
 .legend-school { color: var(--school) !important; }
 .legend-deadline { color: var(--deadline) !important; }
 .legend-exercise { color: var(--exercise) !important; }
-.legend-project { color: var(--project) !important; }
 .month-overview .full-calendar { box-shadow: var(--shadow-sm); }
 .month-overview .full-calendar__cell { height: 88px; }
-.calendar-item--project { background: var(--project-soft); border-color: var(--project); }
 .calendar-item--personal { background: var(--personal-soft); border-color: var(--personal); }
 .operations-rail { align-self: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); min-width: 0; overflow: hidden; }
 .operations-rail > section { padding: var(--space-7); }
@@ -456,7 +454,7 @@
 .summary-metric:nth-child(1) svg { background: color-mix(in srgb, var(--pastel-blue) 36%, white); color: var(--health); }
 .summary-metric:nth-child(2) svg { background: color-mix(in srgb, var(--pastel-orange) 36%, white); color: var(--school); }
 .summary-metric:nth-child(3) svg { background: color-mix(in srgb, var(--pastel-pink) 36%, white); color: var(--deadline); }
-.summary-metric:nth-child(4) svg { background: color-mix(in srgb, var(--pastel-lavender) 36%, white); color: var(--project); }
+.summary-metric:nth-child(4) svg { background: color-mix(in srgb, var(--pastel-lavender) 36%, white); color: var(--lavender-ink); }
 .operations-rail { align-self: start; background: transparent; border: 0; border-radius: 0; box-shadow: none; display: grid; gap: var(--space-8); overflow: visible; }
 .operations-rail > section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-10); }
 .operations-rail > section + section { border-top: 1px solid var(--line); }

@@ -4,12 +4,32 @@ import { describe, expect, it, vi } from "vitest";
 import { CreateItemForm } from "@/components/layout/create-item-form";
 import { HEALTH_PRESETS } from "@/lib/work-items/health-presets";
 import { BUILT_IN_TEMPLATES } from "@/lib/work-items/workflow";
+import type { TaskRow } from "@/types/database";
 
 vi.mock("@/app/(app)/work-item-actions", () => ({
   saveWorkItemAction: vi.fn(async () => ({ status: "success", message: "저장했습니다." })),
 }));
 
 describe("CreateItemForm Phase 5 workflows", () => {
+  it("does not offer project creation and normalizes a legacy project task for editing", () => {
+    const legacyProjectTask: TaskRow = {
+      id: "legacy-project-task", user_id: "user", title: "AI 업무 자동화 전자책 출간", area: "project",
+      status: "planned", priority: "normal", category: "other", scheduled_date: "2026-07-20", due_date: null,
+      follow_up_date: null, memo: "기존 메모", description: "기존 설명", estimated_minutes: 60, completed_at: null,
+      recurrence_frequency: null, recurrence_source_id: null, recurrence_date: null, recurrence_generated_through: null,
+      created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z",
+    };
+
+    const { unmount } = render(<CreateItemForm />);
+    expect(screen.getByRole("combobox", { name: "영역" })).not.toHaveTextContent("프로젝트");
+
+    unmount();
+    render(<CreateItemForm initialItem={legacyProjectTask} />);
+    expect(screen.getByRole("textbox", { name: "제목" })).toHaveValue("AI 업무 자동화 전자책 출간");
+    expect(screen.getByRole("textbox", { name: "설명" })).toHaveValue("기존 설명");
+    expect(screen.getByRole("combobox", { name: "영역" })).toHaveValue("healthWork");
+  });
+
   it("applies a template without saving and includes its checklist", () => {
     const template = BUILT_IN_TEMPLATES.find((item) => item.key === "supplies");
     expect(template).toBeDefined();

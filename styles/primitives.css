@@ -40,7 +40,6 @@
 .badge--school { background: var(--school-soft); color: var(--school); }
 .badge--exercise { background: var(--exercise-soft); color: var(--exercise); }
 .badge--personal { background: var(--personal-soft); color: var(--personal); }
-.badge--project { background: var(--project-soft); color: var(--project); }
 .badge--waiting { background: var(--warning-soft); color: var(--warning); }
 .badge--check { background: var(--info-soft); color: var(--info); }
 .badge--deadline { background: var(--deadline-soft); color: var(--deadline); }

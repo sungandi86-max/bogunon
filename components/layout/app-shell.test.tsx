@@ -32,6 +32,7 @@ describe("AppShell", () => {
     expect(screen.getAllByRole("link", { name: "오늘" }).every((link) => link.getAttribute("aria-current") === "page")).toBe(true);
     expect(screen.getAllByRole("link", { name: "업무 절차" })).toHaveLength(1);
     expect(screen.getAllByRole("link", { name: "운동" })).toHaveLength(2);
+    expect(screen.queryByRole("link", { name: "프로젝트" })).not.toBeInTheDocument();
     expect(screen.getByText("보건업무")).toBeInTheDocument();
     expect(screen.getByText("나의 기록")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "AI 업무 도우미" })).not.toBeInTheDocument();
@@ -74,6 +75,7 @@ describe("AppShell", () => {
     expect(within(menu).queryByRole("link", { name: /업무 절차 시작/ })).not.toBeInTheDocument();
     expect(within(menu).getByRole("link", { name: /빠른 메모/ })).toBeInTheDocument();
     expect(within(menu).getByRole("button", { name: /^작성 도움/ })).toBeInTheDocument();
+    expect(within(menu).queryByText(/프로젝트/)).not.toBeInTheDocument();
   });
 
   it("personalizes mobile favorites, ordering, hidden presets, and restores defaults", async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ChevronDown, ClipboardList, Dumbbell, FilePenLine, FolderKanban, GitBranch, Home, LayoutGrid, LibraryBig, ListPlus, Plus, Settings } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, ClipboardList, Dumbbell, FilePenLine, GitBranch, Home, LayoutGrid, LibraryBig, ListPlus, Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -19,7 +19,6 @@ const navigationGroups = [
   ] },
   { label: "나의 기록", links: [
     ["운동", "/exercise", Dumbbell],
-    ["프로젝트", "/projects", FolderKanban],
   ] },
   { label: "설정", links: [["설정", "/settings", Settings]] },
 ] as const;

@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleDashed, Dumbbell, FolderKanban, Plus } from "lucide-react";
+import { CircleDashed, Dumbbell, Plus } from "lucide-react";
 
 import { useAppShellCreate } from "@/components/layout/app-shell-create-context";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,12 @@ interface EmptyStateProps {
   readonly description: string;
   readonly title: string;
   readonly actionLabel?: string;
-  readonly icon?: "default" | "exercise" | "project";
+  readonly icon?: "default" | "exercise";
 }
 
 function emptyStateTemplate(icon: EmptyStateProps["icon"]): TemplateDefinition {
-  const area = icon === "exercise" ? "exercise" : "project";
-  return { area, category: "other", checklist: [], description: "", estimatedMinutes: 30, key: `empty-${area}`, kind: "task", memo: "", name: area === "exercise" ? "운동 기록" : "프로젝트", priority: "normal", recommendedTiming: "직접 입력", recurrenceFrequency: null, title: "" };
+  const area = icon === "exercise" ? "exercise" : "healthWork";
+  return { area, category: "other", checklist: [], description: "", estimatedMinutes: 30, key: `empty-${area}`, kind: "task", memo: "", name: area === "exercise" ? "운동 기록" : "업무", priority: "normal", recommendedTiming: "직접 입력", recurrenceFrequency: null, title: "" };
 }
 
 function EmptyStateAction({ icon, label }: { readonly icon: EmptyStateProps["icon"]; readonly label: string }) {
@@ -24,7 +24,7 @@ function EmptyStateAction({ icon, label }: { readonly icon: EmptyStateProps["ico
 }
 
 export function EmptyState({ actionLabel, description, icon = "default", title }: EmptyStateProps) {
-  const Icon = icon === "exercise" ? Dumbbell : icon === "project" ? FolderKanban : CircleDashed;
+  const Icon = icon === "exercise" ? Dumbbell : CircleDashed;
   return (
     <div className={`empty-state${actionLabel ? " empty-state--featured" : ""}`}>
       <span className="empty-state__icon"><Icon aria-hidden="true" size={22} /></span>

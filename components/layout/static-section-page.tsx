@@ -9,7 +9,7 @@ interface StaticSectionPageProps {
   readonly description: string;
   readonly emptyDescription: string;
   readonly emptyTitle: string;
-  readonly icon?: "default" | "exercise" | "project";
+  readonly icon?: "default" | "exercise";
   readonly title: string;
   readonly extra?: ReactNode;
 }

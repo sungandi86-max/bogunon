@@ -7,7 +7,6 @@ type BadgeTone =
   | "school"
   | "exercise"
   | "personal"
-  | "project"
   | "waiting"
   | "check"
   | "deadline"

@@ -28,7 +28,7 @@ export interface WorkItemActionState {
   readonly message?: string;
 }
 
-const areas = new Set<Area>(["healthWork", "schoolSchedule", "exercise", "personal", "project"]);
+const areas = new Set<Area>(["healthWork", "schoolSchedule", "exercise", "personal"]);
 const statuses = new Set<TaskStatus>(["planned", "inProgress", "waitingForReply", "needsCheck", "completed", "onHold"]);
 const priorities = ["low", "normal", "high"] as const;
 

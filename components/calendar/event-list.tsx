@@ -6,7 +6,7 @@ import { CreateItemForm } from "@/components/layout/create-item-form";
 import type { WorkflowData } from "@/lib/work-items/phase5-repository";
 import type { EventRow } from "@/types/database";
 
-const areaLabel = { healthWork: "업무", schoolSchedule: "학교", personal: "개인", exercise: "운동", project: "프로젝트" } as const;
+const areaLabel = { healthWork: "업무", schoolSchedule: "학교", personal: "개인", exercise: "운동", project: "업무" } as const;
 const recurrenceLabel = { daily: "매일", weekly: "매주", monthly: "매월", yearly: "매년" } as const;
 
 export function EventList({ events, workflow }: { readonly events: EventRow[]; readonly workflow: WorkflowData }) {
@@ -18,7 +18,7 @@ export function EventList({ events, workflow }: { readonly events: EventRow[]; r
       <div>
         <time>{event.start_date}{event.start_time ? ` ${event.start_time.slice(0, 5)}` : ""}</time>
         <strong>{event.title}</strong>
-        <span className={`event-area-badge event-area-badge--${event.area}`}>{areaLabel[event.area]}</span>
+        <span className={`event-area-badge event-area-badge--${event.area === "project" ? "healthWork" : event.area}`}>{areaLabel[event.area]}</span>
         {event.location && <small>장소 · {event.location}</small>}
         {event.recurrence_frequency && <small>반복 · {recurrenceLabel[event.recurrence_frequency]}</small>}
         {links.map((link) => <a className="event-link" href={link.url} key={link.id} rel="noreferrer" target="_blank"><ExternalLink size={12} />{link.title}</a>)}

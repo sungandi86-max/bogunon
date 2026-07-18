@@ -5,8 +5,8 @@ import { CalendarDays, CheckSquare2, MoveRight } from "lucide-react";
 import { taskCalendarDate, type CalendarItemKind } from "@/lib/calendar/smart-calendar";
 import type { EventRow, TaskRow } from "@/types/database";
 
-const areaLabel = { healthWork: "업무", schoolSchedule: "학교", exercise: "운동", personal: "개인", project: "프로젝트" } as const;
-const areaClass = { healthWork: "", schoolSchedule: "calendar-item--school", exercise: "calendar-item--exercise", personal: "calendar-item--personal", project: "calendar-item--project" } as const;
+const areaLabel = { healthWork: "업무", schoolSchedule: "학교", exercise: "운동", personal: "개인", project: "업무" } as const;
+const areaClass = { healthWork: "", schoolSchedule: "calendar-item--school", exercise: "calendar-item--exercise", personal: "calendar-item--personal", project: "" } as const;
 
 export type MovableCalendarItem = { readonly item: EventRow | TaskRow; readonly kind: CalendarItemKind; readonly date: string };
 

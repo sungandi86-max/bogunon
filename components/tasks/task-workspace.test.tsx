@@ -37,7 +37,24 @@ const completedTask: TaskRow = {
   recurrence_generated_through: null,
 };
 
+const legacyProjectTask: TaskRow = {
+  ...task,
+  id: "legacy-project-task",
+  title: "AI 업무 자동화 전자책 출간",
+  area: "project",
+  category: "other",
+  recurrence_frequency: null,
+};
+
 describe("TaskWorkspace", () => {
+  it("keeps legacy project tasks in the regular task list without a project badge", () => {
+    const { container } = render(<TaskWorkspace events={[]} tasks={[legacyProjectTask]} today="2026-07-17" />);
+
+    expect(screen.getByText("AI 업무 자동화 전자책 출간")).toBeInTheDocument();
+    expect(container.querySelector(".badge--health")).toHaveTextContent("업무");
+    expect(screen.queryByText("프로젝트")).not.toBeInTheDocument();
+  });
+
   it("searches task and event memo text as the user types", () => {
     render(<TaskWorkspace events={[event]} tasks={[task]} today="2026-07-17" />);
     const search = screen.getByRole("searchbox", { name: "업무, 일정과 메모 검색" });

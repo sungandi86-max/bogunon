@@ -32,7 +32,7 @@ interface CreateItemFormProps {
 const eventAreas = [
   ["healthWork", "업무"], ["schoolSchedule", "학교"], ["personal", "개인"],
 ] as const;
-const taskAreas = [...eventAreas, ["exercise", "운동"], ["project", "프로젝트"]] as const;
+const taskAreas = [...eventAreas, ["exercise", "운동"]] as const;
 const initialActionState: WorkItemActionState = { status: "idle" };
 const today = () => new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
 
@@ -43,7 +43,10 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [kind, setKind] = useState<"task" | "event">(itemKind);
   const [title, setTitle] = useState(initialItem?.title ?? initialTemplate?.title ?? "");
   const [description, setDescription] = useState(initialItem?.description ?? initialTemplate?.description ?? "");
-  const [area, setArea] = useState(initialItem?.area ?? initialTemplate?.area ?? "healthWork");
+  const initialArea = initialItem?.area === "project" || initialTemplate?.area === "project"
+    ? "healthWork"
+    : initialItem?.area ?? initialTemplate?.area ?? "healthWork";
+  const [area, setArea] = useState(initialArea);
   const [category, setCategory] = useState(task?.category ?? initialTemplate?.category ?? "other");
   const [status, setStatus] = useState(task?.status ?? "planned");
   const [priority, setPriority] = useState(task?.priority ?? initialTemplate?.priority ?? "normal");
@@ -67,7 +70,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [quickText, setQuickText] = useState("");
   const [quickPreview, setQuickPreview] = useState<QuickInputResult | null>(null);
   const [state, action, pending] = useActionState(saveWorkItemAction, initialActionState);
-  const availableAreas = kind === "task" || area === "exercise" || area === "project" ? taskAreas : eventAreas;
+  const availableAreas = kind === "task" || area === "exercise" ? taskAreas : eventAreas;
 
   useEffect(() => { if (state.status === "success") onSaved?.(); }, [onSaved, state.status]);
   const formKey = initialItem?.id ?? "create";

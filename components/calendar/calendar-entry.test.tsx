@@ -20,6 +20,13 @@ const exerciseEvent: EventRow = {
   updated_at: "",
 };
 
+const legacyProjectEvent: EventRow = {
+  ...exerciseEvent,
+  id: "legacy-project-event",
+  title: "기존 프로젝트 일정",
+  area: "project",
+};
+
 describe("CalendarEntry", () => {
   it("does not offer move controls for legacy exercise events", () => {
     const onMove = vi.fn();
@@ -29,5 +36,13 @@ describe("CalendarEntry", () => {
     expect(screen.queryByRole("button", { name: /날짜 변경/ })).not.toBeInTheDocument();
     fireEvent.dragStart(container.firstElementChild as Element);
     expect(onMove).not.toHaveBeenCalled();
+  });
+
+  it("renders a legacy project item as a regular work item", () => {
+    const { container } = render(<CalendarEntry item={legacyProjectEvent} kind="event" />);
+
+    expect(screen.getByText("업무")).toBeInTheDocument();
+    expect(screen.queryByText("프로젝트")).not.toBeInTheDocument();
+    expect(container.firstElementChild).not.toHaveClass("calendar-item--project");
   });
 });
