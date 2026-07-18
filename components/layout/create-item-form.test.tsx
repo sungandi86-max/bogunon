@@ -56,4 +56,12 @@ describe("CreateItemForm Phase 5 workflows", () => {
     expect(screen.getByRole("combobox", { name: "색상" })).toHaveValue("lavender");
     expect(screen.queryByRole("combobox", { name: "업무 카테고리" })).not.toBeInTheDocument();
   });
+
+  it("requires a date and explains the suggested month for annual planner drafts", () => {
+    render(<CreateItemForm initialTemplate={{ key: "annual-screening", name: "학생건강검진 준비", kind: "task", area: "healthWork", category: "studentHealthScreening", title: "학생건강검진 준비", description: "검진 운영을 준비합니다.", priority: "normal", estimatedMinutes: 60, recommendedTiming: "5월 중", recurrenceFrequency: null, checklist: ["일정 확인"], memo: "", requiredDate: true, suggestedMonth: 5, suggestedYear: 2026 }} />);
+
+    expect(screen.getByLabelText("수행일")).toBeRequired();
+    expect(screen.getByLabelText("수행일")).toHaveValue("");
+    expect(screen.getByText(/2026년 5월 중 실제 날짜를 선택/)).toBeInTheDocument();
+  });
 });

@@ -5,6 +5,8 @@
   .operations-dashboard { grid-template-columns: 1fr; }
   .operations-rail { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .template-grid, .annual-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .annual-planner-tools { grid-template-columns: 1fr 1fr; }
+  .annual-drag-copy { grid-column: 1 / -1; }
   .workflow-layout { grid-template-columns: 1fr; }
   .workflow-template-panel { grid-template-columns: repeat(2, minmax(0, 1fr)); position: static; }
   .workflow-template-builder { grid-column: 1 / -1; }
@@ -149,7 +151,17 @@
   .template-card__menu { max-width: calc(100vw - (var(--space-6) * 2)); }
   .section-title-row { align-items: start; }
   .annual-month { min-height: 0; }
-  .annual-month:not([open]) .annual-month__items { display: none; }
+  .annual-planner-tools { grid-template-columns: 1fr; padding: var(--space-5); }
+  .annual-custom-item-form[open], .annual-drag-copy { grid-column: auto; }
+  .annual-drag-copy { display: none; }
+  .annual-grid--planner { gap: var(--space-6); }
+  .annual-month--planner { border-radius: var(--mobile-card-radius); }
+  .annual-month__header, .annual-month__items--planner { padding-inline: var(--space-5); }
+  .annual-preset-item { padding-block: var(--space-5); }
+  .annual-preset-item[draggable="true"] { cursor: default; }
+  .annual-preset-item__actions .button { min-height: var(--touch-target); }
+  .annual-custom-item-form__footer { align-items: stretch; flex-direction: column; }
+  .annual-custom-item-form__footer .button { width: 100%; }
   .year-navigation { flex-wrap: wrap; }
   .year-navigation strong { margin-inline: var(--space-3); }
   .work-item-details { margin-left: 0; }

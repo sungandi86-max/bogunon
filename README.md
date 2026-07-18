@@ -37,6 +37,8 @@ Phase 7 AI는 PC 사이드바, 브리핑, 빠른 추가, 업무, Workflow와 연
 
 Smart Calendar는 월간·주간 보기, 오늘 이동, 서울 시간대 다음 일정 카운트다운, 현재 사용자 일정·업무·학교 날짜 스티커 검색을 제공합니다. 일정과 날짜가 있는 업무는 날짜 변경 메뉴로 이동할 수 있고 PC에서는 드래그가 같은 확인 패널을 엽니다. 반복 항목 이동은 한 건·이후 항목·전체 시리즈 범위를 선택하며 `move_calendar_item` RPC 한 트랜잭션으로 저장합니다. 원격 프로젝트에는 기존 migration 뒤에 `supabase/migrations/20260718190000_smart_calendar_moves.sql`을 한 번 적용하고 `supabase/sql/verify_smart_calendar_moves.sql`로 권한과 `SECURITY INVOKER` 상태를 확인합니다.
 
+연간 플래너는 1월부터 12월까지의 보건업무 제안을 보여 주고 기존 Task·Event 생성 폼으로 복사합니다. 제안을 고르는 것만으로 저장하지 않으며 날짜를 확인한 뒤 기존 캘린더 흐름으로 저장합니다. 기본 제안은 `lib/annual-planner/health-yearly-presets.ts`의 정적 데이터이고, 내 학교에 맞춘 사용자 항목을 사용하려면 `supabase/migrations/20260718213000_upgrade_annual_planner.sql`을 한 번 적용합니다. 검증 SQL은 `supabase/sql/verify_annual_planner_custom_items.sql`입니다.
+
 ## 환경 변수
 
 `.env.example`을 참고해 로컬 환경에 다음 변수를 설정합니다. 실제 URL과 키는 저장소에 커밋하지 않습니다.

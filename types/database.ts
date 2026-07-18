@@ -116,6 +116,20 @@ export type CalendarStickerRow = {
   updated_at: string;
 };
 
+export type AnnualPlannerCustomItemRow = {
+  id: string;
+  user_id: string;
+  month: number;
+  title: string;
+  item_kind: WorkItemKind;
+  description: string | null;
+  estimated_minutes: number | null;
+  checklist_json: Json;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
 export type UserSettingsRow = {
   id: string;
   user_id: string;
@@ -282,6 +296,12 @@ export type Database = {
         Row: CalendarStickerRow;
         Insert: Insert<CalendarStickerRow, "id" | "end_date" | "note" | "created_at" | "updated_at">;
         Update: Partial<CalendarStickerRow>;
+        Relationships: [];
+      };
+      annual_planner_custom_items: {
+        Row: AnnualPlannerCustomItemRow;
+        Insert: Insert<AnnualPlannerCustomItemRow, "id" | "description" | "estimated_minutes" | "checklist_json" | "sort_order" | "created_at" | "updated_at">;
+        Update: Partial<AnnualPlannerCustomItemRow>;
         Relationships: [];
       };
       user_settings: {

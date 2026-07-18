@@ -34,6 +34,9 @@ export type TemplateDefinition = {
   readonly aiDraftId?: string;
   readonly customId?: string;
   readonly reminderOffsets?: readonly number[];
+  readonly requiredDate?: boolean;
+  readonly suggestedMonth?: number;
+  readonly suggestedYear?: number;
 };
 
 export const BUILT_IN_TEMPLATES = [

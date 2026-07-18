@@ -37,6 +37,13 @@ function optional(formData: FormData, key: string) {
   return value || null;
 }
 
+function isCalendarDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const [year, month, day] = value.split("-").map(Number);
+  const parsed = new Date(Date.UTC(year ?? 0, (month ?? 1) - 1, day ?? 1));
+  return parsed.getUTCFullYear() === year && parsed.getUTCMonth() + 1 === month && parsed.getUTCDate() === day;
+}
+
 function refreshWorkItems() {
   revalidatePath("/briefing");
   revalidatePath("/tasks");
@@ -93,8 +100,14 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
       if (recurrenceValue && !recurrenceFrequency) {
         return { status: "error", message: "반복 주기를 확인해 주세요." };
       }
+      if (scheduledDate && !isCalendarDate(scheduledDate)) {
+        return { status: "error", message: "업무 날짜를 확인해 주세요." };
+      }
       if (recurrenceFrequency && !scheduledDate) {
         return { status: "error", message: "반복 업무는 수행일을 입력해 주세요." };
+      }
+      if (formData.get("requiredDate") === "true" && !scheduledDate) {
+        return { status: "error", message: "연간 플래너 업무의 수행일을 선택해 주세요." };
       }
       const estimatedRaw = optional(formData, "estimatedMinutes");
       const estimatedMinutes = estimatedRaw ? Number(estimatedRaw) : null;

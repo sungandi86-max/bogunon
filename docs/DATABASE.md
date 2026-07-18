@@ -128,3 +128,14 @@ AI 구조에는 delete operation이 없으므로 삭제 SQL·RPC와 연결하지
 
 - 적용 확인: `supabase/sql/verify_school_calendar_stickers.sql`, `supabase/sql/verify_event_schedule_fields.sql`
 - 로컬 pgTAP: `supabase/tests/school_calendar_stickers.sql`, `supabase/tests/event_schedule_fields.sql`
+
+## 연간 플래너 사용자 항목 (2026-07-18)
+
+기본 월별 보건업무는 코드의 정적 프리셋으로 유지하고 DB에 복제하지 않는다. 사용자가 `내 업무 추가`로 만든 항목만 `annual_planner_custom_items`에 저장한다.
+
+- 필드: `id`, `user_id`, `month`, `title`, `item_kind`, `description`, `estimated_minutes`, `checklist_json`, `sort_order`, `created_at`, `updated_at`
+- `(user_id, month, sort_order, created_at)` 인덱스로 연간 화면의 월별 정렬 조회를 지원한다.
+- RLS와 명시적 `authenticated` 권한을 적용하고 SELECT·INSERT·UPDATE·DELETE 모두 `(select auth.uid()) = user_id`로 제한한다. `anon`과 `public` 권한은 철회한다.
+- migration: `supabase/migrations/20260718213000_upgrade_annual_planner.sql`
+- 적용 확인: `supabase/sql/verify_annual_planner_custom_items.sql`
+- 로컬 pgTAP: `supabase/tests/annual_planner_custom_items.sql`

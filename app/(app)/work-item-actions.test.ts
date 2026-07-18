@@ -94,6 +94,35 @@ describe("saveWorkItemAction", () => {
     expect(vi.mocked(saveTaskBundle)).not.toHaveBeenCalled();
   });
 
+  it("does not save an annual planner task until its date is selected", async () => {
+    const formData = new FormData();
+    formData.set("kind", "task");
+    formData.set("title", "학생건강검진 준비");
+    formData.set("area", "healthWork");
+    formData.set("requiredDate", "true");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "error",
+      message: "연간 플래너 업무의 수행일을 선택해 주세요.",
+    });
+    expect(vi.mocked(saveTaskBundle)).not.toHaveBeenCalled();
+  });
+
+  it("rejects a malformed annual planner date", async () => {
+    const formData = new FormData();
+    formData.set("kind", "task");
+    formData.set("title", "학생건강검진 준비");
+    formData.set("area", "healthWork");
+    formData.set("requiredDate", "true");
+    formData.set("scheduledDate", "2026-02-31");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "error",
+      message: "업무 날짜를 확인해 주세요.",
+    });
+    expect(vi.mocked(saveTaskBundle)).not.toHaveBeenCalled();
+  });
+
   it("saves an all-day event through the shared action", async () => {
     const formData = new FormData();
     formData.set("kind", "event");
