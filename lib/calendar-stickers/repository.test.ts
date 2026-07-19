@@ -42,6 +42,14 @@ const savedSticker: CalendarStickerRow = {
   updated_at: "",
 };
 
+const savedHolidaySticker: CalendarStickerRow = {
+  ...savedSticker,
+  id: "a5000000-0000-4000-8000-000000000009",
+  sticker_key: "holiday.hangul-day",
+  sticker_date: "2026-10-09",
+  label: "한글날",
+};
+
 describe("calendar sticker repository", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -77,5 +85,74 @@ describe("calendar sticker repository", () => {
     expect(mocks.deleteCall).toHaveBeenCalledOnce();
     expect(mocks.deleteFirstEq).toHaveBeenCalledWith("id", "a5000000-0000-4000-8000-000000000004");
     expect(mocks.deleteSecondEq).toHaveBeenCalledWith("user_id", "user-1");
+  });
+
+  it("deduplicates same-date holiday stickers with the existing user/date/key upsert contract", async () => {
+    mocks.upsertSingle.mockResolvedValueOnce({ data: savedHolidaySticker, error: null });
+
+    await expect(upsertCalendarSticker({
+      stickerKey: "holiday.hangul-day",
+      stickerDate: "2026-10-09",
+      endDate: null,
+      label: "한글날",
+      note: null,
+    })).resolves.toEqual(savedHolidaySticker);
+
+    expect(mocks.from).toHaveBeenCalledWith("calendar_stickers");
+    expect(mocks.upsert).toHaveBeenCalledWith({
+      user_id: "user-1",
+      sticker_key: "holiday.hangul-day",
+      sticker_date: "2026-10-09",
+      end_date: null,
+      label: "한글날",
+      note: null,
+    }, { onConflict: "user_id,sticker_date,sticker_key" });
+  });
+
+  it("allows academic, health, and holiday sticker keys to coexist on one date through distinct upserts", async () => {
+    await upsertCalendarSticker({
+      stickerKey: "academic.sports-day",
+      stickerDate: "2026-10-09",
+      endDate: null,
+      label: "체육대회",
+      note: null,
+    });
+    await upsertCalendarSticker({
+      stickerKey: "health.aed-check",
+      stickerDate: "2026-10-09",
+      endDate: null,
+      label: "AED 점검",
+      note: null,
+    });
+    await upsertCalendarSticker({
+      stickerKey: "holiday.hangul-day",
+      stickerDate: "2026-10-09",
+      endDate: null,
+      label: "한글날",
+      note: null,
+    });
+
+    expect(mocks.upsert).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      sticker_key: "academic.sports-day",
+      sticker_date: "2026-10-09",
+    }), { onConflict: "user_id,sticker_date,sticker_key" });
+    expect(mocks.upsert).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      sticker_key: "health.aed-check",
+      sticker_date: "2026-10-09",
+    }), { onConflict: "user_id,sticker_date,sticker_key" });
+    expect(mocks.upsert).toHaveBeenNthCalledWith(3, expect.objectContaining({
+      sticker_key: "holiday.hangul-day",
+      sticker_date: "2026-10-09",
+    }), { onConflict: "user_id,sticker_date,sticker_key" });
+  });
+
+  it("deletes a holiday row by id without deleting same-date academic or health rows", async () => {
+    await expect(deleteCalendarSticker("a5000000-0000-4000-8000-000000000009")).resolves.toBeUndefined();
+
+    expect(mocks.deleteCall).toHaveBeenCalledOnce();
+    expect(mocks.deleteFirstEq).toHaveBeenCalledWith("id", "a5000000-0000-4000-8000-000000000009");
+    expect(mocks.deleteSecondEq).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mocks.deleteFirstEq).not.toHaveBeenCalledWith("sticker_date", "2026-10-09");
+    expect(mocks.deleteFirstEq).not.toHaveBeenCalledWith("sticker_key", "holiday.hangul-day");
   });
 });

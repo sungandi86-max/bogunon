@@ -39,6 +39,8 @@ Phase 7 AI는 PC 사이드바, 브리핑, 빠른 추가, 업무, Workflow와 연
 
 Smart Calendar는 월간·주간 보기, 오늘 이동, 서울 시간대 다음 일정 카운트다운, 현재 사용자 일정·업무·학교 날짜 스티커 검색을 제공합니다. 일정과 날짜가 있는 업무는 날짜 변경 메뉴로 이동할 수 있고 PC에서는 드래그가 같은 확인 패널을 엽니다. 반복 항목 이동은 한 건·이후 항목·전체 시리즈 범위를 선택하며 `move_calendar_item` RPC 한 트랜잭션으로 저장합니다. 원격 프로젝트에는 기존 migration 뒤에 `supabase/migrations/20260718190000_smart_calendar_moves.sql`을 한 번 적용하고 `supabase/sql/verify_smart_calendar_moves.sql`로 권한과 `SECURITY INVOKER` 상태를 확인합니다.
 
+공휴일 날짜 스티커팩을 사용하려면 학사일정·보건업무 key 확장 뒤에 `supabase/migrations/20260719120000_add_holiday_calendar_sticker_keys.sql`을 적용합니다. 이 migration은 `calendar_stickers_sticker_key_check` 허용 목록만 확장하며, 읽기 전용 확인 쿼리는 `supabase/sql/verify_holiday_calendar_sticker_keys.sql`, 로컬 pgTAP 자산은 `supabase/tests/holiday_calendar_stickers.sql`입니다. 원격 프로젝트 적용 여부는 실제 SQL 실행 증거로만 판단합니다.
+
 연간 플래너는 1월부터 12월까지의 보건업무 제안을 보여 주고 기존 Task·Event 생성 폼으로 복사합니다. 제안을 고르는 것만으로 저장하지 않으며 날짜를 확인한 뒤 기존 캘린더 흐름으로 저장합니다. 기본 제안은 `lib/annual-planner/health-yearly-presets.ts`의 정적 데이터이고, 내 학교에 맞춘 사용자 항목을 사용하려면 `supabase/migrations/20260718213000_upgrade_annual_planner.sql`을 한 번 적용합니다. 검증 SQL은 `supabase/sql/verify_annual_planner_custom_items.sql`입니다.
 
 업무 화면과 모바일 새로 만들기 메뉴의 `빠른 보건업무`는 연간 플래너와 같은 `lib/work-items/health-presets.ts` registry를 사용합니다. 프리셋은 기존 Task·Event 생성 폼에 제목, 반복, 예상 시간, 체크리스트와 알림을 채울 뿐 선택만으로 저장하지 않습니다. 최근 사용한 프리셋 최대 4개는 브라우저 localStorage에만 보관합니다. 계정별 즐겨찾기·순서·숨김을 사용하려면 `supabase/migrations/20260718223000_personalize_health_presets.sql`을 한 번 적용하고 `supabase/sql/verify_health_preset_preferences.sql`로 확인합니다. 공통 프리셋 내용은 DB에 복제하지 않습니다.
@@ -116,6 +118,27 @@ Service Worker는 로고, 앱 아이콘, 스티커, 정적 폰트와 Next.js 정
 
 신규 `health.*` key를 허용하려면 기존 academic migration 뒤에 `supabase/migrations/20260719110000_add_health_calendar_sticker_keys.sql`을 적용합니다. Production SQL Editor에서는 plain 검증 SQL인 `supabase/sql/verify_health_calendar_sticker_keys.sql`을 실행하고, 로컬 pgTAP 환경에서는 `supabase/tests/health_calendar_stickers.sql`로 보완 검증합니다. 이 migration은 `calendar_stickers_sticker_key_check` 허용 목록만 확장하며 새 테이블, RLS 변경, unique 제약 변경은 없습니다.
 
+## 공휴일 스티커팩 v1
+
+날짜 스티커 선택 패널은 `학교`, `학사일정`, `보건업무`, `공휴일`, `개인` 팩 순서로 표시합니다. 공휴일 팩은 `holiday` pack이며 저장·삭제·중복 방지·월간/주간 표시 흐름은 기존 `calendar_stickers`를 그대로 사용합니다. 자동 공휴일 등록이 아니라 사용자가 날짜를 직접 고르고 스티커를 선택한 뒤 명시적으로 저장하는 수동 기록 기능입니다.
+
+공휴일 팩은 2026-07-19 기준 국가법령정보센터의 `관공서의 공휴일에 관한 규정` 현행 규정(시행 2026-05-11, 대통령령 제36290호)을 기준으로 20개 항목을 제공합니다.
+
+- 국가 공휴일(`national`) 11개: `holiday.new-year` 신정, `holiday.march-first` 삼일절, `holiday.constitution-day` 제헌절, `holiday.buddhas-birthday` 부처님 오신 날, `holiday.labor-day` 노동절, `holiday.childrens-day` 어린이날, `holiday.memorial-day` 현충일, `holiday.liberation-day` 광복절, `holiday.national-foundation-day` 개천절, `holiday.hangul-day` 한글날, `holiday.christmas` 성탄절
+- 명절(`traditional`) 4개: `holiday.seollal` 설날, `holiday.seollal-break` 설날 연휴, `holiday.chuseok` 추석, `holiday.chuseok-break` 추석 연휴
+- 대체·특별 휴일(`special`) 4개: `holiday.substitute` 대체공휴일, `holiday.temporary` 임시공휴일, `holiday.election-day` 선거일, legacy key `holiday` 공휴일
+- 일반 휴일(`general`) 1개: legacy key `long-weekend` 연휴
+
+기존 저장 데이터 호환을 위해 `holiday`와 `long-weekend` key는 새 `holiday.*` namespace로 복제하지 않고 공휴일 팩 안에서 그대로 재사용합니다. 나머지 신규 항목만 `holiday.<slug>` key를 사용하며 `holiday.public-holiday`, `holiday.long-weekend`, `holiday.day-off`는 만들지 않습니다.
+
+검색은 label, keywords, category, pack을 대상으로 합니다. 필수 검색어는 `새해`, `명절`, `휴일`, `크리스마스`, `한글`, `투표`, `석가탄신일`입니다. `휴일`은 대체공휴일·임시공휴일·공휴일·연휴를 찾고, `석가탄신일`은 현재 label인 `부처님 오신 날`을 찾습니다.
+
+공휴일 자산은 `public/stickers/holiday/`의 20개 로컬 96×96 SVG입니다. 캘린더에서는 학사일정·보건업무와 같은 non-personal lane에 표시하고 개인 스티커 lane, Task, Event, 운동 기록과 같은 날짜에 함께 존재할 수 있습니다. 개별 삭제는 해당 `calendar_stickers` 행만 지우며 같은 날짜의 다른 데이터는 유지합니다.
+
+신규 18개 `holiday.*` key를 허용하려면 health migration 뒤에 `supabase/migrations/20260719120000_add_holiday_calendar_sticker_keys.sql`을 적용합니다. Production SQL Editor에서는 `supabase/sql/verify_holiday_calendar_sticker_keys.sql`을 실행하고, 로컬 pgTAP 환경에서는 `supabase/tests/holiday_calendar_stickers.sql`을 실행합니다. rollback 전에는 저장된 `holiday.*`, `holiday`, `long-weekend` 행을 먼저 확인하고 사용자 데이터가 CHECK 제약에 걸리지 않는 경우에만 이전 allowlist로 되돌립니다.
+
+v1은 일요일 스티커, 날짜 자동 계산, 음력 변환, 대체공휴일 산정, 선거일 발견, 공공 API 연동, 연도별 일괄 등록, 빨간 날짜 숫자 표시를 제공하지 않습니다. 향후 자동 등록이 필요하면 정적 스티커 registry와 별도로 휴일 계산 provider, 검증된 연도별 source snapshot, 사용자별 미리보기/확정 저장 queue를 설계한 뒤 추가합니다.
+
 스티커 확장 순서는 다음과 같습니다.
 
 1. `public/stickers/<pack>/`에 96×96 로컬 SVG를 추가하고 `title`을 지정합니다.
@@ -126,7 +149,7 @@ Service Worker는 로고, 앱 아이콘, 스티커, 정적 폰트와 Next.js 정
 6. 모바일 375px, 태블릿 768px, 데스크톱 1280px에서 팩 탭·필터·선택 초기화와 가로 overflow를 확인합니다.
 7. DB CHECK 제약이 새 key를 막을 때만 최소 migration과 읽기 전용 검증 SQL을 추가합니다.
 
-다음 스티커팩(예: 공휴일팩)을 추가할 때도 같은 순서를 사용하되, 해당 pack만 독립적으로 추가하고 보건업무·학사일정 registry나 기존 사용자 데이터를 변경하지 않습니다.
+다음 스티커팩을 추가할 때도 같은 순서를 사용하되, 해당 pack만 독립적으로 추가하고 공휴일·보건업무·학사일정 registry나 기존 사용자 데이터를 변경하지 않습니다.
 
 ## 확정 문서
 

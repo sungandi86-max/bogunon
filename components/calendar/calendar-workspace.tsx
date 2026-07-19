@@ -20,7 +20,7 @@ import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
 type EntryFilter = "all" | "work" | "school" | "personal";
 type StickerFilter = "all" | CalendarStickerPack;
 const entryFilterOptions: ReadonlyArray<readonly [EntryFilter, string]> = [["all", "전체"], ["work", "업무"], ["school", "학교"], ["personal", "개인"]];
-const stickerFilterOptions: ReadonlyArray<readonly [StickerFilter, string]> = [["all", "전체"], ["school", "학교"], ["academic", "학사일정"], ["health", "보건업무"], ["personal", "개인"]];
+const stickerFilterOptions: ReadonlyArray<readonly [StickerFilter, string]> = [["all", "전체"], ["school", "학교"], ["academic", "학사일정"], ["health", "보건업무"], ["holiday", "공휴일"], ["personal", "개인"]];
 
 interface Props { readonly events: EventRow[]; readonly highlight?: string | undefined; readonly initialDate: string; readonly initialStickerOpen?: boolean; readonly initialView: CalendarView; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string; readonly toolbarAction?: ReactNode; readonly workflow: WorkflowData }
 

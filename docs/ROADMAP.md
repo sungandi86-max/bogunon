@@ -1108,10 +1108,15 @@ chore: complete MVP QA and deployment
 - [x] 보건업무 label·keywords·category·pack 검색과 숨겨진 선택 초기화 규칙 추가
 - [x] existing `calendar_stickers` upsert·unique 제약·삭제 UI·월간 및 주간 overflow 재사용
 - [x] health key 최소 CHECK migration과 Production plain 검증 SQL·로컬 pgTAP 자산 추가
+- [x] 공휴일 스티커팩 v1 20개 registry와 `public/stickers/holiday/` 로컬 SVG 추가
+- [x] 공휴일 pack `holiday`, category `national`·`traditional`·`special`·`general`, 신규 `holiday.*` namespace와 legacy `holiday`·`long-weekend` key 재사용 적용
+- [x] 학교·학사일정·보건업무·공휴일·개인 5개 팩 탭과 공휴일 카테고리 필터 추가
+- [x] 공휴일 label·keywords·category·pack 검색과 숨겨진 선택 초기화 규칙 추가
+- [x] holiday key 최소 CHECK migration과 Production plain 검증 SQL·로컬 pgTAP 자산 추가
 - [ ] 원격 프로젝트에 Smart Calendar 이동 RPC 적용 후 반복 범위 브라우저 QA
 - [ ] Desktop·Tablet·Mobile 실제 브라우저 최종 확인
 
-이 보완 작업은 기존 Phase 7 기능을 유지하는 제품 리파인이며 Phase 8 범위를 시작하지 않는다. 보건업무 스티커팩은 공휴일·계절·여행·기념일 스티커팩을 포함하지 않으며, 다음 공휴일팩은 별도 승인 후 같은 registry/SVG/search/DB CHECK-only 절차로 추가한다.
+이 보완 작업은 기존 Phase 7 기능을 유지하는 제품 리파인이며 Phase 8 범위를 시작하지 않는다. 공휴일 스티커팩은 2026-07-19 기준 현행 `관공서의 공휴일에 관한 규정` 수동 등록 범위만 다루며, 일요일 스티커, 날짜 자동 계산, 음력 변환, 대체공휴일 산정, 선거일 발견, 공공 API 연동, 일괄 등록, 빨간 날짜 숫자 표시는 포함하지 않는다. 계절·여행·기념일 스티커팩은 여전히 별도 승인 후 같은 registry/SVG/search/DB CHECK-only 절차로 추가한다.
 
 ## 연간 플래너 실사용 보완 (Phase 8 아님)
 

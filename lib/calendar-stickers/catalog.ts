@@ -1,4 +1,4 @@
-export type CalendarStickerPack = "school" | "academic" | "health" | "personal";
+export type CalendarStickerPack = "school" | "academic" | "health" | "holiday" | "personal";
 export type CalendarStickerGroup =
   | "school"
   | "semester"
@@ -8,6 +8,10 @@ export type CalendarStickerGroup =
   | "screening"
   | "education"
   | "administration"
+  | "national"
+  | "traditional"
+  | "special"
+  | "general"
   | "personal";
 
 export type CalendarStickerDefinition = {
@@ -21,8 +25,6 @@ export type CalendarStickerDefinition = {
 };
 
 export const SCHOOL_CALENDAR_STICKERS = [
-  { key: "holiday", label: "공휴일", pack: "school", category: "school", assetPath: "/stickers/school-calendar/holiday.svg", keywords: ["휴일", "학교"], sortOrder: 10 },
-  { key: "long-weekend", label: "연휴", pack: "school", category: "school", assetPath: "/stickers/school-calendar/long-weekend.svg", keywords: ["휴일", "연속 휴일"], sortOrder: 20 },
   { key: "flexible-curriculum", label: "수업량 유연화", pack: "school", category: "school", assetPath: "/stickers/school-calendar/flexible-curriculum.svg", keywords: ["교육과정", "수업"], sortOrder: 30 },
   { key: "other", label: "기타", pack: "school", category: "school", assetPath: "/stickers/school-calendar/other.svg", keywords: ["학교", "일정"], sortOrder: 40 },
 ] as const satisfies readonly CalendarStickerDefinition[];
@@ -88,6 +90,29 @@ export const HEALTH_CALENDAR_STICKERS = [
   { key: "health.teacher-cooperation", label: "담임 협조 요청", pack: "health", category: "administration", assetPath: "/stickers/health/teacher-cooperation.svg", keywords: ["담임", "협조", "안내", "학급"], sortOrder: 350 },
 ] as const satisfies readonly CalendarStickerDefinition[];
 
+export const HOLIDAY_CALENDAR_STICKERS = [
+  { key: "holiday.new-year", label: "신정", pack: "holiday", category: "national", assetPath: "/stickers/holiday/new-year.svg", keywords: ["새해", "양력설", "공휴일"], sortOrder: 10 },
+  { key: "holiday.march-first", label: "삼일절", pack: "holiday", category: "national", assetPath: "/stickers/holiday/march-first.svg", keywords: ["3.1절", "독립", "국경일"], sortOrder: 20 },
+  { key: "holiday.constitution-day", label: "제헌절", pack: "holiday", category: "national", assetPath: "/stickers/holiday/constitution-day.svg", keywords: ["헌법", "국경일", "기념일"], sortOrder: 30 },
+  { key: "holiday.buddhas-birthday", label: "부처님 오신 날", pack: "holiday", category: "national", assetPath: "/stickers/holiday/buddhas-birthday.svg", keywords: ["석가탄신일", "불탄일", "공휴일"], sortOrder: 40 },
+  { key: "holiday.labor-day", label: "노동절", pack: "holiday", category: "national", assetPath: "/stickers/holiday/labor-day.svg", keywords: ["근로자의 날", "노동", "휴일"], sortOrder: 50 },
+  { key: "holiday.childrens-day", label: "어린이날", pack: "holiday", category: "national", assetPath: "/stickers/holiday/childrens-day.svg", keywords: ["어린이", "가정의 달", "공휴일"], sortOrder: 60 },
+  { key: "holiday.memorial-day", label: "현충일", pack: "holiday", category: "national", assetPath: "/stickers/holiday/memorial-day.svg", keywords: ["추념", "국가추념일", "공휴일"], sortOrder: 70 },
+  { key: "holiday.liberation-day", label: "광복절", pack: "holiday", category: "national", assetPath: "/stickers/holiday/liberation-day.svg", keywords: ["광복", "국경일", "공휴일"], sortOrder: 80 },
+  { key: "holiday.national-foundation-day", label: "개천절", pack: "holiday", category: "national", assetPath: "/stickers/holiday/national-foundation-day.svg", keywords: ["개천", "국경일", "공휴일"], sortOrder: 90 },
+  { key: "holiday.hangul-day", label: "한글날", pack: "holiday", category: "national", assetPath: "/stickers/holiday/hangul-day.svg", keywords: ["한글", "국경일", "공휴일"], sortOrder: 100 },
+  { key: "holiday.christmas", label: "성탄절", pack: "holiday", category: "national", assetPath: "/stickers/holiday/christmas.svg", keywords: ["크리스마스", "기독탄신일", "공휴일"], sortOrder: 110 },
+  { key: "holiday.seollal", label: "설날", pack: "holiday", category: "traditional", assetPath: "/stickers/holiday/seollal.svg", keywords: ["새해", "명절", "음력설"], sortOrder: 210 },
+  { key: "holiday.seollal-break", label: "설날 연휴", pack: "holiday", category: "traditional", assetPath: "/stickers/holiday/seollal-break.svg", keywords: ["명절", "설 연휴", "연휴"], sortOrder: 220 },
+  { key: "holiday.chuseok", label: "추석", pack: "holiday", category: "traditional", assetPath: "/stickers/holiday/chuseok.svg", keywords: ["명절", "한가위", "보름"], sortOrder: 230 },
+  { key: "holiday.chuseok-break", label: "추석 연휴", pack: "holiday", category: "traditional", assetPath: "/stickers/holiday/chuseok-break.svg", keywords: ["명절", "추석 연휴", "연휴"], sortOrder: 240 },
+  { key: "holiday.substitute", label: "대체공휴일", pack: "holiday", category: "special", assetPath: "/stickers/holiday/substitute.svg", keywords: ["휴일", "대체", "공휴일"], sortOrder: 310 },
+  { key: "holiday.temporary", label: "임시공휴일", pack: "holiday", category: "special", assetPath: "/stickers/holiday/temporary.svg", keywords: ["휴일", "임시", "공휴일"], sortOrder: 320 },
+  { key: "holiday.election-day", label: "선거일", pack: "holiday", category: "special", assetPath: "/stickers/holiday/election-day.svg", keywords: ["투표", "선거", "공휴일"], sortOrder: 330 },
+  { key: "holiday", label: "공휴일", pack: "holiday", category: "special", assetPath: "/stickers/holiday/public-holiday.svg", keywords: ["휴일", "공휴일", "쉬는 날"], sortOrder: 340 },
+  { key: "long-weekend", label: "연휴", pack: "holiday", category: "general", assetPath: "/stickers/holiday/long-weekend.svg", keywords: ["휴일", "연속 휴일", "징검다리"], sortOrder: 410 },
+] as const satisfies readonly CalendarStickerDefinition[];
+
 export const PERSONAL_CALENDAR_STICKERS = [
   { key: "personal.hospital", label: "병원", pack: "personal", category: "personal", assetPath: "/stickers/personal-calendar/hospital.svg", keywords: ["진료", "예약"], sortOrder: 10 },
   { key: "personal.hair-salon", label: "미용실", pack: "personal", category: "personal", assetPath: "/stickers/personal-calendar/hair-salon.svg", keywords: ["미용", "예약"], sortOrder: 20 },
@@ -103,7 +128,7 @@ export const PERSONAL_CALENDAR_STICKERS = [
   { key: "personal.other", label: "기타", pack: "personal", category: "personal", assetPath: "/stickers/personal-calendar/other.svg", keywords: ["개인", "일정"], sortOrder: 120 },
 ] as const satisfies readonly CalendarStickerDefinition[];
 
-export const CALENDAR_STICKER_CATALOG = [...SCHOOL_CALENDAR_STICKERS, ...ACADEMIC_CALENDAR_STICKERS, ...HEALTH_CALENDAR_STICKERS, ...PERSONAL_CALENDAR_STICKERS] as const;
+export const CALENDAR_STICKER_CATALOG = [...SCHOOL_CALENDAR_STICKERS, ...ACADEMIC_CALENDAR_STICKERS, ...HEALTH_CALENDAR_STICKERS, ...HOLIDAY_CALENDAR_STICKERS, ...PERSONAL_CALENDAR_STICKERS] as const;
 
 export type CalendarStickerKey = (typeof CALENDAR_STICKER_CATALOG)[number]["key"];
 export type CalendarStickerRegistryEntry = (typeof CALENDAR_STICKER_CATALOG)[number];
@@ -121,6 +146,14 @@ export function filterCalendarStickers(catalog: readonly CalendarStickerDefiniti
   const normalized = query.trim().toLocaleLowerCase("ko-KR");
   return catalog
     .filter((sticker) => category === "all" || sticker.category === category)
-    .filter((sticker) => !normalized || [sticker.label, sticker.category, sticker.pack, ...sticker.keywords].some((value) => value.toLocaleLowerCase("ko-KR").includes(normalized)))
+    .filter((sticker) => {
+      if (!normalized) return true;
+      if (sticker.pack === "holiday" && normalized === "휴일") {
+        return sticker.category !== "national"
+          && (sticker.label.includes(normalized) || sticker.keywords.some((keyword) => keyword === normalized));
+      }
+      return [sticker.label, sticker.category, sticker.pack, ...sticker.keywords]
+        .some((value) => value.toLocaleLowerCase("ko-KR").includes(normalized));
+    })
     .toSorted((left, right) => left.sortOrder - right.sortOrder);
 }

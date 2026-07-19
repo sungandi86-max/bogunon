@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { SchoolStickerPicker } from "@/components/calendar/school-sticker-picker";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
+import { HOLIDAY_CALENDAR_STICKERS } from "@/lib/calendar-stickers/catalog";
 import type { CalendarStickerRow } from "@/types/database";
 
 const actions = vi.hoisted(() => ({ attach: vi.fn(), remove: vi.fn() }));
@@ -29,12 +30,11 @@ function renderPicker(stickers: readonly CalendarStickerRow[] = []) {
 }
 
 describe("SchoolStickerPicker", () => {
-  it("shows responsive school, academic, health, and personal pack tabs", () => {
+  it("shows responsive school, academic, health, holiday, and personal pack tabs in pack order", () => {
     renderPicker();
+    const tablist = screen.getByRole("tablist", { name: "날짜 스티커 팩" });
+    expect(within(tablist).getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["학교", "학사일정", "보건업무", "공휴일", "개인"]);
     expect(screen.getByRole("tab", { name: "학교" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByRole("tab", { name: "학사일정" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "보건업무" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "개인" })).toBeInTheDocument();
   });
 
   it("searches academic exam and vacation stickers and filters by category", () => {
@@ -124,6 +124,61 @@ describe("SchoolStickerPicker", () => {
     expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
   });
 
+  it("shows holiday categories, searches required holiday terms, and clears hidden holiday selections", () => {
+    const { container } = renderPicker();
+    fireEvent.click(screen.getByRole("tab", { name: "공휴일" }));
+    const categoryGroup = screen.getByRole("group", { name: "공휴일 카테고리" });
+    expect(within(categoryGroup).getAllByRole("button").map((button) => button.textContent)).toEqual(["전체", "국가 공휴일", "명절", "대체·특별 휴일", "일반 휴일"]);
+    expect(screen.getByText("20개의 스티커가 표시됩니다.")).toBeInTheDocument();
+
+    fireEvent.click(within(categoryGroup).getByRole("button", { name: "국가 공휴일" }));
+    expect(screen.getByText("11개의 스티커가 표시됩니다.")).toBeInTheDocument();
+    fireEvent.click(within(categoryGroup).getByRole("button", { name: "명절" }));
+    expect(screen.getByText("4개의 스티커가 표시됩니다.")).toBeInTheDocument();
+    fireEvent.click(within(categoryGroup).getByRole("button", { name: "대체·특별 휴일" }));
+    expect(screen.getByText("4개의 스티커가 표시됩니다.")).toBeInTheDocument();
+    fireEvent.click(within(categoryGroup).getByRole("button", { name: "일반 휴일" }));
+    expect(screen.getByText("1개의 스티커가 표시됩니다.")).toBeInTheDocument();
+
+    const search = screen.getByRole("searchbox", { name: "스티커 검색" });
+    fireEvent.click(within(categoryGroup).getByRole("button", { name: "전체" }));
+    fireEvent.change(search, { target: { value: "새해" } });
+    expect(screen.getByRole("button", { name: "7월 18일 신정 스티커 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 설날 스티커 선택" })).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "명절" } });
+    expect(screen.getAllByRole("button", { name: /스티커 선택$/ })).toHaveLength(4);
+
+    fireEvent.change(search, { target: { value: "휴일" } });
+    expect(screen.getByRole("button", { name: "7월 18일 대체공휴일 스티커 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 임시공휴일 스티커 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 연휴 스티커 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 공휴일 스티커 선택" })).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "크리스마스" } });
+    expect(screen.getByRole("button", { name: "7월 18일 성탄절 스티커 선택" })).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "한글" } });
+    expect(screen.getByRole("button", { name: "7월 18일 한글날 스티커 선택" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 한글날 스티커 선택" }));
+    expect(screen.getByRole("button", { name: "한글날 추가" })).toBeEnabled();
+
+    fireEvent.click(within(categoryGroup).getByRole("button", { name: "명절" }));
+    expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
+    expect(container.querySelector<HTMLInputElement>('input[name="stickerKey"]')?.value).toBe("");
+
+    fireEvent.change(search, { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 설날 스티커 선택" }));
+    expect(screen.getByRole("button", { name: "설날 추가" })).toBeEnabled();
+    fireEvent.change(search, { target: { value: "투표" } });
+    expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
+    expect(container.querySelector<HTMLInputElement>('input[name="stickerKey"]')?.value).toBe("");
+
+    fireEvent.click(within(categoryGroup).getByRole("button", { name: "전체" }));
+    fireEvent.change(search, { target: { value: "석가탄신일" } });
+    expect(screen.getByRole("button", { name: "7월 18일 부처님 오신 날 스티커 선택" })).toBeInTheDocument();
+    expect(HOLIDAY_CALENDAR_STICKERS).toHaveLength(20);
+  });
+
   it("shows an actionable empty search state and clears the query", () => {
     renderPicker();
     const search = screen.getByRole("searchbox", { name: "스티커 검색" });
@@ -137,6 +192,7 @@ describe("SchoolStickerPicker", () => {
 
   it("updates the sticky action label for a selected date range", () => {
     renderPicker();
+    fireEvent.click(screen.getByRole("tab", { name: "공휴일" }));
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 공휴일 스티커 선택" }));
     fireEvent.click(screen.getByRole("combobox", { name: "종료일" }));
     fireEvent.click(within(screen.getByRole("dialog", { name: "날짜 선택" })).getByRole("button", { name: "20" }));

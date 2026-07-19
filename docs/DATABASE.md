@@ -140,6 +140,21 @@ AI 구조에는 delete operation이 없으므로 삭제 SQL·RPC와 연결하지
 - 로컬 pgTAP: `supabase/tests/health_calendar_stickers.sql`
 - rollback이 필요하면 신규 CHECK 제약을 직전 academic 허용 목록으로 되돌리되, 이미 저장된 `health.*` 사용자 데이터가 있으면 먼저 영향 범위를 확인한다. 기본 원칙은 기존 사용자 데이터 유지다.
 
+## 공휴일 날짜 스티커 key 확장 (2026-07-19)
+
+공휴일 스티커팩은 새 저장 테이블을 만들지 않고 `calendar_stickers.sticker_key` CHECK 허용 목록만 확장한다. 기존 `(user_id, sticker_date, sticker_key)` unique 제약, own-row RLS 네 정책, 삭제 정책, idempotent upsert 흐름, 같은 날짜의 Task/Event/학사일정/보건업무/개인 스티커 공존 규칙은 유지한다.
+
+- migration: `supabase/migrations/20260719120000_add_holiday_calendar_sticker_keys.sql`
+- Production 적용 확인: Dashboard SQL Editor에서 read-only plain SQL인 `supabase/sql/verify_holiday_calendar_sticker_keys.sql`을 실행한다. pgTAP의 `plan()`/`ok()` 함수가 없는 Production SQL Editor에서 로컬 pgTAP 파일을 직접 실행하지 않는다.
+- 로컬 pgTAP: `supabase/tests/holiday_calendar_stickers.sql`
+- 신규 key: `holiday.new-year`, `holiday.march-first`, `holiday.constitution-day`, `holiday.buddhas-birthday`, `holiday.labor-day`, `holiday.childrens-day`, `holiday.memorial-day`, `holiday.liberation-day`, `holiday.national-foundation-day`, `holiday.hangul-day`, `holiday.christmas`, `holiday.seollal`, `holiday.seollal-break`, `holiday.chuseok`, `holiday.chuseok-break`, `holiday.substitute`, `holiday.temporary`, `holiday.election-day`.
+- Legacy key 재사용: 기존 `holiday`는 공휴일 label의 special 항목으로, 기존 `long-weekend`는 연휴 label의 general 항목으로 유지한다. 두 key는 이미 기존 CHECK allowlist에 포함되어 있으므로 row migration이나 key rename이 없다.
+- 예상 allowlist는 health 적용 후 기존 71개 key와 신규 18개 `holiday.*` key를 합친 89개 unique key다. migration은 `calendar_stickers_sticker_key_check` drop/add/validate만 수행하고 테이블, 컬럼, index, unique 제약, RLS, policy를 변경하지 않는다.
+- read-only 검증 SQL은 allowlist 89개, 기존 71개 유지, 신규 18개 포함, legacy key 포함, CHECK validate 상태, RLS enabled, 네 정책, `(user_id, sticker_date, sticker_key)` unique 제약을 확인한다.
+- pgTAP 검증은 `begin`/`rollback` 안에서 valid holiday insert, invalid `holiday.not-allowed` SQLSTATE `23514`, duplicate `holiday.hangul-day` SQLSTATE `23505`, 같은 날짜의 academic·health·holiday 스티커 공존을 검증한다.
+- rollback이 필요하면 `holiday.*`, `holiday`, `long-weekend` 사용자 row 존재 여부를 먼저 확인한다. 저장된 row가 있으면 CHECK 제약 복구가 사용자 데이터를 무효화하지 않는지 확인해야 하며, 기본 원칙은 기존 사용자 데이터 유지다.
+- 공휴일 날짜 자동 계산, 음력 변환, 대체공휴일 산정, 선거일 발견, API 동기화, 일괄 등록을 위한 테이블이나 예약 작업은 이 확장에 포함하지 않는다.
+
 ## 연간 플래너 사용자 항목 (2026-07-18)
 
 기본 월별 보건업무는 코드의 정적 프리셋으로 유지하고 DB에 복제하지 않는다. 사용자가 `내 업무 추가`로 만든 항목만 `annual_planner_custom_items`에 저장한다.

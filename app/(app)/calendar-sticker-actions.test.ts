@@ -97,4 +97,85 @@ describe("calendar sticker actions", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/calendar");
     expect(revalidatePath).toHaveBeenCalledWith("/briefing");
   });
+
+  it("stores a holiday sticker through the existing explicit attach action", async () => {
+    const form = new FormData();
+    form.set("stickerKey", "holiday.hangul-day");
+    form.set("stickerDate", "2026-10-09");
+    form.set("note", " 한글날 행사 ");
+
+    await expect(attachCalendarStickerAction({ status: "idle" }, form)).resolves.toEqual({
+      status: "success",
+      message: "한글날 스티커를 붙였어요.",
+    });
+    expect(upsertCalendarSticker).toHaveBeenCalledWith({
+      stickerKey: "holiday.hangul-day",
+      stickerDate: "2026-10-09",
+      endDate: null,
+      label: "한글날",
+      note: "한글날 행사",
+    });
+    expect(revalidatePath).toHaveBeenCalledWith("/calendar");
+    expect(revalidatePath).toHaveBeenCalledWith("/briefing");
+  });
+
+  it("keeps reused holiday legacy keys on the same generic attach path", async () => {
+    const publicHoliday = new FormData();
+    publicHoliday.set("stickerKey", "holiday");
+    publicHoliday.set("stickerDate", "2026-05-05");
+
+    const longWeekend = new FormData();
+    longWeekend.set("stickerKey", "long-weekend");
+    longWeekend.set("stickerDate", "2026-10-05");
+
+    await expect(attachCalendarStickerAction({ status: "idle" }, publicHoliday)).resolves.toEqual({
+      status: "success",
+      message: "공휴일 스티커를 붙였어요.",
+    });
+    await expect(attachCalendarStickerAction({ status: "idle" }, longWeekend)).resolves.toEqual({
+      status: "success",
+      message: "연휴 스티커를 붙였어요.",
+    });
+
+    expect(upsertCalendarSticker).toHaveBeenNthCalledWith(1, {
+      stickerKey: "holiday",
+      stickerDate: "2026-05-05",
+      endDate: null,
+      label: "공휴일",
+      note: null,
+    });
+    expect(upsertCalendarSticker).toHaveBeenNthCalledWith(2, {
+      stickerKey: "long-weekend",
+      stickerDate: "2026-10-05",
+      endDate: null,
+      label: "연휴",
+      note: null,
+    });
+  });
+
+  it("rejects unknown holiday keys before any repository write or revalidation", async () => {
+    const form = new FormData();
+    form.set("stickerKey", "holiday.not-allowed");
+    form.set("stickerDate", "2026-10-09");
+
+    await expect(attachCalendarStickerAction({ status: "idle" }, form)).resolves.toEqual({
+      status: "error",
+      message: "스티커와 날짜를 확인해 주세요.",
+    });
+    expect(upsertCalendarSticker).not.toHaveBeenCalled();
+    expect(revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("deletes a holiday sticker by id and revalidates without pack-specific branching", async () => {
+    const form = new FormData();
+    form.set("stickerId", "a5000000-0000-4000-8000-000000000009");
+
+    await expect(removeCalendarStickerAction({ status: "idle" }, form)).resolves.toEqual({
+      status: "success",
+      message: "학교 일정 스티커를 제거했어요.",
+    });
+    expect(deleteCalendarSticker).toHaveBeenCalledWith("a5000000-0000-4000-8000-000000000009");
+    expect(revalidatePath).toHaveBeenCalledWith("/calendar");
+    expect(revalidatePath).toHaveBeenCalledWith("/briefing");
+  });
 });
