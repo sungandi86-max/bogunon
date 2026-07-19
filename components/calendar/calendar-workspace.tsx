@@ -61,6 +61,7 @@ export function CalendarWorkspace({ events, highlight, initialDate, initialStick
   const range = calendarRange(selectedDate, initialView, weekStart);
   const periodEvents = visibleEvents.filter((event) => event.start_date <= range.last && event.end_date >= range.first);
   const periodTasks = visibleTasks.filter((task) => { const date = taskCalendarDate(task); return Boolean(date && date >= range.first && date <= range.last); });
+  const selectedDateEvents = visibleEvents.filter((event) => event.start_date <= selectedDate && event.end_date >= selectedDate);
   const results = useMemo(() => searchCalendar(query, events, tasks, stickers), [events, query, stickers, tasks]);
   const openDropMove = ({ id, kind, date, newDate }: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => {
     const item = kind === "event" ? events.find((event) => event.id === id) : tasks.find((task) => task.id === id);
@@ -79,7 +80,7 @@ export function CalendarWorkspace({ events, highlight, initialDate, initialStick
       <div className="calendar-sticker-filter" role="group" aria-label="스티커 표시 필터"><span className="calendar-filter-label">스티커 표시</span><div className="calendar-sticker-filter__scroller">{stickerFilterOptions.map(([value, label]) => <button aria-pressed={stickerFilter === value} key={value} onClick={() => setStickerFilter(value)} ref={stickerFilter === value ? activeStickerFilterRef : undefined} type="button">{label}</button>)}</div></div>
     </div>
     {initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={openDropMove} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <FullWeekCalendar date={selectedDate} events={periodEvents} highlight={highlight} onDropDate={openDropMove} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
-    <EventList events={periodEvents} workflow={workflow} />
+    <EventList date={selectedDate} events={selectedDateEvents} workflow={workflow} />
     <ResponsiveDetailPanel onClose={() => setStickerOpen(false)} open={stickerOpen} returnFocusRef={stickerButtonRef} title="날짜 스티커 추가"><SchoolStickerPicker stickers={stickers} today={selectedDate} /></ResponsiveDetailPanel>
     <button aria-hidden="true" className="calendar-move-focus" ref={moveButtonRef} tabIndex={-1} type="button" />
     <ResponsiveDetailPanel onClose={() => setMoveState(null)} open={Boolean(moveState)} returnFocusRef={moveButtonRef} title="날짜 변경">{moveState && <CalendarMovePanel move={moveState.value} newDate={moveState.newDate} onComplete={() => setMoveState(null)} />}</ResponsiveDetailPanel>

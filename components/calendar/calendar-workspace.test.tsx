@@ -81,4 +81,17 @@ describe("CalendarWorkspace", () => {
     expect(cell).not.toHaveTextContent("학생건강검진");
     expect(cell).not.toHaveTextContent("병원");
   });
+
+  it("uses date selection for the detail list instead of hiding month titles behind a click", () => {
+    const nextDayEvent = { ...event, id: "event-2", title: "다음 날 일정", start_date: "2026-07-19", end_date: "2026-07-19" };
+    render(<CalendarWorkspace events={[event, nextDayEvent]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
+
+    expect(screen.getByRole("region", { name: "2026-07-18 일정 상세" })).toHaveTextContent("보건교육");
+    expect(screen.getByRole("region", { name: "2026-07-18 일정 상세" })).not.toHaveTextContent("다음 날 일정");
+
+    fireEvent.click(screen.getByRole("button", { name: "2026-07-19 선택" }));
+
+    expect(screen.getByRole("region", { name: "2026-07-19 일정 상세" })).toHaveTextContent("다음 날 일정");
+    expect(screen.getByRole("region", { name: "2026-07-19 일정 상세" })).not.toHaveTextContent("보건교육");
+  });
 });

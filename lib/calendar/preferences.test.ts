@@ -25,6 +25,11 @@ describe("calendar preferences", () => {
   it("keeps leap-day placement valid", () => {
     const cells = calendarMonthCells("2028-02", "sunday");
     expect(cells).toContain("2028-02-29");
-    expect(cells).toHaveLength(42);
+    expect(cells).toHaveLength(35);
+  });
+
+  it("uses five rows when the month fits and six rows when it needs them", () => {
+    expect(calendarMonthCells("2026-06", "sunday")).toHaveLength(35);
+    expect(calendarMonthCells("2026-08", "sunday")).toHaveLength(42);
   });
 });

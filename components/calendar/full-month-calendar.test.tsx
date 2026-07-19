@@ -60,6 +60,26 @@ const monthStickerRows = [
 ] satisfies readonly CalendarStickerRow[];
 
 describe("FullMonthCalendar", () => {
+  it.each([
+    ["2026-06", "2026-06-18", 5],
+    ["2026-08", "2026-08-18", 6],
+  ] as const)("keeps two representative titles and overflow visible for %s", (month, date, expectedWeeks) => {
+    const events = [
+      { ...schoolEvent, id: `${month}-event-1`, title: "교직원 회의", start_date: date, end_date: date },
+      { ...schoolEvent, id: `${month}-event-2`, title: "학교 행사", start_date: date, end_date: date },
+      { ...schoolEvent, id: `${month}-event-3`, title: "학부모 안내", start_date: date, end_date: date },
+    ];
+
+    const { container } = render(<FullMonthCalendar events={events} month={month} today={date} />);
+    const cell = screen.getByRole("gridcell", { name: new RegExp(`${date}, 일정 3개`) });
+
+    expect(container.querySelectorAll(".full-calendar__row")).toHaveLength(expectedWeeks);
+    expect(cell).toHaveTextContent("교직원 회의");
+    expect(cell).toHaveTextContent("학교 행사");
+    expect(cell).toHaveTextContent("+1");
+    expect(cell).not.toHaveTextContent("학부모 안내");
+  });
+
   it("marks the supplied current date on its calendar cell", () => {
     const { container } = render(<FullMonthCalendar month="2026-07" today="2026-07-18" />);
 

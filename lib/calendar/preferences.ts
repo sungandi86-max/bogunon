@@ -31,7 +31,8 @@ export function calendarMonthCells(month: string, weekStart: CalendarWeekStart):
   const firstWeekday = new Date(Date.UTC(year, monthNumber - 1, 1)).getUTCDay();
   const leading = weekStart === "sunday" ? firstWeekday : firstWeekday === 0 ? 6 : firstWeekday - 1;
   const daysInMonth = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
-  return Array.from({ length: 42 }, (_, index) => {
+  const cellCount = leading + daysInMonth > 35 ? 42 : 35;
+  return Array.from({ length: cellCount }, (_, index) => {
     const day = index - leading + 1;
     return day >= 1 && day <= daysInMonth
       ? `${year}-${String(monthNumber).padStart(2, "0")}-${String(day).padStart(2, "0")}`

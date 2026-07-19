@@ -17,9 +17,10 @@ export function FullMonthCalendar({ events = [], highlight, month = "2026-07", o
   const [year = 1970, monthNumber = 1] = month.split("-").map(Number);
   const cells = calendarMonthCells(month, weekStart);
   const weekdays = weekdayLabels(weekStart);
-  return <section className="full-calendar" aria-label={`${year}년 ${monthNumber}월 월간 캘린더`} role="grid">
+  const weekCount = cells.length / 7;
+  return <section className="full-calendar" aria-label={`${year}년 ${monthNumber}월 월간 캘린더`} data-week-count={weekCount} role="grid">
     <div className="full-calendar__weekdays" role="row">{weekdays.map((weekday) => <span className={weekday === "일" ? "is-sunday" : weekday === "토" ? "is-saturday" : undefined} key={weekday} role="columnheader">{weekday}</span>)}</div>
-    <div className="full-calendar__grid" role="rowgroup">{Array.from({ length: 6 }, (_, weekIndex) => <div className="full-calendar__row" key={weekIndex} role="row">{cells.slice(weekIndex * 7, weekIndex * 7 + 7).map((cellDate, index) => {
+    <div className="full-calendar__grid" role="rowgroup">{Array.from({ length: weekCount }, (_, weekIndex) => <div className="full-calendar__row" key={weekIndex} role="row">{cells.slice(weekIndex * 7, weekIndex * 7 + 7).map((cellDate, index) => {
       const inMonth = cellDate !== null;
       const date = cellDate ?? "";
       const day = inMonth ? Number(date.slice(-2)) : 0;

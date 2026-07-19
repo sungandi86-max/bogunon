@@ -9,9 +9,9 @@ import type { EventRow } from "@/types/database";
 const areaLabel = { healthWork: "업무", schoolSchedule: "학교", personal: "개인", exercise: "운동", project: "업무" } as const;
 const recurrenceLabel = { daily: "매일", weekly: "매주", monthly: "매월", yearly: "매년" } as const;
 
-export function EventList({ events, workflow }: { readonly events: EventRow[]; readonly workflow: WorkflowData }) {
-  if (!events.length) return <p className="static-note">이 달에 등록된 일정이 없습니다.</p>;
-  return <section className="calendar-list" aria-label="월간 일정 목록">{events.map((event) => {
+export function EventList({ date, events, workflow }: { readonly date: string; readonly events: EventRow[]; readonly workflow: WorkflowData }) {
+  if (!events.length) return <section aria-label={`${date} 일정 상세`} className="calendar-list"><p className="static-note">선택한 날짜에 등록된 일정이 없습니다.</p></section>;
+  return <section className="calendar-list" aria-label={`${date} 일정 상세`}>{events.map((event) => {
     const links = workflow.eventLinks.filter((item) => item.event_id === event.id);
     const reminders = workflow.eventReminders.filter((item) => item.event_id === event.id);
     return <article className="calendar-list__item" key={event.id}>
