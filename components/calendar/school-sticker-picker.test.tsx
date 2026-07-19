@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { SchoolStickerPicker } from "@/components/calendar/school-sticker-picker";
@@ -48,9 +48,9 @@ describe("SchoolStickerPicker", () => {
     expect(screen.getByRole("button", { name: "7월 18일 여름방학 스티커 선택" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "7월 18일 방학캠프 스티커 선택" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 여름방학 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "여름방학 스티커 저장" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "여름방학 추가" })).toBeEnabled();
     fireEvent.change(search, { target: { value: "시험" } });
-    expect(screen.getByRole("button", { name: "스티커를 선택해 주세요" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "스티커 검색어 지우기" }));
     fireEvent.click(screen.getByRole("button", { name: "시험" }));
     expect(screen.getAllByRole("button", { name: /스티커 선택$/ })).toHaveLength(5);
@@ -63,7 +63,7 @@ describe("SchoolStickerPicker", () => {
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 입학식 스티커 선택" }));
     expect(actions.attach).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "7월 18일 입학식 스티커 선택" })).toHaveAttribute("aria-pressed", "true");
-    fireEvent.click(screen.getByRole("button", { name: "입학식 스티커 저장" }));
+    fireEvent.click(screen.getByRole("button", { name: "입학식 추가" }));
     await waitFor(() => expect(actions.attach).toHaveBeenCalledTimes(1));
     const formData = actions.attach.mock.calls[0]?.[1];
     expect(formData).toBeInstanceOf(FormData);
@@ -100,21 +100,47 @@ describe("SchoolStickerPicker", () => {
     renderPicker();
     fireEvent.click(screen.getByRole("tab", { name: "보건업무" }));
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 학생건강검진 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "학생건강검진 스티커 저장" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "학생건강검진 추가" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("tab", { name: "보건업무" }));
+    fireEvent.click(screen.getByRole("button", { name: "건강검사" }));
+    fireEvent.change(screen.getByRole("searchbox", { name: "스티커 검색" }), { target: { value: "건강검진" } });
+    expect(screen.getByRole("button", { name: "학생건강검진 추가" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "스티커 검색어 지우기" }));
+    expect(screen.getByRole("button", { name: "학생건강검진 추가" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("button", { name: "보건교육" }));
-    expect(screen.getByRole("button", { name: "스티커를 선택해 주세요" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 심폐소생술 교육 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "심폐소생술 교육 스티커 저장" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "심폐소생술 교육 추가" })).toBeEnabled();
     fireEvent.change(screen.getByRole("searchbox", { name: "스티커 검색" }), { target: { value: "담임" } });
-    expect(screen.getByRole("button", { name: "스티커를 선택해 주세요" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: "전체" }));
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 담임 협조 요청 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "담임 협조 요청 스티커 저장" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "담임 협조 요청 추가" })).toBeEnabled();
     fireEvent.click(screen.getByRole("tab", { name: "개인" }));
-    expect(screen.getByRole("button", { name: "스티커를 선택해 주세요" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
+  });
+
+  it("shows an actionable empty search state and clears the query", () => {
+    renderPicker();
+    const search = screen.getByRole("searchbox", { name: "스티커 검색" });
+    fireEvent.change(search, { target: { value: "없는검색어" } });
+    expect(screen.getByText("검색 결과가 없습니다.")).toBeInTheDocument();
+    expect(screen.getByText("검색어를 지우고 다시 찾아보세요.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "검색 초기화" }));
+    expect(search).toHaveValue("");
+    expect(screen.queryByText("검색 결과가 없습니다.")).not.toBeInTheDocument();
+  });
+
+  it("updates the sticky action label for a selected date range", () => {
+    renderPicker();
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 공휴일 스티커 선택" }));
+    fireEvent.click(screen.getByRole("combobox", { name: "종료일" }));
+    fireEvent.click(within(screen.getByRole("dialog", { name: "날짜 선택" })).getByRole("button", { name: "20" }));
+    expect(screen.getByRole("button", { name: "3일간 추가" })).toBeEnabled();
   });
 
   it("opens the existing Event form with personal defaults only after user choice", () => {

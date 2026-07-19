@@ -1,33 +1,56 @@
-.calendar-filter { display: flex; gap: 8px; margin: 0 0 16px; overflow-x: auto; padding: 2px; scrollbar-width: none; }
-.calendar-filter button { min-height: 40px; white-space: nowrap; border: 1px solid var(--color-border); border-radius: 999px; background: var(--color-surface); color: var(--color-text-secondary); padding: 0 14px; }
-.calendar-filter button[aria-pressed="true"] { border-color: var(--color-primary); background: var(--color-primary-soft); color: var(--color-primary-strong); font-weight: 700; }
+.calendar-controls { display: grid; gap: var(--space-4); margin-bottom: var(--space-5); min-width: 0; }
+.calendar-controls__primary { align-items: end; display: flex; gap: var(--space-4); justify-content: space-between; min-width: 0; }
+.calendar-entry-filter, .calendar-sticker-filter { align-items: center; display: flex; gap: var(--space-3); min-width: 0; }
+.calendar-filter-label { color: var(--ink-500); flex: none; font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.calendar-entry-filter > div, .calendar-sticker-filter__scroller { align-items: center; display: flex; gap: var(--space-1); min-width: 0; }
+.calendar-entry-filter > div { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-1); }
+.calendar-entry-filter button, .calendar-sticker-filter button { background: transparent; border: 1px solid transparent; border-radius: var(--radius-sm); color: var(--ink-700); font-weight: var(--weight-semibold); min-height: var(--touch-target); padding: 0 var(--space-4); white-space: nowrap; }
+.calendar-entry-filter button:hover, .calendar-sticker-filter button:hover { background: var(--surface); border-color: var(--line); }
+.calendar-entry-filter button:focus-visible, .calendar-sticker-filter button:focus-visible, .calendar-sticker-add:focus-visible { box-shadow: var(--focus-ring); outline: 0; }
+.calendar-entry-filter button[aria-pressed="true"], .calendar-sticker-filter button[aria-pressed="true"] { background: var(--action-50); border-color: var(--action-100); color: var(--action-700); }
+.calendar-sticker-filter__scroller { max-width: 100%; overflow-x: auto; padding: var(--space-1); scrollbar-width: none; }
+.calendar-sticker-filter__scroller::-webkit-scrollbar { display: none; }
+.calendar-sticker-add { align-items: center; background: var(--action-500); border: 1px solid var(--action-600); border-radius: var(--radius-md); color: var(--brand-950); display: inline-flex; flex: none; font-weight: var(--weight-bold); gap: var(--space-2); justify-content: center; min-height: var(--touch-target); padding: 0 var(--space-5); }
+.calendar-sticker-add:hover { background: var(--action-600); color: var(--surface); }
+.calendar-sticker-add__short { display: none; }
 .calendar-item__area { flex: none; font-size: 10px; font-weight: 700; }
 .school-calendar-sticker { display: inline-flex; align-items: center; gap: 6px; color: var(--color-text); font-size: 12px; font-weight: 700; }
 .school-calendar-sticker img { filter: drop-shadow(0 4px 7px rgb(58 80 90 / 10%)); }
 .school-calendar-sticker.is-compact { width: max-content; max-width: 100%; gap: 3px; margin-top: 2px; font-size: 10px; }
 .school-sticker-fallback { border-radius: 8px; background: var(--color-warning-soft); padding: 3px 6px; font-size: 10px; }
-.school-sticker-picker { margin-top: 18px; border: 1px solid var(--color-border); border-radius: 20px; background: var(--color-surface); padding: 20px; box-shadow: var(--shadow-card); }
-.school-sticker-picker__heading strong { display: block; font-size: 17px; }
-.school-sticker-picker__heading span { color: var(--color-text-secondary); font-size: 13px; }
-.calendar-sticker-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 14px; max-width: 100%; overflow-x: auto; border-radius: 14px; background: var(--color-surface-soft); padding: 4px; scrollbar-width: none; }
+.detail-panel__body:has(> .school-sticker-picker) { display: flex; min-height: 0; overflow: hidden; }
+.school-sticker-picker { background: var(--surface); display: flex; flex: 1; flex-direction: column; margin: 0; min-height: 0; min-width: 0; overflow: hidden; }
+.school-sticker-picker__heading p { color: var(--ink-500); font-size: var(--text-sm); margin: 0; }
+.calendar-sticker-tabs { display: flex; gap: var(--space-1); margin-top: var(--space-4); max-width: 100%; overflow-x: auto; padding: var(--space-1); scrollbar-width: none; }
 .calendar-sticker-tabs::-webkit-scrollbar, .calendar-sticker-groups::-webkit-scrollbar { display: none; }
-.calendar-sticker-tabs button { min-height: 44px; min-width: 88px; border: 0; border-radius: 11px; background: transparent; color: var(--color-text-secondary); font-weight: 700; white-space: nowrap; }
-.calendar-sticker-tabs button[aria-selected="true"] { background: var(--color-surface); color: var(--color-primary-strong); box-shadow: var(--shadow-soft); }
-.calendar-sticker-search { align-items: center; display: flex; gap: var(--space-2); margin-top: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); color: var(--ink-500); padding: 0 var(--space-4); }
+.calendar-sticker-tabs button { background: transparent; border: 1px solid var(--line); border-radius: var(--radius-full); color: var(--ink-700); flex: none; font-weight: var(--weight-semibold); min-height: var(--touch-target); min-width: 84px; padding: 0 var(--space-4); white-space: nowrap; }
+.calendar-sticker-tabs button:hover { background: var(--surface-subtle); border-color: var(--line-strong); }
+.calendar-sticker-tabs button:focus-visible { box-shadow: var(--focus-ring); outline: 0; }
+.calendar-sticker-tabs button[aria-selected="true"] { background: var(--action-50); border-color: var(--action-100); color: var(--action-700); }
+.school-sticker-picker__form { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.school-sticker-picker .field { margin-top: 0; }
+.school-sticker-picker__dates { margin-top: var(--space-4); }
+.school-sticker-picker__dates > p { color: var(--ink-500); font-size: var(--text-xs); line-height: var(--leading-normal); margin: var(--space-2) 0 0; }
+.calendar-sticker-search { align-items: center; display: flex; gap: var(--space-2); margin-top: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); color: var(--ink-500); padding: 0 var(--space-4); }
 .calendar-sticker-search input { min-height: var(--touch-target); min-width: 0; flex: 1; border: 0; background: transparent; color: var(--ink-950); outline: 0; }
 .calendar-sticker-search input::-webkit-search-cancel-button { appearance: none; }
 .calendar-sticker-search button { align-items: center; display: inline-flex; min-height: var(--touch-target); min-width: var(--touch-target); justify-content: center; border: 0; background: transparent; color: var(--ink-500); }
-.calendar-sticker-groups { display: flex; gap: var(--space-2); margin-top: var(--space-4); max-width: 100%; overflow-x: auto; padding-bottom: var(--space-1); scrollbar-width: none; }
-.calendar-sticker-groups button { min-height: var(--touch-target); flex: none; border: 1px solid var(--line); border-radius: var(--radius-full); background: var(--surface); color: var(--ink-700); padding: 0 var(--space-5); }
+.calendar-sticker-groups { display: flex; gap: var(--space-2); margin-top: var(--space-3); max-width: 100%; overflow-x: auto; padding: var(--space-1); scrollbar-width: none; }
+.calendar-sticker-groups button { min-height: var(--touch-target); flex: none; border: 1px solid var(--line); border-radius: var(--radius-full); background: var(--surface); color: var(--ink-700); padding: 0 var(--space-4); }
 .calendar-sticker-groups button[aria-pressed="true"] { border-color: var(--action-600); background: var(--action-50); color: var(--action-700); font-weight: var(--weight-bold); }
-.school-sticker-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
-.school-sticker-grid button { min-height: 76px; position: relative; border: 1px solid var(--color-border); border-radius: 16px; background: var(--color-surface-soft); }
+.school-sticker-grid { display: grid; flex: 1; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-3); min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: var(--space-1); }
+.school-sticker-grid button { min-height: 68px; position: relative; border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-subtle); padding: var(--space-2); }
 .school-sticker-grid button:hover { border-color: var(--color-primary); background: var(--color-primary-soft); }
 .school-sticker-grid button.is-selected { border-color: var(--action-600); background: var(--action-50); box-shadow: inset 0 0 0 1px var(--action-600); }
 .school-sticker-grid__check { position: absolute; right: var(--space-2); top: var(--space-2); border-radius: var(--radius-full); background: var(--action-500); color: var(--brand-950); padding: 2px; }
-.school-sticker-grid .school-calendar-sticker { flex-direction: column; justify-content: center; }
-.school-sticker-picker__save { width: 100%; margin-top: var(--space-5); }
-.calendar-sticker-empty { margin: var(--space-6) 0 0; border-radius: var(--radius-md); background: var(--surface-subtle); color: var(--ink-500); padding: var(--space-8); text-align: center; }
+.school-sticker-grid .school-calendar-sticker { flex-direction: column; justify-content: center; line-height: var(--leading-tight); text-align: center; }
+.school-sticker-grid .school-calendar-sticker span { display: -webkit-box; overflow: hidden; overflow-wrap: normal; word-break: keep-all; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.school-sticker-picker__footer { background: var(--surface); border-top: 1px solid var(--line); bottom: 0; margin-top: var(--space-4); padding: var(--space-4) 0 calc(var(--space-1) + env(safe-area-inset-bottom)); position: sticky; z-index: 4; }
+.school-sticker-picker__save { margin: 0; width: 100%; }
+.calendar-sticker-empty { align-items: center; background: var(--surface-subtle); border-radius: var(--radius-md); color: var(--ink-500); display: flex; flex-direction: column; gap: var(--space-2); margin: var(--space-4) 0 0; min-height: 180px; padding: var(--space-6); text-align: center; }
+.calendar-sticker-empty strong { color: var(--ink-700); }
+.calendar-sticker-empty button { background: transparent; border: 0; color: var(--action-700); font-weight: var(--weight-semibold); min-height: var(--touch-target); padding: 0 var(--space-3); }
+.school-sticker-picker__selected-list { flex: none; max-height: min(28vh, 220px); overflow-y: auto; overscroll-behavior: contain; padding-right: var(--space-1); }
 .school-sticker-picker__selected, .today-school-stickers { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 14px; border-radius: 16px; background: var(--color-primary-soft); padding: 12px 14px; }
 .school-sticker-picker__selected > div { display: grid; margin-right: auto; }
 .school-sticker-picker__selected small { color: var(--color-text-secondary); }
@@ -83,7 +106,7 @@
 .smart-calendar-toolbar__period { align-items: center; display: flex; gap: var(--space-2); }
 .smart-calendar-toolbar__period > button:not(.button) { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-700); display: inline-flex; height: var(--touch-target); justify-content: center; width: var(--touch-target); }
 .smart-calendar-toolbar__period strong { min-width: 132px; text-align: center; }
-.calendar-search { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; margin-bottom: var(--space-5); padding: 0 var(--space-5); position: relative; }
+.calendar-search { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; margin-bottom: var(--space-4); padding: 0 var(--space-5); position: relative; }
 .calendar-search > input { background: transparent; border: 0; flex: 1; min-height: var(--touch-target); min-width: 0; outline: 0; padding: 0 var(--space-4); }
 .calendar-search > button { align-items: center; background: transparent; border: 0; color: var(--ink-500); display: inline-flex; height: var(--touch-target); justify-content: center; width: var(--touch-target); }
 .calendar-search__results { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); display: grid; left: 0; max-height: 360px; overflow-y: auto; padding: var(--space-3); position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 25; }
@@ -122,14 +145,22 @@
 .calendar-move-form fieldset { border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-4); margin: 0; padding: var(--space-6); }
 .calendar-move-form label { align-items: center; display: flex; gap: var(--space-3); min-height: var(--touch-target); }
 @media (max-width: 767px) {
-  .school-sticker-picker { padding: 16px; }
+  .calendar-controls { gap: var(--space-4); }
+  .calendar-controls__primary { align-items: stretch; display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr); justify-content: normal; }
+  .calendar-entry-filter, .calendar-sticker-filter { align-items: stretch; display: grid; gap: var(--space-2); }
+  .calendar-entry-filter > div { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .calendar-entry-filter button, .calendar-sticker-filter button { min-height: var(--touch-target); padding: 0 var(--space-3); }
+  .calendar-sticker-add { width: 100%; }
+  .calendar-sticker-add__full { display: none; }
+  .calendar-sticker-add__short { display: inline; }
+  .calendar-sticker-filter__scroller { margin-inline: calc(var(--space-1) * -1); padding-inline: var(--space-1); }
+  .school-sticker-picker { padding: 0; }
   .calendar-sticker-tabs { display: flex; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
-  .calendar-sticker-tabs button { flex: 1 0 96px; }
+  .calendar-sticker-tabs button { flex: 0 0 auto; min-width: 84px; }
   .school-sticker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .school-sticker-grid button { min-height: 84px; }
+  .school-sticker-grid button { min-height: 72px; }
   .school-calendar-sticker.is-compact span { display: none; }
   .full-calendar__cell .school-calendar-sticker.is-compact { display: inline-flex; }
-  .calendar-filter button { min-height: 44px; }
   .smart-calendar-toolbar { align-items: stretch; }
   .smart-calendar-toolbar__period { flex: 1 1 100%; }
   .smart-calendar-toolbar__period strong { flex: 1; min-width: 0; }
@@ -143,6 +174,8 @@
 }
 
 @media (max-width: 1023px) {
+  .calendar-controls__primary { flex-wrap: wrap; }
+  .calendar-entry-filter { flex: 1 1 auto; }
   .calendar-sticker-management__overlay { background: rgb(36 50 71 / 24%); }
   .calendar-sticker-management__panel { border: 0; border-radius: var(--radius-xl) var(--radius-xl) 0 0; bottom: 0; box-shadow: var(--mobile-sheet-shadow); gap: var(--space-5); left: 0; max-width: none; padding: var(--space-8) var(--space-6) calc(var(--space-7) + env(safe-area-inset-bottom)); top: auto; width: 100%; }
 }
