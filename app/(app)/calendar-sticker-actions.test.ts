@@ -62,4 +62,19 @@ describe("calendar sticker actions", () => {
       note: null,
     });
   });
+
+  it("stores an academic sticker through the existing idempotent upsert path", async () => {
+    const form = new FormData();
+    form.set("stickerKey", "academic.sports-day");
+    form.set("stickerDate", "2026-07-18");
+
+    await expect(attachCalendarStickerAction({ status: "idle" }, form)).resolves.toMatchObject({ status: "success" });
+    expect(upsertCalendarSticker).toHaveBeenCalledWith({
+      stickerKey: "academic.sports-day",
+      stickerDate: "2026-07-18",
+      endDate: null,
+      label: "체육대회",
+      note: null,
+    });
+  });
 });

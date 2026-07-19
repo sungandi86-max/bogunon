@@ -56,7 +56,7 @@ export function searchCalendar(
   });
   const stickerResults = stickers.flatMap((sticker) => {
     const definition = calendarStickerByKey(sticker.sticker_key);
-    if (!includesQuery([definition?.label, sticker.label, sticker.note], query)) return [];
+    if (!includesQuery([definition?.label, definition?.category, ...(definition?.keywords ?? []), sticker.label, sticker.note], query)) return [];
     return [{ id: sticker.id, kind: "sticker" as const, title: sticker.label || definition?.label || "날짜 스티커", date: sticker.sticker_date, time: null, area: "sticker" as const }];
   });
   return [...eventResults, ...taskResults, ...stickerResults].toSorted((left, right) => left.date.localeCompare(right.date) || (left.time ?? "99:99").localeCompare(right.time ?? "99:99"));

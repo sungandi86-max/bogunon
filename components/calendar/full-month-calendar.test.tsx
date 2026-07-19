@@ -36,4 +36,17 @@ describe("FullMonthCalendar", () => {
 
     expect(screen.getByRole("button", { name: "7월 18일 병원 스티커 관리" })).toBeInTheDocument();
   });
+
+  it("limits multiple academic stickers and keeps the remaining date content", () => {
+    render(<FullMonthCalendar events={[{ id: "event", user_id: "user", title: "교직원 회의", area: "schoolSchedule", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: true, start_time: null, end_time: null, memo: null, description: null, created_at: "", updated_at: "" }]} month="2026-07" schoolStickers={[
+      { id: "academic-1", user_id: "user", sticker_key: "academic.admission", sticker_date: "2026-07-18", end_date: null, label: "입학식", note: null, created_at: "", updated_at: "" },
+      { id: "academic-2", user_id: "user", sticker_key: "exam-period", sticker_date: "2026-07-18", end_date: null, label: "시험기간", note: null, created_at: "", updated_at: "" },
+      { id: "academic-3", user_id: "user", sticker_key: "academic.sports-day", sticker_date: "2026-07-18", end_date: null, label: "체육대회", note: null, created_at: "", updated_at: "" },
+    ]} today="2026-07-18" />);
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    expect(cell).toHaveTextContent("입학식");
+    expect(cell).toHaveTextContent("교직원 회의");
+    expect(cell).toHaveTextContent("+2");
+    expect(cell).not.toHaveTextContent("시험기간");
+  });
 });

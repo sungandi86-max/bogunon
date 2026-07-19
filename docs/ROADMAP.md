@@ -1097,6 +1097,11 @@ chore: complete MVP QA and deployment
 - [x] 반복 이동 범위(`instance`, `following`, `series`)의 원자적 RPC 구현
 - [x] 일정·업무·학교 날짜 스티커 검색과 결과 날짜 강조
 - [x] 월간·주간 공통 영역·운동·날짜 스티커 필터
+- [x] 학사일정 스티커팩 v1 27개 registry와 로컬 SVG 추가
+- [x] 학교·학사일정·개인 팩 탭과 학사일정 카테고리 필터 추가
+- [x] label·keywords·category 검색과 명시적 저장 단계 추가
+- [x] 기존 calendar_stickers unique 제약·삭제 UI·월간 및 주간 overflow 재사용
+- [x] academic key 최소 CHECK migration과 검증 SQL 추가
 - [ ] 원격 프로젝트에 Smart Calendar 이동 RPC 적용 후 반복 범위 브라우저 QA
 - [ ] Desktop·Tablet·Mobile 실제 브라우저 최종 확인
 
