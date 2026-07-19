@@ -77,4 +77,24 @@ describe("calendar sticker actions", () => {
       note: null,
     });
   });
+
+  it("stores a health sticker through the same calendar sticker upsert path", async () => {
+    const form = new FormData();
+    form.set("stickerKey", "health.aed-check");
+    form.set("stickerDate", "2026-07-21");
+
+    await expect(attachCalendarStickerAction({ status: "idle" }, form)).resolves.toEqual({
+      status: "success",
+      message: "AED 점검 스티커를 붙였어요.",
+    });
+    expect(upsertCalendarSticker).toHaveBeenCalledWith({
+      stickerKey: "health.aed-check",
+      stickerDate: "2026-07-21",
+      endDate: null,
+      label: "AED 점검",
+      note: null,
+    });
+    expect(revalidatePath).toHaveBeenCalledWith("/calendar");
+    expect(revalidatePath).toHaveBeenCalledWith("/briefing");
+  });
 });

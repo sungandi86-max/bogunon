@@ -9,7 +9,8 @@
 .school-sticker-picker { margin-top: 18px; border: 1px solid var(--color-border); border-radius: 20px; background: var(--color-surface); padding: 20px; box-shadow: var(--shadow-card); }
 .school-sticker-picker__heading strong { display: block; font-size: 17px; }
 .school-sticker-picker__heading span { color: var(--color-text-secondary); font-size: 13px; }
-.calendar-sticker-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; margin-top: 14px; border-radius: 14px; background: var(--color-surface-soft); padding: 4px; }
+.calendar-sticker-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 14px; max-width: 100%; overflow-x: auto; border-radius: 14px; background: var(--color-surface-soft); padding: 4px; scrollbar-width: none; }
+.calendar-sticker-tabs::-webkit-scrollbar, .calendar-sticker-groups::-webkit-scrollbar { display: none; }
 .calendar-sticker-tabs button { min-height: 44px; min-width: 88px; border: 0; border-radius: 11px; background: transparent; color: var(--color-text-secondary); font-weight: 700; white-space: nowrap; }
 .calendar-sticker-tabs button[aria-selected="true"] { background: var(--color-surface); color: var(--color-primary-strong); box-shadow: var(--shadow-soft); }
 .calendar-sticker-search { align-items: center; display: flex; gap: var(--space-2); margin-top: var(--space-5); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface); color: var(--ink-500); padding: 0 var(--space-4); }

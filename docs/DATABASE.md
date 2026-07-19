@@ -129,6 +129,17 @@ AI 구조에는 delete operation이 없으므로 삭제 SQL·RPC와 연결하지
 - 적용 확인: `supabase/sql/verify_school_calendar_stickers.sql`, `supabase/sql/verify_event_schedule_fields.sql`
 - 로컬 pgTAP: `supabase/tests/school_calendar_stickers.sql`, `supabase/tests/event_schedule_fields.sql`
 
+## 학사일정·보건업무 날짜 스티커 key 확장 (2026-07-19)
+
+학사일정과 보건업무 스티커팩은 새 저장 테이블을 만들지 않고 `calendar_stickers`의 `sticker_key` CHECK 허용 목록만 확장한다. 기존 `(user_id, sticker_date, sticker_key)` unique 제약, own-row RLS, 삭제 정책과 애플리케이션 upsert 흐름은 유지한다.
+
+- 학사일정 migration: `supabase/migrations/20260719100000_add_academic_calendar_sticker_keys.sql`
+- 보건업무 migration: `supabase/migrations/20260719110000_add_health_calendar_sticker_keys.sql`
+- 보건업무 신규 key: `health.student-checkup`, `health.urine-test`, `health.tuberculosis-test`, `health.vision-test`, `health.oral-checkup`, `health.health-survey`, `health.vaccination-check`, `health.cpr-training`, `health.first-aid-training`, `health.sex-education`, `health.smoking-prevention`, `health.alcohol-prevention`, `health.drug-misuse-prevention`, `health.infection-prevention`, `health.life-respect-education`, `health.obesity-prevention`, `health.aed-check`, `health.medicine-check`, `health.emergency-kit-check`, `health.health-room-check`, `health.medical-waste-check`, `health.health-log`, `health.supply-purchase`, `health.health-committee`, `health.statistics-report`, `health.official-document`, `health.family-letter`, `health.teacher-cooperation`.
+- Production 적용 확인: Dashboard SQL Editor에서 plain SQL인 `supabase/sql/verify_health_calendar_sticker_keys.sql`을 실행한다. pgTAP의 `plan()`/`ok()` 함수가 없는 Production SQL Editor에서 로컬 pgTAP 파일을 직접 실행하지 않는다.
+- 로컬 pgTAP: `supabase/tests/health_calendar_stickers.sql`
+- rollback이 필요하면 신규 CHECK 제약을 직전 academic 허용 목록으로 되돌리되, 이미 저장된 `health.*` 사용자 데이터가 있으면 먼저 영향 범위를 확인한다. 기본 원칙은 기존 사용자 데이터 유지다.
+
 ## 연간 플래너 사용자 항목 (2026-07-18)
 
 기본 월별 보건업무는 코드의 정적 프리셋으로 유지하고 DB에 복제하지 않는다. 사용자가 `내 업무 추가`로 만든 항목만 `annual_planner_custom_items`에 저장한다.

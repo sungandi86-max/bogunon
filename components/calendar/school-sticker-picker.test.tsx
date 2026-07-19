@@ -29,10 +29,11 @@ function renderPicker(stickers: readonly CalendarStickerRow[] = []) {
 }
 
 describe("SchoolStickerPicker", () => {
-  it("shows responsive school, academic, and personal pack tabs", () => {
+  it("shows responsive school, academic, health, and personal pack tabs", () => {
     renderPicker();
     expect(screen.getByRole("tab", { name: "학교" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "학사일정" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "보건업무" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "개인" })).toBeInTheDocument();
   });
 
@@ -67,6 +68,53 @@ describe("SchoolStickerPicker", () => {
     const formData = actions.attach.mock.calls[0]?.[1];
     expect(formData).toBeInstanceOf(FormData);
     expect(formData?.get("stickerKey")).toBe("academic.admission");
+  });
+
+  it("shows health categories and searches health stickers by school terms", () => {
+    renderPicker();
+    fireEvent.click(screen.getByRole("tab", { name: "보건업무" }));
+    expect(screen.getByRole("button", { name: "건강검사" })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: "보건교육" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "운영·점검" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "행정·협업" })).toBeInTheDocument();
+
+    const search = screen.getByRole("searchbox", { name: "스티커 검색" });
+    expect(search).toHaveAttribute("type", "search");
+    fireEvent.change(search, { target: { value: "검사" } });
+    expect(screen.getByRole("button", { name: "7월 18일 학생건강검진 스티커 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 구강검사 스티커 선택" })).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "교육" } });
+    expect(screen.getByRole("button", { name: "7월 18일 심폐소생술 교육 스티커 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 비만예방교육 스티커 선택" })).toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "CPR" } });
+    expect(screen.getByRole("button", { name: "7월 18일 심폐소생술 교육 스티커 선택" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "7월 18일 응급처치 교육 스티커 선택" })).not.toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "담임" } });
+    expect(screen.getByRole("button", { name: "7월 18일 담임 협조 요청 스티커 선택" })).toBeInTheDocument();
+  });
+
+  it("clears hidden health selections when pack, category, or search hides them", () => {
+    renderPicker();
+    fireEvent.click(screen.getByRole("tab", { name: "보건업무" }));
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 학생건강검진 스티커 선택" }));
+    expect(screen.getByRole("button", { name: "학생건강검진 스티커 저장" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "보건교육" }));
+    expect(screen.getByRole("button", { name: "스티커를 선택해 주세요" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 심폐소생술 교육 스티커 선택" }));
+    expect(screen.getByRole("button", { name: "심폐소생술 교육 스티커 저장" })).toBeEnabled();
+    fireEvent.change(screen.getByRole("searchbox", { name: "스티커 검색" }), { target: { value: "담임" } });
+    expect(screen.getByRole("button", { name: "스티커를 선택해 주세요" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "전체" }));
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 담임 협조 요청 스티커 선택" }));
+    expect(screen.getByRole("button", { name: "담임 협조 요청 스티커 저장" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("tab", { name: "개인" }));
+    expect(screen.getByRole("button", { name: "스티커를 선택해 주세요" })).toBeDisabled();
   });
 
   it("opens the existing Event form with personal defaults only after user choice", () => {

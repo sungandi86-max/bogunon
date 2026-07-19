@@ -2,8 +2,48 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
+import type { EventRow, TaskRow } from "@/types/database";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+
+const healthTask: TaskRow = {
+  id: "task-health",
+  user_id: "user",
+  title: "보건일지 정리",
+  area: "healthWork",
+  status: "planned",
+  priority: "normal",
+  category: "other",
+  scheduled_date: "2026-07-18",
+  due_date: null,
+  follow_up_date: null,
+  memo: null,
+  description: null,
+  estimated_minutes: null,
+  completed_at: null,
+  recurrence_frequency: null,
+  recurrence_source_id: null,
+  recurrence_date: null,
+  recurrence_generated_through: null,
+  created_at: "",
+  updated_at: "",
+};
+
+const schoolEvent: EventRow = {
+  id: "event-school",
+  user_id: "user",
+  title: "교직원 회의",
+  area: "schoolSchedule",
+  start_date: "2026-07-18",
+  end_date: "2026-07-18",
+  is_all_day: true,
+  start_time: null,
+  end_time: null,
+  memo: null,
+  description: null,
+  created_at: "",
+  updated_at: "",
+};
 
 describe("FullMonthCalendar", () => {
   it("marks the supplied current date on its calendar cell", () => {
@@ -48,5 +88,22 @@ describe("FullMonthCalendar", () => {
     expect(cell).toHaveTextContent("교직원 회의");
     expect(cell).toHaveTextContent("+2");
     expect(cell).not.toHaveTextContent("시험기간");
+  });
+
+  it("renders health stickers in the existing non-personal lane with academic overflow and keeps tasks/events", () => {
+    render(<FullMonthCalendar events={[schoolEvent]} month="2026-07" schoolStickers={[
+      { id: "health-1", user_id: "user", sticker_key: "health.student-checkup", sticker_date: "2026-07-18", end_date: null, label: "학생건강검진", note: null, created_at: "", updated_at: "" },
+      { id: "academic-1", user_id: "user", sticker_key: "academic.sports-day", sticker_date: "2026-07-18", end_date: null, label: "체육대회", note: null, created_at: "", updated_at: "" },
+      { id: "personal-1", user_id: "user", sticker_key: "personal.hospital", sticker_date: "2026-07-18", end_date: null, label: "병원", note: null, created_at: "", updated_at: "" },
+    ]} tasks={[healthTask]} today="2026-07-18" />);
+
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18, 일정 1개, 업무 1개/ });
+    expect(cell).toHaveTextContent("학생건강검진");
+    expect(cell).toHaveTextContent("병원");
+    expect(cell).toHaveTextContent("교직원 회의");
+    expect(cell).toHaveTextContent("보건일지 정리");
+    expect(cell).toHaveTextContent("+1");
+    expect(cell).not.toHaveTextContent("체육대회");
+    expect(screen.getByRole("button", { name: "7월 18일 학생건강검진 스티커 관리" })).toBeInTheDocument();
   });
 });

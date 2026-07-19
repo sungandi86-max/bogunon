@@ -95,17 +95,38 @@ Service Worker는 로고, 앱 아이콘, 스티커, 정적 폰트와 Next.js 정
 
 ## 학사일정 스티커팩 v1
 
-날짜 스티커 선택 패널은 `학교`, `학사일정`, `개인` 팩을 제공하며 학사일정 팩은 학기·시험·행사·운영 카테고리와 이름·키워드 검색을 지원합니다. 27개 학사일정 스티커는 `public/stickers/academic/`의 자체 제작 SVG를 사용하고 기존 `calendar_stickers` 저장·삭제·중복 방지 흐름을 그대로 공유합니다.
+날짜 스티커 선택 패널은 `학교`, `학사일정`, `보건업무`, `개인` 팩을 제공하며 학사일정 팩은 학기·시험·행사·운영 카테고리와 이름·키워드 검색을 지원합니다. 27개 학사일정 스티커는 `public/stickers/academic/`의 자체 제작 SVG를 사용하고 기존 `calendar_stickers` 저장·삭제·중복 방지 흐름을 그대로 공유합니다.
 
 신규 key를 허용하려면 기존 migration 뒤에 `supabase/migrations/20260719100000_add_academic_calendar_sticker_keys.sql`을 적용하고 `supabase/sql/verify_academic_calendar_sticker_keys.sql`로 CHECK 제약, 데이터 수와 기존 unique index를 확인합니다. 새 테이블이나 RLS 변경은 없습니다.
+
+## 보건업무 스티커팩 v1
+
+보건업무 팩은 기존 날짜 스티커 구조를 확장한 `health` pack입니다. 새 저장 테이블을 만들지 않고 `calendar_stickers`의 `(user_id, sticker_date, sticker_key)` unique 제약과 기존 upsert·개별 삭제·월간/주간 표시 흐름을 그대로 사용합니다.
+
+카테고리는 `건강검사(screening)` 7개, `보건교육(education)` 9개, `운영·점검(operation)` 7개, `행정·협업(administration)` 5개 순서입니다.
+
+- 건강검사: 학생건강검진, 소변검사, 결핵검사, 시력검사, 구강검사, 건강조사, 예방접종 확인
+- 보건교육: 심폐소생술 교육, 응급처치 교육, 성교육, 흡연예방교육, 음주예방교육, 약물오남용 예방교육, 감염병 예방교육, 생명존중교육, 비만예방교육
+- 운영·점검: AED 점검, 의약품 점검, 응급키트 점검, 보건실 환경점검, 의료폐기물 점검, 보건일지 정리, 보건실 물품구매
+- 행정·협업: 보건위원회, 통계 보고, 공문 제출, 가정통신문 발송, 담임 협조 요청
+
+모든 key는 `health.<slug>` namespace를 사용합니다. 예: `health.student-checkup`, `health.cpr-training`, `health.aed-check`, `health.teacher-cooperation`. 자산은 `public/stickers/health/`의 28개 로컬 SVG이며 외부 URL, emoji, 학생 개인정보, 질병명, 검사 결과, 피·주사·상처 같은 불쾌감을 줄 수 있는 표현을 사용하지 않습니다.
+
+검색은 label, keywords, category, pack을 대상으로 합니다. 필수 검색어는 `검사`, `교육`, `점검`, `CPR`, `담임`이며 `CPR`은 `심폐소생술 교육`, `담임`은 `담임 협조 요청`을 찾습니다.
+
+신규 `health.*` key를 허용하려면 기존 academic migration 뒤에 `supabase/migrations/20260719110000_add_health_calendar_sticker_keys.sql`을 적용합니다. Production SQL Editor에서는 plain 검증 SQL인 `supabase/sql/verify_health_calendar_sticker_keys.sql`을 실행하고, 로컬 pgTAP 환경에서는 `supabase/tests/health_calendar_stickers.sql`로 보완 검증합니다. 이 migration은 `calendar_stickers_sticker_key_check` 허용 목록만 확장하며 새 테이블, RLS 변경, unique 제약 변경은 없습니다.
 
 스티커 확장 순서는 다음과 같습니다.
 
 1. `public/stickers/<pack>/`에 96×96 로컬 SVG를 추가하고 `title`을 지정합니다.
 2. `lib/calendar-stickers/catalog.ts`에 key, label, pack, category, assetPath, keywords, sortOrder를 등록합니다.
-3. 기존 label은 기존 key를 재사용하고 새 key는 `<pack>.<slug>` namespace를 사용합니다.
-4. registry key 중복, 자산 존재, 검색과 접근성 테스트를 추가합니다.
-5. DB CHECK 제약이 새 key를 막을 때만 최소 migration과 읽기 전용 검증 SQL을 추가합니다.
+3. category와 실제 현장 검색어 중심 keywords를 입력합니다.
+4. registry key 중복, assetPath 존재와 registry/asset 1:1 대응을 검사합니다.
+5. 검색 테스트와 접근성 테스트를 추가합니다.
+6. 모바일 375px, 태블릿 768px, 데스크톱 1280px에서 팩 탭·필터·선택 초기화와 가로 overflow를 확인합니다.
+7. DB CHECK 제약이 새 key를 막을 때만 최소 migration과 읽기 전용 검증 SQL을 추가합니다.
+
+다음 스티커팩(예: 공휴일팩)을 추가할 때도 같은 순서를 사용하되, 해당 pack만 독립적으로 추가하고 보건업무·학사일정 registry나 기존 사용자 데이터를 변경하지 않습니다.
 
 ## 확정 문서
 

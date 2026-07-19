@@ -1102,10 +1102,16 @@ chore: complete MVP QA and deployment
 - [x] label·keywords·category 검색과 명시적 저장 단계 추가
 - [x] 기존 calendar_stickers unique 제약·삭제 UI·월간 및 주간 overflow 재사용
 - [x] academic key 최소 CHECK migration과 검증 SQL 추가
+- [x] 보건업무 스티커팩 v1 28개 registry와 로컬 SVG 추가
+- [x] 보건업무 pack `health`, category `screening`·`education`·`operation`·`administration`, `health.*` namespace 적용
+- [x] 학교·학사일정·보건업무·개인 4개 팩 탭과 보건업무 카테고리 필터 추가
+- [x] 보건업무 label·keywords·category·pack 검색과 숨겨진 선택 초기화 규칙 추가
+- [x] existing `calendar_stickers` upsert·unique 제약·삭제 UI·월간 및 주간 overflow 재사용
+- [x] health key 최소 CHECK migration과 Production plain 검증 SQL·로컬 pgTAP 자산 추가
 - [ ] 원격 프로젝트에 Smart Calendar 이동 RPC 적용 후 반복 범위 브라우저 QA
 - [ ] Desktop·Tablet·Mobile 실제 브라우저 최종 확인
 
-이 보완 작업은 기존 Phase 7 기능을 유지하는 제품 리파인이며 Phase 8 범위를 시작하지 않는다.
+이 보완 작업은 기존 Phase 7 기능을 유지하는 제품 리파인이며 Phase 8 범위를 시작하지 않는다. 보건업무 스티커팩은 공휴일·계절·여행·기념일 스티커팩을 포함하지 않으며, 다음 공휴일팩은 별도 승인 후 같은 registry/SVG/search/DB CHECK-only 절차로 추가한다.
 
 ## 연간 플래너 실사용 보완 (Phase 8 아님)
 
