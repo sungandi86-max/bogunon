@@ -10,14 +10,14 @@ vi.mock("@/lib/supabase/server", () => ({
 
 describe("logout route", () => {
   beforeEach(() => {
-    process.env["NEXT_PUBLIC_SUPABASE_URL"] = "https://example.supabase.co";
-    process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"] = "test-publishable-key";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable-key";
     signOut.mockReset();
   });
 
   afterEach(() => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   });
 
   it("ends the session and returns to login", async () => {
@@ -40,8 +40,8 @@ describe("logout route", () => {
   });
 
   it("returns a configuration error without creating a client when public settings are absent", async () => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
     const response = await POST(
       new Request("https://bogunon.example/auth/logout", { method: "POST" }),

@@ -31,15 +31,15 @@ vi.mock("@supabase/ssr", () => ({
 
 describe("Supabase session proxy", () => {
   beforeEach(() => {
-    process.env["NEXT_PUBLIC_SUPABASE_URL"] = "https://example.supabase.co";
-    process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"] = "test-publishable-key";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable-key";
     getClaims.mockReset();
     getClaims.mockResolvedValue({ data: { claims: null }, error: null });
   });
 
   afterEach(() => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   });
 
   it("sends an unauthenticated protected request to login", async () => {
@@ -143,8 +143,8 @@ describe("Supabase session proxy", () => {
   });
 
   it("redirects protected routes to a configuration error without public settings", async () => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
     const response = await updateSession(new NextRequest("https://bogunon.example/briefing"));
 

@@ -185,7 +185,9 @@ src/
 
 - PC 고정 왼쪽 메뉴 표시
 - 브리핑·업무·캘린더·운동·프로젝트 이동
-- `+ 새로 만들기`, SyncStatus와 ProfileMenu를 위·아래 영역에 배치
+- `+ 새로 만들기`를 상단에 배치
+- 하단의 독립 `SidebarOtter`에 공지 문구와 프레임 없는 전신 마스코트를 표시
+- 계정 메뉴와 로그아웃은 `AppHeader` 우측에 배치
 - 현재 경로 활성 상태 표시
 
 ### 4.3 `MobileBottomNavigation`

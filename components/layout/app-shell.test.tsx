@@ -32,7 +32,12 @@ describe("AppShell", () => {
     const sidebar = screen.getByRole("complementary", { name: "데스크톱 앱 메뉴" });
     expect(within(header).getByRole("button", { name: "teacher@example.com 사용자 메뉴" })).toBeInTheDocument();
     expect(within(sidebar).getByText("새로운 공지가 없습니다.")).toBeInTheDocument();
-    expect(within(sidebar).getByRole("img", { name: "수다리" })).toHaveAttribute("src", expect.stringContaining("otter-profile.png"));
+    const mascot = within(sidebar).getByRole("img", { name: "수다리" });
+    expect(mascot).toHaveAttribute("src", expect.stringContaining("sidebar-otter.png"));
+    expect(mascot).toHaveAttribute("width", "794");
+    expect(mascot).toHaveAttribute("height", "990");
+    expect(mascot.parentElement).toHaveClass("sidebar-otter__mascot");
+    expect(within(sidebar).getByText("새로운 공지가 없습니다.").parentElement).toHaveClass("sidebar-otter__notice");
     expect(within(sidebar).queryByText("동기화됨")).not.toBeInTheDocument();
     expect(within(sidebar).queryByRole("button", { name: "로그아웃" })).not.toBeInTheDocument();
 

@@ -10,15 +10,15 @@ vi.mock("@/lib/supabase/server", () => ({
 
 describe("post-login user settings bootstrap entry point", () => {
   beforeEach(() => {
-    process.env["NEXT_PUBLIC_SUPABASE_URL"] = "https://example.supabase.co";
-    process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"] = "test-publishable-key";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable-key";
     getUser.mockReset();
     getUser.mockResolvedValue({ data: { user: { id: "user-id" } }, error: null });
   });
 
   afterEach(() => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   });
 
   it("verifies the established session before continuing to briefing", async () => {
@@ -53,8 +53,8 @@ describe("post-login user settings bootstrap entry point", () => {
   });
 
   it("does not queue settings initialization without public authentication settings", async () => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
     const response = await GET(new Request("https://bogunon.example/auth/bootstrap"));
 

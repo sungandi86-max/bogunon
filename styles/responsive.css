@@ -22,8 +22,8 @@
   .sidebar-create-popover { left: calc(100% + var(--space-3)); top: 0; }
   .desktop-navigation a { font-size: var(--text-hidden); justify-content: center; padding: 0; }
   .app-header { left: var(--sidebar-compact-width); }
-  .sidebar-otter p { display: none; }
-  .sidebar-otter img { height: var(--sidebar-mascot-compact-size); width: var(--sidebar-mascot-compact-size); }
+  .sidebar-otter__notice { display: none; }
+  .sidebar-otter__mascot { margin-top: 0; width: var(--sidebar-mascot-compact-width); }
   .page-canvas { margin-left: var(--sidebar-compact-width); }
 }
 @media (min-width: 768px) and (max-width: 899px) {
@@ -67,8 +67,8 @@
   .page-header h1 { font-size: var(--text-xl); line-height: var(--leading-heading); }
   .page-header__description { display: none; }
   .mobile-create-button { display: none; }
-  .briefing-page { padding-top: var(--space-4); }
-  .briefing-header { display: block; margin-bottom: var(--space-5); }
+  .briefing-page { padding-top: var(--space-2); }
+  .briefing-header { display: block; margin-bottom: var(--space-3); }
   .mobile-briefing-brand { align-items: center; display: flex; gap: var(--space-3); margin-bottom: var(--space-5); }
   .mobile-briefing-brand .bogunon-brand { min-height: var(--control-sm); }
   .mobile-briefing-brand .bogunon-brand__symbol { height: var(--control-sm); width: var(--control-sm); }
@@ -79,19 +79,7 @@
   .briefing-header__summary { display: none; }
   .briefing-grid { display: block; }
   .operations-dashboard { display: block; }
-  .operations-main .briefing-header { border-bottom: 0; margin-bottom: var(--space-5); padding-bottom: 0; }
-  .weekly-summary { margin-bottom: var(--space-8); }
-  .weekly-summary .section-heading { margin-bottom: var(--space-5); }
-  .weekly-summary__grid { background: transparent; border: 0; border-radius: 0; box-shadow: none; gap: var(--space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); overflow: visible; }
-  .summary-metric { border: 1px solid var(--mobile-line-soft); border-radius: var(--mobile-summary-radius); box-shadow: var(--mobile-card-shadow); min-height: 94px; padding: var(--space-6); }
-  .summary-metric + .summary-metric { border-left: 1px solid var(--mobile-line-soft); }
-  .summary-metric:nth-child(1) { background: var(--mobile-blue-soft); }
-  .summary-metric:nth-child(2) { background: var(--mobile-orange-soft); }
-  .summary-metric:nth-child(3) { background: var(--mobile-mint-soft); }
-  .summary-metric svg { background: var(--mobile-icon-surface); border-radius: var(--radius-md); grid-column: 1; grid-row: 1; padding: var(--space-3); }
-  .summary-metric span { color: var(--mobile-body); font-size: var(--text-meta); grid-column: 1 / -1; grid-row: 2; letter-spacing: 0; white-space: nowrap; }
-  .summary-metric strong { color: var(--mobile-title); font-size: var(--text-xl); grid-column: 2; grid-row: 1; justify-self: end; margin-top: 0; }
-  .summary-metric small { color: var(--mobile-body); grid-column: 1 / -1; grid-row: 3; }
+  .operations-main .briefing-header { border-bottom: 0; margin-bottom: var(--space-3); padding-bottom: 0; }
   .month-overview { display: block; }
   .operations-rail { display: contents; }
   .operations-rail > section { display: none; }
@@ -117,7 +105,7 @@
   .week-strip-day.is-today strong { align-items: center; background: var(--action-500); border-radius: var(--radius-full); color: var(--brand-950); display: inline-flex; height: var(--text-3xl); justify-content: center; width: var(--text-3xl); }
   .week-strip-markers { display: flex; gap: var(--space-1); height: var(--space-2); margin-top: var(--mobile-accent-line); }
   .calendar-page { min-height: calc(100dvh - var(--mobile-nav-height)); overflow-x: clip; }
-  .calendar-page .page-canvas { padding-top: var(--space-2); }
+  .calendar-page .page-canvas { padding-top: calc(var(--app-header-height) + var(--space-2)); }
   .calendar-page .page-header { margin-bottom: var(--space-2); min-height: 36px; }
   .calendar-page .smart-calendar-toolbar, .calendar-page .calendar-search, .calendar-page .calendar-controls { margin-bottom: var(--space-2); }
   .calendar-page .smart-calendar-toolbar { gap: var(--space-2); }
@@ -141,7 +129,7 @@
   .time-calendar__scroll { grid-template-columns: 52px minmax(0, 1fr); max-height: calc(100dvh - 330px); min-height: 430px; padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom)); }
   .time-calendar__event { min-height: 44px; }
   .calendar-workspace-layout.is-time-view .calendar-detail-panel { display: none; }
-  .month-overview .full-calendar { border-color: var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); }
+  .month-overview .full-calendar { border-color: var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); height: auto; }
   .calendar-page .full-calendar { height: auto; }
   .full-calendar__cell, .month-overview .full-calendar__cell { border-color: var(--mobile-line-soft); height: 66px; padding: var(--space-1) var(--space-2); }
   .full-calendar[data-week-count="5"] .full-calendar__cell { height: 72px; }

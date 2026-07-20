@@ -10,8 +10,8 @@ vi.mock("@/lib/supabase/server", () => ({
 
 describe("OAuth callback", () => {
   beforeEach(() => {
-    process.env["NEXT_PUBLIC_SUPABASE_URL"] = "https://example.supabase.co";
-    process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"] = "test-publishable-key";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable-key";
     exchangeCodeForSession.mockReset();
     exchangeCodeForSession.mockResolvedValue({
       data: { user: { id: "user-id" } },
@@ -20,8 +20,8 @@ describe("OAuth callback", () => {
   });
 
   afterEach(() => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   });
 
   it("exchanges the authorization code and redirects to the protected destination", async () => {
@@ -53,8 +53,8 @@ describe("OAuth callback", () => {
   });
 
   it("returns a configuration error without creating a client when public settings are absent", async () => {
-    delete process.env["NEXT_PUBLIC_SUPABASE_URL"];
-    delete process.env["NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"];
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
     const response = await GET(
       new Request("https://bogunon.example/auth/callback?code=oauth-code"),

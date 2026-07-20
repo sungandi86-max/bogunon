@@ -22,9 +22,9 @@ describe("BriefingScreen", () => {
     expect(document.querySelector(".operations-main")).toBeInTheDocument();
     expect(screen.getByRole("complementary", { name: "오늘의 운영 항목" })).toHaveClass("operations-rail");
     expect(screen.getByRole("grid", { name: "2026년 7월 월간 캘린더" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "오늘 요약" })).toBeInTheDocument();
-    expect(screen.getAllByText("오늘 할 일").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText("진행 중 업무 절차")).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "오늘 요약" })).not.toBeInTheDocument();
+    expect(screen.queryByText("지금 기준")).not.toBeInTheDocument();
+    expect(screen.queryByText("등록 없음")).not.toBeInTheDocument();
     expect(screen.queryByText("회신 대기")).not.toBeInTheDocument();
     expect(screen.getByText(/오늘 일정 0건/)).toBeInTheDocument();
     expect(screen.queryByText("저장 완료")).not.toBeInTheDocument();
@@ -36,10 +36,10 @@ describe("BriefingScreen", () => {
     expect(screen.queryByText("오늘 등록된 일정이 없습니다.")).not.toBeInTheDocument();
     expect(document.querySelector(".mobile-daily-compact")).not.toBeInTheDocument();
     const weekStrip = document.querySelector(".mobile-week-strip");
-    const todaySummary = screen.getByRole("heading", { name: "오늘 요약" }).closest("section");
+    const monthOverview = screen.getByRole("heading", { name: "2026년 07월" }).closest("section");
     expect(weekStrip).not.toBeNull();
-    expect(todaySummary).not.toBeNull();
-    if (weekStrip && todaySummary) expect(weekStrip.compareDocumentPosition(todaySummary)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(monthOverview).not.toBeNull();
+    if (weekStrip && monthOverview) expect(weekStrip.compareDocumentPosition(monthOverview)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(screen.getByRole("navigation", { name: "모바일 주요 메뉴" })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "업무 메모" }));
