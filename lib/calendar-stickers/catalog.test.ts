@@ -38,8 +38,8 @@ describe("calendar sticker catalog", () => {
     { key: "long-weekend", label: "연휴", category: "general", assetPath: "/stickers/holiday/long-weekend.svg", keywords: ["휴일", "연속 휴일", "징검다리"], sortOrder: 410 },
   ] as const;
 
-  it("keeps legacy school and personal keys while registering the 27-sticker academic pack", () => {
-    expect(ACADEMIC_CALENDAR_STICKERS).toHaveLength(27);
+  it("keeps legacy school and personal keys while registering the academic pack", () => {
+    expect(ACADEMIC_CALENDAR_STICKERS).toHaveLength(28);
     expect(ACADEMIC_CALENDAR_STICKERS.some((item) => item.key === "vacation-ceremony")).toBe(true);
     expect(ACADEMIC_CALENDAR_STICKERS.some((item) => item.key === "opening-ceremony")).toBe(true);
     expect(PERSONAL_CALENDAR_STICKERS).toHaveLength(12);
@@ -47,6 +47,8 @@ describe("calendar sticker catalog", () => {
     expect(SCHOOL_CALENDAR_STICKERS.map((item) => item.key as string)).not.toContain("holiday");
     expect(calendarStickerCategory("academic.midterm")).toBe("school");
     expect(calendarStickerCategory("personal.hospital")).toBe("personal");
+    expect(calendarStickerByKey("academic.club")).toMatchObject({ label: "동아리", pack: "academic", category: "event", assetPath: "/stickers/academic/club.svg", sortOrder: 290 });
+    expect(filterCalendarStickers(ACADEMIC_CALENDAR_STICKERS, "동아리").map((item) => item.key)).toEqual(["academic.club"]);
   });
 
   it("registers the 20-sticker holiday pack with exact metadata and legacy keys moved once", () => {

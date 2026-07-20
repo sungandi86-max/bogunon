@@ -19,8 +19,8 @@ select is(
     cross join lateral regexp_matches(definition, '''([^'']+)''(?:::text)?', 'g') as matches(match)
   )
   select count(*) from allowed_constraint_keys),
-  89::bigint,
-  'calendar sticker key allowlist contains exactly 89 keys'
+  90::bigint,
+  'calendar sticker key allowlist contains exactly 90 keys'
 );
 
 select is(
@@ -83,6 +83,7 @@ select is(
       ('academic.vacation-camp'),
       ('academic.supplementary-class'),
       ('academic.curriculum-review'),
+      ('academic.club'),
       ('personal.hospital'),
       ('personal.hair-salon'),
       ('personal.appointment'),
@@ -169,7 +170,7 @@ select is(
     where allowed_constraint_keys.sticker_key = expected_allowed_keys.sticker_key
   )),
   0::bigint,
-  'all 89 expected sticker keys are allowed by the database constraint'
+  'all 90 expected sticker keys are allowed by the database constraint'
 );
 
 select is(
@@ -206,6 +207,7 @@ select is(
       ('academic.vacation-camp'),
       ('academic.supplementary-class'),
       ('academic.curriculum-review'),
+      ('academic.club'),
       ('personal.hospital'),
       ('personal.hair-salon'),
       ('personal.appointment'),
@@ -352,6 +354,7 @@ select is(
       ('academic.vacation-camp'),
       ('academic.supplementary-class'),
       ('academic.curriculum-review'),
+      ('academic.club'),
       ('personal.hospital'),
       ('personal.hair-salon'),
       ('personal.appointment'),
@@ -412,7 +415,7 @@ select is(
     where allowed_constraint_keys.sticker_key = expected.sticker_key
   )),
   0::bigint,
-  'all 71 pre-holiday sticker keys remain allowed'
+  'all 72 pre-holiday sticker keys remain allowed'
 );
 
 select is(

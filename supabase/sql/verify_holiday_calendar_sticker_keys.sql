@@ -31,6 +31,7 @@ with expected_existing_keys(sticker_key) as (
     ('academic.vacation-camp'),
     ('academic.supplementary-class'),
     ('academic.curriculum-review'),
+    ('academic.club'),
     ('personal.hospital'),
     ('personal.hair-salon'),
     ('personal.appointment'),
@@ -181,7 +182,7 @@ from public.calendar_stickers;
 
 select
   sticker_key,
-  count(*) as rows_blocking_prior_71_key_rollback
+  count(*) as rows_blocking_prior_72_key_rollback
 from public.calendar_stickers
 where sticker_key like 'holiday.%'
 group by sticker_key

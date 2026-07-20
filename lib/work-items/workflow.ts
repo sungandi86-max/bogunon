@@ -31,6 +31,7 @@ export type TemplateDefinition = {
   readonly startTime?: string;
   readonly endTime?: string;
   readonly isAllDay?: boolean;
+  readonly colorKey?: EventRow["color_key"];
   readonly aiDraftId?: string;
   readonly customId?: string;
   readonly reminderOffsets?: readonly number[];

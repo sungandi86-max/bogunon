@@ -151,6 +151,8 @@ AI 구조에는 delete operation이 없으므로 삭제 SQL·RPC와 연결하지
 - Legacy key 재사용: 기존 `holiday`는 공휴일 label의 special 항목으로, 기존 `long-weekend`는 연휴 label의 general 항목으로 유지한다. 두 key는 이미 기존 CHECK allowlist에 포함되어 있으므로 row migration이나 key rename이 없다.
 - 예상 allowlist는 health 적용 후 기존 71개 key와 신규 18개 `holiday.*` key를 합친 89개 unique key다. migration은 `calendar_stickers_sticker_key_check` drop/add/validate만 수행하고 테이블, 컬럼, index, unique 제약, RLS, policy를 변경하지 않는다.
 - read-only 검증 SQL은 allowlist 89개, 기존 71개 유지, 신규 18개 포함, legacy key 포함, CHECK validate 상태, RLS enabled, 네 정책, `(user_id, sticker_date, sticker_key)` unique 제약을 확인한다.
+
+`20260720093000_add_academic_club_sticker_key.sql`은 `academic.club` 하나만 CHECK 허용 목록에 추가한다. 테이블·RLS·정책·기존 행·`(user_id, sticker_date, sticker_key)` unique 제약은 변경하지 않으며 최종 allowlist는 중복 없는 90개다. 배포는 migration 적용 후 `supabase/sql/verify_academic_club_sticker_key.sql`을 실행한다. 되돌릴 때는 `academic.club` 행 존재 여부를 먼저 확인하고, 없을 때만 직전 holiday migration의 CHECK 정의로 복원한다.
 - pgTAP 검증은 `begin`/`rollback` 안에서 valid holiday insert, invalid `holiday.not-allowed` SQLSTATE `23514`, duplicate `holiday.hangul-day` SQLSTATE `23505`, 같은 날짜의 academic·health·holiday 스티커 공존을 검증한다.
 - rollback이 필요하면 `holiday.*`, `holiday`, `long-weekend` 사용자 row 존재 여부를 먼저 확인한다. 저장된 row가 있으면 CHECK 제약 복구가 사용자 데이터를 무효화하지 않는지 확인해야 하며, 기본 원칙은 기존 사용자 데이터 유지다.
 - 공휴일 날짜 자동 계산, 음력 변환, 대체공휴일 산정, 선거일 발견, API 동기화, 일괄 등록을 위한 테이블이나 예약 작업은 이 확장에 포함하지 않는다.

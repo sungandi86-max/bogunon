@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none" role="img">
+  <title>동아리</title>
+  <rect x="5" y="5" width="86" height="86" rx="24" fill="#F3EEFF" stroke="#536174" stroke-width="3"/>
+  <circle cx="42" cy="37" r="12" fill="#D8C6FF" stroke="#536174" stroke-width="4"/>
+  <path d="M20 74c1.8-14 10-22 22-22s20.2 8 22 22" fill="#E6DBFF" stroke="#536174" stroke-width="4" stroke-linecap="round"/>
+  <path d="M64 51c8 2.4 12.5 10 13.5 20" stroke="#8B6CCF" stroke-width="4" stroke-linecap="round"/>
+  <path d="M64 24a10 10 0 0 1 0 20" fill="#C9B1F5" stroke="#536174" stroke-width="4" stroke-linecap="round"/>
+</svg>

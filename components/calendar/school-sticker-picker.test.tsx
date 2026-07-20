@@ -70,6 +70,16 @@ describe("SchoolStickerPicker", () => {
     expect(formData?.get("stickerKey")).toBe("academic.admission");
   });
 
+  it("offers club as an all-day lavender school event that can be changed to a timed event", () => {
+    const openCreate = vi.fn();
+    const clubSticker: CalendarStickerRow = { ...personalSticker, id: "a5000000-0000-4000-8000-000000000004", sticker_key: "academic.club", label: "동아리" };
+    render(<AppShellCreateContext value={{ openCreate }}><SchoolStickerPicker stickers={[clubSticker]} today="2026-07-18" /></AppShellCreateContext>);
+    fireEvent.click(screen.getByRole("tab", { name: "학사일정" }));
+    expect(screen.getByRole("button", { name: "7월 18일 동아리 스티커 선택" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "학교 일정으로 만들기" }));
+    expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "event", expect.objectContaining({ area: "schoolSchedule", title: "동아리", isAllDay: true, colorKey: "lavender" }));
+  });
+
   it("shows health categories and searches health stickers by school terms", () => {
     renderPicker();
     fireEvent.click(screen.getByRole("tab", { name: "보건업무" }));

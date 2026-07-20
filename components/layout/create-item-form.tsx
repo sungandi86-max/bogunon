@@ -58,7 +58,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [endTime, setEndTime] = useState(event?.end_time?.slice(0, 5) ?? initialTemplate?.endTime ?? "");
   const [allDay, setAllDay] = useState(event?.is_all_day ?? initialTemplate?.isAllDay ?? true);
   const [location, setLocation] = useState(event?.location ?? "");
-  const [eventColor, setEventColor] = useState(event?.color_key ?? (initialTemplate?.area === "personal" ? "lavender" : initialTemplate?.area === "schoolSchedule" ? "yellow" : "mint"));
+  const [eventColor, setEventColor] = useState(event?.color_key ?? initialTemplate?.colorKey ?? (initialTemplate?.area === "personal" ? "lavender" : initialTemplate?.area === "schoolSchedule" ? "yellow" : "mint"));
   const [memo, setMemo] = useState(initialItem?.memo ?? initialTemplate?.memo ?? "");
   const [estimatedMinutes, setEstimatedMinutes] = useState(task?.estimated_minutes?.toString() ?? initialTemplate?.estimatedMinutes?.toString() ?? "");
   const [checklist, setChecklist] = useState<ChecklistDraft[]>(checklistItems.length

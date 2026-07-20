@@ -50,6 +50,7 @@ export const ACADEMIC_CALENDAR_STICKERS = [
   { key: "academic.graduation-photo", label: "졸업앨범 촬영", pack: "academic", category: "event", assetPath: "/stickers/academic/graduation-photo.svg", keywords: ["졸업", "앨범", "촬영", "카메라"], sortOrder: 260 },
   { key: "academic.school-orientation", label: "학교 설명회", pack: "academic", category: "event", assetPath: "/stickers/academic/school-orientation.svg", keywords: ["설명회", "발표", "학교 안내"], sortOrder: 270 },
   { key: "school-event", label: "교내행사", pack: "academic", category: "event", assetPath: "/stickers/academic/in-school-event.svg", keywords: ["학교행사", "교내", "행사", "무대"], sortOrder: 280 },
+  { key: "academic.club", label: "동아리", pack: "academic", category: "event", assetPath: "/stickers/academic/club.svg", keywords: ["동아리", "학생 활동", "모임", "창체"], sortOrder: 290 },
   { key: "school-closure", label: "재량휴업일", pack: "academic", category: "operation", assetPath: "/stickers/academic/discretionary-holiday.svg", keywords: ["휴업", "휴일", "재량"], sortOrder: 310 },
   { key: "academic.principal-discretionary-holiday", label: "학교장 재량휴업일", pack: "academic", category: "operation", assetPath: "/stickers/academic/principal-discretionary-holiday.svg", keywords: ["휴업", "휴일", "학교장", "재량"], sortOrder: 320 },
   { key: "academic.substitute-holiday", label: "대체공휴일", pack: "academic", category: "operation", assetPath: "/stickers/academic/substitute-holiday.svg", keywords: ["휴일", "공휴일", "대체"], sortOrder: 330 },

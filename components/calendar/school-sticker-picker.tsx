@@ -135,6 +135,7 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
       startDate: latest.sticker_date,
       endDate: latest.end_date ?? latest.sticker_date,
       isAllDay: true,
+      ...(latest.sticker_key === "academic.club" ? { colorKey: "lavender" as const } : {}),
     });
   }
 
@@ -151,7 +152,7 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
       <p aria-live="polite" className="sr-only">{visibleCatalog.length}개의 스티커가 표시됩니다.</p>
       {visibleCatalog.length > 0 ? <div className="school-sticker-grid">{visibleCatalog.map((item) => <button aria-label={`${dateLabel(selectedDate)} ${item.label} 스티커 선택`} aria-pressed={selectedKey === item.key} className={selectedKey === item.key ? "is-selected" : undefined} key={item.key} onClick={() => setSelectedKey(item.key)} type="button"><CalendarDateSticker stickerKey={item.key} />{selectedKey === item.key && <Check aria-hidden="true" className="school-sticker-grid__check" size={16} />}</button>)}</div> : <div className="calendar-sticker-empty"><SearchX aria-hidden="true" size={22} /><strong>검색 결과가 없습니다.</strong><span>검색어를 지우고 다시 찾아보세요.</span><button onClick={() => { updateQuery(""); selectGroup("all"); }} type="button">검색 초기화</button></div>}
     </form>
-    {selected.length > 0 && <div className="school-sticker-picker__selected-list">{selected.map((item) => <div className="school-sticker-picker__selected" key={item.id}><CalendarDateSticker stickerKey={item.sticker_key} /><div><strong>{item.label}</strong><small>{item.sticker_date}{item.end_date ? ` ~ ${item.end_date}` : ""}</small></div><form action={removeAction}><input name="stickerId" type="hidden" value={item.id} /><button className="text-action" disabled={removePending} type="submit">제거</button></form>{item.id === latest?.id && <button className="button button--secondary" onClick={openLinkedEvent} ref={eventButtonRef} type="button">{pack === "personal" ? "개인 일정도 만들기" : "종일 학교 일정도 만들기"}</button>}</div>)}</div>}
+    {selected.length > 0 && <div className="school-sticker-picker__selected-list">{selected.map((item) => <div className="school-sticker-picker__selected" key={item.id}><CalendarDateSticker stickerKey={item.sticker_key} /><div><strong>{item.label}</strong><small>{item.sticker_date}{item.end_date ? ` ~ ${item.end_date}` : ""}</small></div><form action={removeAction}><input name="stickerId" type="hidden" value={item.id} /><button className="text-action" disabled={removePending} type="submit">제거</button></form>{item.id === latest?.id && <button className="button button--secondary" onClick={openLinkedEvent} ref={eventButtonRef} type="button">{pack === "personal" ? "개인 일정도 만들기" : "학교 일정으로 만들기"}</button>}</div>)}</div>}
     {(attachState.message || removeState.message) && <p aria-live="polite" className={(attachState.status === "error" || removeState.status === "error") ? "form-message form-message--error" : "form-message"}>{attachState.message ?? removeState.message}</p>}
     <div className="school-sticker-picker__footer"><button className="button school-sticker-picker__save" disabled={!selectedKey || attachPending} form="calendar-sticker-panel" type="submit">{attachPending ? "추가 중…" : saveLabel}</button></div>
   </section>;
