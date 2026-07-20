@@ -215,3 +215,9 @@ export async function moveCalendarItem(kind: CalendarItemKind, id: string, newDa
   });
   if (error) throw new Error("날짜를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.");
 }
+
+export async function moveCalendarEventTime(id: string, date: string, startTime: string, endTime: string): Promise<void> {
+  const { supabase, userId } = await ownedClient();
+  const { error } = await supabase.from("events").update({ start_date: date, end_date: date, is_all_day: false, start_time: startTime, end_time: endTime }).eq("id", id).eq("user_id", userId);
+  if (error) throw new Error("일정 시간을 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+}

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { moveCalendarItem, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
+import { moveCalendarEventTime, moveCalendarItem, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
 import {
   duplicateEvent,
   duplicateTask,
@@ -75,10 +75,15 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
       if (!startDate || !endDate || endDate < startDate) return { status: "error", message: "일정 날짜를 확인해 주세요." };
       if (recurrenceValue && !recurrenceFrequency) return { status: "error", message: "반복 주기를 확인해 주세요." };
       if (colorRaw && !colorKey) return { status: "error", message: "일정 색상을 확인해 주세요." };
+      const startTime = isAllDay ? null : optional(formData, "startTime");
+      const endTime = isAllDay ? null : optional(formData, "endTime");
+      if (!isAllDay && (!startTime || !endTime || (startDate === endDate && endTime <= startTime))) {
+        return { status: "error", message: "종료 시간은 시작 시간 이후로 입력해 주세요." };
+      }
       await saveEventBundle({
         title, area: areaValue, start_date: startDate, end_date: endDate, is_all_day: isAllDay,
-        start_time: isAllDay ? null : optional(formData, "startTime"),
-        end_time: isAllDay ? null : optional(formData, "endTime"),
+        start_time: startTime,
+        end_time: endTime,
         location: optional(formData, "location"), color_key: colorKey,
         recurrence_frequency: recurrenceFrequency, recurrence_source_id: null,
         recurrence_date: recurrenceFrequency ? startDate : null,
@@ -172,6 +177,21 @@ export async function moveCalendarItemAction(_state: WorkItemActionState, formDa
     return { status: "success", message: "날짜를 변경했습니다." };
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "날짜를 변경하지 못했습니다." };
+  }
+}
+
+export async function moveCalendarEventTimeAction(formData: FormData): Promise<WorkItemActionState> {
+  const id = String(formData.get("id") ?? "");
+  const date = String(formData.get("date") ?? "");
+  const startTime = String(formData.get("startTime") ?? "");
+  const endTime = String(formData.get("endTime") ?? "");
+  if (!id || !isCalendarDate(date) || !/^\d{2}:\d{2}$/.test(startTime) || !/^\d{2}:\d{2}$/.test(endTime) || endTime <= startTime) return { status: "error", message: "변경할 일정 시간을 확인해 주세요." };
+  try {
+    await moveCalendarEventTime(id, date, startTime, endTime);
+    refreshWorkItems();
+    return { status: "success", message: "일정 시간을 변경했습니다." };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "일정 시간을 변경하지 못했습니다." };
   }
 }
 

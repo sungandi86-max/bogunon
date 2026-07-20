@@ -55,6 +55,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [startDate, setStartDate] = useState(event?.start_date ?? initialTemplate?.startDate ?? "");
   const [endDate, setEndDate] = useState(event?.end_date ?? initialTemplate?.endDate ?? initialTemplate?.startDate ?? "");
   const [startTime, setStartTime] = useState(event?.start_time?.slice(0, 5) ?? initialTemplate?.startTime ?? "");
+  const [endTime, setEndTime] = useState(event?.end_time?.slice(0, 5) ?? initialTemplate?.endTime ?? "");
   const [allDay, setAllDay] = useState(event?.is_all_day ?? initialTemplate?.isAllDay ?? true);
   const [location, setLocation] = useState(event?.location ?? "");
   const [eventColor, setEventColor] = useState(event?.color_key ?? (initialTemplate?.area === "personal" ? "lavender" : initialTemplate?.area === "schoolSchedule" ? "yellow" : "mint"));
@@ -91,6 +92,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
       setEndDate(quickPreview.startDate);
     }
     setStartTime(quickPreview.startTime ?? "");
+    setEndTime(quickPreview.startTime ? `${String(Math.min(23, Number(quickPreview.startTime.slice(0, 2)) + 1)).padStart(2, "0")}:${quickPreview.startTime.slice(3, 5)}` : "");
     setAllDay(quickPreview.isAllDay);
   }
 
@@ -156,7 +158,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
         <div className="field"><label className="field-label" htmlFor={`${formKey}-start`}>시작일</label><CalendarDateInput id={`${formKey}-start`} name="startDate" onValueChange={(value) => { setStartDate(value); if (!endDate) setEndDate(value); }} required value={startDate} /></div>
         <div className="field"><label className="field-label" htmlFor={`${formKey}-end`}>종료일</label><CalendarDateInput id={`${formKey}-end`} name="endDate" onValueChange={setEndDate} required value={endDate} /></div>
         <label className="checkbox-field"><input checked={allDay} name="isAllDay" onChange={(e) => setAllDay(e.target.checked)} type="checkbox" />종일 일정</label>
-        {!allDay && <><div className="field"><label className="field-label" htmlFor={`${formKey}-start-time`}>시작 시간</label><input id={`${formKey}-start-time`} name="startTime" onChange={(e) => setStartTime(e.target.value)} required type="time" value={startTime} /></div><div className="field"><label className="field-label" htmlFor={`${formKey}-end-time`}>종료 시간</label><input defaultValue={event?.end_time?.slice(0, 5) ?? initialTemplate?.endTime ?? ""} id={`${formKey}-end-time`} name="endTime" type="time" /></div></>}
+        {!allDay && <><div className="field"><label className="field-label" htmlFor={`${formKey}-start-time`}>시작 시간</label><input id={`${formKey}-start-time`} name="startTime" onChange={(e) => setStartTime(e.target.value)} required type="time" value={startTime} /></div><div className="field"><label className="field-label" htmlFor={`${formKey}-end-time`}>종료 시간</label><input id={`${formKey}-end-time`} min={startTime} name="endTime" onChange={(e) => setEndTime(e.target.value)} required type="time" value={endTime} /></div></>}
         <div className="field"><label className="field-label" htmlFor={`${formKey}-location`}>장소</label><input id={`${formKey}-location`} maxLength={120} name="location" onChange={(e) => setLocation(e.target.value)} placeholder="선택 입력" value={location} /></div>
         <div className="field"><label className="field-label" htmlFor={`${formKey}-event-recurrence`}>반복</label><select id={`${formKey}-event-recurrence`} name="recurrenceFrequency" onChange={(e) => setRecurrence(e.target.value)} value={recurrence}><option value="">반복 안 함</option><option value="daily">매일</option><option value="weekly">매주</option><option value="monthly">매월</option><option value="yearly">매년</option></select></div>
         <div className="field"><label className="field-label" htmlFor={`${formKey}-event-color`}>색상</label><select id={`${formKey}-event-color`} name="colorKey" onChange={(e) => setEventColor(e.target.value as typeof eventColor)} value={eventColor}>{EVENT_COLOR_KEYS.map((color) => <option key={color} value={color}>{({ mint: "민트", blue: "블루", yellow: "옐로", coral: "코랄", lavender: "라벤더", pink: "핑크" } as const)[color]}</option>)}</select></div>

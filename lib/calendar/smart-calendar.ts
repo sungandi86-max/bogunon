@@ -3,7 +3,7 @@ import { addCalendarDays, monthRange, shiftCalendarMonth } from "@/lib/work-item
 import { DEFAULT_CALENDAR_WEEK_START, calendarWeekRange, type CalendarWeekStart } from "@/lib/calendar/preferences";
 import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
 
-export type CalendarView = "month" | "week";
+export type CalendarView = "month" | "week" | "day";
 export type CalendarItemKind = "event" | "task";
 export type CalendarMoveScope = "instance" | "following" | "series";
 
@@ -17,11 +17,14 @@ export interface CalendarSearchResult {
 }
 
 export function calendarRange(date: string, view: CalendarView, weekStart: CalendarWeekStart = DEFAULT_CALENDAR_WEEK_START) {
-  return view === "month" ? monthRange(date) : calendarWeekRange(date, weekStart);
+  if (view === "month") return monthRange(date);
+  if (view === "week") return calendarWeekRange(date, weekStart);
+  return { first: date, last: date };
 }
 
 export function shiftCalendarPeriod(date: string, view: CalendarView, offset: number): string {
-  return view === "month" ? shiftCalendarMonth(date, offset) : addCalendarDays(date, offset * 7);
+  if (view === "month") return shiftCalendarMonth(date, offset);
+  return addCalendarDays(date, offset * (view === "week" ? 7 : 1));
 }
 
 export function dateSpan(start: string, end: string): string[] {

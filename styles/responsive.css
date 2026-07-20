@@ -124,7 +124,8 @@
   .calendar-page .smart-calendar-toolbar__period > button:not(.button) { height: 36px; width: 36px; }
   .calendar-page .smart-calendar-toolbar__period .button { min-height: 36px; padding-inline: var(--space-3); }
   .calendar-page .calendar-search > input { min-height: 38px; }
-  .calendar-view-switch { display: none; }
+  .calendar-view-switch--desktop { display: none; }
+  .calendar-view-switch--mobile { display: flex; }
   .calendar-desktop-add { display: none; }
   .calendar-page .calendar-controls { display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-1); scrollbar-width: none; }
   .calendar-page .calendar-controls::-webkit-scrollbar { display: none; }
@@ -133,7 +134,13 @@
   .calendar-page .calendar-filter-label { display: none; }
   .calendar-page .calendar-sticker-add { min-width: var(--touch-target); padding-inline: var(--space-4); width: auto; }
   .month-overview__heading { margin-bottom: var(--space-7); }
-  .calendar-workspace-layout, .calendar-workspace-layout.is-week { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+  .calendar-workspace-layout, .calendar-workspace-layout.is-week, .calendar-workspace-layout.is-time-view { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+  .time-calendar__date-strip { margin-left: 0; overflow-x: auto; }
+  .time-calendar__date-strip button { min-width: 48px; }
+  .time-calendar__all-day { grid-template-columns: 52px minmax(0, 1fr); }
+  .time-calendar__scroll { grid-template-columns: 52px minmax(0, 1fr); max-height: calc(100dvh - 330px); min-height: 430px; padding-bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom)); }
+  .time-calendar__event { min-height: 44px; }
+  .calendar-workspace-layout.is-time-view .calendar-detail-panel { display: none; }
   .month-overview .full-calendar { border-color: var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); }
   .calendar-page .full-calendar { height: auto; }
   .full-calendar__cell, .month-overview .full-calendar__cell { border-color: var(--mobile-line-soft); height: 66px; padding: var(--space-1) var(--space-2); }

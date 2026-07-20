@@ -1,4 +1,35 @@
 .calendar-controls { display: grid; gap: var(--space-4); margin-bottom: var(--space-5); min-width: 0; }
+.calendar-view-switch--mobile { display: none; }
+.time-calendar { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); min-width: 0; overflow: hidden; }
+.time-calendar__date-strip { border-bottom: 1px solid var(--line); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); margin-left: 64px; }
+.time-calendar__date-strip button { background: transparent; border: 0; color: var(--ink-500); display: grid; min-height: var(--touch-target); place-content: center; }
+.time-calendar__date-strip button strong { color: var(--ink-700); }
+.time-calendar__date-strip button.is-selected { background: var(--action-50); }
+.time-calendar__date-strip button.is-today strong { align-items: center; background: var(--action-500); border-radius: var(--radius-full); color: var(--brand-950); display: inline-flex; height: 28px; justify-content: center; width: 28px; }
+.time-calendar__all-day { align-items: start; border-bottom: 1px solid var(--line); display: grid; grid-template-columns: 64px minmax(0, 1fr); min-height: 52px; }
+.time-calendar__all-day > strong { color: var(--ink-500); font-size: var(--text-xs); padding: var(--space-3); text-align: right; }
+.time-calendar__all-day-grid { display: grid; min-width: 0; }
+.time-calendar__all-day-grid > div { border-left: 1px solid var(--line-subtle); display: grid; gap: 2px; padding: var(--space-1); }
+.time-calendar__all-day-item { align-items: center; background: var(--surface-subtle); border: 0; color: var(--ink-700); display: flex; font-size: var(--text-xs); gap: var(--space-1); min-height: 24px; overflow: hidden; padding: 2px var(--space-2); text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.time-calendar__all-day-item > span { background: var(--action-600); border-radius: var(--radius-full); flex: none; height: 6px; width: 6px; }
+.time-calendar__all-day-item.is-task > span { background: var(--brand-800); }
+.time-calendar__all-day-item.is-sticker > span { background: var(--warning); }
+.time-calendar__scroll { display: grid; grid-template-columns: 64px minmax(0, 1fr); max-height: calc(100dvh - 340px); min-height: 420px; overflow-y: auto; }
+.time-calendar__hours { color: var(--ink-500); display: grid; font-size: var(--text-xs); grid-template-rows: repeat(13, 64px); text-align: right; }
+.time-calendar__hours time { padding: 0 var(--space-3); transform: translateY(-7px); }
+.time-calendar__days { display: grid; min-height: 768px; }
+.time-calendar__day { background-image: repeating-linear-gradient(to bottom, transparent 0, transparent 63px, var(--line-subtle) 63px, var(--line-subtle) 64px); border-left: 1px solid var(--line); position: relative; }
+.time-calendar__slot { background: transparent; border: 0; display: block; height: 64px; width: 100%; }
+.time-calendar__slot:hover, .time-calendar__slot:focus-visible { background: var(--action-50); outline: 0; }
+.time-calendar__event { background: var(--action-50); border: 0; border-left: 3px solid var(--action-600); color: var(--brand-950); display: grid; gap: 2px; overflow: hidden; padding: var(--space-2); position: absolute; text-align: left; z-index: 2; }
+.time-calendar__event strong { font-size: var(--text-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.time-calendar__event span { color: var(--ink-500); font-size: 10px; }
+.time-calendar__event.is-yellow { background: var(--warning-soft); border-left-color: var(--warning); }
+.time-calendar__event.is-coral { background: var(--danger-soft); border-left-color: var(--danger); }
+.time-calendar__now { border-top: 2px solid var(--danger); left: 0; pointer-events: none; position: absolute; right: 0; z-index: 4; }
+.time-calendar__now span { background: var(--danger); border-radius: var(--radius-full); height: 8px; left: -4px; position: absolute; top: -5px; width: 8px; }
+.time-calendar.is-day .time-calendar__date-strip { margin-left: 0; }
+.time-calendar.is-day .time-calendar__days { grid-template-columns: 1fr; }
 .calendar-controls__primary { align-items: end; display: flex; gap: var(--space-4); justify-content: space-between; min-width: 0; }
 .calendar-entry-filter, .calendar-sticker-filter { align-items: center; display: flex; gap: var(--space-3); min-width: 0; }
 .calendar-filter-label { color: var(--ink-500); flex: none; font-size: var(--text-sm); font-weight: var(--weight-semibold); }

@@ -94,7 +94,7 @@ export function FullMonthCalendar({ events = [], highlight, month = "2026-07", o
         {inMonth && <button aria-label={`${date} 선택`} className="calendar-date-button" onClick={() => onSelectDate?.(date)} type="button"><time dateTime={date}>{day}</time></button>}
         <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
           ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
-          : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} />)}</div>
+          : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} showTime />)}</div>
         {hidden > 0 && <button aria-label={`숨겨진 일정 ${hidden}개 모두 보기`} className="calendar-overflow" onClick={() => onSelectDate?.(date)} type="button">+{hidden}</button>}
       </div>;
     })}</div>)}</div>

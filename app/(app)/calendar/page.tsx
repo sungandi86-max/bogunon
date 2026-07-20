@@ -12,7 +12,7 @@ export default async function CalendarPage({ searchParams }: { readonly searchPa
   const params = await searchParams;
   const today = todayInSeoul();
   const selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(params.date ?? "") ? String(params.date) : today;
-  const view: CalendarView = params.view === "week" ? "week" : "month";
+  const view: CalendarView = params.view === "week" || params.view === "day" ? params.view : "month";
   const { last } = calendarRange(selectedDate, view);
   const recurrenceEnd = view === "week" ? addCalendarDays(last, 7) : last;
   await Promise.all([ensureRecurringEvents(recurrenceEnd), ensureRecurringTasks(recurrenceEnd)]).catch(() => undefined);
