@@ -100,13 +100,19 @@
 
 .calendar-page { background: var(--canvas-cool); min-height: 100dvh; }
 .calendar-page .page-canvas { padding-top: 28px; }
+.calendar-page .page-header { margin-bottom: var(--space-6); }
 .calendar-page-toolbar { margin-bottom: 16px; }
 .calendar-view-switch { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); display: inline-flex; padding: 3px; }
 .calendar-view-switch button { background: transparent; border: 0; border-radius: var(--radius-sm); cursor: pointer; font-size: var(--text-sm); height: var(--control-sm); padding: 0 var(--space-6); }
 .calendar-view-switch button.is-active { background: var(--brand-900); color: var(--surface); }
-.full-calendar { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.calendar-workspace-layout { align-items: stretch; display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr) minmax(288px, 340px); }
+.calendar-workspace-layout.is-week { grid-template-columns: minmax(0, 1fr) minmax(288px, 340px); }
+.calendar-grid-panel { min-width: 0; }
+.full-calendar { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); display: grid; grid-template-rows: auto minmax(0, 1fr); height: max(560px, calc(100dvh - 292px)); overflow: hidden; }
 .full-calendar__weekdays, .full-calendar__row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.full-calendar__grid { display: block; }
+.full-calendar__grid { display: grid; min-height: 0; }
+.full-calendar[data-week-count="5"] .full-calendar__grid { grid-template-rows: repeat(5, minmax(0, 1fr)); }
+.full-calendar[data-week-count="6"] .full-calendar__grid { grid-template-rows: repeat(6, minmax(0, 1fr)); }
 .full-calendar__weekdays span { border-right: 1px solid var(--line-subtle); color: var(--ink-500); font-size: var(--text-sm); font-weight: var(--weight-semibold); padding: var(--space-3) var(--space-5); }
 .full-calendar__weekdays .is-saturday, .full-calendar__cell.is-saturday time { color: var(--health); }
 .full-calendar__weekdays .is-sunday, .full-calendar__cell.is-sunday time { color: var(--deadline); }
@@ -130,7 +136,7 @@
 .calendar-date-input__grid button[aria-pressed="true"] { background: var(--action-500); color: var(--brand-950); font-weight: var(--weight-bold); }
 .calendar-date-input__grid button:disabled { color: var(--ink-300); cursor: not-allowed; }
 .calendar-date-input__close { border-top: 1px solid var(--line-subtle); color: var(--action-700); width: 100%; }
-.full-calendar__cell { border-right: 1px solid var(--line-subtle); border-top: 1px solid var(--line-subtle); height: 86px; overflow: hidden; padding: var(--space-3); }
+.full-calendar__cell { border-right: 1px solid var(--line-subtle); border-top: 1px solid var(--line-subtle); min-height: 0; overflow: hidden; padding: var(--space-3); }
 .full-calendar__cell:last-child { border-right: 0; }
 .full-calendar__cell time { color: var(--ink-950); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .full-calendar__cell.is-today time { align-items: center; background: var(--action-500); border-radius: 999px; color: var(--brand-950) !important; display: inline-flex; height: 26px; justify-content: center; width: 26px; }
@@ -138,6 +144,27 @@
 .calendar-item--school { background: var(--school-soft); border-color: var(--school); }
 .calendar-item--exercise { background: var(--exercise-soft); border-color: var(--exercise); }
 .calendar-item--deadline { background: var(--deadline-soft); border-color: var(--deadline); }
+.calendar-cell-items { display: grid; gap: 2px; margin-top: var(--space-1); pointer-events: none; position: relative; z-index: 1; }
+.calendar-cell-items .calendar-item { margin-top: 0; }
+.calendar-cell-items .calendar-sticker-management__trigger { display: block; min-height: 0; min-width: 0; padding: 0; pointer-events: auto; width: 100%; }
+.calendar-cell-items .calendar-item__move { pointer-events: auto; }
+.calendar-item--sticker { width: 100%; }
+.calendar-item--academic, .calendar-item--school { background: var(--school-soft); border-color: var(--school); }
+.calendar-item--health { background: var(--health-soft); border-color: var(--health); }
+.calendar-item--holiday { background: var(--deadline-soft); border-color: var(--deadline); }
+.calendar-item--personal { background: var(--action-50); border-color: var(--action-600); }
+.calendar-item__indicator { background: currentColor; border-radius: 999px; flex: 0 0 5px; height: 5px; width: 5px; }
+.calendar-detail-panel { align-self: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); height: max(560px, calc(100dvh - 292px)); min-height: 0; overflow: auto; }
+.calendar-detail-panel__header { border-bottom: 1px solid var(--line); display: grid; gap: var(--space-1); padding: var(--space-5); position: sticky; top: 0; z-index: 2; background: var(--surface); }
+.calendar-detail-panel__header span, .calendar-detail-panel__header small { color: var(--ink-500); font-size: var(--text-xs); }
+.calendar-detail-panel__header strong { color: var(--brand-950); font-size: var(--text-lg); }
+.calendar-detail-panel .calendar-list { border: 0; margin: 0; min-height: 0; padding: 0 var(--space-5); }
+.calendar-detail-panel .calendar-list__item { align-items: flex-start; display: grid; gap: var(--space-3); padding: var(--space-4) 0; }
+.calendar-detail-panel .work-item-actions { flex-wrap: wrap; }
+.calendar-detail-panel__group { border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-2); padding: var(--space-5); }
+.calendar-detail-panel__group h3 { color: var(--brand-950); font-size: var(--text-sm); margin: 0 0 var(--space-1); }
+.calendar-detail-panel__item { align-items: center; display: flex; gap: var(--space-2); min-width: 0; }
+.calendar-detail-panel__item strong { font-size: var(--text-sm); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .week-calendar, .calendar-list { background: var(--surface); border: 1px solid var(--line); min-height: 420px; padding: 24px; }
 .week-calendar__all-day { align-items: center; border-bottom: 1px solid var(--line); display: grid; gap: 16px; grid-template-columns: 72px 1fr; padding-bottom: 16px; }
 .week-calendar__timeline { display: grid; gap: 0 16px; grid-template-columns: 72px 1fr; }

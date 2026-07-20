@@ -82,6 +82,36 @@ describe("CalendarWorkspace", () => {
     expect(cell).not.toHaveTextContent("병원");
   });
 
+  it("recalculates unified overflow after entry and sticker filters", () => {
+    const originalWidth = window.innerWidth;
+    const originalHeight = window.innerHeight;
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 390 });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: 844 });
+    const events = [
+      event,
+      { ...event, id: "event-school", area: "schoolSchedule" as const, title: "학교 행사" },
+      { ...event, id: "event-personal", area: "personal" as const, title: "개인 일정" },
+    ];
+    const stickers: CalendarStickerRow[] = [
+      { id: "health-sticker", user_id: "user", sticker_key: "health.student-checkup" as const, sticker_date: "2026-07-18", end_date: null, label: "학생건강검진", note: null, created_at: "", updated_at: "" },
+      { id: "academic-sticker", user_id: "user", sticker_key: "academic.sports-day" as const, sticker_date: "2026-07-18", end_date: null, label: "체육대회", note: null, created_at: "", updated_at: "" },
+      { id: "holiday-sticker", user_id: "user", sticker_key: "holiday.hangul-day" as const, sticker_date: "2026-07-18", end_date: null, label: "한글날", note: null, created_at: "", updated_at: "" },
+    ];
+    render(<CalendarWorkspace events={events} initialDate="2026-07-18" initialView="month" stickers={stickers} tasks={[]} today="2026-07-18" workflow={workflow} />);
+    window.dispatchEvent(new Event("resize"));
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    expect(cell).toHaveTextContent("+4");
+
+    fireEvent.click(within(screen.getByRole("group", { name: "일정 종류 필터" })).getByRole("button", { name: "업무" }));
+    fireEvent.click(within(screen.getByRole("group", { name: "스티커 표시 필터" })).getByRole("button", { name: "공휴일" }));
+    expect(cell).not.toHaveTextContent(/\+\d/);
+    expect(cell).toHaveTextContent("보건교육");
+    expect(cell).toHaveTextContent("한글날");
+
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: originalWidth });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: originalHeight });
+  });
+
   it("uses date selection for the detail list instead of hiding month titles behind a click", () => {
     const nextDayEvent = { ...event, id: "event-2", title: "다음 날 일정", start_date: "2026-07-19", end_date: "2026-07-19" };
     render(<CalendarWorkspace events={[event, nextDayEvent]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);

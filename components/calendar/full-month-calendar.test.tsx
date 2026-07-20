@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
@@ -61,31 +61,68 @@ const monthStickerRows = [
 
 describe("FullMonthCalendar", () => {
   it.each([
-    ["2026-06", "2026-06-18", 5],
-    ["2026-08", "2026-08-18", 6],
-  ] as const)("keeps two representative titles and overflow visible for %s", (month, date, expectedWeeks) => {
+    ["2026-06", "2026-06-18", 5, 2, 1],
+    ["2026-08", "2026-08-18", 6, 1, 2],
+  ] as const)("uses the responsive item limit for %s", (month, date, expectedWeeks, visibleItemLimit, hiddenCount) => {
     const events = [
       { ...schoolEvent, id: `${month}-event-1`, title: "교직원 회의", start_date: date, end_date: date },
       { ...schoolEvent, id: `${month}-event-2`, title: "학교 행사", start_date: date, end_date: date },
       { ...schoolEvent, id: `${month}-event-3`, title: "학부모 안내", start_date: date, end_date: date },
     ];
 
-    const { container } = render(<FullMonthCalendar events={events} month={month} today={date} />);
+    const { container } = render(<FullMonthCalendar events={events} month={month} today={date} visibleItemLimit={visibleItemLimit} />);
     const cell = screen.getByRole("gridcell", { name: new RegExp(`${date}, 일정 3개`) });
 
     expect(container.querySelectorAll(".full-calendar__row")).toHaveLength(expectedWeeks);
     expect(cell).toHaveTextContent("교직원 회의");
-    expect(cell).toHaveTextContent("학교 행사");
-    expect(cell).toHaveTextContent("+1");
+    expect(cell).toHaveTextContent(`+${hiddenCount}`);
+    if (visibleItemLimit === 2) expect(cell).toHaveTextContent("학교 행사");
+    else expect(cell).not.toHaveTextContent("학교 행사");
     expect(cell).not.toHaveTextContent("학부모 안내");
+  });
+
+  it.each([
+    [390, 844, "2026-08", "1"],
+    [430, 932, "2026-08", "2"],
+    [1280, 800, "2026-06", "4"],
+    [1440, 900, "2026-08", "4"],
+  ] as const)("derives the visible limit at %sx%s", (width, height, month, expectedLimit) => {
+    const originalWidth = window.innerWidth;
+    const originalHeight = window.innerHeight;
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: height });
+    const { container, unmount } = render(<FullMonthCalendar month={month} />);
+    expect(container.querySelector(".full-calendar")).toHaveAttribute("data-visible-item-limit", expectedLimit);
+    unmount();
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: originalWidth });
+    Object.defineProperty(window, "innerHeight", { configurable: true, value: originalHeight });
+  });
+
+  it("orders one unified list and calculates overflow after all item types", () => {
+    render(<FullMonthCalendar events={[personalEvent, schoolEvent]} month="2026-07" schoolStickers={monthStickerRows} tasks={[healthTask]} today="2026-07-18" visibleItemLimit={4} />);
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    const titles = Array.from(cell.querySelectorAll(".calendar-item__title"), (node) => node.textContent);
+    expect(titles).toEqual(["가족 약속", "교직원 회의", "보건일지 정리", "학생건강검진"]);
+    expect(cell).toHaveTextContent("+3");
+    expect(cell).not.toHaveTextContent("한글날");
+  });
+
+  it("uses the whole date cell and overflow control to select a date", () => {
+    const onSelectDate = vi.fn();
+    render(<FullMonthCalendar events={[schoolEvent, personalEvent]} month="2026-07" onSelectDate={onSelectDate} today="2026-07-18" visibleItemLimit={1} />);
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    fireEvent.click(within(cell).getByRole("button", { name: "2026-07-18 선택" }));
+    expect(onSelectDate).toHaveBeenLastCalledWith("2026-07-18");
+    fireEvent.click(within(cell).getByRole("button", { name: "숨겨진 일정 1개 모두 보기" }));
+    expect(onSelectDate).toHaveBeenCalledTimes(2);
   });
 
   it("marks the supplied current date on its calendar cell", () => {
     const { container } = render(<FullMonthCalendar month="2026-07" today="2026-07-18" />);
 
     expect(Array.from(container.querySelectorAll(".full-calendar__weekdays span"), (node) => node.textContent)).toEqual(["일", "월", "화", "수", "목", "금", "토"]);
-    expect(container.querySelectorAll(".full-calendar__cell")[3]).toHaveAccessibleName("2026-07-01, 일정 0개, 업무 0개");
-    expect(screen.getByRole("gridcell", { name: "2026-07-18, 일정 0개, 업무 0개" })).toHaveClass("is-today");
+    expect(container.querySelectorAll(".full-calendar__cell")[3]).toHaveAccessibleName("2026-07-01, 일정 0개, 업무 0개, 스티커 0개");
+    expect(screen.getByRole("gridcell", { name: "2026-07-18, 일정 0개, 업무 0개, 스티커 0개" })).toHaveClass("is-today");
   });
 
   it("shows school, personal, and exercise records in the same date cell", () => {
@@ -111,12 +148,12 @@ describe("FullMonthCalendar", () => {
     expect(screen.getByRole("button", { name: "7월 18일 병원 스티커 관리" })).toBeInTheDocument();
   });
 
-  it("limits multiple academic stickers and keeps the remaining date content", () => {
+  it("counts academic sticker overflow inside the unified limit", () => {
     render(<FullMonthCalendar events={[{ id: "event", user_id: "user", title: "교직원 회의", area: "schoolSchedule", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: true, start_time: null, end_time: null, memo: null, description: null, created_at: "", updated_at: "" }]} month="2026-07" schoolStickers={[
       { id: "academic-1", user_id: "user", sticker_key: "academic.admission", sticker_date: "2026-07-18", end_date: null, label: "입학식", note: null, created_at: "", updated_at: "" },
       { id: "academic-2", user_id: "user", sticker_key: "exam-period", sticker_date: "2026-07-18", end_date: null, label: "시험기간", note: null, created_at: "", updated_at: "" },
       { id: "academic-3", user_id: "user", sticker_key: "academic.sports-day", sticker_date: "2026-07-18", end_date: null, label: "체육대회", note: null, created_at: "", updated_at: "" },
-    ]} today="2026-07-18" />);
+    ]} today="2026-07-18" visibleItemLimit={2} />);
     const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
     expect(cell).toHaveTextContent("입학식");
     expect(cell).toHaveTextContent("교직원 회의");
@@ -124,35 +161,35 @@ describe("FullMonthCalendar", () => {
     expect(cell).not.toHaveTextContent("시험기간");
   });
 
-  it("renders health stickers in the existing non-personal lane with academic overflow and keeps tasks/events", () => {
+  it("prioritizes registered items and health stickers before lower-priority stickers", () => {
     render(<FullMonthCalendar events={[schoolEvent]} month="2026-07" schoolStickers={[
       { id: "health-1", user_id: "user", sticker_key: "health.student-checkup", sticker_date: "2026-07-18", end_date: null, label: "학생건강검진", note: null, created_at: "", updated_at: "" },
       { id: "academic-1", user_id: "user", sticker_key: "academic.sports-day", sticker_date: "2026-07-18", end_date: null, label: "체육대회", note: null, created_at: "", updated_at: "" },
       { id: "personal-1", user_id: "user", sticker_key: "personal.hospital", sticker_date: "2026-07-18", end_date: null, label: "병원", note: null, created_at: "", updated_at: "" },
-    ]} tasks={[healthTask]} today="2026-07-18" />);
+    ]} tasks={[healthTask]} today="2026-07-18" visibleItemLimit={4} />);
 
     const cell = screen.getByRole("gridcell", { name: /2026-07-18, 일정 1개, 업무 1개/ });
     expect(cell).toHaveTextContent("학생건강검진");
-    expect(cell).toHaveTextContent("병원");
     expect(cell).toHaveTextContent("교직원 회의");
     expect(cell).toHaveTextContent("보건일지 정리");
     expect(cell).toHaveTextContent("+1");
-    expect(cell).not.toHaveTextContent("체육대회");
+    expect(cell).toHaveTextContent("체육대회");
+    expect(cell).not.toHaveTextContent("병원");
     expect(screen.getByRole("button", { name: "7월 18일 학생건강검진 스티커 관리" })).toBeInTheDocument();
   });
 
-  it("renders a holiday with academic and health stickers in the non-personal lane while preserving tasks and events", () => {
-    render(<FullMonthCalendar events={[schoolEvent, personalEvent]} month="2026-07" schoolStickers={monthStickerRows} tasks={[healthTask]} today="2026-07-18" />);
+  it("uses category priority when a mixed date exceeds the visible limit", () => {
+    render(<FullMonthCalendar events={[schoolEvent, personalEvent]} month="2026-07" schoolStickers={monthStickerRows} tasks={[healthTask]} today="2026-07-18" visibleItemLimit={4} />);
 
     const cell = screen.getByRole("gridcell", { name: /2026-07-18, 일정 2개, 업무 1개/ });
-    expect(cell).toHaveTextContent("한글날");
-    expect(cell).toHaveTextContent("병원");
     expect(cell).toHaveTextContent("교직원 회의");
     expect(cell).toHaveTextContent("가족 약속");
+    expect(cell).toHaveTextContent("보건일지 정리");
+    expect(cell).toHaveTextContent("학생건강검진");
     expect(cell).toHaveTextContent("+3");
-    expect(cell).not.toHaveTextContent("학생건강검진");
+    expect(cell).not.toHaveTextContent("한글날");
+    expect(cell).not.toHaveTextContent("병원");
     expect(cell).not.toHaveTextContent("체육대회");
-    expect(cell).not.toHaveTextContent("보건일지 정리");
-    expect(screen.getByRole("button", { name: "7월 18일 한글날 스티커 관리" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 학생건강검진 스티커 관리" })).toBeInTheDocument();
   });
 });
