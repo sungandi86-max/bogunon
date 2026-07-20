@@ -37,3 +37,17 @@ describe("responsive home calendar layout", () => {
     );
   });
 });
+
+describe("responsive admin notices layout", () => {
+  it("gives the editor 65 percent of the desktop workspace", () => {
+    expect(screenStylesheet).toMatch(
+      /\.admin-notices\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*13fr\)\s+minmax\(0,\s*7fr\);/,
+    );
+  });
+
+  it("stacks the editor and notice list on tablet and mobile", () => {
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*1023px\)[\s\S]*?\.admin-notices\s*\{[^}]*grid-template-columns:\s*1fr;/,
+    );
+  });
+});

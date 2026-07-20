@@ -48,7 +48,8 @@
 .notice-item footer { color: var(--ink-500); font-size: var(--text-sm); }
 .notice-item footer button { background: transparent; border: 0; color: var(--action-700); cursor: pointer; }
 .notice-empty { text-align: center; }
-.admin-notices { grid-template-columns: minmax(300px, .8fr) minmax(420px, 1.2fr); }
+.admin-notices { align-items: start; grid-template-columns: minmax(0, 13fr) minmax(0, 7fr); }
+.admin-notices > * { min-width: 0; }
 .notice-editor { display: grid; gap: var(--space-5); }
 .notice-editor label { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); }
 .notice-editor input, .notice-editor select, .notice-editor textarea { border: 1px solid var(--line-strong); border-radius: var(--radius-md); font: inherit; padding: var(--space-4); }

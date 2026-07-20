@@ -11,4 +11,12 @@ describe("AdminNoticesPage authorization", () => {
   beforeEach(() => { getCurrentProfile.mockReset(); listNotices.mockReset(); listNotices.mockResolvedValue([]); });
   it("does not render administration for a regular user", async () => { getCurrentProfile.mockResolvedValue({ role: "user" }); render(await AdminNoticesPage()); expect(screen.getByRole("alert")).toHaveTextContent("접근 권한이 없습니다."); expect(listNotices).not.toHaveBeenCalled(); });
   it.each(["admin", "owner"])("renders notice administration for %s", async (role) => { getCurrentProfile.mockResolvedValue({ role }); render(await AdminNoticesPage()); expect(screen.getByRole("heading", { name: "공지 관리" })).toBeInTheDocument(); expect(screen.getByRole("heading", { name: "새 공지 작성" })).toBeInTheDocument(); });
+
+  it("starts the notice workspace inside the shared scrollable page canvas", async () => {
+    getCurrentProfile.mockResolvedValue({ role: "admin" });
+
+    const { container } = render(await AdminNoticesPage());
+
+    expect(container.querySelector("main")).toHaveClass("page-canvas", "admin-notices-page");
+  });
 });
