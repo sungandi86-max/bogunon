@@ -1,12 +1,15 @@
 "use client";
 
-import { ChevronDown, LogOut, Settings, UserRound } from "lucide-react";
+import { ChevronDown, LogOut, Megaphone, Settings, ShieldCheck, UserRound } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
 import type { AuthProfile } from "@/lib/auth/profile";
+import { isAdminRole, roleLabel } from "@/lib/notices/model";
+import type { Notice } from "@/lib/notices/model";
+import { unreadBadge } from "@/lib/notices/model";
 
-export function UserMenu({ profile }: { readonly profile: AuthProfile }) {
+export function UserMenu({ notices = [], profile }: { readonly notices?: readonly Notice[]; readonly profile: AuthProfile }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -33,7 +36,9 @@ export function UserMenu({ profile }: { readonly profile: AuthProfile }) {
       <ChevronDown aria-hidden="true" size={15} />
     </button>
     {open && <div className="profile-popover" role="menu">
-      <p><strong>Google 계정</strong><span>{profile.email}</span></p>
+      <p><strong>{profile.displayName}</strong><span>{profile.email}</span><small>{roleLabel(profile.role)}</small></p>
+      <Link href="/notices" role="menuitem"><Megaphone aria-hidden="true" size={16} />공지사항{notices.some((notice) => !notice.isRead) && <span className="profile-popover__badge" aria-label={`읽지 않은 공지 ${notices.filter((notice) => !notice.isRead).length}개`}>{unreadBadge(notices.filter((notice) => !notice.isRead).length)}</span>}</Link>
+      {isAdminRole(profile.role) && <Link href="/admin/notices" role="menuitem"><ShieldCheck aria-hidden="true" size={16} />공지 관리</Link>}
       <Link href="/settings" role="menuitem"><Settings aria-hidden="true" size={16} />설정</Link>
       <form action="/auth/logout" method="post"><button role="menuitem" type="submit"><LogOut aria-hidden="true" size={16} />로그아웃</button></form>
     </div>}

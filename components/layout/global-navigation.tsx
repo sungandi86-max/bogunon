@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import type { AssistantSurface } from "@/components/ai/assistant-context";
 import { BogunonBrand } from "@/components/brand/bogunon-brand";
 import { SidebarOtter } from "@/components/layout/sidebar-otter";
+import type { Notice } from "@/lib/notices/model";
 
 const navigationGroups = [
   { label: "보건업무", links: [
@@ -23,12 +24,13 @@ const navigationGroups = [
 ] as const;
 
 interface GlobalNavigationProps {
+  readonly notices?: readonly Notice[];
   readonly onAcademicImport: (trigger: HTMLButtonElement) => void;
   readonly onAssistant: (trigger: HTMLButtonElement, surface?: AssistantSurface) => void;
   readonly onCreate: (trigger: HTMLButtonElement, kind?: "task" | "event") => void;
 }
 
-export function GlobalNavigation({ onAcademicImport, onAssistant, onCreate }: GlobalNavigationProps) {
+export function GlobalNavigation({ notices = [], onAcademicImport, onAssistant, onCreate }: GlobalNavigationProps) {
   const pathname = usePathname();
 
   return (
@@ -49,7 +51,7 @@ export function GlobalNavigation({ onAcademicImport, onAssistant, onCreate }: Gl
         <nav className="desktop-navigation" aria-label="주요 메뉴">
           {navigationGroups.map((group) => <div className="navigation-group" key={group.label}><p>{group.label}</p>{group.links.map(([label, href, Icon]) => <Link aria-current={pathname.startsWith(href) ? "page" : undefined} href={href} key={href}><Icon aria-hidden="true" size={18} />{label}</Link>)}</div>)}
         </nav>
-        <SidebarOtter />
+        <SidebarOtter notices={notices} />
       </div>
     </aside>
   );

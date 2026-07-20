@@ -70,9 +70,9 @@ export async function updateSession(request: NextRequest, requestHeaders?: Heade
     },
   });
 
-  const { data, error } = await supabase.auth.getClaims();
-  const claims = error ? null : data?.claims;
-  if (!claims && !isPublicPath(pathname)) {
+  const { data, error } = await supabase.auth.getUser();
+  const user = error ? null : data.user;
+  if (!user && !isPublicPath(pathname)) {
     const hasSessionCookie = request.cookies.getAll().some(({ name }) => name.startsWith("sb-"));
     const loginPath = hasSessionCookie
       ? createLoginPath("sessionExpired", requestedPath(request))
@@ -80,7 +80,7 @@ export async function updateSession(request: NextRequest, requestHeaders?: Heade
     return NextResponse.redirect(new URL(loginPath, request.url));
   }
 
-  if (claims && pathname === "/login") {
+  if (user && pathname === "/login") {
     const next = getSafeNextPath(request.nextUrl.searchParams.get("next"));
     return NextResponse.redirect(new URL(next, request.url));
   }

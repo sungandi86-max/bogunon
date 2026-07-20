@@ -20,6 +20,7 @@ import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-pan
 import { Button } from "@/components/ui/button";
 import { FirstRunWelcome } from "@/components/pwa/first-run-welcome";
 import type { AuthProfile } from "@/lib/auth/profile";
+import type { Notice } from "@/lib/notices/model";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
 import { defaultHealthPresetPreferences } from "@/lib/work-items/health-preset-personalization";
 import type { HealthPresetPreference } from "@/lib/work-items/health-preset-personalization";
@@ -27,11 +28,12 @@ import type { RecurrenceFrequency, TaskCategory, TaskPriority } from "@/types/da
 
 interface AppShellProps {
   readonly children: ReactNode;
+  readonly notices?: readonly Notice[];
   readonly profile?: AuthProfile;
   readonly presetPreferences?: readonly HealthPresetPreference[];
 }
 
-const fallbackProfile: AuthProfile = { email: "Google 계정", initial: "보" };
+const fallbackProfile: AuthProfile = { email: "Google 계정", initial: "보", displayName: "Google 계정", avatarUrl: null, role: "user" };
 const categories = new Set<TaskCategory>(["studentHealthScreening", "additionalScreening", "infectiousDisease", "firstAid", "medication", "officialDocument", "training", "event", "counseling", "other"]);
 const priorities = new Set<TaskPriority>(["high", "normal", "low"]);
 const recurrences = new Set<RecurrenceFrequency>(["daily", "weekly", "monthly", "yearly"]);
@@ -69,7 +71,7 @@ function templateFromAssistantDraft(draft: AssistantDraft, aiDraftId?: string): 
   };
 }
 
-export function AppShell({ children, presetPreferences = defaultHealthPresetPreferences(), profile = fallbackProfile }: AppShellProps) {
+export function AppShell({ children, notices = [], presetPreferences = defaultHealthPresetPreferences(), profile = fallbackProfile }: AppShellProps) {
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [createKind, setCreateKind] = useState<"task" | "event">("task");
@@ -114,8 +116,8 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
     <AssistantContext value={{ openAssistant }}>
       <AppShellCreateContext value={{ openCreate }}>
         <div className="app-shell">
-        <GlobalNavigation onAcademicImport={openAcademicImport} onAssistant={openAssistant} onCreate={openCreate} />
-        <AppHeader profile={profile} />
+        <GlobalNavigation notices={notices} onAcademicImport={openAcademicImport} onAssistant={openAssistant} onCreate={openCreate} />
+        <AppHeader notices={notices} profile={profile} />
         {children}
         <MobileBottomNavigation onAcademicImport={openAcademicImport} onAssistant={(trigger) => openAssistant(trigger, "global")} onCreate={openCreate} />
         <ResponsiveDetailPanel

@@ -26,7 +26,7 @@ describe("AppShell", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("moves account actions to the top header and reserves the sidebar footer for Sudari", () => {
-    render(<AppShell profile={{ email: "teacher@example.com", initial: "T" }}><main>본문</main></AppShell>);
+    render(<AppShell profile={{ email: "teacher@example.com", initial: "T", displayName: "보건교사", avatarUrl: null, role: "user" }}><main>본문</main></AppShell>);
 
     const header = screen.getByRole("banner", { name: "사용자 헤더" });
     const sidebar = screen.getByRole("complementary", { name: "데스크톱 앱 메뉴" });

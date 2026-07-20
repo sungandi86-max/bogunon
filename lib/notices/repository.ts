@@ -1,0 +1,20 @@
+import { createClient } from "@/lib/supabase/server";
+import type { Notice, NoticeCategory, UserRole } from "@/lib/notices/model";
+import { isAdminRole, sortNotices } from "@/lib/notices/model";
+
+export class NoticeAccessError extends Error { constructor() { super("공지 관리 권한이 없습니다."); this.name = "NoticeAccessError"; } }
+async function authenticated() { const supabase = await createClient(); const { data: { user }, error } = await supabase.auth.getUser(); if (error || !user) throw new NoticeAccessError(); return { supabase, user }; }
+export async function getCurrentProfile(): Promise<{ readonly id: string; readonly email: string; readonly displayName: string | null; readonly avatarUrl: string | null; readonly role: UserRole }> {
+  const { supabase, user } = await authenticated();
+  const { data } = await supabase.from("profiles").select("id,email,display_name,avatar_url,role").eq("id", user.id).maybeSingle();
+  const metadataName = typeof user.user_metadata["full_name"] === "string" ? user.user_metadata["full_name"] : null;
+  const metadataAvatar = typeof user.user_metadata["avatar_url"] === "string" ? user.user_metadata["avatar_url"] : null;
+  return { id: user.id, email: data?.email ?? user.email ?? "Google 계정", displayName: data?.display_name ?? metadataName, avatarUrl: data?.avatar_url ?? metadataAvatar, role: data?.role ?? "user" };
+}
+function mapNotice(row: { id: string; title: string; summary: string | null; content: string; category: NoticeCategory; is_published: boolean; is_important: boolean; publish_start_at: string | null; publish_end_at: string | null; created_by: string; created_at: string; updated_at: string }, readIds: ReadonlySet<string>): Notice { return { id: row.id, title: row.title, summary: row.summary, content: row.content, category: row.category, isPublished: row.is_published, isImportant: row.is_important, publishStartAt: row.publish_start_at, publishEndAt: row.publish_end_at, createdBy: row.created_by, createdAt: row.created_at, updatedAt: row.updated_at, isRead: readIds.has(row.id) }; }
+export async function listNotices(): Promise<readonly Notice[]> { const { supabase, user } = await authenticated(); const [{ data, error }, { data: reads }] = await Promise.all([supabase.from("notices").select("*"), supabase.from("notice_reads").select("notice_id").eq("user_id", user.id)]); if (error) throw error; const readIds = new Set((reads ?? []).map(({ notice_id }) => notice_id)); return sortNotices((data ?? []).map((row) => mapNotice(row, readIds))); }
+export async function requireAdmin(): Promise<Awaited<ReturnType<typeof getCurrentProfile>>> { const profile = await getCurrentProfile(); if (!isAdminRole(profile.role)) throw new NoticeAccessError(); return profile; }
+export type NoticeInput = { readonly title: string; readonly summary: string | null; readonly content: string; readonly category: NoticeCategory; readonly isPublished: boolean; readonly isImportant: boolean; readonly publishStartAt: string | null; readonly publishEndAt: string | null };
+export async function saveNotice(id: string | null, input: NoticeInput): Promise<void> { const profile = await requireAdmin(); const { supabase } = await authenticated(); const values = { title: input.title, summary: input.summary, content: input.content, category: input.category, is_published: input.isPublished, is_important: input.isImportant, publish_start_at: input.publishStartAt, publish_end_at: input.publishEndAt }; const result = id ? await supabase.from("notices").update(values).eq("id", id) : await supabase.from("notices").insert({ ...values, created_by: profile.id }); if (result.error) throw result.error; }
+export async function deleteNotice(id: string): Promise<void> { await requireAdmin(); const { supabase } = await authenticated(); const { error } = await supabase.from("notices").delete().eq("id", id); if (error) throw error; }
+export async function markNoticeRead(id: string): Promise<void> { const { supabase, user } = await authenticated(); const { error } = await supabase.from("notice_reads").upsert({ notice_id: id, user_id: user.id, read_at: new Date().toISOString() }); if (error) throw error; }

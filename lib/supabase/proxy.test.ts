@@ -15,7 +15,7 @@ type ProxyCookieAdapter = {
   ) => void;
 };
 
-const { getClaims } = vi.hoisted(() => ({ getClaims: vi.fn() }));
+const { getUser } = vi.hoisted(() => ({ getUser: vi.fn() }));
 let cookieAdapter: ProxyCookieAdapter | undefined;
 
 vi.mock("@supabase/ssr", () => ({
@@ -25,7 +25,7 @@ vi.mock("@supabase/ssr", () => ({
     options: { readonly cookies: ProxyCookieAdapter },
   ) => {
     cookieAdapter = options.cookies;
-    return { auth: { getClaims } };
+    return { auth: { getUser } };
   },
 }));
 
@@ -33,8 +33,8 @@ describe("Supabase session proxy", () => {
   beforeEach(() => {
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "test-publishable-key";
-    getClaims.mockReset();
-    getClaims.mockResolvedValue({ data: { claims: null }, error: null });
+    getUser.mockReset();
+    getUser.mockResolvedValue({ data: { user: null }, error: null });
   });
 
   afterEach(() => {
@@ -68,7 +68,7 @@ describe("Supabase session proxy", () => {
     const response = await updateSession(new NextRequest(`https://bogunon.example${pathname}`));
 
     expect(response.headers.get("location")).toBeNull();
-    expect(getClaims).not.toHaveBeenCalled();
+    expect(getUser).not.toHaveBeenCalled();
   });
 
   it.each(["/privacy", "/terms"])(
@@ -77,7 +77,7 @@ describe("Supabase session proxy", () => {
       const response = await updateSession(new NextRequest(`https://bogunon.example${pathname}`));
 
       expect(response.headers.get("location")).toBeNull();
-      expect(getClaims).not.toHaveBeenCalled();
+      expect(getUser).not.toHaveBeenCalled();
     },
   );
 
@@ -107,7 +107,7 @@ describe("Supabase session proxy", () => {
   });
 
   it("returns an authenticated login request to a safe protected destination", async () => {
-    getClaims.mockResolvedValue({ data: { claims: { sub: "user-id" } }, error: null });
+    getUser.mockResolvedValue({ data: { user: { id: "user-id" } }, error: null });
     const response = await updateSession(
       new NextRequest("https://bogunon.example/login?next=%2Fcalendar"),
     );
@@ -122,7 +122,7 @@ describe("Supabase session proxy", () => {
   });
 
   it("copies refreshed session cookies and cache headers to the response", async () => {
-    getClaims.mockImplementation(async () => {
+    getUser.mockImplementation(async () => {
       cookieAdapter?.setAll(
         [{
           name: "sb-example-auth-token",
@@ -131,7 +131,7 @@ describe("Supabase session proxy", () => {
         }],
         { "cache-control": "private, no-store" },
       );
-      return { data: { claims: { sub: "user-id" } }, error: null };
+      return { data: { user: { id: "user-id" } }, error: null };
     });
 
     const response = await updateSession(new NextRequest("https://bogunon.example/briefing"));
@@ -148,7 +148,7 @@ describe("Supabase session proxy", () => {
 
     const response = await updateSession(new NextRequest("https://bogunon.example/briefing"));
 
-    expect(getClaims).not.toHaveBeenCalled();
+    expect(getUser).not.toHaveBeenCalled();
     expect(response.headers.get("location")).toBe(
       "https://bogunon.example/login?error=configuration",
     );
