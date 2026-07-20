@@ -1,5 +1,6 @@
 .overlay { background: rgb(36 50 71 / 0.18); inset: 0; position: fixed; z-index: 50; }
 .detail-panel { background: var(--surface); border-left: 1px solid var(--line); bottom: 0; box-shadow: var(--shadow-panel); display: flex; flex-direction: column; max-width: 480px; position: absolute; right: 0; top: 0; width: min(460px, 100%); }
+.detail-panel--academic-import { max-width: 1080px; width: min(1080px, calc(100% - var(--sidebar-width))); }
 .detail-panel__header { align-items: center; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; min-height: 60px; padding: var(--space-6) var(--space-8); }
 .detail-panel__header h2 { color: var(--brand-950); font-size: var(--text-card); font-weight: var(--weight-bold); margin: 0; }
 .detail-panel__body { flex: 1; overscroll-behavior: contain; overflow-y: auto; padding: var(--space-8); }

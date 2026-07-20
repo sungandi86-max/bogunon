@@ -79,6 +79,14 @@ describe("AppShell", () => {
     expect(launcher).toHaveFocus();
   });
 
+  it("opens academic calendar import from the mobile create menu", () => {
+    render(<AppShell><main>본문</main></AppShell>);
+    fireEvent.click(screen.getByRole("button", { name: "빠른 새로 만들기" }));
+    fireEvent.click(within(screen.getByRole("dialog", { name: "새로 만들기" })).getByRole("button", { name: /학사일정 가져오기/ }));
+    expect(screen.getByRole("dialog", { name: "학사일정 가져오기" })).toBeInTheDocument();
+    expect(screen.getByText(/학교에서 받은 엑셀 또는 CSV 파일/)).toBeInTheDocument();
+  });
+
   it("expands all twelve health presets without removing the existing mobile creation actions", () => {
     render(<AppShell><main>본문</main></AppShell>);
     fireEvent.click(screen.getByRole("button", { name: "빠른 새로 만들기" }));

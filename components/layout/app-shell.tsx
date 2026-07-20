@@ -11,6 +11,7 @@ import { HealthPresetPreferencesProvider } from "@/components/health-presets/hea
 import type { AssistantSurface } from "@/components/ai/assistant-context";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
 import { CalendarPreferencesProvider } from "@/components/calendar/calendar-preferences-provider";
+import { AcademicCalendarImport } from "@/components/calendar/academic-calendar-import";
 import { CreateItemForm } from "@/components/layout/create-item-form";
 import { AppHeader } from "@/components/layout/app-header";
 import { GlobalNavigation } from "@/components/layout/global-navigation";
@@ -74,10 +75,12 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
   const [createKind, setCreateKind] = useState<"task" | "event">("task");
   const [createTemplate, setCreateTemplate] = useState<TemplateDefinition>();
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [academicImportOpen, setAcademicImportOpen] = useState(false);
   const [assistantSurface, setAssistantSurface] = useState<AssistantSurface>("global");
   const [assistantEntityId, setAssistantEntityId] = useState<string>();
   const createButtonRef = useRef<HTMLButtonElement>(null);
   const assistantButtonRef = useRef<HTMLButtonElement>(null);
+  const academicImportButtonRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const openCreate = useCallback((trigger: HTMLButtonElement, kind: "task" | "event" = "task", template?: TemplateDefinition) => {
     createButtonRef.current = trigger;
@@ -93,6 +96,10 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
     setAssistantOpen(true);
   }, []);
   const closeAssistant = useCallback(() => setAssistantOpen(false), []);
+  const openAcademicImport = useCallback((trigger: HTMLButtonElement) => {
+    academicImportButtonRef.current = trigger;
+    setAcademicImportOpen(true);
+  }, []);
   const moveAssistantDraftToForm = useCallback((draft: AssistantDraft, draftId?: string) => {
     const trigger = assistantButtonRef.current;
     if (!trigger) return;
@@ -107,10 +114,10 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
     <AssistantContext value={{ openAssistant }}>
       <AppShellCreateContext value={{ openCreate }}>
         <div className="app-shell">
-        <GlobalNavigation onAssistant={openAssistant} onCreate={openCreate} />
+        <GlobalNavigation onAcademicImport={openAcademicImport} onAssistant={openAssistant} onCreate={openCreate} />
         <AppHeader profile={profile} />
         {children}
-        <MobileBottomNavigation onAssistant={(trigger) => openAssistant(trigger, "global")} onCreate={openCreate} />
+        <MobileBottomNavigation onAcademicImport={openAcademicImport} onAssistant={(trigger) => openAssistant(trigger, "global")} onCreate={openCreate} />
         <ResponsiveDetailPanel
           footer={
             <>
@@ -125,6 +132,15 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
           title="새로 만들기"
         >
           <CreateItemForm defaultKind={createKind} {...(createTemplate ? { initialTemplate: createTemplate } : {})} key={`${createKind}-${createTemplate?.key ?? "blank"}-${createOpen}`} onSaved={closeCreate} titleRef={titleRef} />
+        </ResponsiveDetailPanel>
+        <ResponsiveDetailPanel
+          onClose={() => setAcademicImportOpen(false)}
+          open={academicImportOpen}
+          panelClassName="detail-panel--academic-import"
+          returnFocusRef={academicImportButtonRef}
+          title="학사일정 가져오기"
+        >
+          <AcademicCalendarImport onClose={() => setAcademicImportOpen(false)} onComplete={() => router.refresh()} />
         </ResponsiveDetailPanel>
         <AiAssistantPanel {...(assistantEntityId ? { entityId: assistantEntityId } : {})} onApplied={() => router.refresh()} onClose={closeAssistant} onCreateDraft={moveAssistantDraftToForm} open={assistantOpen} returnFocusRef={assistantButtonRef} surface={assistantSurface} />
         <FirstRunWelcome />

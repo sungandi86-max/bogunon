@@ -148,6 +148,7 @@
   .calendar-detail-panel { height: auto; max-height: none; overflow: visible; }
   .calendar-detail-panel__header { position: static; }
   .detail-panel { border-left: 0; border-radius: var(--mobile-sheet-radius) var(--mobile-sheet-radius) 0 0; box-shadow: var(--mobile-sheet-shadow); max-height: calc(100dvh - var(--space-10)); max-width: none; top: auto; width: 100%; }
+  .detail-panel--academic-import { width: 100%; }
   .detail-panel::before { background: var(--line-strong); border-radius: var(--radius-full); content: ""; height: var(--space-2); left: 50%; position: absolute; top: var(--space-4); transform: translateX(-50%); width: var(--control-md); }
   .detail-panel__header { padding-top: var(--space-12); }
   .detail-panel__body { scroll-padding-bottom: var(--mobile-panel-scroll-padding); }
@@ -159,6 +160,18 @@
   .mobile-create-menu span { display: grid; gap: var(--space-1); min-width: 0; }
   .mobile-create-menu strong { font-size: var(--text-section); }
   .mobile-create-menu small { color: var(--mobile-body); font-size: var(--text-support); line-height: var(--leading-body); }
+  .academic-import__steps li { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
+  .academic-import__dropzone { min-height: 176px; padding: var(--space-6); }
+  .academic-import__settings-grid, .academic-import__mapping > div { grid-template-columns: 1fr; }
+  .academic-import__row--header { display: none; }
+  .academic-import__table { border: 0; display: grid; gap: var(--space-3); max-height: none; overflow: visible; }
+  .academic-import__row { border: 1px solid var(--mobile-line); border-radius: var(--radius-lg); gap: var(--space-3); grid-template-columns: auto 1fr; min-width: 0; padding: var(--space-4); }
+  .academic-import__select { grid-row: 1; }
+  .academic-import__status { grid-column: 2; grid-row: 1; }
+  .academic-import__dates, .academic-import__title, .academic-import__category, .academic-import__source { grid-column: 1 / -1; }
+  .academic-import__dates { grid-template-columns: 1fr; }
+  .academic-import__dates > span { display: none; }
+  .academic-import__submit { bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + var(--space-4)); justify-self: stretch; position: sticky; z-index: 3; }
   .button { min-height: var(--touch-target); }
   .form-grid { grid-template-columns: 1fr; }
   .work-item-card { align-items: stretch; display: block; padding: var(--space-7); }

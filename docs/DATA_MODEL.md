@@ -149,6 +149,17 @@ export type RecurrenceFrequency = (typeof RECURRENCE_FREQUENCIES)[number];
 
 ## 8. 일정 모델
 
+### 학사일정 파일 가져오기 매핑
+
+학사일정 파일 가져오기는 별도 테이블이나 원본 파일 저장소를 만들지 않고 기존 `Event`를 사용한다.
+
+- `area`: `schoolSchedule`
+- `isAllDay`: `true`
+- `startDate` / `endDate`: 단일 날짜 또는 파일에서 추출한 기간
+- `startTime` / `endTime`: `null`
+- 파일명, 전체 경로, 원본 행 전체와 선택되지 않은 셀은 저장하지 않는다.
+- 현재 스키마에는 import metadata가 없으므로 파일 단위 되돌리기는 이번 범위에서 제공하지 않는다.
+
 ```ts
 export interface ExerciseEventDetails {
   exerciseType?: string;

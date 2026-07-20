@@ -12,6 +12,7 @@ interface ResponsiveDetailPanelProps {
   readonly initialFocusRef?: RefObject<HTMLElement | null>;
   readonly onClose: () => void;
   readonly open: boolean;
+  readonly panelClassName?: string;
   readonly returnFocusRef?: RefObject<HTMLElement | null>;
   readonly title: string;
 }
@@ -31,6 +32,7 @@ export function ResponsiveDetailPanel({
   initialFocusRef,
   onClose,
   open,
+  panelClassName,
   returnFocusRef,
   title,
 }: ResponsiveDetailPanelProps) {
@@ -80,7 +82,7 @@ export function ResponsiveDetailPanel({
       <aside
         aria-labelledby="detail-panel-title"
         aria-modal="true"
-        className="detail-panel"
+        className={["detail-panel", panelClassName].filter(Boolean).join(" ")}
         onMouseDown={(event) => event.stopPropagation()}
         ref={panelRef}
         role="dialog"

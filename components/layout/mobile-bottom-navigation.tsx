@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ChevronDown, ChevronUp, ClipboardList, Dumbbell, Eye, EyeOff, FilePenLine, Home, Plus, RotateCcw, Settings, Star, Sticker, StickyNote, UserRound } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, ChevronUp, ClipboardList, Dumbbell, Eye, EyeOff, FilePenLine, FileSpreadsheet, Home, Plus, RotateCcw, Settings, Star, Sticker, StickyNote, UserRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useRef, useState } from "react";
@@ -21,11 +21,12 @@ const links = [
 ] as const;
 
 interface MobileBottomNavigationProps {
+  readonly onAcademicImport: (trigger: HTMLButtonElement) => void;
   readonly onAssistant: (trigger: HTMLButtonElement) => void;
   readonly onCreate: (trigger: HTMLButtonElement, kind: "task" | "event", template?: TemplateDefinition) => void;
 }
 
-export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNavigationProps) {
+export function MobileBottomNavigation({ onAcademicImport, onAssistant, onCreate }: MobileBottomNavigationProps) {
   const pathname = usePathname();
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
   const [showAllHealthPresets, setShowAllHealthPresets] = useState(false);
@@ -45,6 +46,11 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
   function chooseAssistant(trigger: HTMLButtonElement): void {
     setCreateMenuOpen(false);
     onAssistant(launcherRef.current ?? trigger);
+  }
+
+  function chooseAcademicImport(trigger: HTMLButtonElement): void {
+    setCreateMenuOpen(false);
+    onAcademicImport(launcherRef.current ?? trigger);
   }
 
   function chooseHealthPreset(trigger: HTMLButtonElement, preset: HealthPresetDefinition): void {
@@ -112,6 +118,7 @@ export function MobileBottomNavigation({ onAssistant, onCreate }: MobileBottomNa
           </section>
           <button onClick={(event) => chooseCreate(event.currentTarget, "task")} type="button"><ClipboardList aria-hidden="true" size={20} /><span><strong>업무 추가</strong><small>할 일과 마감일을 정리합니다.</small></span></button>
           <button onClick={(event) => chooseCreate(event.currentTarget, "event")} type="button"><CalendarPlus aria-hidden="true" size={20} /><span><strong>일정 추가</strong><small>날짜와 시간이 있는 일정을 등록합니다.</small></span></button>
+          <button onClick={(event) => chooseAcademicImport(event.currentTarget)} type="button"><FileSpreadsheet aria-hidden="true" size={20} /><span><strong>학사일정 가져오기</strong><small>엑셀 또는 CSV를 확인한 뒤 등록합니다.</small></span></button>
           <button onClick={(event) => chooseCreate(event.currentTarget, "event", { key: "personal-event", name: "개인 일정", kind: "event", area: "personal", category: "event", title: "", description: "", priority: "normal", estimatedMinutes: 30, recommendedTiming: "선택한 날짜", recurrenceFrequency: null, checklist: [], memo: "", isAllDay: false })} type="button"><UserRound aria-hidden="true" size={20} /><span><strong>개인 일정 추가</strong><small>병원, 약속, 여행 등 개인 일정을 등록합니다.</small></span></button>
           <Link href="/exercise?create=sticker" onClick={() => setCreateMenuOpen(false)}><Dumbbell aria-hidden="true" size={20} /><span><strong>운동 기록</strong><small>운동 종류와 간단한 기록을 남깁니다.</small></span></Link>
           <Link href="/calendar?create=sticker" onClick={() => setCreateMenuOpen(false)}><Sticker aria-hidden="true" size={20} /><span><strong>날짜 스티커 붙이기</strong><small>학교 일정과 개인 약속을 날짜에 표시합니다.</small></span></Link>
