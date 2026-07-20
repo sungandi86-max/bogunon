@@ -1,6 +1,11 @@
 import type { AcademicEventInsert } from "@/lib/academic-calendar-import/repository";
 
-export function createAcademicEvent(title: string, startDate: string, endDate: string): AcademicEventInsert {
+export function createAcademicEvent(
+  title: string,
+  startDate: string,
+  endDate: string,
+  description: string | null = null,
+): AcademicEventInsert {
   return {
     title,
     area: "schoolSchedule",
@@ -16,6 +21,6 @@ export function createAcademicEvent(title: string, startDate: string, endDate: s
     recurrence_date: null,
     recurrence_generated_through: null,
     memo: null,
-    description: null,
+    description,
   };
 }

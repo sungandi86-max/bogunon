@@ -1,5 +1,5 @@
 begin;
-select plan(40);
+select plan(45);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 values
@@ -21,12 +21,17 @@ select has_index('public', 'exercise_logs', 'exercise_logs_sticker_id_idx');
 select has_index('public', 'exercise_stickers', 'exercise_stickers_default_icon_key');
 select has_index('public', 'exercise_stickers', 'exercise_stickers_user_label_key');
 select col_default_is('public', 'user_settings', 'default_event_minutes', '30');
+select has_column('public', 'user_settings', 'neis_office_code');
+select has_column('public', 'user_settings', 'neis_school_code');
+select has_column('public', 'user_settings', 'neis_school_name');
+select has_column('public', 'user_settings', 'neis_office_name');
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '93000000-0000-0000-0000-000000000001', true);
 select lives_ok($$insert into public.exercise_stickers (id, user_id, label, icon_key, color_key, is_default) values ('95000000-0000-0000-0000-000000000003', '93000000-0000-0000-0000-000000000001', '요가', 'stretching', 'lavender', false)$$, '사용자 A는 내 스티커를 만든다');
 select lives_ok($$insert into public.exercise_logs (id, user_id, sticker_id, exercise_date) values ('96000000-0000-0000-0000-000000000004', '93000000-0000-0000-0000-000000000001', '10000000-0000-4000-8000-000000000001', current_date)$$, '사용자 A는 기본 스티커 기록을 만든다');
 select lives_ok($$insert into public.user_settings (id, user_id) values ('97000000-0000-0000-0000-000000000005', '93000000-0000-0000-0000-000000000001')$$, '사용자 A는 기본 설정을 만든다');
+select lives_ok($$update public.user_settings set neis_office_code = 'B10', neis_school_code = '7010082', neis_school_name = '여의도고등학교', neis_office_name = '서울특별시교육청' where user_id = '93000000-0000-0000-0000-000000000001'$$, '사용자 A는 내 기본 학교를 저장한다');
 select is((select count(*)::integer from public.exercise_stickers), 10, '사용자 A는 기본 스티커와 내 스티커를 조회한다');
 select is((select count(*)::integer from public.exercise_logs), 1, '사용자 A는 내 운동 기록을 조회한다');
 select is((select count(*)::integer from public.user_settings), 1, '사용자 A는 내 설정을 조회한다');

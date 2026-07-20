@@ -5,14 +5,23 @@ import {
   loadNeisSchedulesAction,
   searchNeisSchoolsAction,
 } from "@/app/(app)/neis-academic-calendar-actions";
-import { insertAcademicEvents, listAcademicSchoolEvents, requireAcademicImportUser } from "@/lib/academic-calendar-import/repository";
+import {
+  AcademicImportUnauthorizedError,
+  insertAcademicEvents,
+  listAcademicSchoolEvents,
+  requireAcademicImportUser,
+} from "@/lib/academic-calendar-import/repository";
 import { fetchNeisSchedules, searchNeisSchools } from "@/lib/neis/client";
 
-vi.mock("@/lib/academic-calendar-import/repository", () => ({
-  insertAcademicEvents: vi.fn(),
-  listAcademicSchoolEvents: vi.fn(),
-  requireAcademicImportUser: vi.fn(),
-}));
+vi.mock("@/lib/academic-calendar-import/repository", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/academic-calendar-import/repository")>();
+  return {
+    ...original,
+    insertAcademicEvents: vi.fn(),
+    listAcademicSchoolEvents: vi.fn(),
+    requireAcademicImportUser: vi.fn(),
+  };
+});
 vi.mock("@/lib/neis/client", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/lib/neis/client")>();
   return { ...original, fetchNeisSchedules: vi.fn(), searchNeisSchools: vi.fn() };
@@ -71,7 +80,7 @@ describe("NEIS academic calendar actions", () => {
     expect(result.status).toBe("success");
     if (result.status !== "success") throw new Error("success expected");
     expect(result.items.map((item) => [item.status, item.selected])).toEqual([
-      ["duplicate", false], ["duplicate", false], ["ready", true],
+      ["duplicate", false], ["changed", false], ["ready", true],
     ]);
   });
 
@@ -121,11 +130,11 @@ describe("NEIS academic calendar actions", () => {
   });
 
   it("returns a specific session message instead of exposing internal errors", async () => {
-    vi.mocked(requireAcademicImportUser).mockRejectedValue(new Error("로그인이 필요합니다."));
+    vi.mocked(requireAcademicImportUser).mockRejectedValue(new AcademicImportUnauthorizedError());
 
     const result = await searchNeisSchoolsAction({ query: "상계고" });
 
-    expect(result).toEqual(expect.objectContaining({ status: "error", code: "unauthorized", message: "로그인 후 학교를 검색해 주세요." }));
+    expect(result).toEqual(expect.objectContaining({ status: "error", code: "unauthorized", message: "로그인 후 NEIS 학사일정을 이용해 주세요." }));
   });
 
   it("returns a friendly Supabase save failure without leaking details", async () => {

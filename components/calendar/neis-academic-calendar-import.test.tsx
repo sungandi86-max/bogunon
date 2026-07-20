@@ -1,105 +1,160 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  getDefaultNeisSchoolAction,
   importNeisAcademicCalendarAction,
   loadNeisSchedulesAction,
+  saveDefaultNeisSchoolAction,
   searchNeisSchoolsAction,
 } from "@/app/(app)/neis-academic-calendar-actions";
 import { AcademicCalendarImportMethods } from "@/components/calendar/academic-calendar-import-methods";
 
 vi.mock("@/app/(app)/neis-academic-calendar-actions", () => ({
+  getDefaultNeisSchoolAction: vi.fn(),
   searchNeisSchoolsAction: vi.fn(),
+  saveDefaultNeisSchoolAction: vi.fn(),
   loadNeisSchedulesAction: vi.fn(),
   importNeisAcademicCalendarAction: vi.fn(),
 }));
 
-describe("NEIS academic calendar import", () => {
+const school = {
+  officeCode: "B10",
+  schoolCode: "7010082",
+  name: "여의도고등학교",
+  type: "고등학교",
+  region: "서울특별시",
+  officeName: "서울특별시교육청",
+  address: "서울특별시 영등포구 국제금융로7길 37",
+};
+
+const schedules = [
+  { id: "saturday", date: "2026-07-04", title: "토요휴업일", content: "", grades: ["전 학년"], status: "ready" as const, selected: true },
+  { id: "exam", date: "2026-07-06", title: "기말고사", content: "3학년 교실", grades: ["3학년"], status: "ready" as const, selected: true },
+  { id: "holiday", date: "2026-07-17", title: "제헌절", content: "", grades: ["전 학년"], status: "duplicate" as const, selected: false },
+  { id: "vacation", date: "2026-07-24", title: "여름방학식", content: "강당에서 진행", grades: ["1학년", "2학년"], status: "changed" as const, selected: false },
+];
+
+async function searchAndLoad(): Promise<void> {
+  fireEvent.change(screen.getByLabelText("학교명 (선택)"), { target: { value: "여의도고" } });
+  fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
+  fireEvent.click(await screen.findByRole("button", { name: "여의도고등학교 선택" }));
+  fireEvent.click(screen.getByRole("button", { name: "학사일정 조회" }));
+  await screen.findByRole("list", { name: "NEIS 학사일정 미리보기" });
+}
+
+describe("NEIS academic calendar import UX", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(searchNeisSchoolsAction).mockResolvedValue({
+    vi.mocked(getDefaultNeisSchoolAction).mockResolvedValue({ status: "success", school: null });
+    vi.mocked(searchNeisSchoolsAction).mockResolvedValue({ status: "success", schools: [school] });
+    vi.mocked(saveDefaultNeisSchoolAction).mockResolvedValue({ status: "success", message: "기본 학교를 저장했습니다." });
+    vi.mocked(loadNeisSchedulesAction).mockResolvedValue({ status: "success", items: schedules });
+    vi.mocked(importNeisAcademicCalendarAction).mockResolvedValue({
       status: "success",
-      schools: [{ officeCode: "B10", schoolCode: "7010082", name: "상계고등학교", type: "고등학교", region: "서울특별시", officeName: "서울특별시교육청", address: "서울특별시 노원구 노해로 432" }],
+      message: "완료",
+      inserted: 1,
+      updated: 0,
+      excluded: 3,
+      duplicates: 0,
+      failed: 0,
     });
-    vi.mocked(loadNeisSchedulesAction).mockResolvedValue({
-      status: "success",
-      items: [
-        { id: "a", date: "2026-03-02", title: "개학식", content: "전교생 등교", grades: ["전 학년"], status: "ready", selected: true },
-        { id: "b", date: "2026-03-03", title: "입학식", content: "체육관", grades: ["1학년"], status: "duplicate", selected: false },
-      ],
-    });
-    vi.mocked(importNeisAcademicCalendarAction).mockResolvedValue({ status: "success", message: "완료", inserted: 1, excluded: 1, duplicates: 0, failed: 0 });
   });
 
-  it("keeps both NEIS and file import methods available", () => {
+  it("keeps NEIS and Excel/CSV methods available", async () => {
     render(<AcademicCalendarImportMethods />);
-
     expect(screen.getByRole("button", { name: "NEIS 자동 불러오기" })).toHaveAttribute("aria-pressed", "true");
     fireEvent.click(screen.getByRole("button", { name: "Excel/CSV 파일 가져오기" }));
-    expect(screen.getByText(/학교에서 받은 엑셀 또는 CSV 파일/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Excel/CSV 파일 가져오기" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("searches a school, previews schedules, and saves only selected rows", async () => {
+  it("excludes Saturday closures by default and updates visible and selected counts when toggled", async () => {
     render(<AcademicCalendarImportMethods />);
-    fireEvent.change(screen.getByLabelText(/학교명/), { target: { value: "상계고" } });
-    fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
+    await searchAndLoad();
 
-    const result = await screen.findByRole("button", { name: /상계고등학교 선택/ });
-    expect(result).toHaveTextContent("서울특별시 노원구 노해로 432");
-    fireEvent.click(result);
-    expect(screen.getByText("선택한 학교")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "학사일정 조회" }));
+    expect(screen.queryByText("토요휴업일")).not.toBeInTheDocument();
+    expect(screen.getByText("전체 4개")).toBeInTheDocument();
+    expect(screen.getByText("표시 3개")).toBeInTheDocument();
+    expect(screen.getByText("선택 1개")).toBeInTheDocument();
 
-    const preview = await screen.findByRole("list", { name: "NEIS 학사일정 미리보기" });
-    expect(within(preview).getByText("개학식")).toBeInTheDocument();
-    expect(within(preview).getByText("전교생 등교")).toBeInTheDocument();
-    expect(within(preview).getByText("이미 등록됨")).toBeInTheDocument();
-    expect(screen.getByText("전체 2개 · 선택 1개")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("checkbox", { name: "토요휴업일 포함" }));
+    expect(screen.getByText("토요휴업일")).toBeInTheDocument();
+    expect(screen.getByText("표시 4개")).toBeInTheDocument();
+    expect(screen.getByText("선택 2개")).toBeInTheDocument();
+  });
 
-    const saveButton = await screen.findByRole("button", { name: "선택한 일정 1개 저장" });
-    await waitFor(() => expect(saveButton).toBeEnabled());
-    fireEvent.click(saveButton);
+  it("filters by schedule type and searches title, detail, grade, and date immediately", async () => {
+    render(<AcademicCalendarImportMethods />);
+    await searchAndLoad();
+
+    fireEvent.click(screen.getByRole("button", { name: "시험" }));
+    expect(screen.getByText("기말고사")).toBeInTheDocument();
+    expect(screen.queryByText("여름방학식")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "전체" }));
+    fireEvent.change(screen.getByRole("searchbox", { name: "일정 검색" }), { target: { value: "1·2학년" } });
+    expect(screen.getByText("여름방학식")).toBeInTheDocument();
+    expect(screen.queryByText("기말고사")).not.toBeInTheDocument();
+    expect(screen.getByText("1·2학년")).toBeInTheDocument();
+  });
+
+  it("never submits filtered-out schedules and keeps duplicates disabled", async () => {
+    render(<AcademicCalendarImportMethods />);
+    await searchAndLoad();
+
+    const preview = screen.getByRole("list", { name: "NEIS 학사일정 미리보기" });
+    const duplicateRow = within(preview).getByText("제헌절").closest("label");
+    expect(duplicateRow).not.toBeNull();
+    expect(within(duplicateRow as HTMLElement).getByRole("checkbox")).toBeDisabled();
+    expect(within(duplicateRow as HTMLElement).getByText("이미 등록됨")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "시험" }));
+    fireEvent.click(screen.getByRole("button", { name: "새 일정 1개 저장" }));
     await waitFor(() => expect(importNeisAcademicCalendarAction).toHaveBeenCalledWith([
-      { id: "a", date: "2026-03-02", title: "개학식", selected: true },
-      { id: "b", date: "2026-03-03", title: "입학식", selected: false },
+      expect.objectContaining({ id: "saturday", selected: false }),
+      expect.objectContaining({ id: "exam", content: "3학년 교실", selected: true }),
+      expect.objectContaining({ id: "holiday", selected: false }),
+      expect.objectContaining({ id: "vacation", selected: false }),
     ]));
-    expect(await screen.findByRole("heading", { name: "NEIS 학사일정 등록 완료" })).toBeInTheDocument();
-    expect(screen.getByText("1개 저장 · 0개 중복 제외 · 1개 선택 제외 · 0개 실패")).toBeInTheDocument();
   });
 
-  it("supports select all and clear without selecting duplicates", async () => {
+  it("restores the authenticated user's saved school and allows changing it", async () => {
+    vi.mocked(getDefaultNeisSchoolAction).mockResolvedValueOnce({
+      status: "success",
+      school: {
+        officeCode: school.officeCode,
+        schoolCode: school.schoolCode,
+        name: school.name,
+        officeName: school.officeName,
+      },
+    });
     render(<AcademicCalendarImportMethods />);
-    fireEvent.change(screen.getByLabelText(/학교명/), { target: { value: "상계고" } });
-    fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
-    fireEvent.click(await screen.findByRole("button", { name: /상계고등학교 선택/ }));
-    fireEvent.click(screen.getByRole("button", { name: "학사일정 조회" }));
-    await screen.findByText("개학식");
 
-    fireEvent.click(screen.getByRole("button", { name: "전체 해제" }));
-    expect(screen.getByText("전체 2개 · 선택 0개")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "전체 선택" }));
-    expect(screen.getByText("전체 2개 · 선택 1개")).toBeInTheDocument();
+    expect(await screen.findByText("여의도고등학교")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "학사일정 조회" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "학교 변경" }));
+    expect(screen.getByLabelText("학교명 (선택)")).toBeInTheDocument();
   });
 
-  it("shows empty and friendly error states", async () => {
-    vi.mocked(searchNeisSchoolsAction).mockResolvedValueOnce({ status: "success", schools: [] });
-    const { rerender } = render(<AcademicCalendarImportMethods />);
-    fireEvent.change(screen.getByLabelText(/학교명/), { target: { value: "없는학교" } });
-    fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
-    expect(await screen.findByText("검색 결과가 없습니다.")).toBeInTheDocument();
-
-    vi.mocked(searchNeisSchoolsAction).mockResolvedValueOnce({ status: "error", code: "network-error", message: "NEIS 서비스에 연결하지 못했습니다." });
-    rerender(<AcademicCalendarImportMethods />);
-    fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("NEIS 서비스에 연결하지 못했습니다.");
-  });
-
-  it("allows searching by education office without a school name", async () => {
+  it("does not let a slow saved-school response overwrite the user's school selection", async () => {
+    let resolveDefaultSchool!: (value: Awaited<ReturnType<typeof getDefaultNeisSchoolAction>>) => void;
+    vi.mocked(getDefaultNeisSchoolAction).mockReturnValueOnce(new Promise((resolve) => {
+      resolveDefaultSchool = resolve;
+    }));
     render(<AcademicCalendarImportMethods />);
-    fireEvent.change(screen.getByLabelText("시도교육청"), { target: { value: "B10" } });
-    fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
 
-    await waitFor(() => expect(searchNeisSchoolsAction).toHaveBeenCalledWith({ query: "", officeCode: "B10" }));
+    fireEvent.change(screen.getByLabelText("학교명 (선택)"), { target: { value: "여의도고" } });
+    fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
+    fireEvent.click(await screen.findByRole("button", { name: "여의도고등학교 선택" }));
+
+    await act(async () => {
+      resolveDefaultSchool({
+        status: "success",
+        school: { officeCode: "C10", schoolCode: "9999999", name: "이전 기본학교", officeName: "부산광역시교육청" },
+      });
+    });
+
+    expect(screen.getByText("여의도고등학교")).toBeInTheDocument();
+    expect(screen.queryByText("이전 기본학교")).not.toBeInTheDocument();
   });
 });
