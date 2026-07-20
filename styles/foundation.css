@@ -42,6 +42,9 @@
   --touch-target: 44px;
   --sidebar-width: 220px;
   --sidebar-compact-width: 80px;
+  --app-header-height: 56px;
+  --sidebar-mascot-size: 80px;
+  --sidebar-mascot-compact-size: 56px;
   --mobile-header-height: 52px;
   --mobile-nav-height: 58px;
   --brand-950: #243247;

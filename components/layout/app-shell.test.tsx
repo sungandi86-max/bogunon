@@ -25,6 +25,23 @@ vi.mock("next/navigation", () => ({
 describe("AppShell", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("moves account actions to the top header and reserves the sidebar footer for Sudari", () => {
+    render(<AppShell profile={{ email: "teacher@example.com", initial: "T" }}><main>본문</main></AppShell>);
+
+    const header = screen.getByRole("banner", { name: "사용자 헤더" });
+    const sidebar = screen.getByRole("complementary", { name: "데스크톱 앱 메뉴" });
+    expect(within(header).getByRole("button", { name: "teacher@example.com 사용자 메뉴" })).toBeInTheDocument();
+    expect(within(sidebar).getByText("새로운 공지가 없습니다.")).toBeInTheDocument();
+    expect(within(sidebar).getByRole("img", { name: "수다리" })).toHaveAttribute("src", expect.stringContaining("otter-profile.png"));
+    expect(within(sidebar).queryByText("동기화됨")).not.toBeInTheDocument();
+    expect(within(sidebar).queryByRole("button", { name: "로그아웃" })).not.toBeInTheDocument();
+
+    fireEvent.click(within(header).getByRole("button", { name: "teacher@example.com 사용자 메뉴" }));
+    expect(within(header).getAllByText("teacher@example.com")).toHaveLength(2);
+    expect(within(header).getByRole("menuitem", { name: "설정" })).toHaveAttribute("href", "/settings");
+    expect(within(header).getByRole("menuitem", { name: "로그아웃" })).toBeInTheDocument();
+  });
+
   it("marks the current navigation item", () => {
     render(<AppShell><main>본문</main></AppShell>);
 

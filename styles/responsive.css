@@ -21,9 +21,9 @@
   .sidebar-create__chevron, .navigation-group > p { display: none; }
   .sidebar-create-popover { left: calc(100% + var(--space-3)); top: 0; }
   .desktop-navigation a { font-size: var(--text-hidden); justify-content: center; padding: 0; }
-  .global-navigation__actions { align-items: center; }
-  .sync-status { font-size: var(--text-hidden); }
-  .profile-popover { left: calc(100% + 8px); }
+  .app-header { left: var(--sidebar-compact-width); }
+  .sidebar-otter p { display: none; }
+  .sidebar-otter img { height: var(--sidebar-mascot-compact-size); width: var(--sidebar-mascot-compact-size); }
   .page-canvas { margin-left: var(--sidebar-compact-width); }
 }
 @media (min-width: 768px) and (max-width: 899px) {
@@ -51,6 +51,8 @@
   .ai-preview > textarea { max-height: 18dvh; min-height: 96px; }
   .app-shell { padding-bottom: 0; }
   .global-navigation { display: none; }
+  .app-header { height: var(--app-header-height); left: 0; padding-inline: var(--space-6); }
+  .profile-button__label { max-width: 190px; }
   .mobile-navigation { background: transparent; border: 0; bottom: calc(var(--mobile-nav-bottom) + env(safe-area-inset-bottom)); display: block; left: var(--mobile-nav-inset); position: fixed; right: var(--mobile-nav-inset); z-index: 40; }
   .mobile-navigation__links { background: var(--mobile-nav-surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-nav-radius); box-shadow: var(--mobile-floating-shadow); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: hidden; padding: var(--space-2) var(--space-4); }
   .mobile-navigation a { align-items: center; color: var(--mobile-body); display: flex; flex-direction: column; font-size: var(--text-xs); font-weight: var(--weight-medium); gap: var(--space-2); justify-content: center; min-height: var(--mobile-nav-height); min-width: 0; position: relative; }
@@ -60,7 +62,7 @@
   .mobile-navigation a[aria-current="page"]::after { background: var(--mobile-mint); border-radius: var(--radius-full); bottom: var(--space-2); content: ""; height: var(--mobile-accent-line); position: absolute; width: var(--space-7); }
   .mobile-create-fab { align-items: center; background: var(--mobile-mint); border: var(--space-2) solid var(--mobile-canvas); border-radius: var(--radius-full); box-shadow: var(--mobile-fab-shadow); color: var(--brand-950); display: inline-flex; height: var(--mobile-fab-size); justify-content: center; min-height: var(--mobile-fab-size); padding: 0; position: absolute; right: var(--space-6); top: calc((var(--mobile-fab-size) * -1) + var(--space-10)); width: var(--mobile-fab-size); z-index: 2; }
   .mobile-create-fab:hover { background: var(--action-500); }
-  .page-canvas { margin-left: 0; padding: var(--space-6) var(--space-8) calc(var(--mobile-content-bottom-space) + env(safe-area-inset-bottom)); }
+  .page-canvas { margin-left: 0; padding: calc(var(--app-header-height) + var(--space-6)) var(--space-8) calc(var(--mobile-content-bottom-space) + env(safe-area-inset-bottom)); }
   .page-header { align-items: center; min-height: var(--mobile-header-height); margin-bottom: var(--space-6); }
   .page-header h1 { font-size: var(--text-xl); line-height: var(--leading-heading); }
   .page-header__description { display: none; }
@@ -71,12 +73,10 @@
   .mobile-briefing-brand .bogunon-brand { min-height: var(--control-sm); }
   .mobile-briefing-brand .bogunon-brand__symbol { height: var(--control-sm); width: var(--control-sm); }
   .mobile-briefing-brand .bogunon-brand__wordmark { width: 104px; }
-  .mobile-briefing-brand small { align-items: center; background: transparent; color: var(--success); display: inline-flex; font-size: var(--text-meta); font-weight: var(--weight-medium); gap: var(--space-2); margin-left: auto; padding: var(--space-2); }
   .briefing-header__date { align-items: baseline; color: var(--mobile-title); display: flex; flex-wrap: wrap; font-size: var(--text-2xl); gap: var(--space-4); line-height: var(--leading-heading); }
   .briefing-header__time { color: var(--action-600); display: inline; font-size: var(--text-2xl); font-variant-numeric: tabular-nums; }
   .mobile-briefing-greeting { color: var(--mobile-body); display: block; font-size: var(--text-support); margin: var(--space-1) 0 0; }
   .briefing-header__summary { display: none; }
-  .work-status { display: none; }
   .briefing-grid { display: block; }
   .operations-dashboard { display: block; }
   .operations-main .briefing-header { border-bottom: 0; margin-bottom: var(--space-5); padding-bottom: 0; }

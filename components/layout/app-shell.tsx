@@ -12,6 +12,7 @@ import type { AssistantSurface } from "@/components/ai/assistant-context";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
 import { CalendarPreferencesProvider } from "@/components/calendar/calendar-preferences-provider";
 import { CreateItemForm } from "@/components/layout/create-item-form";
+import { AppHeader } from "@/components/layout/app-header";
 import { GlobalNavigation } from "@/components/layout/global-navigation";
 import { MobileBottomNavigation } from "@/components/layout/mobile-bottom-navigation";
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
@@ -106,7 +107,8 @@ export function AppShell({ children, presetPreferences = defaultHealthPresetPref
     <AssistantContext value={{ openAssistant }}>
       <AppShellCreateContext value={{ openCreate }}>
         <div className="app-shell">
-        <GlobalNavigation onAssistant={openAssistant} onCreate={openCreate} profile={profile} />
+        <GlobalNavigation onAssistant={openAssistant} onCreate={openCreate} />
+        <AppHeader profile={profile} />
         {children}
         <MobileBottomNavigation onAssistant={(trigger) => openAssistant(trigger, "global")} onCreate={openCreate} />
         <ResponsiveDetailPanel
