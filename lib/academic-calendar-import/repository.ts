@@ -11,6 +11,10 @@ async function ownedClient() {
   return { supabase, userId: user.id };
 }
 
+export async function requireAcademicImportUser(): Promise<string> {
+  return (await ownedClient()).userId;
+}
+
 export async function listAcademicSchoolEvents(): Promise<readonly EventRow[]> {
   const { supabase, userId } = await ownedClient();
   const { data, error } = await supabase.from("events").select("*").eq("user_id", userId).eq("area", "schoolSchedule");

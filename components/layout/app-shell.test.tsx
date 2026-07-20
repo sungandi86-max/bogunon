@@ -84,7 +84,7 @@ describe("AppShell", () => {
     fireEvent.click(screen.getByRole("button", { name: "빠른 새로 만들기" }));
     fireEvent.click(within(screen.getByRole("dialog", { name: "새로 만들기" })).getByRole("button", { name: /학사일정 가져오기/ }));
     expect(screen.getByRole("dialog", { name: "학사일정 가져오기" })).toBeInTheDocument();
-    expect(screen.getByText(/학교에서 받은 엑셀 또는 CSV 파일/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "NEIS 자동 불러오기" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("expands all twelve health presets without removing the existing mobile creation actions", () => {

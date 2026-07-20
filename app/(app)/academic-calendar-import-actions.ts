@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { markAcademicDuplicates } from "@/lib/academic-calendar-import/duplicates";
+import { createAcademicEvent } from "@/lib/academic-calendar-import/event";
 import {
   insertAcademicEvents,
   listAcademicSchoolEvents,
@@ -74,23 +75,7 @@ export async function importAcademicCalendarAction(input: unknown): Promise<Acad
     })), existing);
     const allowed = selected.filter((row, index) => candidates[index]?.status !== "duplicate" || row.allowDuplicate);
     const duplicates = selected.length - allowed.length;
-    const values: readonly AcademicEventInsert[] = allowed.map((row) => ({
-      title: row.title,
-      area: "schoolSchedule",
-      start_date: row.startDate,
-      end_date: row.endDate,
-      is_all_day: true,
-      start_time: null,
-      end_time: null,
-      location: null,
-      color_key: "yellow",
-      recurrence_frequency: null,
-      recurrence_source_id: null,
-      recurrence_date: null,
-      recurrence_generated_through: null,
-      memo: null,
-      description: null,
-    }));
+    const values: readonly AcademicEventInsert[] = allowed.map((row) => createAcademicEvent(row.title, row.startDate, row.endDate));
     const result = values.length ? await insertAcademicEvents(values) : { inserted: 0, failed: 0 };
     revalidatePath("/calendar");
     revalidatePath("/briefing");

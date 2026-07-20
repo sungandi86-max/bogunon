@@ -55,9 +55,10 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 AI_PROVIDER=mock
 OPENAI_API_KEY=
 AI_MODEL=
+NEIS_API_KEY=
 ```
 
-`AI_PROVIDER`, `OPENAI_API_KEY`, `AI_MODEL`은 서버 전용입니다. `NEXT_PUBLIC_` 접두사를 붙이거나 브라우저 코드, 응답과 로그에 값을 노출하지 않습니다.
+`AI_PROVIDER`, `OPENAI_API_KEY`, `AI_MODEL`, `NEIS_API_KEY`는 서버 전용입니다. `NEXT_PUBLIC_` 접두사를 붙이거나 브라우저 코드, 응답과 로그에 값을 노출하지 않습니다.
 
 ## Google OAuth 설정 상태
 

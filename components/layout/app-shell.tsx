@@ -11,7 +11,7 @@ import { HealthPresetPreferencesProvider } from "@/components/health-presets/hea
 import type { AssistantSurface } from "@/components/ai/assistant-context";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
 import { CalendarPreferencesProvider } from "@/components/calendar/calendar-preferences-provider";
-import { AcademicCalendarImport } from "@/components/calendar/academic-calendar-import";
+import { AcademicCalendarImportMethods } from "@/components/calendar/academic-calendar-import-methods";
 import { CreateItemForm } from "@/components/layout/create-item-form";
 import { AppHeader } from "@/components/layout/app-header";
 import { GlobalNavigation } from "@/components/layout/global-navigation";
@@ -142,7 +142,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
           returnFocusRef={academicImportButtonRef}
           title="학사일정 가져오기"
         >
-          <AcademicCalendarImport onClose={() => setAcademicImportOpen(false)} onComplete={() => router.refresh()} />
+          <AcademicCalendarImportMethods onClose={() => setAcademicImportOpen(false)} onComplete={() => router.refresh()} />
         </ResponsiveDetailPanel>
         <AiAssistantPanel {...(assistantEntityId ? { entityId: assistantEntityId } : {})} onApplied={() => router.refresh()} onClose={closeAssistant} onCreateDraft={moveAssistantDraftToForm} open={assistantOpen} returnFocusRef={assistantButtonRef} surface={assistantSurface} />
         <FirstRunWelcome />

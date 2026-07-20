@@ -174,6 +174,20 @@
   .academic-import__dates { grid-template-columns: 1fr; }
   .academic-import__dates > span { display: none; }
   .academic-import__submit { bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + var(--space-4)); justify-self: stretch; position: sticky; z-index: 3; }
+  .academic-import-methods__tabs { grid-template-columns: 1fr; }
+  .academic-import-methods__tabs button { justify-content: flex-start; }
+  .neis-import__search, .neis-import__period { align-items: stretch; grid-template-columns: 1fr; }
+  .neis-import__search .button, .neis-import__period .button { width: 100%; }
+  .neis-import__schools { max-height: none; overflow: visible; }
+  .neis-import__schools small { align-items: flex-start; }
+  .neis-import__preview-header { align-items: flex-start; gap: var(--space-3); }
+  .neis-import__preview-header > div:last-child { flex: 0 0 auto; }
+  .neis-import__list { border: 0; display: grid; gap: var(--space-3); max-height: none; overflow: visible; }
+  .neis-import__list > label { border: 1px solid var(--mobile-line); border-radius: var(--radius-lg); grid-template-columns: 20px minmax(0, 1fr) auto; }
+  .neis-import__list time { grid-column: 2; grid-row: 1; }
+  .neis-import__list label > span { grid-column: 2 / -1; }
+  .neis-import__list b { grid-column: 3; grid-row: 1; }
+  .neis-import__submit { bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + var(--space-4)); justify-self: stretch; position: sticky; z-index: 3; }
   .button { min-height: var(--touch-target); }
   .form-grid { grid-template-columns: 1fr; }
   .work-item-card { align-items: stretch; display: block; padding: var(--space-7); }

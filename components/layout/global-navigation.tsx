@@ -42,7 +42,7 @@ export function GlobalNavigation({ notices = [], onAcademicImport, onAssistant, 
           <div className="sidebar-create-popover">
             <button aria-label="업무 만들기" onClick={(event) => onCreate(event.currentTarget, "task")} type="button"><ClipboardList aria-hidden="true" size={17} /><span><strong>업무 만들기</strong><small>업무와 마감일을 등록합니다.</small></span></button>
             <button aria-label="일정 만들기" onClick={(event) => onCreate(event.currentTarget, "event")} type="button"><CalendarPlus aria-hidden="true" size={17} /><span><strong>일정 만들기</strong><small>시간이 정해진 일정을 등록합니다.</small></span></button>
-            <button aria-label="학사일정 가져오기" onClick={(event) => onAcademicImport(event.currentTarget)} type="button"><FileSpreadsheet aria-hidden="true" size={17} /><span><strong>학사일정 가져오기</strong><small>엑셀 또는 CSV를 검토해 등록합니다.</small></span></button>
+            <button aria-label="학사일정 가져오기" onClick={(event) => onAcademicImport(event.currentTarget)} type="button"><FileSpreadsheet aria-hidden="true" size={17} /><span><strong>학사일정 가져오기</strong><small>NEIS 또는 엑셀·CSV로 등록합니다.</small></span></button>
             <Link href="/workflows"><GitBranch aria-hidden="true" size={17} /><span><strong>업무 절차 시작</strong><small>단계가 있는 업무를 시작합니다.</small></span></Link>
             <button aria-label="빠른 입력" onClick={(event) => onCreate(event.currentTarget, "task")} type="button"><ListPlus aria-hidden="true" size={17} /><span><strong>빠른 입력</strong><small>문장으로 업무를 정리합니다.</small></span></button>
             <button aria-label="작성 도움" onClick={(event) => onAssistant(event.currentTarget, "global")} type="button"><FilePenLine aria-hidden="true" size={17} /><span><strong>작성 도움</strong><small>내용과 체크리스트를 제안받습니다.</small></span></button>
