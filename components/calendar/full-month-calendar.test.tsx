@@ -1,3 +1,6 @@
+import { act } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { renderToString } from "react-dom/server";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -60,6 +63,27 @@ const monthStickerRows = [
 ] satisfies readonly CalendarStickerRow[];
 
 describe("FullMonthCalendar", () => {
+  it("hydrates with the same initial item limit as the server", async () => {
+    const browserWindow = globalThis.window;
+    Object.defineProperty(globalThis, "window", { configurable: true, value: undefined });
+    const markup = renderToString(<FullMonthCalendar month="2026-06" />);
+    Object.defineProperty(globalThis, "window", { configurable: true, value: browserWindow });
+    const container = document.createElement("div");
+    container.innerHTML = markup;
+    document.body.append(container);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    let root: ReturnType<typeof hydrateRoot> | undefined;
+    await act(async () => {
+      root = hydrateRoot(container, <FullMonthCalendar month="2026-06" />);
+    });
+
+    expect(consoleError.mock.calls.flat().join(" ")).not.toContain("Hydration failed");
+    await act(async () => root?.unmount());
+    consoleError.mockRestore();
+    container.remove();
+  });
+
   it.each([
     ["2026-06", "2026-06-18", 5, 2, 1],
     ["2026-08", "2026-08-18", 6, 1, 2],

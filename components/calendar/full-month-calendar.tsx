@@ -46,7 +46,7 @@ function responsiveItemLimit(weekCount: number, calendarHeight?: number): number
 
 function useResponsiveItemLimit(weekCount: number) {
   const calendarRef = useRef<HTMLElement>(null);
-  const [limit, setLimit] = useState(() => responsiveItemLimit(weekCount));
+  const [limit, setLimit] = useState(() => weekCount === 6 ? 1 : 2);
   useEffect(() => {
     const update = () => setLimit(responsiveItemLimit(weekCount, calendarRef.current?.getBoundingClientRect().height));
     update();

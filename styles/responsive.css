@@ -106,7 +106,7 @@
   .week-strip-day.is-selected::after { background: var(--mobile-mint); border-radius: var(--radius-full); bottom: var(--space-3); content: ""; height: var(--mobile-accent-line); position: absolute; width: var(--space-6); }
   .week-strip-day.is-today strong { align-items: center; background: var(--action-500); border-radius: var(--radius-full); color: var(--brand-950); display: inline-flex; height: var(--text-3xl); justify-content: center; width: var(--text-3xl); }
   .week-strip-markers { display: flex; gap: var(--space-1); height: var(--space-2); margin-top: var(--mobile-accent-line); }
-  .calendar-page { min-height: calc(100dvh - var(--mobile-nav-height)); overflow-x: clip; }
+  .calendar-page { min-height: calc(100dvh - var(--mobile-nav-height)); overflow-x: clip; padding-bottom: calc(var(--mobile-nav-height) + var(--space-10) + env(safe-area-inset-bottom)); }
   .calendar-page .page-canvas { padding-top: calc(var(--app-header-height) + var(--space-2)); }
   .calendar-page .page-header { margin-bottom: var(--space-2); min-height: 36px; }
   .calendar-page .smart-calendar-toolbar, .calendar-page .calendar-search, .calendar-page .calendar-controls { margin-bottom: var(--space-2); }
