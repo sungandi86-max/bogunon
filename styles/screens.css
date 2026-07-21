@@ -321,6 +321,46 @@
 .quick-note > p, .daily-summary-card > p { color: var(--ink-700); font-size: var(--text-support); margin: 0 0 var(--space-5); }
 .quick-note .quick-add__actions button { background: var(--action-50); border: 1px solid var(--action-100); color: var(--action-700); }
 .quick-note .quick-add__actions button:hover { background: var(--surface); border-color: var(--action-500); }
+.school-daily-card .rail-heading > svg { color: var(--action-700); }
+.daily-schedule-list { display: grid; }
+.daily-schedule-row { align-items: center; border-top: 1px solid var(--line-subtle); color: var(--ink-950); display: grid; gap: var(--space-4); grid-template-columns: 42px minmax(0, 1fr) auto; min-height: 54px; }
+.daily-schedule-row time { color: var(--action-700); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.daily-schedule-row > span { min-width: 0; }
+.daily-schedule-row small { color: var(--ink-500); display: block; font-size: var(--text-xs); }
+.daily-schedule-row strong { display: block; font-size: var(--text-md); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.daily-schedule-row > svg { color: var(--ink-500); }
+.rail-card-link { align-items: center; color: var(--action-700); display: inline-flex; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); margin-top: var(--space-4); }
+.meal-menu { display: grid; gap: var(--space-2); list-style: none; margin: var(--space-4) 0 0; padding: 0; }
+.meal-menu li { color: var(--ink-950); font-size: var(--text-sm); line-height: var(--leading-body); overflow-wrap: anywhere; }
+.meal-calories { border-top: 1px solid var(--line-subtle); color: var(--ink-500); font-size: var(--text-xs); margin: var(--space-4) 0 0; padding-top: var(--space-4); }
+.rail-skeleton { display: grid; gap: var(--space-3); margin-top: var(--space-5); }
+.rail-skeleton span { animation: pulse 1.2s ease-in-out infinite; background: var(--surface-subtle); border-radius: var(--radius-sm); height: 14px; }
+.rail-skeleton span:nth-child(2) { width: 78%; }
+.rail-skeleton span:nth-child(3) { width: 60%; }
+.quick-memo-form { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) auto; }
+.quick-memo-form input { min-width: 0; }
+.quick-memo-form button { min-width: 58px; }
+.quick-memo-list { display: grid; list-style: none; margin: var(--space-5) 0 0; padding: 0; }
+.quick-memo-list li { align-items: center; border-top: 1px solid var(--line-subtle); display: flex; gap: var(--space-3); justify-content: space-between; min-height: 44px; }
+.quick-memo-list li > span { font-size: var(--text-sm); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.quick-memo-list li > span.is-completed { color: var(--ink-500); text-decoration: line-through; }
+.quick-memo-list li > div { display: flex; flex: none; }
+.quick-memo-list form { display: contents; }
+.quick-memo-list button { background: transparent; border: 0; color: var(--ink-500); min-height: var(--control-sm); min-width: var(--control-sm); padding: 0; }
+.quick-memo-list button:hover { color: var(--action-700); }
+.school-info-card { padding: 0 !important; }
+.school-info-card summary { cursor: pointer; list-style: none; padding: var(--space-7); }
+.school-info-card summary::-webkit-details-marker { display: none; }
+.school-info-card summary > span { align-items: center; display: flex; gap: var(--space-4); min-width: 0; }
+.school-info-card summary svg { color: var(--action-700); flex: none; }
+.school-info-card summary span span { min-width: 0; }
+.school-info-card summary strong, .school-info-card summary small { display: block; }
+.school-info-card summary small { color: var(--ink-500); font-size: var(--text-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.school-info-card__body { border-top: 1px solid var(--line-subtle); padding: var(--space-7); }
+.school-info-card dl { display: grid; gap: var(--space-3); margin: 0; }
+.school-info-card dl div { display: grid; gap: var(--space-4); grid-template-columns: 82px minmax(0, 1fr); }
+.school-info-card dt { color: var(--ink-500); font-size: var(--text-xs); }
+.school-info-card dd { color: var(--ink-950); font-size: var(--text-sm); margin: 0; overflow-wrap: anywhere; }
 .work-item-list { display: grid; gap: var(--space-3); margin: 0 auto; max-width: 1120px; }
 .work-item-card { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); display: flex; gap: var(--space-8); justify-content: space-between; min-height: 58px; padding: var(--space-5) var(--space-7); }
 .work-item-card__main { align-items: center; display: flex; gap: 12px; min-width: 0; }

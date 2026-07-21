@@ -6,15 +6,16 @@ import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
 import { MobileWeekStrip } from "@/components/calendar/mobile-week-strip";
 import { SchoolCalendarSticker } from "@/components/calendar/school-calendar-sticker";
 import { nextScheduledEvent, sortTodayEvents } from "@/lib/briefing/mobile-home";
+import { isQuickNote } from "@/lib/briefing/quick-notes";
 import { calendarStickerCategory } from "@/lib/calendar-stickers/catalog";
+import type { NeisDefaultSchool } from "@/lib/neis/types";
 import type { CalendarStickerRow, EventRow, ExerciseLogRow, ExerciseStickerRow, TaskRow } from "@/types/database";
 
-export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [], exerciseStickers = [], month, nowIso, tasks, today }: { readonly calendarStickers?: CalendarStickerRow[]; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly exerciseStickers?: ExerciseStickerRow[]; readonly month: string; readonly nowIso?: string; readonly tasks: TaskRow[]; readonly today: string }) {
+export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [], exerciseStickers = [], month, nowIso, school = null, tasks, today }: { readonly calendarStickers?: CalendarStickerRow[]; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly exerciseStickers?: ExerciseStickerRow[]; readonly month: string; readonly nowIso?: string; readonly school?: NeisDefaultSchool | null; readonly tasks: TaskRow[]; readonly today: string }) {
   const activeTasks = tasks.filter((task) => task.status !== "completed" && task.status !== "onHold");
-  const dueToday = activeTasks.filter((task) => task.due_date === today);
-  const todayTasks = activeTasks.filter((task) => task.scheduled_date === today || task.due_date === today);
   const eventsToday = events.filter((event) => event.start_date <= today && event.end_date >= today);
   const priorityTasks = activeTasks.filter((task) => task.priority === "high" && (task.scheduled_date === today || task.due_date === today));
+  const quickNotes = tasks.filter(isQuickNote);
   const currentTime = new Date(nowIso ?? `${today}T00:00:00+09:00`);
   const sortedEventsToday = sortTodayEvents(eventsToday, currentTime);
   const nextEvent = nextScheduledEvent(events, currentTime)?.event;
@@ -34,7 +35,7 @@ export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [
             <FullMonthCalendar events={events} month={month} schoolStickers={calendarStickers} />
           </section>
         </div>
-        <OperationsRail dueToday={dueToday.length} eventsToday={sortedEventsToday} priorityTasks={priorityTasks} todayTasks={todayTasks} />
+        <OperationsRail eventsToday={sortedEventsToday} quickNotes={quickNotes} school={school} today={today} />
       </div>
     </main>
   );

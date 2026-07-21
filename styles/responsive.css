@@ -85,7 +85,7 @@
   .operations-main .briefing-header { border-bottom: 0; margin-bottom: var(--space-3); padding-bottom: 0; }
   .month-overview { display: block; }
   .operations-rail { display: contents; }
-  .operations-rail > section { display: none; }
+  .operations-rail > section, .operations-rail > details { display: none; }
   .operations-rail > .quick-note { display: none; }
   .operations-rail > section { background: var(--surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); padding: var(--space-10); }
   .operations-rail > section + section { border-top: 1px solid var(--mobile-line); }
