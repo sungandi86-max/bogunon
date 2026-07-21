@@ -67,8 +67,8 @@
 .admin-notice-list details { border-top: 1px solid var(--line); padding: var(--space-5) 0; }
 .admin-notice-list summary { cursor: pointer; }
 .notice-editor--compact { border: 0; padding-inline: 0; }
-.sidebar-otter__mascot { line-height: 0; margin-top: var(--space-5); width: var(--sidebar-mascot-width); }
-.sidebar-otter__mascot img { display: block; height: auto; width: 100%; }
+.sidebar-otter__mascot { height: calc(var(--space-20) * 4.5); line-height: 0; margin-top: var(--space-5); overflow: hidden; position: relative; width: calc(var(--sidebar-mascot-width) + var(--space-14)); }
+.sidebar-otter__mascot img { bottom: 0; display: block; height: calc(var(--space-20) * 6.5); left: calc(var(--space-10) * -1); max-width: none; object-fit: contain; object-position: left bottom; position: absolute; width: auto; }
 .mobile-navigation { display: none; }
 
 .page-canvas { margin: 0 auto; max-width: 1440px; padding: var(--space-14) var(--space-20) 48px; }

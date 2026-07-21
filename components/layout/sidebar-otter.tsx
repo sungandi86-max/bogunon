@@ -12,7 +12,7 @@ export function SidebarOtter({ notices = [] }: { readonly notices?: readonly Not
       {unread.length > 0 && <span aria-label={`읽지 않은 공지 ${unread.length}개`}>{unreadBadge(unread.length)}</span>}
     </Link>
     <div className="sidebar-otter__mascot">
-      <Image alt="수다리" height={990} sizes="(max-width: 1023px) 64px, 150px" src="/images/sidebar-otter.png" width={794} />
+      <Image alt="수다리" height={1024} sizes="(max-width: 1023px) 64px, 390px" src="/images/sidebar-otter.png" width={1536} />
     </div>
   </section>;
 }
