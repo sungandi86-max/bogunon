@@ -37,7 +37,7 @@ export default async function AnnualPage({ searchParams }: { readonly searchPara
 
   return (
     <main className="page-canvas annual-page">
-      <PageHeader action={<AssistantTrigger label="연간 초안" surface="annual" />} description="월별 보건업무 제안을 확인하고 기존 업무나 일정으로 복사합니다." title="연간 플래너" />
+      <PageHeader action={<span className="annual-desktop-assistant"><AssistantTrigger label="연간 초안" surface="annual" /></span>} description="월별 보건업무 제안을 확인하고 기존 업무나 일정으로 복사합니다." title="연간 플래너" />
       <nav aria-label="연도 이동" className="year-navigation">
         <Link aria-label="이전 연도" href={`/annual?year=${year - 1}`}><ChevronLeft size={17} />{year - 1}</Link>
         <strong>{year}년</strong>

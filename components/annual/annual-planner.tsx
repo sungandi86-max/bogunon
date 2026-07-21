@@ -126,7 +126,7 @@ export function AnnualPlanner({ year, currentYear, currentMonth, customItems, ex
                       <p>{preset.description}</p>
                       <div className="annual-preset-item__meta"><span><Clock3 aria-hidden="true" size={13} />{preset.estimatedMinutes}분</span><span>{preset.recommendedPeriod}</span>{preset.checklist.length > 0 && <span><ListTodo aria-hidden="true" size={13} />{preset.checklist.length}개</span>}</div>
                       <div className="annual-preset-item__actions">
-                        <button aria-label={`${preset.title} 업무로 추가`} className={preset.kind === "task" ? "button button--primary" : "button button--secondary"} onClick={(event) => openPreset(event.currentTarget, preset, "task")} type="button">업무로 추가</button>
+                        <button aria-label={`${preset.title} 업무로 추가`} className={`annual-task-add button ${preset.kind === "task" ? "button--primary" : "button--secondary"}`} onClick={(event) => openPreset(event.currentTarget, preset, "task")} type="button">업무로 추가</button>
                         <button aria-label={`${preset.title} 일정으로 추가`} className={preset.kind === "event" ? "button button--primary" : "button button--secondary"} onClick={(event) => openPreset(event.currentTarget, preset, "event")} type="button"><CalendarPlus aria-hidden="true" size={14} />일정으로 추가</button>
                       </div>
                     </article>

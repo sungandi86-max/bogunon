@@ -1,12 +1,12 @@
 import { BriefingHeader } from "@/components/briefing/briefing-header";
+import { MobileDailySchedule } from "@/components/briefing/mobile-daily-schedule";
 import { OperationsRail } from "@/components/briefing/operations-rail";
+import { TodayExerciseSection } from "@/components/briefing/today-exercise-section";
 import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
 import { MobileWeekStrip } from "@/components/calendar/mobile-week-strip";
-import { MobileDailySchedule } from "@/components/briefing/mobile-daily-schedule";
-import { TodayExerciseSection } from "@/components/briefing/today-exercise-section";
 import { SchoolCalendarSticker } from "@/components/calendar/school-calendar-sticker";
-import { calendarStickerCategory } from "@/lib/calendar-stickers/catalog";
 import { nextScheduledEvent, sortTodayEvents } from "@/lib/briefing/mobile-home";
+import { calendarStickerCategory } from "@/lib/calendar-stickers/catalog";
 import type { CalendarStickerRow, EventRow, ExerciseLogRow, ExerciseStickerRow, TaskRow } from "@/types/database";
 
 export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [], exerciseStickers = [], month, nowIso, tasks, today }: { readonly calendarStickers?: CalendarStickerRow[]; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly exerciseStickers?: ExerciseStickerRow[]; readonly month: string; readonly nowIso?: string; readonly tasks: TaskRow[]; readonly today: string }) {
@@ -19,5 +19,23 @@ export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [
   const sortedEventsToday = sortTodayEvents(eventsToday, currentTime);
   const nextEvent = nextScheduledEvent(events, currentTime)?.event;
   const todayStickers = calendarStickers.filter((item) => item.sticker_date <= today && (item.end_date ?? item.sticker_date) >= today && calendarStickerCategory(item.sticker_key) === "school");
-  return <main className="page-canvas briefing-page"><div className="operations-dashboard"><div className="operations-main"><BriefingHeader eventCount={sortedEventsToday.length} nextEvent={nextEvent} priorityCount={priorityTasks.length} today={today} />{todayStickers.length > 0 && <div className="today-school-stickers" aria-label="오늘의 학교 날짜">{todayStickers.map((item) => <SchoolCalendarSticker key={item.id} stickerKey={item.sticker_key} />)}</div>}<MobileDailySchedule nowIso={currentTime.toISOString()} tasks={todayTasks} today={today} upcomingEvents={events} /><MobileWeekStrip events={events} today={today} /><TodayExerciseSection logs={exerciseLogs} stickers={exerciseStickers} today={today} /><section className="month-overview" aria-labelledby="month-overview-title"><div className="section-heading month-overview__heading"><div><p>월간 통합 캘린더</p><h2 id="month-overview-title">{month.replace("-", "년 ")}월</h2></div></div><FullMonthCalendar events={events} month={month} schoolStickers={calendarStickers} /></section></div><OperationsRail dueToday={dueToday.length} eventsToday={sortedEventsToday} priorityTasks={priorityTasks} todayTasks={todayTasks} /></div></main>;
+
+  return (
+    <main className="page-canvas briefing-page">
+      <div className="operations-dashboard">
+        <div className="operations-main">
+          <BriefingHeader eventCount={sortedEventsToday.length} nextEvent={nextEvent} priorityCount={priorityTasks.length} today={today} />
+          {todayStickers.length > 0 && <div className="today-school-stickers" aria-label="오늘의 학교 날짜">{todayStickers.map((item) => <SchoolCalendarSticker key={item.id} stickerKey={item.sticker_key} />)}</div>}
+          <MobileDailySchedule today={today} upcomingEvents={events} />
+          <MobileWeekStrip events={events} today={today} />
+          <TodayExerciseSection logs={exerciseLogs} stickers={exerciseStickers} today={today} />
+          <section className="month-overview" aria-labelledby="month-overview-title">
+            <div className="section-heading month-overview__heading"><div><p>월간 통합 캘린더</p><h2 id="month-overview-title">{month.replace("-", "년 ")}월</h2></div></div>
+            <FullMonthCalendar events={events} month={month} schoolStickers={calendarStickers} />
+          </section>
+        </div>
+        <OperationsRail dueToday={dueToday.length} eventsToday={sortedEventsToday} priorityTasks={priorityTasks} todayTasks={todayTasks} />
+      </div>
+    </main>
+  );
 }

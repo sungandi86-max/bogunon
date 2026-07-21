@@ -86,7 +86,7 @@
   .month-overview { display: block; }
   .operations-rail { display: contents; }
   .operations-rail > section { display: none; }
-  .operations-rail > .quick-note { display: block; margin-top: var(--space-8); }
+  .operations-rail > .quick-note { display: none; }
   .operations-rail > section { background: var(--surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); padding: var(--space-10); }
   .operations-rail > section + section { border-top: 1px solid var(--mobile-line); }
   .quick-add__actions button { min-height: 54px; }
@@ -124,6 +124,8 @@
   .calendar-page .calendar-entry-filter > div { display: flex; }
   .calendar-page .calendar-filter-label { display: none; }
   .calendar-page .calendar-sticker-add { min-width: var(--touch-target); padding-inline: var(--space-4); width: auto; }
+  .calendar-page .calendar-entry-filter button[data-filter="work"], .calendar-page .calendar-sticker-add, .calendar-page .calendar-sticker-filter, .calendar-page .calendar-item--task, .calendar-page .calendar-search__result--task, .calendar-page .calendar-detail-panel__group--task, .calendar-page .calendar-detail-panel__summary--desktop, .annual-task-add, .annual-desktop-assistant { display: none; }
+  .calendar-page .calendar-detail-panel__summary--mobile { display: block; }
   .month-overview__heading { margin-bottom: var(--space-7); }
   .calendar-workspace-layout, .calendar-workspace-layout.is-week, .calendar-workspace-layout.is-time-view { display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
   .time-calendar__date-strip { margin-left: 0; overflow-x: auto; }
@@ -269,6 +271,7 @@
   .mobile-daily-compact__label { color: var(--mobile-body); font-size: var(--text-meta); font-weight: var(--weight-semibold); white-space: nowrap; }
   .mobile-daily-compact__row > strong { color: var(--mobile-title); font-size: var(--text-base); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .mobile-daily-compact__row > small { color: var(--mobile-body); font-size: var(--text-meta); grid-column: 3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-daily-compact__empty { color: var(--mobile-body); font-size: var(--text-support); margin: 0; padding-block: var(--space-6); text-align: center; }
   .today-exercise-card { display: block; margin-bottom: var(--space-8); }
   .today-exercise-records { display: grid; gap: var(--space-3); }
   .today-exercise-records article { align-items: center; display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr) auto; }

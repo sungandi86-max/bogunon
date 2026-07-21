@@ -119,7 +119,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
         <GlobalNavigation notices={notices} onAcademicImport={openAcademicImport} onCreate={openCreate} />
         <AppHeader notices={notices} profile={profile} />
         {children}
-        <MobileBottomNavigation onAcademicImport={openAcademicImport} onAssistant={(trigger) => openAssistant(trigger, "global")} onCreate={openCreate} />
+        <MobileBottomNavigation onCreate={openCreate} />
         <ResponsiveDetailPanel
           footer={
             <>

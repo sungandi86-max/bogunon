@@ -16,7 +16,7 @@ export function CalendarEntry({ compact = false, highlighted = false, item, kind
   const value = { item, kind, date };
   const movable = item.area !== "exercise";
   const timePrefix = showTime && kind === "event" && !(item as EventRow).is_all_day ? (item as EventRow).start_time?.slice(0, 5) : null;
-  return <div className={`calendar-item ${areaClass[item.area]}${highlighted ? " is-highlighted" : ""}${compact ? " is-compact" : ""}`} draggable={movable} onDragStart={(event) => {
+  return <div className={`calendar-item calendar-item--${kind} ${areaClass[item.area]}${highlighted ? " is-highlighted" : ""}${compact ? " is-compact" : ""}`} draggable={movable} onDragStart={(event) => {
     if (!movable) return;
     event.dataTransfer.setData("application/x-bogunon-calendar", JSON.stringify({ id: item.id, kind, date }));
   }}>
