@@ -116,7 +116,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
     <AssistantContext value={{ openAssistant }}>
       <AppShellCreateContext value={{ openCreate }}>
         <div className="app-shell">
-        <GlobalNavigation notices={notices} onAcademicImport={openAcademicImport} onAssistant={openAssistant} onCreate={openCreate} />
+        <GlobalNavigation notices={notices} onAcademicImport={openAcademicImport} onCreate={openCreate} />
         <AppHeader notices={notices} profile={profile} />
         {children}
         <MobileBottomNavigation onAcademicImport={openAcademicImport} onAssistant={(trigger) => openAssistant(trigger, "global")} onCreate={openCreate} />
