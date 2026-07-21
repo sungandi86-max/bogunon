@@ -1,9 +1,15 @@
 import { CalendarDays } from "lucide-react";
 import Link from "next/link";
 
-import type { EventRow } from "@/types/database";
+import type { Area, EventRow } from "@/types/database";
 
-const areaLabels = { healthWork: "업무", schoolSchedule: "학교", exercise: "운동", personal: "개인" } as const;
+const areaLabels: Record<Area, string> = {
+  healthWork: "업무",
+  schoolSchedule: "학교",
+  exercise: "운동",
+  personal: "개인",
+  project: "프로젝트",
+};
 
 export function TodayScheduleCard({ events, today }: { readonly events: readonly EventRow[]; readonly today: string }) {
   return <section className="rail-module school-daily-card" aria-labelledby="schedule-title">
