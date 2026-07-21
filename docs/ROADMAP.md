@@ -1169,3 +1169,11 @@ chore: complete MVP QA and deployment
 - [ ] 실제 Android Chrome과 iOS Safari 기기 설치 최종 확인
 
 이 작업은 설치성과 정적 앱 셸만 보완한다. Web Push, 완전한 오프라인 편집, 통계와 AI 추천 기능은 시작하지 않는다.
+
+## BOGUNON Studio (Planned)
+
+- 학생기록 작성
+- 동아리 학생기록
+- AI 학생부 작성
+- 상담기록
+- 로컬(SQLite) 기반 개인정보 관리 검토

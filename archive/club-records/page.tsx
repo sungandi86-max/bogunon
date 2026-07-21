@@ -1,4 +1,4 @@
-import { ClubRecordWorkspace } from "@/components/club-records/club-record-workspace";
+import { ClubRecordWorkspace } from "@/archive/club-records/club-record-workspace";
 import { PageHeader } from "@/components/layout/page-header";
 import { Badge } from "@/components/ui/badge";
 
