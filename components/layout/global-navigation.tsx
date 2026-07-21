@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ChevronDown, Dumbbell, FileSpreadsheet, Home, LayoutGrid, ListPlus, Plus, Settings } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, Dumbbell, FileSpreadsheet, GraduationCap, Home, LayoutGrid, ListPlus, Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BogunonBrand } from "@/components/brand/bogunon-brand";
@@ -8,13 +8,16 @@ import { SidebarOtter } from "@/components/layout/sidebar-otter";
 import type { Notice } from "@/lib/notices/model";
 
 const navigationGroups = [
-  { label: "보건업무", links: [
+  { label: "일정", links: [
     ["오늘", "/briefing", Home],
     ["캘린더", "/calendar", CalendarDays],
     ["연간 계획", "/annual", LayoutGrid],
   ] },
-  { label: "나의 기록", links: [
+  { label: "기록", links: [
     ["운동", "/exercise", Dumbbell],
+  ] },
+  { label: "학교 업무", links: [
+    ["동아리 학생기록", "/club-records", GraduationCap],
   ] },
   { label: "설정", links: [["설정", "/settings", Settings]] },
 ] as const;
