@@ -57,7 +57,7 @@
   .app-header { height: var(--app-header-height); left: 0; padding-inline: var(--space-6); }
   .profile-button__label { max-width: 190px; }
   .mobile-navigation { background: transparent; border: 0; bottom: calc(var(--mobile-nav-bottom) + env(safe-area-inset-bottom)); display: block; left: var(--mobile-nav-inset); position: fixed; right: var(--mobile-nav-inset); z-index: 40; }
-  .mobile-navigation__links { background: var(--mobile-nav-surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-nav-radius); box-shadow: var(--mobile-floating-shadow); display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); overflow: hidden; padding: var(--space-2) var(--space-4); }
+  .mobile-navigation__links { background: var(--mobile-nav-surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-nav-radius); box-shadow: var(--mobile-floating-shadow); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: hidden; padding: var(--space-2) var(--space-4); }
   .mobile-navigation a { align-items: center; color: var(--mobile-body); display: flex; flex-direction: column; font-size: var(--text-xs); font-weight: var(--weight-medium); gap: var(--space-2); justify-content: center; min-height: var(--mobile-nav-height); min-width: 0; position: relative; }
   .mobile-navigation a svg { height: var(--space-10); width: var(--space-10); }
   .mobile-navigation a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -314,6 +314,10 @@
   .settings-account__row { align-items: stretch; flex-direction: column; }
   .settings-account__row button { justify-content: center; }
   .settings-save-bar { grid-column: auto; margin-top: var(--space-2); position: static; }
+  .record-writer-grid { grid-template-columns: 1fr; }
+  .record-writer-card { border-radius: var(--mobile-card-radius); padding: var(--space-8); }
+  .record-writer-privacy { padding: var(--space-6); }
+  .record-writer-draft textarea { min-height: 280px; }
   .density-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   button, .quick-input-box__heading .button { min-height: var(--touch-target); }
   .quick-note { scroll-margin-top: var(--space-8); }

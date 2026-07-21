@@ -959,6 +959,38 @@
 .offline-card .button { margin-top: var(--space-8); }
 .app-loading { color: var(--brand-950); flex-direction: column; font-size: var(--text-section); font-weight: var(--weight-bold); gap: var(--space-5); }
 .app-loading img { border-radius: var(--radius-lg); }
+.record-writer-workspace { display: grid; gap: var(--space-8); }
+.record-writer-privacy { align-items: flex-start; background: var(--warning-soft); border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--warning); display: flex; gap: var(--space-5); padding: var(--space-6) var(--space-8); }
+.record-writer-privacy svg { flex: 0 0 auto; margin-top: var(--space-1); }
+.record-writer-privacy strong { color: var(--brand-950); font-size: var(--text-section); }
+.record-writer-privacy p { color: var(--ink-700); font-size: var(--text-md); margin: var(--space-1) 0 0; word-break: keep-all; }
+.record-writer-grid { display: grid; gap: var(--space-8); grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+.record-writer-card { align-content: start; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); display: grid; gap: var(--space-8); padding: var(--space-10); }
+.record-writer-card__heading { align-items: flex-start; display: flex; gap: var(--space-5); }
+.record-writer-card__heading > svg { background: var(--action-50); border-radius: var(--radius-md); box-sizing: content-box; color: var(--action-700); padding: var(--space-5); }
+.record-writer-card__heading h2 { color: var(--brand-950); font-size: var(--text-card); margin: 0; }
+.record-writer-card__heading p { color: var(--ink-500); font-size: var(--text-md); margin: var(--space-1) 0 0; }
+.record-writer-field { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); }
+.record-writer-field input, .record-writer-field textarea { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); color: var(--ink-950); padding: var(--space-5) var(--space-6); resize: vertical; width: 100%; }
+.record-writer-field input { min-height: var(--control-lg); text-transform: uppercase; }
+.record-writer-field textarea { line-height: var(--leading-body); }
+.record-writer-field input::placeholder, .record-writer-field textarea::placeholder { color: var(--ink-500); }
+.record-writer-field small { color: var(--ink-500); font-size: var(--text-meta); font-weight: var(--weight-regular); }
+.record-writer-upload { align-items: center; background: var(--surface-subtle); border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); cursor: pointer; display: grid; gap: var(--space-5); grid-template-columns: auto minmax(0, 1fr); min-height: 88px; padding: var(--space-6); position: relative; }
+.record-writer-upload:hover { background: var(--action-50); border-color: var(--action-500); }
+.record-writer-upload:focus-within { border-color: var(--action-600); box-shadow: var(--focus-ring); outline: 2px solid var(--action-600); outline-offset: 1px; }
+.record-writer-upload > svg { color: var(--action-700); }
+.record-writer-upload > span { display: grid; gap: var(--space-1); min-width: 0; }
+.record-writer-upload strong { color: var(--brand-950); font-size: var(--text-base); }
+.record-writer-upload small { color: var(--ink-500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.record-writer-upload input { inset: 0; opacity: 0; position: absolute; width: 100%; }
+.record-writer-generate { justify-self: stretch; }
+.record-writer-draft textarea { min-height: 350px; }
+.record-writer-field textarea { overflow-wrap: break-word; word-break: keep-all; }
+.record-writer-result__title { align-items: center; display: flex; gap: var(--space-3); }
+.record-writer-result__footer { align-items: center; display: flex; justify-content: space-between; }
+.record-writer-result__footer > span { color: var(--ink-500); font-size: var(--text-md); font-variant-numeric: tabular-nums; }
+.record-writer-message { align-items: center; color: var(--success); display: flex; font-size: var(--text-md); gap: var(--space-2); margin: calc(var(--space-3) * -1) 0 0; min-height: var(--space-10); overflow-wrap: break-word; word-break: keep-all; }
 @media (prefers-reduced-motion: reduce) { .exercise-sticker, .settings-switch, .settings-switch span, .settings-skeleton { animation: none; transition: none; } }
 .legal-page { background: var(--canvas-warm); color: var(--ink-950); min-height: 100dvh; }
 .legal-header { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; }

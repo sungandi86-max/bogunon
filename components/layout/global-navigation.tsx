@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ChevronDown, Dumbbell, FileSpreadsheet, Home, LayoutGrid, ListPlus, Plus, Settings } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, Dumbbell, FilePenLine, FileSpreadsheet, Home, LayoutGrid, ListPlus, Plus, Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BogunonBrand } from "@/components/brand/bogunon-brand";
@@ -15,6 +15,7 @@ const navigationGroups = [
   ] },
   { label: "기록", links: [
     ["운동", "/exercise", Dumbbell],
+    ["AI 기록", "/record-writer", FilePenLine],
   ] },
   { label: "설정", links: [["설정", "/settings", Settings]] },
 ] as const;
