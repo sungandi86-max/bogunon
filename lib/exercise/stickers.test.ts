@@ -17,6 +17,7 @@ const log = (id: string, date: string, stickerId: string): ExerciseLogRow => ({
   exercise_date: date,
   duration_minutes: null,
   note: null,
+  record_type: "exercise",
   created_at: `${date}T00:00:00Z`,
   updated_at: `${date}T00:00:00Z`,
 });

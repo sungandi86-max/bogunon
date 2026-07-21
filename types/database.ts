@@ -85,6 +85,9 @@ export type ExerciseStickerIconKey =
 
 export type ExerciseStickerColorKey = "mint" | "pink" | "yellow" | "coral" | "blue" | "lavender" | "sky" | "aqua" | "cream";
 
+export const EXERCISE_RECORD_TYPES = ["exercise", "lesson", "competition"] as const;
+export type ExerciseRecordType = (typeof EXERCISE_RECORD_TYPES)[number];
+
 export type ExerciseStickerRow = {
   id: string;
   user_id: string | null;
@@ -104,6 +107,40 @@ export type ExerciseLogRow = {
   exercise_date: string;
   duration_minutes: number | null;
   note: string | null;
+  record_type: ExerciseRecordType;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ExerciseLessonReviewRow = {
+  exercise_log_id: string;
+  record_type: "lesson";
+  lesson_focus: string | null;
+  learned: string | null;
+  mistakes: string | null;
+  coach_feedback: string | null;
+  next_goal: string | null;
+  memo: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ExerciseCompetitionReviewRow = {
+  exercise_log_id: string;
+  record_type: "competition";
+  competition_name: string | null;
+  location: string | null;
+  event_category: string | null;
+  grade: string | null;
+  partner: string | null;
+  total_games: number | null;
+  wins: number | null;
+  losses: number | null;
+  final_result: string | null;
+  strengths: string | null;
+  improvements: string | null;
+  next_goal: string | null;
+  memo: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -310,8 +347,20 @@ export type Database = {
       };
       exercise_logs: {
         Row: ExerciseLogRow;
-        Insert: Insert<ExerciseLogRow, "id" | "duration_minutes" | "note" | "created_at" | "updated_at">;
+        Insert: Insert<ExerciseLogRow, "id" | "duration_minutes" | "note" | "record_type" | "created_at" | "updated_at">;
         Update: Partial<ExerciseLogRow>;
+        Relationships: [];
+      };
+      exercise_lesson_reviews: {
+        Row: ExerciseLessonReviewRow;
+        Insert: Insert<ExerciseLessonReviewRow, "record_type" | "lesson_focus" | "learned" | "mistakes" | "coach_feedback" | "next_goal" | "memo" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ExerciseLessonReviewRow, "exercise_log_id" | "record_type">>;
+        Relationships: [];
+      };
+      exercise_competition_reviews: {
+        Row: ExerciseCompetitionReviewRow;
+        Insert: Insert<ExerciseCompetitionReviewRow, "record_type" | "competition_name" | "location" | "event_category" | "grade" | "partner" | "total_games" | "wins" | "losses" | "final_result" | "strengths" | "improvements" | "next_goal" | "memo" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ExerciseCompetitionReviewRow, "exercise_log_id" | "record_type">>;
         Relationships: [];
       };
       calendar_stickers: {
