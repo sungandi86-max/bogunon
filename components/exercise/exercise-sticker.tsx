@@ -1,4 +1,5 @@
 import {
+  Accessibility,
   Activity,
   Bike,
   Dumbbell,
@@ -53,6 +54,8 @@ function iconForKey(iconKey: string, props: LucideProps) {
       return <Bike {...props} data-exercise-icon="cycling" />;
     case "swimming":
       return <Waves {...props} data-exercise-icon="swimming" />;
+    case "pilates":
+      return <Accessibility {...props} data-exercise-icon="pilates" />;
     case "other":
     default:
       return <Activity {...props} data-exercise-icon="other" />;

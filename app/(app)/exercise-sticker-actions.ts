@@ -34,7 +34,7 @@ export type ExerciseReviewActionState =
 
 const idSchema = z.string().uuid();
 const colorSchema = z.enum(["mint", "pink", "yellow", "coral", "blue", "lavender", "sky", "aqua", "cream"]);
-const iconSchema = z.enum(["badminton", "badminton_lesson", "walking", "running", "strength", "stretching", "cycling", "swimming", "other"]);
+const iconSchema = z.enum(["badminton", "badminton_lesson", "walking", "running", "strength", "stretching", "cycling", "swimming", "pilates", "other"]);
 
 function refreshExercise(): void {
   revalidatePath("/exercise");

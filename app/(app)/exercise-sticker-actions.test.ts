@@ -163,9 +163,9 @@ describe("exercise sticker actions", () => {
     expect(updateExerciseLog).toHaveBeenCalledWith(logId, null, null);
   });
 
-  it("creates a custom sticker from a local icon key rather than an emoji", async () => {
-    const form = new FormData(); form.set("label", "요가"); form.set("iconKey", "stretching"); form.set("colorKey", "lavender");
+  it("creates a custom sticker from the Pilates icon key rather than an emoji", async () => {
+    const form = new FormData(); form.set("label", "필라테스 심화"); form.set("iconKey", "pilates"); form.set("colorKey", "pink");
     await expect(saveCustomExerciseStickerAction({ status: "idle" }, form)).resolves.toMatchObject({ status: "success" });
-    expect(saveCustomExerciseSticker).toHaveBeenCalledWith({ label: "요가", iconKey: "stretching", colorKey: "lavender" });
+    expect(saveCustomExerciseSticker).toHaveBeenCalledWith({ label: "필라테스 심화", iconKey: "pilates", colorKey: "pink" });
   });
 });

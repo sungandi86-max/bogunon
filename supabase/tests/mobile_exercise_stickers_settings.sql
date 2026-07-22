@@ -1,5 +1,5 @@
 begin;
-select plan(45);
+select plan(46);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 values
@@ -15,7 +15,8 @@ select is((select relrowsecurity from pg_class where oid = 'public.user_settings
 select is((select count(*)::integer from pg_policies where schemaname = 'public' and tablename = 'exercise_stickers'), 4, 'exercise sticker policies');
 select is((select count(*)::integer from pg_policies where schemaname = 'public' and tablename = 'exercise_logs'), 4, 'exercise log policies');
 select is((select count(*)::integer from pg_policies where schemaname = 'public' and tablename = 'user_settings'), 4, 'settings policies');
-select is((select count(*)::integer from public.exercise_stickers where user_id is null and is_default), 9, 'nine default stickers');
+select is((select count(*)::integer from public.exercise_stickers where user_id is null and is_default), 10, 'ten default stickers');
+select is((select count(*)::integer from public.exercise_stickers where user_id is null and is_default and label = '필라테스' and icon_key = 'pilates'), 1, 'Pilates default sticker');
 select has_index('public', 'exercise_logs', 'exercise_logs_user_date_idx');
 select has_index('public', 'exercise_logs', 'exercise_logs_sticker_id_idx');
 select has_index('public', 'exercise_stickers', 'exercise_stickers_default_icon_key');
@@ -32,7 +33,7 @@ select lives_ok($$insert into public.exercise_stickers (id, user_id, label, icon
 select lives_ok($$insert into public.exercise_logs (id, user_id, sticker_id, exercise_date) values ('96000000-0000-0000-0000-000000000004', '93000000-0000-0000-0000-000000000001', '10000000-0000-4000-8000-000000000001', current_date)$$, '사용자 A는 기본 스티커 기록을 만든다');
 select lives_ok($$insert into public.user_settings (id, user_id) values ('97000000-0000-0000-0000-000000000005', '93000000-0000-0000-0000-000000000001')$$, '사용자 A는 기본 설정을 만든다');
 select lives_ok($$update public.user_settings set neis_office_code = 'B10', neis_school_code = '7010082', neis_school_name = '여의도고등학교', neis_office_name = '서울특별시교육청' where user_id = '93000000-0000-0000-0000-000000000001'$$, '사용자 A는 내 기본 학교를 저장한다');
-select is((select count(*)::integer from public.exercise_stickers), 10, '사용자 A는 기본 스티커와 내 스티커를 조회한다');
+select is((select count(*)::integer from public.exercise_stickers), 11, '사용자 A는 기본 스티커와 내 스티커를 조회한다');
 select is((select count(*)::integer from public.exercise_logs), 1, '사용자 A는 내 운동 기록을 조회한다');
 select is((select count(*)::integer from public.user_settings), 1, '사용자 A는 내 설정을 조회한다');
 select throws_ok($$insert into public.exercise_logs (user_id, sticker_id, exercise_date) values ('93000000-0000-0000-0000-000000000001', '10000000-0000-4000-8000-000000000001', current_date)$$, '23505', null, '같은 날짜의 같은 스티커를 중복 저장하지 않는다');
@@ -41,7 +42,7 @@ select throws_ok($$update public.exercise_logs set user_id = '94000000-0000-0000
 select throws_ok($$update public.user_settings set user_id = '94000000-0000-0000-0000-000000000002' where id = '97000000-0000-0000-0000-000000000005'$$, '42501', null, '사용자 A는 설정 소유자를 바꾸지 못한다');
 
 select set_config('request.jwt.claim.sub', '94000000-0000-0000-0000-000000000002', true);
-select is((select count(*)::integer from public.exercise_stickers), 9, '사용자 B는 기본 스티커만 조회한다');
+select is((select count(*)::integer from public.exercise_stickers), 10, '사용자 B는 기본 스티커만 조회한다');
 select is((select count(*)::integer from public.exercise_logs), 0, '사용자 B는 사용자 A 운동 기록을 조회하지 못한다');
 select is((select count(*)::integer from public.user_settings), 0, '사용자 B는 사용자 A 설정을 조회하지 못한다');
 select throws_ok($$insert into public.exercise_stickers (user_id, label, icon_key, color_key) values ('93000000-0000-0000-0000-000000000001', '금지 스티커', 'other', 'cream')$$, '42501', null, '사용자 B는 사용자 A 소유 스티커를 만들지 못한다');
