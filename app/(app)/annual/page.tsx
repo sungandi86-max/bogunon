@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, RotateCcw, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 import { AssistantTrigger } from "@/components/ai/assistant-trigger";
@@ -37,7 +37,7 @@ export default async function AnnualPage({ searchParams }: { readonly searchPara
 
   return (
     <main className="page-canvas annual-page">
-      <PageHeader action={<span className="annual-desktop-assistant"><AssistantTrigger label="연간 초안" surface="annual" /></span>} description="월별 보건업무 제안을 확인하고 기존 업무나 일정으로 복사합니다." title="연간 플래너" />
+      <PageHeader action={<div className="page-header__actions"><Link className="button button--secondary" href="/calendar/generator"><Sparkles aria-hidden="true" size={16} />Smart Calendar 만들기</Link><span className="annual-desktop-assistant"><AssistantTrigger label="연간 초안" surface="annual" /></span></div>} description="월별 보건업무 제안을 확인하고 기존 업무나 일정으로 복사합니다." title="연간 플래너" />
       <nav aria-label="연도 이동" className="year-navigation">
         <Link aria-label="이전 연도" href={`/annual?year=${year - 1}`}><ChevronLeft size={17} />{year - 1}</Link>
         <strong>{year}년</strong>
