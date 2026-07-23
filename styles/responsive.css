@@ -299,6 +299,11 @@
   .custom-sticker-icons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .legacy-exercise-section { margin-top: var(--space-8); }
   .settings-form, .settings-skeleton-grid { gap: var(--space-6); grid-template-columns: 1fr; }
+  .school-settings-search__control { grid-template-columns: 1fr; }
+  .school-settings-search__control button, .school-settings-actions .button { justify-content: center; width: 100%; }
+  .school-settings-details { padding: var(--space-5); }
+  .school-settings-details div { gap: var(--space-3); grid-template-columns: 76px minmax(0, 1fr); }
+  .school-settings-results { max-height: 280px; }
   .pwa-install-card { align-items: stretch; grid-template-columns: 1fr; }
   .pwa-install-action { align-items: stretch; justify-items: stretch; }
   .pwa-install-button { min-height: var(--touch-target); width: 100%; }

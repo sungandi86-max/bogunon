@@ -13,6 +13,16 @@ export type NeisDefaultSchool = Pick<
   "officeCode" | "schoolCode" | "name" | "officeName"
 >;
 
+export type UserSchoolSettings = NeisDefaultSchool & {
+  readonly schoolLevel: string | null;
+  readonly region: string | null;
+  readonly address: string | null;
+  readonly latitude: number | null;
+  readonly longitude: number | null;
+  readonly mealEnabled: boolean;
+  readonly weatherEnabled: boolean;
+};
+
 export type NeisSchedule = {
   readonly id: string;
   readonly date: string;
