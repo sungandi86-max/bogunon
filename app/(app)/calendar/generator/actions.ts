@@ -25,16 +25,28 @@ const previewRequestSchema = z.object({
   semester: z.enum(["all", "first", "second"]),
   selectedPacks: z.array(z.enum(["holiday", "academic", "health"])).min(1).max(3),
 });
-const saveItemSchema = z.object({
+const saveItemFields = {
   clientId: z.string().trim().min(1).max(160),
+  area: z.enum(["schoolSchedule", "healthWork"]),
+  description: z.string().trim().max(300),
+  duplicateDecision: z.enum(["unchecked", "skip", "force"]),
+} as const;
+const selectedSaveItemSchema = z.object({
+  ...saveItemFields,
   title: z.string().trim().min(1).max(200),
   startDate: calendarDateSchema,
   endDate: calendarDateSchema,
-  area: z.enum(["schoolSchedule", "healthWork"]),
-  description: z.string().trim().min(1).max(300),
-  selected: z.boolean(),
-  duplicateDecision: z.enum(["unchecked", "skip", "force"]),
+  description: saveItemFields.description.min(1),
+  selected: z.literal(true),
 }).refine((item) => item.endDate >= item.startDate);
+const excludedSaveItemSchema = z.object({
+  ...saveItemFields,
+  title: z.string().trim().max(200),
+  startDate: z.string().max(10),
+  endDate: z.string().max(10),
+  selected: z.literal(false),
+});
+const saveItemSchema = z.union([selectedSaveItemSchema, excludedSaveItemSchema]);
 const saveItemsSchema = z.array(saveItemSchema).min(1).max(250);
 
 export type SmartCalendarSaveActionResult =

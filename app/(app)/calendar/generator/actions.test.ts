@@ -77,4 +77,29 @@ describe("Smart Calendar generator actions", () => {
     expect(result).toEqual({ status: "error", message: "생성할 일정 내용을 다시 확인해 주세요." });
     expect(persistSmartCalendarItems).not.toHaveBeenCalled();
   });
+
+  it("allows an excluded invalid item alongside valid selected items", async () => {
+    const result = await saveSmartCalendarAction([{
+      clientId: "excluded",
+      title: "",
+      startDate: "invalid",
+      endDate: "invalid",
+      area: "schoolSchedule",
+      description: "Smart Calendar",
+      selected: false,
+      duplicateDecision: "unchecked",
+    }, {
+      clientId: "selected",
+      title: "개학식",
+      startDate: "2026-03-02",
+      endDate: "2026-03-02",
+      area: "schoolSchedule",
+      description: "Smart Calendar",
+      selected: true,
+      duplicateDecision: "unchecked",
+    }]);
+
+    expect(result.status).toBe("completed");
+    expect(persistSmartCalendarItems).toHaveBeenCalledOnce();
+  });
 });
