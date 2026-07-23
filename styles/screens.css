@@ -877,6 +877,31 @@
 .legacy-exercise-section { margin-top: var(--space-12); }
 .exercise-sheet-intro { color: var(--ink-700); margin: 0 0 var(--space-7); }
 .settings-layout { display: grid; gap: var(--space-8); }
+.school-information-card { scroll-margin-top: var(--space-8); }
+.school-settings-search label { display: grid; gap: var(--space-3); }
+.school-settings-search label > span:first-child { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.school-settings-search__control { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) auto; }
+.school-settings-search__control button { white-space: nowrap; }
+.school-settings-search__example { color: var(--ink-500); font-size: var(--text-meta); }
+.school-settings-empty { color: var(--ink-500); font-size: var(--text-sm); margin: var(--space-6) 0 0; }
+.school-settings-results { border: 1px solid var(--line); border-radius: var(--radius-lg); display: grid; margin-top: var(--space-5); max-height: 320px; overflow-y: auto; }
+.school-settings-results button { align-items: flex-start; background: var(--surface); border: 0; color: var(--ink-950); cursor: pointer; display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr); padding: var(--space-5); text-align: left; }
+.school-settings-results > div + div { border-top: 1px solid var(--line-subtle); }
+.school-settings-results button { width: 100%; }
+.school-settings-results button:hover { background: var(--action-50); }
+.school-settings-results button > svg { color: var(--action-700); margin-top: var(--space-1); }
+.school-settings-results button > span { display: grid; gap: var(--space-1); min-width: 0; }
+.school-settings-results strong { font-size: var(--text-base); }
+.school-settings-results small { align-items: center; color: var(--ink-500); display: flex; font-size: var(--text-meta); gap: var(--space-2); }
+.school-settings-details { background: var(--surface-subtle); border: 1px solid var(--line-subtle); border-radius: var(--radius-lg); display: grid; gap: var(--space-3); margin: 0; padding: var(--space-6); }
+.school-settings-details div { display: grid; gap: var(--space-4); grid-template-columns: 88px minmax(0, 1fr); }
+.school-settings-details dt { color: var(--ink-500); font-size: var(--text-meta); }
+.school-settings-details dd { color: var(--ink-950); font-size: var(--text-sm); margin: 0; overflow-wrap: anywhere; }
+.school-settings-toggles { margin-top: var(--space-5); }
+.school-settings-toggles .settings-toggle-row { grid-template-columns: minmax(0, 1fr) auto; }
+.school-settings-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+.school-information-card > .form-message { margin: var(--space-5) 0 0; }
+.school-settings-privacy { border-top: 1px solid var(--line-subtle); color: var(--ink-500); font-size: var(--text-meta); line-height: var(--leading-body); margin: var(--space-7) 0 0; padding-top: var(--space-5); }
 .settings-form { display: grid; gap: var(--space-8); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .settings-card { overflow: hidden; padding: var(--space-10); }
 .settings-card__heading { align-items: flex-start; display: flex; gap: var(--space-5); margin-bottom: var(--space-8); }

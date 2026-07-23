@@ -4,7 +4,7 @@ import { addDays } from "@/lib/work-items/recurrence";
 import { ensureRecurringEvents, ensureRecurringTasks, listEvents, listTasks } from "@/lib/work-items/repository";
 import { listExerciseStickerData } from "@/lib/exercise/repository";
 import { listCalendarStickers } from "@/lib/calendar-stickers/repository";
-import { getDefaultNeisSchool } from "@/lib/neis/school-settings";
+import { getUserSchoolSettings } from "@/lib/neis/school-settings";
 
 export default async function BriefingPage() {
   const today = todayInSeoul();
@@ -17,7 +17,7 @@ export default async function BriefingPage() {
     listEvents(first, eventRangeEnd),
     listExerciseStickerData(today, today).catch(() => ({ stickers: [], logs: [] })),
     listCalendarStickers(first, last).catch(() => []),
-    getDefaultNeisSchool().catch(() => null),
+    getUserSchoolSettings().catch(() => null),
   ]);
   return <BriefingScreen calendarStickers={calendarStickers} events={events} exerciseLogs={exercise.logs} exerciseStickers={exercise.stickers} month={month} nowIso={new Date().toISOString()} school={school} tasks={tasks} today={today} />;
 }

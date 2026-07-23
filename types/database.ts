@@ -186,6 +186,13 @@ export type UserSettingsRow = {
   neis_school_code: string | null;
   neis_school_name: string | null;
   neis_office_name: string | null;
+  neis_school_level: string | null;
+  neis_region: string | null;
+  neis_address: string | null;
+  school_latitude: number | null;
+  school_longitude: number | null;
+  meal_enabled: boolean;
+  weather_enabled: boolean;
   created_at: string;
   updated_at: string;
 };
@@ -378,7 +385,7 @@ export type Database = {
       };
       user_settings: {
         Row: UserSettingsRow;
-        Insert: Insert<UserSettingsRow, "id" | "week_starts_on" | "default_event_minutes" | "event_reminders_enabled" | "task_due_reminders_enabled" | "exercise_enabled" | "writing_assistance_enabled" | "display_density" | "neis_office_code" | "neis_school_code" | "neis_school_name" | "neis_office_name" | "created_at" | "updated_at">;
+        Insert: Insert<UserSettingsRow, "id" | "week_starts_on" | "default_event_minutes" | "event_reminders_enabled" | "task_due_reminders_enabled" | "exercise_enabled" | "writing_assistance_enabled" | "display_density" | "neis_office_code" | "neis_school_code" | "neis_school_name" | "neis_office_name" | "neis_school_level" | "neis_region" | "neis_address" | "school_latitude" | "school_longitude" | "meal_enabled" | "weather_enabled" | "created_at" | "updated_at">;
         Update: Partial<UserSettingsRow>;
         Relationships: [];
       };

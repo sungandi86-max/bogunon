@@ -8,10 +8,10 @@ import { SchoolCalendarSticker } from "@/components/calendar/school-calendar-sti
 import { nextScheduledEvent, sortTodayEvents } from "@/lib/briefing/mobile-home";
 import { isQuickNote } from "@/lib/briefing/quick-notes";
 import { calendarStickerCategory } from "@/lib/calendar-stickers/catalog";
-import type { NeisDefaultSchool } from "@/lib/neis/types";
+import type { UserSchoolSettings } from "@/lib/neis/types";
 import type { CalendarStickerRow, EventRow, ExerciseLogRow, ExerciseStickerRow, TaskRow } from "@/types/database";
 
-export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [], exerciseStickers = [], month, nowIso, school = null, tasks, today }: { readonly calendarStickers?: CalendarStickerRow[]; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly exerciseStickers?: ExerciseStickerRow[]; readonly month: string; readonly nowIso?: string; readonly school?: NeisDefaultSchool | null; readonly tasks: TaskRow[]; readonly today: string }) {
+export function BriefingScreen({ calendarStickers = [], events, exerciseLogs = [], exerciseStickers = [], month, nowIso, school = null, tasks, today }: { readonly calendarStickers?: CalendarStickerRow[]; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly exerciseStickers?: ExerciseStickerRow[]; readonly month: string; readonly nowIso?: string; readonly school?: UserSchoolSettings | null; readonly tasks: TaskRow[]; readonly today: string }) {
   const activeTasks = tasks.filter((task) => task.status !== "completed" && task.status !== "onHold");
   const eventsToday = events.filter((event) => event.start_date <= today && event.end_date >= today);
   const priorityTasks = activeTasks.filter((task) => task.priority === "high" && (task.scheduled_date === today || task.due_date === today));
