@@ -35,7 +35,7 @@ describe("school settings actions", () => {
   it("validates and saves the selected school", async () => {
     await expect(saveUserSchoolSettingsAction(school)).resolves.toEqual({
       status: "success",
-      message: "학교 정보를 저장했습니다.",
+      message: "학교 설정이 저장되었습니다.",
     });
     expect(upsertUserSchoolSettings).toHaveBeenCalledWith(school);
   });

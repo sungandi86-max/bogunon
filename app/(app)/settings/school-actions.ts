@@ -25,7 +25,7 @@ export async function saveUserSchoolSettingsAction(input: unknown): Promise<Scho
     await upsertUserSchoolSettings(parsed.data);
     revalidatePath("/settings");
     revalidatePath("/briefing");
-    return { status: "success", message: "학교 정보를 저장했습니다." };
+    return { status: "success", message: "학교 설정이 저장되었습니다." };
   } catch (error) {
     return schoolSettingsError(error, "학교 정보를 저장하지 못했습니다.");
   }

@@ -882,6 +882,7 @@
 .school-settings-search label > span:first-child { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .school-settings-search__control { display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) auto; }
 .school-settings-search__control button { white-space: nowrap; }
+.school-settings-search__example { color: var(--ink-500); font-size: var(--text-meta); }
 .school-settings-empty { color: var(--ink-500); font-size: var(--text-sm); margin: var(--space-6) 0 0; }
 .school-settings-results { border: 1px solid var(--line); border-radius: var(--radius-lg); display: grid; margin-top: var(--space-5); max-height: 320px; overflow-y: auto; }
 .school-settings-results button { align-items: flex-start; background: var(--surface); border: 0; color: var(--ink-950); cursor: pointer; display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr); padding: var(--space-5); text-align: left; }

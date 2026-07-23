@@ -44,16 +44,18 @@ describe("SchoolInformationCard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(searchNeisSchoolsAction).mockResolvedValue({ status: "success", schools: [school] });
-    vi.mocked(saveUserSchoolSettingsAction).mockResolvedValue({ status: "success", message: "학교 정보를 저장했습니다." });
+    vi.mocked(saveUserSchoolSettingsAction).mockResolvedValue({ status: "success", message: "학교 설정이 저장되었습니다." });
     vi.mocked(clearUserSchoolSettingsAction).mockResolvedValue({ status: "success", message: "학교 정보를 초기화했습니다." });
   });
 
   it("searches, selects, and saves a school with toggle preferences", async () => {
     render(<SchoolInformationCard initialSchool={null} />);
+    expect(screen.getByPlaceholderText("학교명을 입력하세요")).toBeInTheDocument();
+    expect(screen.getByText("예) 여의도고등학교")).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText("학교 검색"), { target: { value: "여의도고" } });
     fireEvent.click(screen.getByRole("button", { name: "학교 검색" }));
     fireEvent.click(await screen.findByRole("button", { name: "여의도고등학교 선택" }));
-    fireEvent.click(screen.getByRole("checkbox", { name: "오늘의 날씨 사용" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "오늘 화면에 날씨 표시" }));
     fireEvent.click(screen.getByRole("button", { name: "학교 정보 저장" }));
 
     await waitFor(() => expect(saveUserSchoolSettingsAction).toHaveBeenCalledWith(expect.objectContaining({
@@ -61,7 +63,25 @@ describe("SchoolInformationCard", () => {
       mealEnabled: true,
       weatherEnabled: false,
     })));
-    expect(await screen.findByText("학교 정보를 저장했습니다.")).toBeInTheDocument();
+    expect(await screen.findByText("학교 설정이 저장되었습니다.")).toBeInTheDocument();
+  });
+
+  it("presents the revised toggle copy and change-save-reset action flow", () => {
+    const { container } = render(<SchoolInformationCard initialSchool={savedSchool} />);
+    expect(screen.getByText("오늘 화면에 급식 표시")).toBeInTheDocument();
+    expect(screen.getByText("급식 카드 표시 여부를 설정합니다.")).toBeInTheDocument();
+    expect(screen.getByText("오늘 화면에 날씨 표시")).toBeInTheDocument();
+    expect(screen.getByText("날씨 카드 표시 여부를 설정합니다.")).toBeInTheDocument();
+
+    const buttons = Array.from(container.querySelectorAll<HTMLButtonElement>(".school-settings-actions button"));
+    expect(buttons.map((button) => button.textContent)).toEqual([
+      "학교 변경",
+      "학교 정보 저장",
+      "학교 정보 초기화",
+    ]);
+    expect(buttons[0]).toHaveClass("button--secondary");
+    expect(buttons[1]).toHaveClass("button--primary");
+    expect(buttons[2]).toHaveClass("button--danger");
   });
 
   it("shows a search failure", async () => {
@@ -90,7 +110,7 @@ describe("SchoolInformationCard", () => {
     render(<SchoolInformationCard initialSchool={savedSchool} />);
     fireEvent.click(screen.getByRole("button", { name: "학교 정보 저장" }));
     expect(screen.getByRole("button", { name: "저장 중…" })).toBeDisabled();
-    resolveSave({ status: "success", message: "학교 정보를 저장했습니다." });
-    await screen.findByText("학교 정보를 저장했습니다.");
+    resolveSave({ status: "success", message: "학교 설정이 저장되었습니다." });
+    await screen.findByText("학교 설정이 저장되었습니다.");
   });
 });

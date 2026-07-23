@@ -137,11 +137,12 @@ export function SchoolInformationCard({ initialSchool }: { readonly initialSchoo
             <span>학교 검색</span>
             <span className="school-settings-search__control">
               <input
+                aria-label="학교 검색"
                 autoComplete="off"
                 disabled={busy}
                 maxLength={80}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="예: 여의도고등학교"
+                placeholder="학교명을 입력하세요"
                 value={query}
               />
               <button className="button button--primary" disabled={busy || query.trim().length < 2} type="submit">
@@ -149,6 +150,7 @@ export function SchoolInformationCard({ initialSchool }: { readonly initialSchoo
                 {pending === "search" ? "검색 중…" : "학교 검색"}
               </button>
             </span>
+            <small className="school-settings-search__example">예) 여의도고등학교</small>
           </label>
         </form>
       )}
@@ -187,21 +189,21 @@ export function SchoolInformationCard({ initialSchool }: { readonly initialSchoo
           </dl>
           <div className="school-settings-toggles">
             <label className="settings-toggle-row">
-              <span><strong>오늘의 급식 사용</strong><small>오늘 화면에서 선택한 학교의 급식을 조회합니다.</small></span>
-              <input aria-label="오늘의 급식 사용" checked={mealEnabled} disabled={busy} onChange={(event) => setMealEnabled(event.target.checked)} type="checkbox" />
+              <span><strong>오늘 화면에 급식 표시</strong><small>급식 카드 표시 여부를 설정합니다.</small></span>
+              <input aria-label="오늘 화면에 급식 표시" checked={mealEnabled} disabled={busy} onChange={(event) => setMealEnabled(event.target.checked)} type="checkbox" />
               <span aria-hidden="true" className="settings-switch"><span /></span>
             </label>
             <label className="settings-toggle-row">
-              <span><strong>오늘의 날씨 사용</strong><small>학교 지역의 날씨 연동을 사용할 수 있도록 설정합니다.</small></span>
-              <input aria-label="오늘의 날씨 사용" checked={weatherEnabled} disabled={busy} onChange={(event) => setWeatherEnabled(event.target.checked)} type="checkbox" />
+              <span><strong>오늘 화면에 날씨 표시</strong><small>날씨 카드 표시 여부를 설정합니다.</small></span>
+              <input aria-label="오늘 화면에 날씨 표시" checked={weatherEnabled} disabled={busy} onChange={(event) => setWeatherEnabled(event.target.checked)} type="checkbox" />
               <span aria-hidden="true" className="settings-switch"><span /></span>
             </label>
           </div>
           <div className="school-settings-actions">
+            <button className="button button--secondary" disabled={busy} onClick={() => { setSelectedSchool(null); setMessage(""); }} type="button">학교 변경</button>
             <button className="button button--primary" disabled={busy} onClick={() => void saveSchool()} type="button">
               {pending === "save" ? "저장 중…" : "학교 정보 저장"}
             </button>
-            <button className="button button--secondary" disabled={busy} onClick={() => { setSelectedSchool(null); setMessage(""); }} type="button">학교 변경</button>
             <button className="button button--danger" disabled={busy} onClick={() => void clearSchool()} type="button">
               {pending === "clear" ? "초기화 중…" : "학교 정보 초기화"}
             </button>
