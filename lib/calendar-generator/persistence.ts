@@ -49,10 +49,6 @@ export async function persistSmartCalendarItems(request: {
   );
   const results: SmartCalendarItemResult[] = [];
   for (const item of request.items) {
-    if (!item.selected) {
-      results.push({ clientId: item.clientId, title: item.title, status: "user-excluded" });
-      continue;
-    }
     const identity = smartCalendarEventIdentity(item);
     const duplicate = existing.get(identity);
     if (duplicate !== undefined && item.duplicateDecision !== "force") {
@@ -62,6 +58,10 @@ export async function persistSmartCalendarItems(request: {
         status: "duplicate-excluded",
         eventId: duplicate.id,
       });
+      continue;
+    }
+    if (!item.selected) {
+      results.push({ clientId: item.clientId, title: item.title, status: "user-excluded" });
       continue;
     }
     let inserted: SmartCalendarInsertResult;

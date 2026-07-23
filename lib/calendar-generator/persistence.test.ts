@@ -37,7 +37,7 @@ describe("persistSmartCalendarItems", () => {
 
     const result = await persistSmartCalendarItems({
       items: [
-        saveItem(),
+        saveItem({ selected: false }),
         saveItem({ clientId: "forced", duplicateDecision: "force" }),
         saveItem({ clientId: "excluded", selected: false, title: "사용자 제외" }),
         saveItem({ clientId: "failed", title: "저장 실패", startDate: "2026-04-01", endDate: "2026-04-01" }),
