@@ -320,6 +320,23 @@
   .settings-account__row button { justify-content: center; }
   .settings-save-bar { grid-column: auto; margin-top: var(--space-2); position: static; }
   .density-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .smart-calendar-page .page-header { align-items: flex-start; flex-direction: column; }
+  .smart-calendar-page .page-header .button { width: 100%; }
+  .smart-calendar-criteria, .smart-calendar-preview-section, .smart-calendar-result, .smart-calendar-empty { border-radius: var(--mobile-card-radius); padding: var(--space-8); }
+  .smart-calendar-school, .smart-calendar-criteria__controls { grid-template-columns: 1fr; }
+  .smart-calendar-school { gap: var(--space-5); }
+  .smart-calendar-segments, .smart-calendar-packs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .smart-calendar-segments label, .smart-calendar-packs label { justify-content: center; min-width: 0; padding-inline: var(--space-3); }
+  .smart-calendar-preview-section > header { align-items: flex-start; display: grid; gap: var(--space-2); }
+  .smart-calendar-preview-section > header p { text-align: left; }
+  .smart-calendar-preview-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .smart-calendar-preview__item { grid-template-columns: auto minmax(0, 1fr); padding: var(--space-5); }
+  .smart-calendar-preview__actions { flex-direction: row; grid-column: 2; justify-content: flex-end; }
+  .smart-calendar-preview__dates { align-items: stretch; grid-template-columns: 1fr; }
+  .smart-calendar-preview__dates > span { display: none; }
+  .smart-calendar-preview__duplicate { align-items: flex-start; display: grid; }
+  .smart-calendar-result__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .smart-calendar-result__actions { display: grid; width: 100%; }
   button, .quick-input-box__heading .button { min-height: var(--touch-target); }
   .quick-note { scroll-margin-top: var(--space-8); }
 }

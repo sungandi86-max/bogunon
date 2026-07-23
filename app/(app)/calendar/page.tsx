@@ -1,3 +1,6 @@
+import { Sparkles } from "lucide-react";
+import Link from "next/link";
+
 import { CalendarCreateButton } from "@/components/calendar/calendar-create-button";
 import { CalendarWorkspace } from "@/components/calendar/calendar-workspace";
 import { MobileCreateButton } from "@/components/layout/mobile-create-button";
@@ -20,7 +23,7 @@ export default async function CalendarPage({ searchParams }: { readonly searchPa
     listAllEvents(), listTasks(), listWorkflowData(), listAllCalendarStickers().catch(() => []),
   ]);
   return <main className="calendar-page"><div className="page-canvas">
-    <PageHeader action={<MobileCreateButton kind="event" />} description="업무·학교·개인 일정과 날짜 기록을 한곳에 모아봅니다." title="캘린더" />
+    <PageHeader action={<div className="page-header__actions"><Link className="button button--secondary" href="/calendar/generator"><Sparkles aria-hidden="true" size={16} />Smart Calendar 만들기</Link><MobileCreateButton kind="event" /></div>} description="업무·학교·개인 일정과 날짜 기록을 한곳에 모아봅니다." title="캘린더" />
     <CalendarWorkspace events={events} highlight={params.highlight} initialDate={selectedDate} initialStickerOpen={params.create === "sticker"} initialView={view} key={`${view}-${selectedDate}`} stickers={schoolStickers} tasks={tasks} today={today} toolbarAction={<CalendarCreateButton />} workflow={workflow} />
   </div></main>;
 }
