@@ -15,6 +15,7 @@ export const DEFAULT_EXERCISE_STICKERS: readonly DefaultExerciseSticker[] = [
   { iconKey: "stretching", label: "스트레칭", colorKey: "lavender" },
   { iconKey: "cycling", label: "자전거", colorKey: "sky" },
   { iconKey: "swimming", label: "수영", colorKey: "aqua" },
+  { iconKey: "pilates", label: "필라테스", colorKey: "pink" },
   { iconKey: "other", label: "기타", colorKey: "cream" },
 ] as const;
 
@@ -27,6 +28,7 @@ const assetNames: Readonly<Record<ExerciseStickerIconKey, string>> = {
   stretching: "stretching",
   cycling: "cycling",
   swimming: "swimming",
+  pilates: "pilates",
   other: "other",
 };
 

@@ -18,6 +18,7 @@ const sticker: ExerciseStickerRow = {
   created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z",
 };
 const runningSticker: ExerciseStickerRow = { ...sticker, id: "10000000-0000-4000-8000-000000000002", label: "러닝", icon_key: "running", display_order: 20 };
+const pilatesSticker: ExerciseStickerRow = { ...sticker, id: "10000000-0000-4000-8000-000000000010", label: "필라테스", icon_key: "pilates", color_key: "pink", display_order: 90 };
 const legacyLessonSticker: ExerciseStickerRow = { ...sticker, id: "10000000-0000-4000-8000-000000000006", label: "legacy lesson", icon_key: "badminton_lesson", display_order: 15 };
 const lessonLog: ExerciseLogRow = { id: "20000000-0000-4000-8000-000000000003", user_id: "user-1", sticker_id: sticker.id, exercise_date: "2026-07-18", duration_minutes: null, note: null, record_type: "lesson", created_at: "2026-07-18T00:00:00Z", updated_at: "2026-07-18T00:00:00Z" };
 const runningLessonLog: ExerciseLogRow = { ...lessonLog, id: "20000000-0000-4000-8000-000000000004", sticker_id: runningSticker.id };
@@ -29,6 +30,18 @@ afterEach(() => {
 });
 
 describe("ExerciseStickerPicker", () => {
+  it("selects Pilates for today's record and marks an existing Pilates completion", () => {
+    const pilatesLog: ExerciseLogRow = { ...lessonLog, id: "20000000-0000-4000-8000-000000000010", sticker_id: pilatesSticker.id, record_type: "exercise" };
+    const { container, rerender } = render(<ExerciseStickerPicker date="2026-07-18" logs={[]} stickers={[sticker, pilatesSticker]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "필라테스 선택" }));
+    expect(container.querySelector<HTMLInputElement>('input[name="stickerId"]')).toHaveValue(pilatesSticker.id);
+
+    rerender(<ExerciseStickerPicker date="2026-07-18" logs={[pilatesLog]} stickers={[sticker, pilatesSticker]} />);
+    expect(screen.getByRole("button", { name: "필라테스 선택, 이미 기록됨" })).toBeDisabled();
+    expect(screen.getByRole("img", { name: "필라테스 운동 스티커, 비활성" })).toBeInTheDocument();
+  });
+
   it("excludes the legacy badminton lesson sticker from new record choices", () => {
     const { container } = render(<ExerciseStickerPicker date="2026-07-18" logs={[]} stickers={[legacyLessonSticker, sticker]} />);
 

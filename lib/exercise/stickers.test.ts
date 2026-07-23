@@ -33,6 +33,7 @@ describe("exercise stickers", () => {
       "stretching",
       "cycling",
       "swimming",
+      "pilates",
       "other",
     ]);
     for (const sticker of DEFAULT_EXERCISE_STICKERS) {

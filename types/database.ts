@@ -81,6 +81,7 @@ export type ExerciseStickerIconKey =
   | "stretching"
   | "cycling"
   | "swimming"
+  | "pilates"
   | "other";
 
 export type ExerciseStickerColorKey = "mint" | "pink" | "yellow" | "coral" | "blue" | "lavender" | "sky" | "aqua" | "cream";

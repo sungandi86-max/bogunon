@@ -184,6 +184,7 @@ describe("ExerciseSticker", () => {
       stretching: "stretching",
       cycling: "cycling",
       swimming: "swimming",
+      pilates: "pilates",
       other: "other",
     } as const;
 
