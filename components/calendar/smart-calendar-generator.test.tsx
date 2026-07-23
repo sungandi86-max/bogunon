@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SmartCalendarGenerator } from "@/components/calendar/smart-calendar-generator";
@@ -73,11 +73,31 @@ describe("SmartCalendarGenerator", () => {
     });
   });
 
+  it("presents the polished criteria and empty state before generating a preview", () => {
+    render(<SmartCalendarGenerator currentYear={2026} school={{ name: "여의도고등학교", schoolLevel: "고등학교", region: "서울특별시" }} />);
+
+    expect(screen.getByRole("heading", { name: "Smart Calendar 생성" })).toBeInTheDocument();
+    expect(screen.getByLabelText("대상 연도")).toHaveValue("2026");
+    expect(screen.getByRole("checkbox", { name: /학사일정/ })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /보건업무/ })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: /공휴일/ })).toBeChecked();
+    expect(screen.getByText("아직 생성된 일정 후보가 없습니다.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("checkbox", { name: /공휴일/ }));
+    expect(screen.getByRole("checkbox", { name: /공휴일/ })).not.toBeChecked();
+  });
+
   it("builds a preview, allows editing and duplicate override, then shows result links", async () => {
     render(<SmartCalendarGenerator currentYear={2026} school={{ name: "여의도고등학교", schoolLevel: "고등학교", region: "서울특별시" }} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "일정 후보 미리보기" }));
+    fireEvent.click(screen.getByRole("button", { name: "일정 후보 생성하기" }));
     expect(await screen.findByDisplayValue("개학식")).toBeInTheDocument();
+    expect(screen.queryByText("아직 생성된 일정 후보가 없습니다.")).not.toBeInTheDocument();
+    const previewSummary = within(screen.getByRole("status"));
+    expect(previewSummary.getByText("생성 예정")).toBeInTheDocument();
+    expect(previewSummary.getByText("중복")).toBeInTheDocument();
+    expect(previewSummary.getByText("제외")).toBeInTheDocument();
+    expect(previewSummary.getByText("확인 필요")).toBeInTheDocument();
     expect(screen.getByLabelText("삼일절 생성하지 않기")).toBeChecked();
     expect(screen.getByRole("link", { name: "기존 일정 보기" })).toHaveAttribute(
       "href",
@@ -89,10 +109,13 @@ describe("SmartCalendarGenerator", () => {
     fireEvent.click(screen.getByLabelText("삼일절 그래도 생성"));
     fireEvent.click(screen.getByRole("button", { name: /선택한 일정 생성/ }));
 
-    expect(await screen.findByRole("heading", { name: "Smart Calendar 생성 결과" })).toBeInTheDocument();
-    expect(screen.getByText("1개 생성 성공")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "캘린더에서 보기" })).toHaveAttribute("href", "/calendar?date=2026-03-02&view=month");
-    expect(screen.getByRole("link", { name: "연간계획에서 보기" })).toHaveAttribute("href", "/annual?year=2026");
+    expect(await screen.findByRole("heading", { name: "생성 완료" })).toBeInTheDocument();
+    expect(screen.getByText("생성")).toBeInTheDocument();
+    expect(screen.getByText("중복 제외")).toBeInTheDocument();
+    expect(screen.getByText("사용자 제외")).toBeInTheDocument();
+    expect(screen.getByText("실패")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "캘린더 보기" })).toHaveAttribute("href", "/calendar?date=2026-03-02&view=month");
+    expect(screen.getByRole("link", { name: "연간계획 보기" })).toHaveAttribute("href", "/annual?year=2026");
   });
 
   it("shows failed items and never labels a partial result as full success", async () => {
@@ -107,20 +130,23 @@ describe("SmartCalendarGenerator", () => {
       },
     });
     render(<SmartCalendarGenerator currentYear={2026} school={{ name: "여의도고등학교", schoolLevel: "고등학교", region: "서울특별시" }} />);
-    fireEvent.click(screen.getByRole("button", { name: "일정 후보 미리보기" }));
+    fireEvent.click(screen.getByRole("button", { name: "일정 후보 생성하기" }));
     await screen.findByDisplayValue("개학식");
     const submit = await screen.findByRole("button", { name: /선택한 일정 생성/ });
     await waitFor(() => expect(submit).toBeEnabled());
     fireEvent.click(submit);
 
-    expect(await screen.findByText("1개 저장 실패")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "생성 완료" })).toBeInTheDocument();
+    const resultSummary = within(screen.getByRole("status"));
+    expect(resultSummary.getByText("실패")).toBeInTheDocument();
+    expect(resultSummary.getAllByText("1")).toHaveLength(2);
     expect(screen.getByText("개학식 · DB 오류")).toBeInTheDocument();
     expect(screen.queryByText("모든 일정이 생성되었습니다.")).not.toBeInTheDocument();
   });
 
   it("can exclude a preview item before saving", async () => {
     render(<SmartCalendarGenerator currentYear={2026} school={{ name: "여의도고등학교", schoolLevel: "고등학교", region: "서울특별시" }} />);
-    fireEvent.click(screen.getByRole("button", { name: "일정 후보 미리보기" }));
+    fireEvent.click(screen.getByRole("button", { name: "일정 후보 생성하기" }));
     await screen.findByDisplayValue("개학식");
     fireEvent.click(screen.getByRole("button", { name: "개학식 제외" }));
     fireEvent.click(screen.getByRole("button", { name: /선택한 일정 생성/ }));
