@@ -19,9 +19,9 @@ describe("AI writer navigation", () => {
 
     const desktop = screen.getByRole("navigation", { name: "주요 메뉴" });
     const mobile = screen.getByRole("navigation", { name: "모바일 주요 메뉴" });
-    const desktopLink = within(desktop).getByRole("link", { name: "AI 문서 작성" });
+    const desktopLink = within(desktop).getByRole("link", { name: "생기부 도우미" });
     expect(desktopLink).toHaveAttribute("href", "/ai-writer");
     expect(desktopLink).toHaveAttribute("aria-current", "page");
-    expect(within(mobile).queryByRole("link", { name: "AI 문서 작성" })).not.toBeInTheDocument();
+    expect(within(mobile).queryByRole("link", { name: "생기부 도우미" })).not.toBeInTheDocument();
   });
 });

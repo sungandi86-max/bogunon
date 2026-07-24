@@ -42,8 +42,7 @@ function requestKey(userId: string, request: AiDocumentWriterRequest): string {
 function inspectRequest(request: AiDocumentWriterRequest): readonly string[] {
   const warnings = [
     request.activityReport,
-    request.selfEvaluation,
-    request.teacherMemo,
+    request.additionalRecord,
   ].flatMap((value) => {
     const result = inspectPrivacy(value);
     return result.allowed ? [] : result.warnings;

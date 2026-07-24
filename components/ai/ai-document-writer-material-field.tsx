@@ -1,61 +1,86 @@
-import { FileText, Upload } from "lucide-react";
+import { FileCheck2, FileText, LoaderCircle, Trash2, Upload } from "lucide-react";
 import type { ChangeEvent } from "react";
 
-import type { StudentMaterialKey } from "@/components/ai/ai-document-writer-types";
+import type { ActivityReportFileState } from "@/components/ai/ai-document-writer-types";
+import { Button } from "@/components/ui/button";
+import { DOCUMENT_UPLOAD_ACCEPT } from "@/lib/ai/document-text-extraction";
 
 interface AiDocumentWriterMaterialFieldProps {
-  readonly fieldKey: StudentMaterialKey;
-  readonly fileMessage: string | undefined;
-  readonly label: string;
-  readonly onFile: (key: StudentMaterialKey, file: File) => void;
-  readonly onValue: (key: StudentMaterialKey, value: string) => void;
-  readonly placeholder: string;
+  readonly fileState: ActivityReportFileState | null;
+  readonly onFile: (file: File) => void;
+  readonly onRemoveFile: () => void;
+  readonly onValue: (value: string) => void;
   readonly value: string;
 }
 
 export function AiDocumentWriterMaterialField({
-  fieldKey,
-  fileMessage,
-  label,
+  fileState,
   onFile,
+  onRemoveFile,
   onValue,
-  placeholder,
   value,
 }: AiDocumentWriterMaterialFieldProps) {
   function chooseFile(event: ChangeEvent<HTMLInputElement>): void {
     const file = event.target.files?.[0];
-    if (file) onFile(fieldKey, file);
+    if (file) onFile(file);
     event.target.value = "";
   }
 
   return (
     <div className="ai-writer-material-field">
       <div className="ai-writer-material-field__heading">
-        <label htmlFor={`ai-${fieldKey}`}>{label}</label>
+        <div>
+          <label htmlFor="ai-activityReport">활동보고서</label>
+          <p>
+            학생이 제출한 활동보고서를 붙여넣거나 파일로 불러오세요.
+            활동 내용, 느낀 점, 자기평가가 포함된 원본 그대로 사용할 수 있습니다.
+          </p>
+        </div>
         <label className="button button--secondary ai-writer-file-button">
           <Upload aria-hidden="true" size={16} />
-          TXT 불러오기
+          {fileState ? "파일 교체" : "파일 불러오기"}
           <input
-            accept=".txt,text/plain"
-            aria-label={`${label} TXT 파일`}
+            accept={DOCUMENT_UPLOAD_ACCEPT}
+            aria-label="활동보고서 파일"
             onChange={chooseFile}
             type="file"
           />
         </label>
       </div>
       <textarea
-        id={`ai-${fieldKey}`}
-        maxLength={6_000}
-        onChange={(event) => onValue(fieldKey, event.target.value)}
-        placeholder={placeholder}
-        rows={4}
+        aria-describedby="ai-activityReport-limit"
+        id="ai-activityReport"
+        onChange={(event) => onValue(event.target.value)}
+        placeholder="학생 활동보고서 내용을 입력하세요."
+        rows={10}
         value={value}
       />
-      {fileMessage && (
-        <small className="ai-writer-file-status">
-          <FileText aria-hidden="true" size={15} />
-          {fileMessage}
-        </small>
+      <small id="ai-activityReport-limit">
+        TXT 2MB · DOCX/HWP/HWPX 10MB · PDF 15MB · 초안 생성은 15,000자까지
+      </small>
+      {fileState && (
+        <div className={`ai-writer-file-summary is-${fileState.status}`}>
+          <div>
+            {fileState.status === "extracting"
+              ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={17} />
+              : fileState.status === "ready"
+                ? <FileCheck2 aria-hidden="true" size={17} />
+                : <FileText aria-hidden="true" size={17} />}
+            <span>
+              <strong>{fileState.fileName}</strong>
+              <small>
+                {fileState.status === "extracting" && "텍스트 추출 중"}
+                {fileState.status === "ready"
+                  && `텍스트 추출 완료 · ${(fileState.characterCount ?? 0).toLocaleString("ko-KR")}자`}
+                {fileState.status === "error" && fileState.message}
+              </small>
+            </span>
+          </div>
+          <Button aria-label="활동보고서 파일 삭제" onClick={onRemoveFile} variant="ghost">
+            <Trash2 aria-hidden="true" size={16} />
+            삭제
+          </Button>
+        </div>
       )}
     </div>
   );

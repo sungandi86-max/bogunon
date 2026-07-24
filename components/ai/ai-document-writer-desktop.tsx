@@ -1,61 +1,44 @@
 "use client";
 
-import { ShieldCheck } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 
+import { requestAiDocumentDraft } from "@/components/ai/ai-document-writer-client";
 import { AiDocumentWriterForm } from "@/components/ai/ai-document-writer-form";
+import { AiDocumentWriterPrivacyNotice } from "@/components/ai/ai-document-writer-privacy-notice";
 import { AiDocumentWriterResultPanel } from "@/components/ai/ai-document-writer-result";
 import {
   INITIAL_AI_DOCUMENT_VALUES,
+  type ActivityReportFileState,
   type AiDocumentWriterFormValues,
   type GuidelineSourceType,
   type SchoolRecordGuideline,
-  type StudentMaterialKey,
 } from "@/components/ai/ai-document-writer-types";
+import { PageHeader } from "@/components/layout/page-header";
 import {
-  AiDocumentWriterResultSchema,
   countCharacters,
   countUtf8Bytes,
+  MAX_ACTIVITY_REPORT_CHARACTERS,
 } from "@/lib/ai/document-writer";
 import type { AiDocumentWriterResult } from "@/lib/ai/document-writer";
 import {
   DocumentTextExtractionError,
-  extractTextFile,
+  extractDocumentText,
 } from "@/lib/ai/document-text-extraction";
 import {
   reviewSchoolRecordDraft,
   type SchoolRecordReviewIssue,
 } from "@/lib/ai/school-record-review";
 
-const CLIENT_TIMEOUT_MS = 15_000;
-const MAX_STUDENT_TEXT_LENGTH = 6_000;
-
-function hasSource(values: AiDocumentWriterFormValues): boolean {
-  return [values.activityReport, values.selfEvaluation, values.teacherMemo]
-    .some((value) => value.trim().length > 0);
-}
-
-async function responseMessage(response: Response): Promise<string> {
-  try {
-    const body = await response.json() as { error?: unknown };
-    return typeof body.error === "string"
-      ? body.error
-      : "초안을 만들지 못했습니다. 다시 시도해 주세요.";
-  } catch {
-    return "초안을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.";
-  }
-}
+const GUIDELINE_MAX_BYTES = 2 * 1024 * 1024;
 
 export function AiDocumentWriterDesktop() {
   const [values, setValues] = useState(INITIAL_AI_DOCUMENT_VALUES);
+  const [activityFileState, setActivityFileState] = useState<ActivityReportFileState | null>(null);
   const [result, setResult] = useState<AiDocumentWriterResult | null>(null);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [fileMessages, setFileMessages] = useState<
-    Partial<Record<StudentMaterialKey, string>>
-  >({});
   const [academicYear, setAcademicYear] = useState(String(new Date().getFullYear()));
   const [guidelineSourceType, setGuidelineSourceType] =
     useState<GuidelineSourceType>("guide");
@@ -64,50 +47,71 @@ export function AiDocumentWriterDesktop() {
   const [dismissedIssues, setDismissedIssues] = useState<readonly string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const resultRef = useRef<HTMLElement>(null);
+  const activityExtractionId = useRef(0);
+  const guidelineExtractionId = useRef(0);
 
   function update<K extends keyof AiDocumentWriterFormValues>(
     key: K,
     value: AiDocumentWriterFormValues[K],
   ): void {
     setValues((current) => ({ ...current, [key]: value }));
+    if (key === "activityReport" && activityFileState?.status === "ready") {
+      setActivityFileState((current) => current
+        ? { ...current, characterCount: Array.from(String(value)).length }
+        : null);
+    }
   }
 
-  async function loadMaterialFile(key: StudentMaterialKey, file: File): Promise<void> {
+  async function loadActivityFile(file: File): Promise<void> {
+    const extractionId = ++activityExtractionId.current;
+    setActivityFileState({ fileName: file.name, status: "extracting" });
     try {
-      const text = await extractTextFile(file);
-      if (text.length > MAX_STUDENT_TEXT_LENGTH) {
-        throw new DocumentTextExtractionError(
-          "FILE_TOO_LARGE",
-          "추출된 내용이 너무 깁니다. 6000자 이하로 줄인 TXT 파일을 사용해 주세요.",
-        );
-      }
-      update(key, text);
-      setFileMessages((current) => ({ ...current, [key]: `${file.name} 내용을 불러왔습니다.` }));
+      const extracted = await extractDocumentText(file);
+      if (extractionId !== activityExtractionId.current) return;
+      update("activityReport", extracted.text);
+      setActivityFileState({
+        characterCount: Array.from(extracted.text).length,
+        fileName: file.name,
+        format: extracted.format,
+        status: "ready",
+      });
+      setError("");
     } catch (fileError) {
+      if (extractionId !== activityExtractionId.current) return;
       const message = fileError instanceof DocumentTextExtractionError
         ? fileError.message
-        : "파일을 읽지 못했습니다. 다시 시도해 주세요.";
-      setFileMessages((current) => ({ ...current, [key]: message }));
+        : "파일을 읽지 못했습니다. 내용을 직접 붙여넣거나 다른 파일을 선택해 주세요.";
+      setActivityFileState({
+        fileName: file.name,
+        message,
+        status: "error",
+      });
     }
   }
 
   async function loadGuidelineFile(file: File): Promise<void> {
+    const extractionId = ++guidelineExtractionId.current;
     setGuidelineError("");
     if (!/^\d{4}$/.test(academicYear)) {
       setGuidelineError("기준 학년도를 4자리 숫자로 입력해 주세요.");
       return;
     }
     try {
-      const text = await extractTextFile(file);
+      const extracted = await extractDocumentText(file, {
+        allowedFormats: ["txt"],
+        maxBytes: GUIDELINE_MAX_BYTES,
+      });
+      if (extractionId !== guidelineExtractionId.current) return;
       setGuideline({
         academicYear,
         fileName: file.name,
         schoolLevel: "고등학교",
         sourceType: guidelineSourceType,
-        text,
+        text: extracted.text,
       });
       setDismissedIssues([]);
     } catch (fileError) {
+      if (extractionId !== guidelineExtractionId.current) return;
       setGuidelineError(fileError instanceof DocumentTextExtractionError
         ? fileError.message
         : "기준자료를 읽지 못했습니다. 다시 시도해 주세요.");
@@ -115,12 +119,18 @@ export function AiDocumentWriterDesktop() {
   }
 
   function validationMessage(): string | null {
+    if (activityFileState?.status === "extracting") {
+      return "활동보고서 텍스트 추출이 끝날 때까지 기다려 주세요.";
+    }
     if (!values.studentId.trim()) return "학생 식별 ID를 입력해 주세요.";
     if (!/^[A-Za-z0-9_-]+$/.test(values.studentId.trim())) {
       return "학생 식별 ID는 영문, 숫자, 하이픈, 밑줄만 사용할 수 있습니다.";
     }
-    if (!hasSource(values)) {
-      return "활동보고서, 자기평가, 교사 메모 중 하나 이상 입력해 주세요.";
+    if (!values.activityReport.trim()) {
+      return "활동보고서를 입력하거나 파일로 불러와 주세요.";
+    }
+    if (Array.from(values.activityReport).length > MAX_ACTIVITY_REPORT_CHARACTERS) {
+      return `활동보고서를 ${MAX_ACTIVITY_REPORT_CHARACTERS.toLocaleString("ko-KR")}자 이하로 줄여주세요.`;
     }
     if (!values.privacyConfirmed) {
       return "개인정보를 입력하지 않았다는 확인이 필요합니다.";
@@ -132,27 +142,17 @@ export function AiDocumentWriterDesktop() {
     const validation = validationMessage();
     if (validation) {
       setError(validation);
-      formRef.current?.querySelector<HTMLElement>(":invalid, input, textarea, select")?.focus();
+      formRef.current?.querySelector<HTMLElement>("input, textarea, select")?.focus();
       return;
     }
 
     setError("");
     setCopyMessage("");
     setIsSubmitting(true);
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
     try {
-      const response = await fetch("/api/ai/document-writer", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...values, studentId: values.studentId.trim() }),
-        signal: controller.signal,
-      });
-      if (!response.ok) throw new Error(await responseMessage(response));
-      const body = AiDocumentWriterResultSchema.safeParse(await response.json());
-      if (!body.success) throw new Error("AI 응답을 읽지 못했습니다. 다시 시도해 주세요.");
-      setResult(body.data);
-      setDraft(body.data.draft);
+      const response = await requestAiDocumentDraft(values);
+      setResult(response);
+      setDraft(response.draft);
       setDismissedIssues([]);
       window.requestAnimationFrame(() => {
         resultRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
@@ -168,7 +168,6 @@ export function AiDocumentWriterDesktop() {
         setError("네트워크 연결을 확인하고 다시 시도해 주세요.");
       }
     } finally {
-      window.clearTimeout(timeout);
       setIsSubmitting(false);
     }
   }
@@ -199,45 +198,53 @@ export function AiDocumentWriterDesktop() {
       .filter(({ id }) => !dismissedIssues.includes(id)),
     [dismissedIssues, draft, guideline?.text],
   );
+
   return (
     <div className="ai-writer">
-      <aside className="ai-writer-privacy" aria-labelledby="ai-writer-privacy-title">
-        <ShieldCheck aria-hidden="true" size={22} />
-        <div>
-          <strong id="ai-writer-privacy-title">개인정보를 입력하지 마세요.</strong>
-          <p>입력한 내용과 생성 결과는 저장되지 않습니다.</p>
-        </div>
-      </aside>
-      <AiDocumentWriterForm
-        academicYear={academicYear}
-        error={error}
-        fileMessages={fileMessages}
-        formRef={formRef}
-        guideline={guideline}
-        guidelineError={guidelineError}
-        guidelineSourceType={guidelineSourceType}
-        isSubmitting={isSubmitting}
-        onAcademicYearChange={setAcademicYear}
-        onDeleteGuideline={() => {
-          setGuideline(null);
-          setDismissedIssues([]);
-        }}
-        onGuidelineFile={(file) => void loadGuidelineFile(file)}
-        onGuidelineSourceTypeChange={setGuidelineSourceType}
-        onMaterialFile={(key, file) => void loadMaterialFile(key, file)}
-        onSubmit={() => void generateDraft()}
-        onUpdate={update}
-        values={values}
-      />
+      <div className="ai-writer-input-column">
+        <PageHeader
+          description="학생 활동자료와 추가 기록을 바탕으로 초안을 만들고, 등록된 해당 학년도 학교생활기록부 기재요령에 따라 검토합니다."
+          title="동아리 생활기록부 초안"
+        />
+        <AiDocumentWriterPrivacyNotice />
+        <AiDocumentWriterForm
+          academicYear={academicYear}
+          activityFileState={activityFileState}
+          error={error}
+          formRef={formRef}
+          guideline={guideline}
+          guidelineError={guidelineError}
+          guidelineSourceType={guidelineSourceType}
+          isSubmitting={isSubmitting}
+          onAcademicYearChange={setAcademicYear}
+          onActivityFile={(file) => void loadActivityFile(file)}
+          onDeleteGuideline={() => {
+            guidelineExtractionId.current += 1;
+            setGuideline(null);
+            setDismissedIssues([]);
+          }}
+          onGuidelineFile={(file) => void loadGuidelineFile(file)}
+          onGuidelineSourceTypeChange={setGuidelineSourceType}
+          onRemoveActivityFile={() => {
+            activityExtractionId.current += 1;
+            setActivityFileState(null);
+            update("activityReport", "");
+          }}
+          onSubmit={() => void generateDraft()}
+          onUpdate={update}
+          values={values}
+        />
+      </div>
       <AiDocumentWriterResultPanel
+        activityReportReady={values.activityReport.trim().length > 0}
         bytes={countUtf8Bytes(draft)}
         characters={countCharacters(draft)}
         copyMessage={copyMessage}
         draft={draft}
+        hasAdditionalRecord={values.additionalRecord.trim().length > 0}
         hasGuideline={guideline !== null}
         isSubmitting={isSubmitting}
         issues={issues}
-        noTeacherMemo={!values.teacherMemo.trim()}
         onApply={applySuggestion}
         onCopy={() => void copyDraft()}
         onDraftChange={updateDraft}
@@ -246,6 +253,7 @@ export function AiDocumentWriterDesktop() {
         onRegenerate={() => void generateDraft()}
         result={result}
         resultRef={resultRef}
+        studentIdReady={values.studentId.trim().length > 0}
       />
     </div>
   );

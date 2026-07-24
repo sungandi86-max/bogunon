@@ -20,8 +20,7 @@ function request(body: unknown): Request {
 const validBody = {
   studentId: "S001",
   activityReport: "건강 캠페인 자료를 조사하고 발표함",
-  selfEvaluation: "",
-  teacherMemo: "",
+  additionalRecord: "",
   tone: "objective",
   length: "within-1500-bytes",
   privacyConfirmed: true,
@@ -85,7 +84,7 @@ describe("POST /api/ai/document-writer", () => {
     const oversizedRequest = new Request("https://bogunon.example/api/ai/document-writer", {
       method: "POST",
       headers: {
-        "content-length": "70000",
+        "content-length": "100000",
         "content-type": "application/json",
       },
       body: "{}",

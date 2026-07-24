@@ -1,13 +1,20 @@
 import type { AiDocumentWriterRequest } from "@/lib/ai/document-writer";
+import type { DocumentFileFormat } from "@/lib/ai/document-text-extraction";
 
 export type AiDocumentWriterFormValues =
   Omit<AiDocumentWriterRequest, "privacyConfirmed"> & {
     readonly privacyConfirmed: boolean;
   };
 
-export type StudentMaterialKey = "activityReport" | "selfEvaluation";
-
 export type GuidelineSourceType = "guide" | "correction" | "supplement";
+
+export interface ActivityReportFileState {
+  readonly characterCount?: number;
+  readonly fileName: string;
+  readonly format?: DocumentFileFormat;
+  readonly message?: string;
+  readonly status: "extracting" | "ready" | "error";
+}
 
 export interface SchoolRecordGuideline {
   readonly academicYear: string;
@@ -20,8 +27,7 @@ export interface SchoolRecordGuideline {
 export const INITIAL_AI_DOCUMENT_VALUES: AiDocumentWriterFormValues = {
   studentId: "",
   activityReport: "",
-  selfEvaluation: "",
-  teacherMemo: "",
+  additionalRecord: "",
   tone: "objective",
   length: "within-1500-bytes",
   privacyConfirmed: false,

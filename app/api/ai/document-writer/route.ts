@@ -13,7 +13,7 @@ import {
 import { AiRateLimitError, AiTimeoutError } from "@/lib/ai/request-control";
 import { createClient } from "@/lib/supabase/server";
 
-const MAX_REQUEST_BYTES = 64 * 1024;
+const MAX_REQUEST_BYTES = 96 * 1024;
 
 function errorResponse(
   error: string,

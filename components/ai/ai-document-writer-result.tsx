@@ -7,25 +7,26 @@ import {
   Info,
   PencilLine,
   RefreshCw,
-  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import type { Ref } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { AiDocumentWriterResultEmpty } from "@/components/ai/ai-document-writer-result-empty";
 import type { AiDocumentWriterResult } from "@/lib/ai/document-writer";
 import type { SchoolRecordReviewIssue } from "@/lib/ai/school-record-review";
 
 interface AiDocumentWriterResultProps {
+  readonly activityReportReady: boolean;
   readonly bytes: number;
   readonly characters: number;
   readonly copyMessage: string;
   readonly draft: string;
+  readonly hasAdditionalRecord: boolean;
   readonly hasGuideline: boolean;
   readonly isSubmitting: boolean;
   readonly issues: readonly SchoolRecordReviewIssue[];
-  readonly noTeacherMemo: boolean;
   readonly onApply: (issue: SchoolRecordReviewIssue) => void;
   readonly onCopy: () => void;
   readonly onDraftChange: (value: string) => void;
@@ -34,6 +35,7 @@ interface AiDocumentWriterResultProps {
   readonly onRegenerate: () => void;
   readonly result: AiDocumentWriterResult | null;
   readonly resultRef: Ref<HTMLElement>;
+  readonly studentIdReady: boolean;
 }
 
 const LEVEL_LABELS = {
@@ -43,14 +45,15 @@ const LEVEL_LABELS = {
 } as const;
 
 export function AiDocumentWriterResultPanel({
+  activityReportReady,
   bytes,
   characters,
   copyMessage,
   draft,
+  hasAdditionalRecord,
   hasGuideline,
   isSubmitting,
   issues,
-  noTeacherMemo,
   onApply,
   onCopy,
   onDraftChange,
@@ -59,17 +62,17 @@ export function AiDocumentWriterResultPanel({
   onRegenerate,
   result,
   resultRef,
+  studentIdReady,
 }: AiDocumentWriterResultProps) {
   const [activeTab, setActiveTab] = useState<"draft" | "review">("draft");
   if (!result) {
     return (
-      <section className="ai-writer-empty" aria-labelledby="ai-writer-empty-title">
-        <Sparkles aria-hidden="true" size={28} />
-        <div>
-          <h2 id="ai-writer-empty-title">작성할 자료를 입력해 주세요</h2>
-          <p>왼쪽에 익명화된 활동 자료와 교사 메모를 입력하면 초안과 점검 결과가 표시됩니다.</p>
-        </div>
-      </section>
+      <AiDocumentWriterResultEmpty
+        activityReportReady={activityReportReady}
+        hasAdditionalRecord={hasAdditionalRecord}
+        hasGuideline={hasGuideline}
+        studentIdReady={studentIdReady}
+      />
     );
   }
 
@@ -96,7 +99,7 @@ export function AiDocumentWriterResultPanel({
           role="tab"
           type="button"
         >
-          생기부 기재 점검
+          기재 내용 점검
           {issues.length > 0 && <span>{issues.length}</span>}
         </button>
       </div>
@@ -141,19 +144,17 @@ export function AiDocumentWriterResultPanel({
               ? "1500바이트를 초과했습니다. 내용을 줄여주세요."
               : "1500바이트 이내입니다."}
           </p>
-          {noTeacherMemo && (
-            <p className="ai-writer-message ai-writer-message--notice">
-              <AlertTriangle aria-hidden="true" size={18} />
-              교사 메모가 없어 학생 제출자료 중심으로 작성된 초안입니다.
-              교사가 직접 관찰한 내용을 확인하여 수정하세요.
-            </p>
-          )}
           {result.insufficiencyNotice && (
             <p className="ai-writer-message ai-writer-message--notice">
               <AlertTriangle aria-hidden="true" size={18} />
               {result.insufficiencyNotice}
             </p>
           )}
+          <p className="ai-writer-message">
+            <Info aria-hidden="true" size={18} />
+            이 초안은 입력된 활동보고서와 추가 기록을 바탕으로 작성되었습니다.
+            원문과 대조한 뒤 최종 기재하세요.
+          </p>
           <div className="ai-writer-result__actions">
             <Button onClick={onCopy}>
               <Clipboard aria-hidden="true" size={18} />

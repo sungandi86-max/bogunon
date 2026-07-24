@@ -1,31 +1,37 @@
-import { AlertTriangle, LoaderCircle, PencilLine, Sparkles } from "lucide-react";
+import { AlertTriangle, LoaderCircle, NotebookPen, PencilLine, Sparkles } from "lucide-react";
 import type { Ref } from "react";
 
 import { AiDocumentWriterGuideline } from "@/components/ai/ai-document-writer-guideline";
 import { AiDocumentWriterMaterialField } from "@/components/ai/ai-document-writer-material-field";
 import type {
+  ActivityReportFileState,
   AiDocumentWriterFormValues,
   GuidelineSourceType,
   SchoolRecordGuideline,
-  StudentMaterialKey,
 } from "@/components/ai/ai-document-writer-types";
 import { Button } from "@/components/ui/button";
-import { AI_DOCUMENT_LENGTHS, AI_WRITING_TONES } from "@/lib/ai/document-writer";
+import {
+  AI_DOCUMENT_LENGTHS,
+  AI_WRITING_TONES,
+  MAX_ACTIVITY_REPORT_CHARACTERS,
+  MAX_ADDITIONAL_RECORD_CHARACTERS,
+} from "@/lib/ai/document-writer";
 
 interface AiDocumentWriterFormProps {
   readonly academicYear: string;
+  readonly activityFileState: ActivityReportFileState | null;
   readonly error: string;
-  readonly fileMessages: Partial<Record<StudentMaterialKey, string>>;
   readonly formRef: Ref<HTMLFormElement>;
   readonly guideline: SchoolRecordGuideline | null;
   readonly guidelineError: string;
   readonly guidelineSourceType: GuidelineSourceType;
   readonly isSubmitting: boolean;
   readonly onAcademicYearChange: (value: string) => void;
+  readonly onActivityFile: (file: File) => void;
   readonly onDeleteGuideline: () => void;
   readonly onGuidelineFile: (file: File) => void;
   readonly onGuidelineSourceTypeChange: (value: GuidelineSourceType) => void;
-  readonly onMaterialFile: (key: StudentMaterialKey, file: File) => void;
+  readonly onRemoveActivityFile: () => void;
   readonly onSubmit: () => void;
   readonly onUpdate: <K extends keyof AiDocumentWriterFormValues>(
     key: K,
@@ -34,37 +40,37 @@ interface AiDocumentWriterFormProps {
   readonly values: AiDocumentWriterFormValues;
 }
 
-const MATERIAL_FIELDS = [
-  {
-    key: "activityReport",
-    label: "활동보고서",
-    placeholder: "학생이 제출한 활동 내용의 핵심만 붙여넣으세요.",
-  },
-  {
-    key: "selfEvaluation",
-    label: "자기평가",
-    placeholder: "학생의 자기평가 내용을 붙여넣으세요.",
-  },
+const ADDITIONAL_RECORD_EXAMPLES = [
+  "회장·부회장 등 직책",
+  "체육대회 보건도우미",
+  "축제 운영",
+  "특별 역할 및 추가 활동",
 ] as const;
 
 export function AiDocumentWriterForm({
   academicYear,
+  activityFileState,
   error,
-  fileMessages,
   formRef,
   guideline,
   guidelineError,
   guidelineSourceType,
   isSubmitting,
   onAcademicYearChange,
+  onActivityFile,
   onDeleteGuideline,
   onGuidelineFile,
   onGuidelineSourceTypeChange,
-  onMaterialFile,
+  onRemoveActivityFile,
   onSubmit,
   onUpdate,
   values,
 }: AiDocumentWriterFormProps) {
+  const activityReportLength = Array.from(values.activityReport).length;
+  const activityReportTooLong = activityReportLength > MAX_ACTIVITY_REPORT_CHARACTERS;
+  const activityReportMissing = values.activityReport.trim().length === 0;
+  const activityReportExtracting = activityFileState?.status === "extracting";
+
   return (
     <form
       className="ai-writer-form"
@@ -75,25 +81,15 @@ export function AiDocumentWriterForm({
       }}
       ref={formRef}
     >
-      <AiDocumentWriterGuideline
-        academicYear={academicYear}
-        error={guidelineError}
-        guideline={guideline}
-        onAcademicYearChange={onAcademicYearChange}
-        onDelete={onDeleteGuideline}
-        onFile={onGuidelineFile}
-        onSourceTypeChange={onGuidelineSourceTypeChange}
-        sourceType={guidelineSourceType}
-      />
-
-      <section className="ai-writer-section" aria-labelledby="ai-writer-material-title">
+      <section className="ai-writer-section ai-writer-student-input" aria-labelledby="ai-writer-material-title">
         <header>
-          <Sparkles aria-hidden="true" size={20} />
+          <NotebookPen aria-hidden="true" size={20} />
           <div>
-            <h2 id="ai-writer-material-title">익명화된 학생 자료</h2>
-            <p>직접 입력하거나 TXT 파일을 불러온 뒤 내용을 확인하고 수정하세요.</p>
+            <h2 id="ai-writer-material-title">학생 자료</h2>
+            <p>활동보고서를 중심으로 작성하고, 보고서에 없는 특별한 내용만 추가합니다.</p>
           </div>
         </header>
+
         <label className="ai-writer-field" htmlFor="ai-student-id">
           <span>익명 학생 ID</span>
           <input
@@ -106,42 +102,41 @@ export function AiDocumentWriterForm({
           />
           <small>학생 이름이나 학번 대신 익명 ID를 사용하세요. 결과 본문에는 포함하지 않습니다.</small>
         </label>
-        <div className="ai-writer-materials">
-          {MATERIAL_FIELDS.map((field) => (
-            <AiDocumentWriterMaterialField
-              fieldKey={field.key}
-              fileMessage={fileMessages[field.key]}
-              key={field.key}
-              label={field.label}
-              onFile={onMaterialFile}
-              onValue={onUpdate}
-              placeholder={field.placeholder}
-              value={values[field.key]}
-            />
-          ))}
-          <label className="ai-writer-field" htmlFor="ai-teacherMemo">
-            <span>교사 메모</span>
-            <textarea
-              id="ai-teacherMemo"
-              maxLength={6_000}
-              onChange={(event) => onUpdate("teacherMemo", event.target.value)}
-              placeholder="수업 중 관찰한 태도, 역할, 변화 등을 간단히 입력하세요."
-              rows={4}
-              value={values.teacherMemo}
-            />
-          </label>
-        </div>
-      </section>
 
-      <section className="ai-writer-section" aria-labelledby="ai-writer-criteria-title">
-        <header>
-          <PencilLine aria-hidden="true" size={20} />
-          <div>
-            <h2 id="ai-writer-criteria-title">작성 기준</h2>
-            <p>문체와 목표 분량만 간단히 정합니다.</p>
+        <AiDocumentWriterMaterialField
+          fileState={activityFileState}
+          onFile={onActivityFile}
+          onRemoveFile={onRemoveActivityFile}
+          onValue={(value) => onUpdate("activityReport", value)}
+          value={values.activityReport}
+        />
+
+        <label className="ai-writer-field ai-writer-additional-record" htmlFor="ai-additionalRecord">
+          <span>추가 기록 (선택)</span>
+          <small>
+            활동보고서에 없는 직책, 역할, 행사 참여 등 초안에 추가로 반영할 내용만 입력하세요.
+          </small>
+          <textarea
+            id="ai-additionalRecord"
+            maxLength={MAX_ADDITIONAL_RECORD_CHARACTERS}
+            onChange={(event) => onUpdate("additionalRecord", event.target.value)}
+            placeholder="예) 동아리 회장, 체육대회 보건도우미 참여, 축제 부스 운영 총괄"
+            rows={4}
+            value={values.additionalRecord}
+          />
+          <span className="ai-writer-example-tags" aria-label="추가 기록 예시">
+            {ADDITIONAL_RECORD_EXAMPLES.map((example) => <small key={example}>{example}</small>)}
+          </span>
+        </label>
+
+        <div className="ai-writer-criteria" aria-labelledby="ai-writer-criteria-title">
+          <div className="ai-writer-criteria__heading">
+            <PencilLine aria-hidden="true" size={18} />
+            <div>
+              <h3 id="ai-writer-criteria-title">작성 기준</h3>
+              <p>문체와 목표 분량을 정합니다.</p>
+            </div>
           </div>
-        </header>
-        <div className="ai-writer-criteria">
           <fieldset>
             <legend>문체</legend>
             <div className="ai-writer-segments">
@@ -177,32 +172,62 @@ export function AiDocumentWriterForm({
             </div>
           </fieldset>
         </div>
+
+        <div className="ai-writer-consent">
+          <label>
+            <input
+              checked={values.privacyConfirmed}
+              onChange={(event) => onUpdate("privacyConfirmed", event.target.checked)}
+              type="checkbox"
+            />
+            <span>학생 이름, 학번, 연락처 등 개인정보를 입력하지 않았습니다.</span>
+          </label>
+        </div>
+
+        {error && (
+          <p className="ai-writer-message ai-writer-message--error" role="alert">
+            <AlertTriangle aria-hidden="true" size={18} />
+            {error}
+          </p>
+        )}
+        <div className="ai-writer-submit">
+          <div>
+            {activityReportMissing && <small>활동보고서를 입력하거나 파일로 불러오면 생성할 수 있습니다.</small>}
+            {activityReportExtracting && <small>파일에서 텍스트를 추출하고 있습니다.</small>}
+            {activityReportTooLong && (
+              <small className="is-warning">
+                활동보고서가 {activityReportLength.toLocaleString("ko-KR")}자입니다.
+                내용을 {MAX_ACTIVITY_REPORT_CHARACTERS.toLocaleString("ko-KR")}자 이하로 줄여주세요.
+              </small>
+            )}
+          </div>
+          <Button
+            disabled={
+              isSubmitting
+              || activityReportExtracting
+              || activityReportMissing
+              || activityReportTooLong
+            }
+            type="submit"
+          >
+            {isSubmitting
+              ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={18} />
+              : <Sparkles aria-hidden="true" size={18} />}
+            {isSubmitting ? "초안 생성 중" : "생기부 초안 생성"}
+          </Button>
+        </div>
       </section>
 
-      <div className="ai-writer-consent">
-        <label>
-          <input
-            checked={values.privacyConfirmed}
-            onChange={(event) => onUpdate("privacyConfirmed", event.target.checked)}
-            type="checkbox"
-          />
-          <span>학생 이름, 학번, 연락처 등 개인정보를 입력하지 않았습니다.</span>
-        </label>
-      </div>
-      {error && (
-        <p className="ai-writer-message ai-writer-message--error" role="alert">
-          <AlertTriangle aria-hidden="true" size={18} />
-          {error}
-        </p>
-      )}
-      <div className="ai-writer-submit">
-        <Button disabled={isSubmitting} type="submit">
-          {isSubmitting
-            ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={18} />
-            : <Sparkles aria-hidden="true" size={18} />}
-          {isSubmitting ? "초안 작성 중" : "AI 초안 만들기"}
-        </Button>
-      </div>
+      <AiDocumentWriterGuideline
+        academicYear={academicYear}
+        error={guidelineError}
+        guideline={guideline}
+        onAcademicYearChange={onAcademicYearChange}
+        onDelete={onDeleteGuideline}
+        onFile={onGuidelineFile}
+        onSourceTypeChange={onGuidelineSourceTypeChange}
+        sourceType={guidelineSourceType}
+      />
     </form>
   );
 }

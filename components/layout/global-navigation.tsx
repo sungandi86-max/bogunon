@@ -17,7 +17,7 @@ const navigationGroups = [
     ["운동", "/exercise", Dumbbell],
   ] },
   { label: "도구", links: [
-    ["AI 문서 작성", "/ai-writer", FilePenLine],
+    ["생기부 도우미", "/ai-writer", FilePenLine],
   ] },
   { label: "설정", links: [["설정", "/settings", Settings]] },
 ] as const;
