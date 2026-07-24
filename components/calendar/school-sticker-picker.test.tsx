@@ -30,16 +30,17 @@ function renderPicker(stickers: readonly CalendarStickerRow[] = []) {
 }
 
 describe("SchoolStickerPicker", () => {
-  it("shows responsive school, academic, health, holiday, and personal pack tabs in pack order", () => {
+  it("shows every date sticker and event pack tab in pack order", () => {
     renderPicker();
     const tablist = screen.getByRole("tablist", { name: "날짜 스티커 팩" });
-    expect(within(tablist).getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["학교", "학사일정", "보건업무", "공휴일", "개인"]);
+    expect(within(tablist).getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["학교", "보건업무", "공휴일", "개인", "운동", "대회"]);
     expect(screen.getByRole("tab", { name: "학교" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("button", { name: "7월 18일 수업량 유연화 스티커 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7월 18일 입학식 스티커 선택" })).toBeInTheDocument();
   });
 
   it("searches academic exam and vacation stickers and filters by category", () => {
     renderPicker();
-    fireEvent.click(screen.getByRole("tab", { name: "학사일정" }));
     const search = screen.getByRole("searchbox", { name: "스티커 검색" });
     fireEvent.change(search, { target: { value: "시험" } });
     expect(screen.getByRole("button", { name: "7월 18일 중간고사 스티커 선택" })).toBeInTheDocument();
@@ -59,7 +60,6 @@ describe("SchoolStickerPicker", () => {
   it("does not persist a sticker until the explicit save action", async () => {
     actions.attach.mockResolvedValue({ status: "success", message: "입학식 스티커를 붙였어요." });
     renderPicker();
-    fireEvent.click(screen.getByRole("tab", { name: "학사일정" }));
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 입학식 스티커 선택" }));
     expect(actions.attach).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "7월 18일 입학식 스티커 선택" })).toHaveAttribute("aria-pressed", "true");
@@ -74,7 +74,6 @@ describe("SchoolStickerPicker", () => {
     const openCreate = vi.fn();
     const clubSticker: CalendarStickerRow = { ...personalSticker, id: "a5000000-0000-4000-8000-000000000004", sticker_key: "academic.club", label: "동아리" };
     render(<AppShellCreateContext value={{ openCreate }}><SchoolStickerPicker stickers={[clubSticker]} today="2026-07-18" /></AppShellCreateContext>);
-    fireEvent.click(screen.getByRole("tab", { name: "학사일정" }));
     expect(screen.getByRole("button", { name: "7월 18일 동아리 스티커 선택" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "학교 일정으로 만들기" }));
     expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "event", expect.objectContaining({ area: "schoolSchedule", title: "동아리", isAllDay: true, colorKey: "lavender" }));

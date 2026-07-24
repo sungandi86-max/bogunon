@@ -15,7 +15,7 @@ describe("CalendarWorkspace", () => {
 
   it("navigates to weekly view and back to today through URL state", () => {
     render(<CalendarWorkspace events={[event]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
-    expect(screen.queryByRole("button", { name: "운동" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "운동" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "주간" }));
     expect(replace).toHaveBeenCalledWith(expect.stringContaining("view=week"));
     fireEvent.click(screen.getByRole("button", { name: "오늘 날짜로 이동" }));
@@ -33,7 +33,7 @@ describe("CalendarWorkspace", () => {
     render(<CalendarWorkspace events={[event]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
     const entryFilters = screen.getByRole("group", { name: "일정 종류 필터" });
     const stickerFilters = screen.getByRole("group", { name: "스티커 표시 필터" });
-    expect(within(entryFilters).getAllByRole("button").map((button) => button.textContent)).toEqual(["전체", "업무", "학교", "개인"]);
+    expect(within(entryFilters).getAllByRole("button").map((button) => button.textContent)).toEqual(["전체", "업무", "학교", "개인", "운동", "대회"]);
     expect(within(stickerFilters).getAllByRole("button").map((button) => button.textContent)).toEqual(["전체", "학교", "학사일정", "보건업무", "공휴일", "개인"]);
     expect(screen.getByRole("button", { name: "날짜 스티커 추가" })).not.toHaveAttribute("aria-pressed");
   });

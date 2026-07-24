@@ -58,6 +58,26 @@ describe("exercise review forms", () => {
     expect(mocks.saveCompetition.mock.calls[0]?.[1].get("competitionName")).toBe("여름 대회");
   });
 
+  it("prefills a competition review from its linked calendar event", () => {
+    render(<CompetitionReviewForm
+      defaults={{
+        competitionName: "성동구 오픈대회",
+        eventCategory: "혼합복식",
+        grade: "D급",
+        location: "성동체육관",
+        partner: "S002",
+      }}
+      exerciseLogId={logId}
+      review={null}
+    />);
+
+    expect(screen.getByLabelText("대회명")).toHaveValue("성동구 오픈대회");
+    expect(screen.getByLabelText("장소")).toHaveValue("성동체육관");
+    expect(screen.getByLabelText("종목")).toHaveValue("혼합복식");
+    expect(screen.getByLabelText("등급")).toHaveValue("D급");
+    expect(screen.getByLabelText("파트너")).toHaveValue("S002");
+  });
+
   it("hydrates, updates, and deletes a competition review", async () => {
     render(<CompetitionReviewForm exerciseLogId={logId} review={competitionReview} />);
     expect(screen.getByLabelText("종목")).toHaveValue("여자복식 40C");

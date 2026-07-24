@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { EventList } from "@/components/calendar/event-list";
 import type { WorkflowData } from "@/lib/work-items/phase5-repository";
-import type { EventRow } from "@/types/database";
+import type { EventRow, ExerciseLogRow } from "@/types/database";
 
 vi.mock("@/components/layout/create-item-form", () => ({
   CreateItemForm: () => null,
@@ -71,5 +71,66 @@ describe("EventList time details", () => {
     })]} workflow={workflow} />);
 
     expect(screen.getByText("2026-07-26 · 19:00")).toBeInTheDocument();
+  });
+
+  it("offers exercise record creation for a past workout and passes its event id", () => {
+    render(<EventList date="2026-07-20" events={[event({
+      event_type: "workout",
+      event_details: { kind: "workout", workoutType: "배드민턴" },
+      start_date: "2026-07-20",
+      end_date: "2026-07-20",
+      title: "배드민턴",
+    })]} workflow={workflow} />);
+
+    expect(screen.getByRole("link", { name: "운동 기록 작성" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("eventId=event-1"),
+    );
+  });
+
+  it("shows tournament details and opens result entry with the event id", () => {
+    render(<EventList currentTime="12:00" date="2026-07-20" events={[event({
+      end_date: "2026-07-20",
+      event_details: {
+        kind: "tournament",
+        tournamentName: "성동구 배드민턴 대회",
+        discipline: "혼합복식",
+        partner: "S002",
+        level: "D급",
+        applicationStatus: "applied",
+      },
+      start_date: "2026-07-20",
+    })]} today="2026-07-25" workflow={workflow} />);
+
+    expect(screen.getByText("종목 · 혼합복식")).toBeInTheDocument();
+    expect(screen.getByText("파트너 · S002 · 급수 · D급")).toBeInTheDocument();
+    expect(screen.getByText("신청 · 신청 완료")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "결과 기록하기" })).toHaveAttribute(
+      "href",
+      expect.stringMatching(/eventId=event-1.*recordType=competition/),
+    );
+  });
+
+  it("opens the connected exercise record instead of creating another one", () => {
+    const linkedLog: ExerciseLogRow = {
+      id: "log-1",
+      user_id: "user-1",
+      sticker_id: "sticker-1",
+      exercise_date: "2026-07-20",
+      duration_minutes: null,
+      note: null,
+      record_type: "exercise",
+      event_id: "event-1",
+      created_at: "",
+      updated_at: "",
+    };
+    render(<EventList date="2026-07-20" events={[event({
+      event_type: "workout",
+      event_details: { kind: "workout", workoutType: "배드민턴" },
+    })]} exerciseLogs={[linkedLog]} workflow={workflow} />);
+
+    const link = screen.getByRole("link", { name: "운동 기록 보기" });
+    expect(link).toHaveAttribute("href", expect.stringContaining("logId=log-1"));
+    expect(link).not.toHaveAttribute("href", expect.stringContaining("create=sticker"));
   });
 });

@@ -14,7 +14,7 @@ const navigationGroups = [
     ["연간 계획", "/annual", LayoutGrid],
   ] },
   { label: "기록", links: [
-    ["운동", "/exercise", Dumbbell],
+    ["운동 기록", "/exercise", Dumbbell],
   ] },
   { label: "도구", links: [
     ["생기부 도우미", "/ai-writer", FilePenLine],

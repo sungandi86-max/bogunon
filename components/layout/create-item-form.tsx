@@ -59,16 +59,16 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [area, setArea] = useState(initialArea);
   const initialEventType = event
     ? resolveEventType(event)
-    : resolveEventType({ area: initialArea });
+    : initialTemplate?.eventType ?? resolveEventType({ area: initialArea });
   const [eventType, setEventType] = useState<EventType>(initialEventType);
   const initialEventDetails = event ? eventDetailsForType(event, initialEventType) : null;
-  const [workoutType, setWorkoutType] = useState(initialEventDetails?.kind === "workout" ? initialEventDetails.workoutType : "");
-  const [tournamentName, setTournamentName] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.tournamentName : "");
-  const [discipline, setDiscipline] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.discipline : "");
-  const [partner, setPartner] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.partner : "");
-  const [level, setLevel] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.level : "");
+  const [workoutType, setWorkoutType] = useState(initialEventDetails?.kind === "workout" ? initialEventDetails.workoutType : initialTemplate?.workoutType ?? "");
+  const [tournamentName, setTournamentName] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.tournamentName : initialTemplate?.tournamentName ?? "");
+  const [discipline, setDiscipline] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.discipline : initialTemplate?.discipline ?? "");
+  const [partner, setPartner] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.partner : initialTemplate?.partner ?? "");
+  const [level, setLevel] = useState(initialEventDetails?.kind === "tournament" ? initialEventDetails.level : initialTemplate?.level ?? "");
   const [applicationStatus, setApplicationStatus] = useState<TournamentApplicationStatus>(
-    initialEventDetails?.kind === "tournament" ? initialEventDetails.applicationStatus : "planned",
+    initialEventDetails?.kind === "tournament" ? initialEventDetails.applicationStatus : initialTemplate?.applicationStatus ?? "planned",
   );
   const [category, setCategory] = useState(task?.category ?? initialTemplate?.category ?? "other");
   const [status, setStatus] = useState(task?.status ?? "planned");
@@ -197,13 +197,17 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
 
       {kind === "event" && eventType === "workout" && <section className="event-plan-details" aria-labelledby={`${formKey}-workout-details`}>
         <div><strong id={`${formKey}-workout-details`}>운동 일정</strong><span>앞으로 할 운동 계획만 간단히 기록합니다.</span></div>
-        <div className="field"><label className="field-label" htmlFor={`${formKey}-workout-type`}>운동 종류</label><input id={`${formKey}-workout-type`} maxLength={80} name="workoutType" onChange={(e) => setWorkoutType(e.target.value)} placeholder="예: 배드민턴 레슨, 필라테스, 헬스, 러닝" value={workoutType} /></div>
+        <div className="field"><label className="field-label" htmlFor={`${formKey}-workout-type`}>운동 종류</label><input id={`${formKey}-workout-type`} maxLength={80} name="workoutType" onChange={(e) => setWorkoutType(e.target.value)} placeholder="예: 배드민턴 레슨, 필라테스, 헬스, 러닝" required value={workoutType} /></div>
       </section>}
 
       {kind === "event" && eventType === "tournament" && <section className="event-plan-details event-plan-details--tournament" aria-labelledby={`${formKey}-tournament-details`}>
         <div><strong id={`${formKey}-tournament-details`}>대회 정보</strong><span>대회 일정에 필요한 내용만 추가합니다.</span></div>
         <div className="form-grid">
-          <div className="field"><label className="field-label" htmlFor={`${formKey}-tournament-name`}>대회명</label><input id={`${formKey}-tournament-name`} maxLength={120} name="tournamentName" onChange={(e) => setTournamentName(e.target.value)} required value={tournamentName} /></div>
+          <div className="field"><label className="field-label" htmlFor={`${formKey}-tournament-name`}>대회명</label><input id={`${formKey}-tournament-name`} maxLength={120} name="tournamentName" onChange={(e) => {
+            const nextName = e.target.value;
+            setTournamentName(nextName);
+            setTitle((currentTitle) => !currentTitle.trim() || currentTitle === tournamentName ? nextName : currentTitle);
+          }} required value={tournamentName} /></div>
           <div className="field"><label className="field-label" htmlFor={`${formKey}-discipline`}>참가 종목</label><input id={`${formKey}-discipline`} maxLength={80} name="discipline" onChange={(e) => setDiscipline(e.target.value)} placeholder="예: 여자복식" value={discipline} /></div>
           <div className="field"><label className="field-label" htmlFor={`${formKey}-partner`}>파트너</label><input id={`${formKey}-partner`} maxLength={80} name="partner" onChange={(e) => setPartner(e.target.value)} value={partner} /></div>
           <div className="field"><label className="field-label" htmlFor={`${formKey}-level`}>급수</label><input id={`${formKey}-level`} maxLength={40} name="level" onChange={(e) => setLevel(e.target.value)} placeholder="예: D조" value={level} /></div>

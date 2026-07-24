@@ -16,13 +16,18 @@ import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-pan
 import { Button } from "@/components/ui/button";
 import { exerciseRecordFromEvent } from "@/lib/exercise/domain";
 import type { ExerciseLogWithReview } from "@/lib/exercise/repository";
+import type { EventDetails } from "@/lib/work-items/event-types";
 import type { EventRow, ExerciseRecordType, ExerciseStickerRow } from "@/types/database";
 
 interface ExerciseWorkspaceProps {
   readonly dataAvailable?: boolean;
   readonly events: readonly EventRow[];
   readonly initialDate?: string;
+  readonly initialEvent?: EventRow;
+  readonly initialEventDetails?: EventDetails | null;
+  readonly initialLogId?: string;
   readonly initialOpen?: boolean;
+  readonly initialRecordType?: ExerciseRecordType;
   readonly logs?: readonly ExerciseLogWithReview[];
   readonly month?: string;
   readonly recentLogs?: readonly ExerciseLogWithReview[];
@@ -32,10 +37,21 @@ interface ExerciseWorkspaceProps {
 
 type CreatedLog = { readonly logId: string; readonly recordType: ExerciseRecordType };
 
-export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, initialOpen = false, logs = [], month, recentLogs = logs, stickers = [], today }: ExerciseWorkspaceProps) {
+function scheduleNote(event: EventRow | undefined, details: EventDetails | null | undefined): string {
+  if (!event) return "";
+  const workoutType = details?.kind === "workout" ? details.workoutType : "";
+  const title = event.title !== workoutType ? `일정: ${event.title}` : "";
+  const time = event.is_all_day ? "" : `시간: ${event.start_time?.slice(0, 5) ?? ""}${event.end_time ? ` ~ ${event.end_time.slice(0, 5)}` : ""}`;
+  const location = event.location ? `장소: ${event.location}` : "";
+  return [title, time, location].filter(Boolean).join(" · ");
+}
+
+export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, initialEvent, initialEventDetails, initialLogId, initialOpen = false, initialRecordType = "exercise", logs = [], month, recentLogs = logs, stickers = [], today }: ExerciseWorkspaceProps) {
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(initialOpen);
   const [activeReview, setActiveReview] = useState<ActiveExerciseReview | null>(null);
+  const linkedLog = [...logs, ...recentLogs].find((log) => log.id === initialLogId);
+  const [linkedLogOpen, setLinkedLogOpen] = useState(Boolean(linkedLog));
   const [selectedDate, setSelectedDate] = useState(initialDate ?? today);
   const createTriggerRef = useRef<HTMLButtonElement>(null);
   const reviewTriggerRef = useRef<HTMLButtonElement>(null);
@@ -58,7 +74,18 @@ export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, i
     setCreateOpen(false);
     if (log.recordType !== "exercise") {
       reviewTriggerRef.current = createTriggerRef.current;
-      setActiveReview({ logId: log.logId, recordType: log.recordType });
+      const competitionDefaults = initialEventDetails?.kind === "tournament" ? {
+          competitionName: initialEventDetails.tournamentName || initialEvent?.title || "",
+          eventCategory: initialEventDetails.discipline,
+          grade: initialEventDetails.level,
+          location: initialEvent?.location ?? "",
+          partner: initialEventDetails.partner,
+        } : null;
+      setActiveReview({
+        logId: log.logId,
+        recordType: log.recordType,
+        ...(competitionDefaults ? { competitionDefaults } : {}),
+      });
     }
   }
 
@@ -77,10 +104,23 @@ export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, i
     {records.length > 0 && <section className="legacy-exercise-section" aria-labelledby="legacy-exercise-title"><div className="section-title-row"><div><h2 id="legacy-exercise-title">기존 운동 일정</h2><p>이전에 일정으로 등록한 운동 기록은 그대로 보존합니다.</p></div><span>{records.length}개</span></div><div className="exercise-grid">{records.map((record) => <ExerciseCard key={record.id} record={record} />)}</div></section>}
     <ResponsiveDetailPanel onClose={() => setCreateOpen(false)} open={dataAvailable && createOpen} returnFocusRef={createTriggerRef} title="오늘 운동 기록">
       <p className="exercise-sheet-intro">운동 종류와 날짜를 확인한 뒤 저장하세요.</p>
-      <ExerciseStickerPicker date={selectedDate} key={selectedDate} logs={logs} onCreated={handleCreated} stickers={stickers} />
+      <ExerciseStickerPicker
+        date={selectedDate}
+        initialNote={scheduleNote(initialEvent, initialEventDetails)}
+        initialRecordType={initialRecordType}
+        key={`${selectedDate}:${initialEvent?.id ?? "manual"}`}
+        logs={logs}
+        onCreated={handleCreated}
+        stickers={stickers}
+        {...(initialEvent ? { eventId: initialEvent.id } : {})}
+        {...(initialEventDetails?.kind === "workout" ? { initialWorkoutType: initialEventDetails.workoutType } : {})}
+      />
     </ResponsiveDetailPanel>
     {activeReview && <ResponsiveDetailPanel onClose={() => setActiveReview(null)} open panelClassName="detail-panel--exercise-review" returnFocusRef={reviewTriggerRef} title={activeReview.recordType === "lesson" ? "레슨 리뷰" : "대회 리뷰"}>
       <ExerciseReviewPanel active={activeReview} logs={[...logs, ...recentLogs]} />
+    </ResponsiveDetailPanel>}
+    {linkedLog && <ResponsiveDetailPanel onClose={() => setLinkedLogOpen(false)} open={linkedLogOpen} returnFocusRef={createTriggerRef} title="운동 기록 보기">
+      <ExerciseLogDetails logs={[linkedLog]} onOpenReview={openReview} stickers={stickers} />
     </ResponsiveDetailPanel>}
   </main>;
 }

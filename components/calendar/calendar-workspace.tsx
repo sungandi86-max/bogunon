@@ -19,15 +19,17 @@ import { createSlotDraft, type AllDayGridItem } from "@/lib/calendar/time-grid";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
 import type { WorkflowData } from "@/lib/work-items/phase5-repository";
 import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
+import type { ExerciseLogRow } from "@/types/database";
+import { resolveEventType } from "@/lib/work-items/event-types";
 
-type EntryFilter = "all" | "work" | "school" | "personal";
+type EntryFilter = "all" | "work" | "school" | "personal" | "workout" | "tournament";
 type StickerFilter = "all" | CalendarStickerPack;
-const entryFilterOptions: ReadonlyArray<readonly [EntryFilter, string]> = [["all", "전체"], ["work", "업무"], ["school", "학교"], ["personal", "개인"]];
+const entryFilterOptions: ReadonlyArray<readonly [EntryFilter, string]> = [["all", "전체"], ["work", "업무"], ["school", "학교"], ["personal", "개인"], ["workout", "운동"], ["tournament", "대회"]];
 const stickerFilterOptions: ReadonlyArray<readonly [StickerFilter, string]> = [["all", "전체"], ["school", "학교"], ["academic", "학사일정"], ["health", "보건업무"], ["holiday", "공휴일"], ["personal", "개인"]];
 
-interface Props { readonly events: EventRow[]; readonly highlight?: string | undefined; readonly initialDate: string; readonly initialStickerOpen?: boolean; readonly initialView: CalendarView; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string; readonly toolbarAction?: ReactNode; readonly workflow: WorkflowData }
+interface Props { readonly currentTime?: string; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly highlight?: string | undefined; readonly initialDate: string; readonly initialStickerOpen?: boolean; readonly initialView: CalendarView; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string; readonly toolbarAction?: ReactNode; readonly workflow: WorkflowData }
 
-export function CalendarWorkspace({ events, highlight, initialDate, initialStickerOpen = false, initialView, stickers, tasks, today, toolbarAction, workflow }: Props) {
+export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initialDate, initialStickerOpen = false, initialView, stickers, tasks, today, currentTime = "00:00", toolbarAction, workflow }: Props) {
   const { weekStart } = useCalendarPreferences();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -59,8 +61,8 @@ export function CalendarWorkspace({ events, highlight, initialDate, initialStick
     }
   }, [stickerFilter]);
   const setView = (view: CalendarView) => { sessionStorage.setItem("bogunon-calendar-view", view); navigate(selectedDate, view); };
-  const visibleEvents = useMemo(() => events.filter((event) => entryFilter === "all" || (entryFilter === "work" && event.area === "healthWork") || (entryFilter === "school" && event.area === "schoolSchedule") || (entryFilter === "personal" && event.area === "personal")), [entryFilter, events]);
-  const visibleTasks = useMemo(() => tasks.filter((task) => entryFilter === "all" || (entryFilter === "work" && task.area === "healthWork") || (entryFilter === "school" && task.area === "schoolSchedule") || (entryFilter === "personal" && task.area === "personal")), [entryFilter, tasks]);
+  const visibleEvents = useMemo(() => events.filter((event) => entryFilter === "all" || resolveEventType(event) === entryFilter), [entryFilter, events]);
+  const visibleTasks = useMemo(() => tasks.filter((task) => entryFilter === "all" || (entryFilter === "work" && task.area === "healthWork") || (entryFilter === "school" && task.area === "schoolSchedule") || (entryFilter === "personal" && task.area === "personal") || (entryFilter === "workout" && task.area === "exercise")), [entryFilter, tasks]);
   const visibleStickers = useMemo(() => stickers.filter((item) => stickerFilter === "all" || calendarStickerByKey(item.sticker_key)?.pack === stickerFilter), [stickerFilter, stickers]);
   const range = calendarRange(selectedDate, initialView, weekStart);
   const periodEvents = visibleEvents.filter((event) => event.start_date <= range.last && event.end_date >= range.first);
@@ -90,7 +92,7 @@ export function CalendarWorkspace({ events, highlight, initialDate, initialStick
       <div className="calendar-grid-panel">{initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={openDropMove} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}</div>
       <aside aria-label={`${selectedDate} 선택 날짜 상세`} className="calendar-detail-panel">
         <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
-        <EventList date={selectedDate} events={selectedDateEvents} workflow={workflow} />
+        <EventList currentTime={currentTime} date={selectedDate} events={selectedDateEvents} exerciseLogs={exerciseLogs} today={today} workflow={workflow} />
         {selectedDateTasks.length > 0 && <section aria-label={`${selectedDate} 업무`} className="calendar-detail-panel__group calendar-detail-panel__group--task"><h3>업무</h3>{selectedDateTasks.map((task) => <div className="calendar-detail-panel__item" key={task.id}><span className="calendar-item__indicator" /><strong>{task.title}</strong></div>)}</section>}
         {selectedDateStickers.length > 0 && <section aria-label={`${selectedDate} 스티커`} className="calendar-detail-panel__group"><h3>날짜 스티커</h3>{selectedDateStickers.map((sticker) => <div className="calendar-detail-panel__item" key={sticker.id}><span className="calendar-item__indicator" /><strong>{sticker.label}</strong></div>)}</section>}
       </aside>

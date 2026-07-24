@@ -19,6 +19,10 @@ type CreatedExerciseLog = { readonly logId: string; readonly recordType: Exercis
 
 interface ExerciseStickerPickerProps {
   readonly date: string;
+  readonly eventId?: string;
+  readonly initialRecordType?: ExerciseRecordType;
+  readonly initialNote?: string;
+  readonly initialWorkoutType?: string;
   readonly logs: readonly ExerciseLogRow[];
   readonly onCreated?: (log: CreatedExerciseLog) => void;
   readonly stickers: readonly ExerciseStickerRow[];
@@ -30,12 +34,26 @@ const recordTypes = [
   ["competition", "대회"],
 ] as const satisfies readonly (readonly [ExerciseRecordType, string])[];
 
-export function ExerciseStickerPicker({ date, logs, onCreated, stickers }: ExerciseStickerPickerProps) {
+export function ExerciseStickerPicker({
+  date,
+  eventId,
+  initialNote,
+  initialRecordType = "exercise",
+  initialWorkoutType,
+  logs,
+  onCreated,
+  stickers,
+}: ExerciseStickerPickerProps) {
   const [state, action, pending] = useActionState(attachExerciseStickerAction, initialState);
-  const [recordType, setRecordType] = useState<ExerciseRecordType>("exercise");
+  const [recordType, setRecordType] = useState<ExerciseRecordType>(initialRecordType);
   const selectableStickers = stickers.filter((sticker) => sticker.icon_key !== "badminton_lesson");
   const existingStickerIds = new Set(logs.filter((log) => exerciseDateKey(log.exercise_date) === date && log.record_type === recordType).map((log) => log.sticker_id));
-  const firstAvailable = selectableStickers.find((sticker) => !existingStickerIds.has(sticker.id));
+  const matchingSticker = initialWorkoutType
+    ? selectableStickers.find((sticker) => sticker.label === initialWorkoutType)
+    : undefined;
+  const firstAvailable = matchingSticker && !existingStickerIds.has(matchingSticker.id)
+    ? matchingSticker
+    : selectableStickers.find((sticker) => !existingStickerIds.has(sticker.id));
   const [preferredStickerId, setPreferredStickerId] = useState(firstAvailable?.id ?? "");
   const selectedStickerId = preferredStickerId && selectableStickers.some((sticker) => sticker.id === preferredStickerId) && !existingStickerIds.has(preferredStickerId)
     ? preferredStickerId
@@ -74,8 +92,9 @@ export function ExerciseStickerPicker({ date, logs, onCreated, stickers }: Exerc
       <div className="exercise-record-type__options">{recordTypes.map(([value, label]) => <label key={value}><input checked={recordType === value} name="recordType" onChange={() => changeRecordType(value)} type="radio" value={value} /><span>{label}</span></label>)}</div>
     </fieldset>
     <input name="stickerId" type="hidden" value={selectedStickerId} />
+    {eventId && <input name="eventId" type="hidden" value={eventId} />}
     <label><span>날짜</span><CalendarDateInput ariaLabel="운동 날짜" defaultValue={date} name="exerciseDate" required /></label>
-    <label><span>메모(선택)</span><textarea maxLength={500} name="note" placeholder="기억하고 싶은 한 줄을 남겨보세요." /></label>
+    <label><span>메모(선택)</span><textarea defaultValue={initialNote} maxLength={500} name="note" placeholder="기억하고 싶은 한 줄을 남겨보세요." /></label>
     <button className="button button--primary" disabled={pending || !selectedStickerId} type="submit">{pending ? "저장 중…" : "운동 기록 저장"}</button>
     {visibleMessage?.message && <p aria-live="polite" className={`sticker-toast${visibleMessage.status === "error" ? " sticker-toast--error" : ""}`}>{visibleMessage.message}</p>}
   </form>;

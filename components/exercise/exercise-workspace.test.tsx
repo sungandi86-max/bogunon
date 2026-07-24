@@ -25,6 +25,10 @@ vi.mock("@/app/(app)/exercise-sticker-actions", () => ({
 
 type MockPickerProps = {
   readonly date: string;
+  readonly eventId?: string;
+  readonly initialNote?: string;
+  readonly initialRecordType?: ExerciseRecordType;
+  readonly initialWorkoutType?: string;
   readonly onCreated?: (log: { readonly logId: string; readonly recordType: ExerciseRecordType }) => void;
 };
 type MockReviewLog = ExerciseLogRow & {
@@ -35,7 +39,7 @@ type MockReviewLog = ExerciseLogRow & {
 vi.mock("@/components/exercise/exercise-sticker-picker", async () => {
   const React = await vi.importActual<typeof import("react")>("react");
   return {
-    ExerciseStickerPicker({ date, onCreated }: MockPickerProps) {
+    ExerciseStickerPicker({ date, eventId, initialNote, initialRecordType = "exercise", initialWorkoutType, onCreated }: MockPickerProps) {
       const [message, setMessage] = React.useState<string | null>(null);
 
       async function saveRecord(): Promise<void> {
@@ -45,10 +49,13 @@ vi.mock("@/components/exercise/exercise-sticker-picker", async () => {
       }
 
       return <form aria-label="운동 기록 폼">
+        {eventId && <input aria-label="연결 일정" readOnly value={eventId} />}
+        {initialWorkoutType && <input aria-label="운동 종류 기본값" readOnly value={initialWorkoutType} />}
+        {initialNote && <textarea aria-label="일정 메모 기본값" readOnly value={initialNote} />}
         <label><span>운동 날짜</span><input aria-label="운동 날짜" name="exerciseDate" readOnly value={date} /></label>
-        <label><input defaultChecked name="recordType" type="radio" value="exercise" />일반 운동</label>
+        <label><input defaultChecked={initialRecordType === "exercise"} name="recordType" type="radio" value="exercise" />일반 운동</label>
         <label><input name="recordType" type="radio" value="lesson" />레슨</label>
-        <label><input name="recordType" type="radio" value="competition" />대회</label>
+        <label><input defaultChecked={initialRecordType === "competition"} name="recordType" type="radio" value="competition" />대회</label>
         <button onClick={saveRecord} type="button">운동 기록 저장</button>
         {message && <p>{message}</p>}
       </form>;
@@ -140,6 +147,37 @@ describe("ExerciseWorkspace", () => {
     render(<ExerciseWorkspace events={[]} logs={[]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
     fireEvent.click(screen.getByRole("button", { name: "운동 기록" }));
     expect(screen.getByRole("dialog", { name: "오늘 운동 기록" })).toBeInTheDocument();
+  });
+
+  it("prefills a workout record from its calendar event", () => {
+    const workoutEvent: EventRow = {
+      ...event,
+      event_type: "workout",
+      event_details: { kind: "workout", workoutType: "배드민턴" },
+      location: "학교 체육관",
+    };
+    render(<ExerciseWorkspace
+      events={[]}
+      initialDate="2026-07-18"
+      initialEvent={workoutEvent}
+      initialEventDetails={{ kind: "workout", workoutType: "배드민턴" }}
+      initialOpen
+      logs={[]}
+      month="2026-07"
+      stickers={[sticker]}
+      today="2026-07-18"
+    />);
+
+    expect(screen.getByLabelText("연결 일정")).toHaveValue("event-1");
+    expect(screen.getByLabelText("운동 종류 기본값")).toHaveValue("배드민턴");
+    expect(screen.getByLabelText("일정 메모 기본값")).toHaveValue("시간: 19:00 ~ 20:30 · 장소: 학교 체육관");
+  });
+
+  it("opens a linked calendar workout log directly", () => {
+    render(<ExerciseWorkspace events={[]} initialLogId={log.id} logs={[log]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
+
+    expect(screen.getByRole("dialog", { name: "운동 기록 보기" })).toBeInTheDocument();
+    expect(within(screen.getByRole("dialog", { name: "운동 기록 보기" })).getByText("배드민턴")).toBeInTheDocument();
   });
 
   it("opens the matching review drawer only after a created lesson and returns focus when closed", async () => {
