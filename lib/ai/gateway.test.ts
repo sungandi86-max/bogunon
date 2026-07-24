@@ -38,7 +38,7 @@ describe("AI gateway", () => {
     const gateway = createAiGateway({ openai, gemini: provider("gemini") });
 
     const result = await gateway.generateText(
-      { provider: "openai", apiKey: "secret-key", model: "gpt-5.5" },
+      { provider: "openai", apiKey: "secret-key", model: "gpt-5.6-terra" },
       {
         systemPrompt: "system",
         prompt: "prompt",
@@ -49,7 +49,7 @@ describe("AI gateway", () => {
 
     expect(result).toEqual({ draft: "openai draft" });
     expect(openai.generateText).toHaveBeenCalledWith(
-      { apiKey: "secret-key", model: "gpt-5.5" },
+      { apiKey: "secret-key", model: "gpt-5.6-terra" },
       expect.objectContaining({ schemaName: "student_record" }),
       undefined,
     );

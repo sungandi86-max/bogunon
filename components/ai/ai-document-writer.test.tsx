@@ -27,7 +27,7 @@ function renderWriter(connected = true) {
   return render(
     <AiConnectionProvider
       initialConnection={connected
-        ? { apiKey: "sk-test-key", model: "gpt-5.5", provider: "openai" }
+        ? { apiKey: "sk-test-key", model: "gpt-5.6-terra", provider: "openai" }
         : null}
     >
       <AiDocumentWriter />
@@ -75,6 +75,9 @@ describe("AiDocumentWriter", () => {
     expect(screen.queryByLabelText("자기평가")).not.toBeInTheDocument();
     expect(screen.queryByText("교사 메모")).not.toBeInTheDocument();
     expect(screen.getByText("입력한 내용과 생성 결과는 저장되지 않습니다.")).toBeInTheDocument();
+    expect(screen.getByText("OpenAI")).toBeInTheDocument();
+    expect(screen.getByText("GPT-5.6 Terra")).toBeInTheDocument();
+    expect(screen.getByText("연결됨")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "생기부 초안 생성" })).toBeDisabled();
   });
 
@@ -233,7 +236,7 @@ describe("AiDocumentWriter", () => {
     const payload: unknown = JSON.parse(String(requestOptions?.body));
     expect(payload).toMatchObject({
       connection: {
-        model: "gpt-5.5",
+        model: "gpt-5.6-terra",
         provider: "openai",
       },
       document: {

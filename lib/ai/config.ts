@@ -40,3 +40,7 @@ export function getDefaultAiModel(provider: AiProviderId): string {
 export function getSupportedAiModels(provider: AiProviderId): readonly AiModelOption[] {
   return AI_PROVIDER_CONFIG[provider].models;
 }
+
+export function getAiModelLabel(provider: AiProviderId, model: string): string {
+  return getSupportedAiModels(provider).find((option) => option.id === model)?.label ?? model;
+}

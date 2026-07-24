@@ -43,7 +43,6 @@ export function AiConnectionProvider({
   );
 
   const connect = useCallback(async (candidate: AiConnectionInput): Promise<boolean> => {
-    setConnection(null);
     setStatus({ kind: "checking" });
     try {
       await validateAiConnection(candidate);

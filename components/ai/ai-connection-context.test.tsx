@@ -16,7 +16,7 @@ function Harness() {
         onClick={() => void ai.connect({
           provider: "openai",
           apiKey: "sk-user-secret",
-          model: "gpt-5.5",
+          model: "gpt-5.6-terra",
         })}
         type="button"
       >
@@ -35,7 +35,7 @@ describe("AiConnectionProvider", () => {
       json: async () => ({
         status: "connected",
         provider: "openai",
-        model: "gpt-5.5",
+        model: "gpt-5.6-terra",
       }),
     }));
     render(<AiConnectionProvider><Harness /></AiConnectionProvider>);
@@ -56,7 +56,7 @@ describe("AiConnectionProvider", () => {
       json: async () => ({
         status: "connected",
         provider: "openai",
-        model: "gpt-5.5",
+        model: "gpt-5.6-terra",
       }),
     }));
     const view = render(<AiConnectionProvider><Harness /></AiConnectionProvider>);

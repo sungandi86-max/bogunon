@@ -29,7 +29,7 @@ const validBody = {
   connection: {
     provider: "openai",
     apiKey: "sk-user-secret",
-    model: "gpt-5.5",
+    model: "gpt-5.6-terra",
   },
   document: {
     studentId: "S001",

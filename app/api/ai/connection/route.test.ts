@@ -28,7 +28,7 @@ function request(body: unknown): Request {
 const connection = {
   provider: "openai",
   apiKey: "sk-user-secret",
-  model: "gpt-5.5",
+  model: "gpt-5.6-terra",
 } as const;
 
 describe("POST /api/ai/connection", () => {
@@ -48,7 +48,7 @@ describe("POST /api/ai/connection", () => {
     await expect(response.json()).resolves.toEqual({
       status: "connected",
       provider: "openai",
-      model: "gpt-5.5",
+      model: "gpt-5.6-terra",
     });
     expect(validateConnection).toHaveBeenCalledWith(
       connection,

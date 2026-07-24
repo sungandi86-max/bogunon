@@ -1,11 +1,14 @@
 "use client";
 
 import {
+  Bot,
   CheckCircle2,
   KeyRound,
   LoaderCircle,
   PlugZap,
+  RefreshCw,
   ShieldCheck,
+  Sparkles,
   Unplug,
 } from "lucide-react";
 import { useState } from "react";
@@ -18,6 +21,8 @@ import {
   getSupportedAiModels,
 } from "@/lib/ai/config";
 import type { AiProviderId } from "@/lib/ai/types";
+
+const MASKED_API_KEY = "••••••••••••••••";
 
 export function AiConnectionSettings() {
   const ai = useAiConnection();
@@ -33,7 +38,8 @@ export function AiConnectionSettings() {
   }
 
   async function connect(): Promise<void> {
-    const success = await ai.connect({ provider, apiKey, model });
+    const candidate = ai.connection ?? { provider, apiKey, model };
+    const success = await ai.connect(candidate);
     if (success) setApiKey("");
   }
 
@@ -57,14 +63,21 @@ export function AiConnectionSettings() {
       </div>
 
       <div className={`ai-connection-status is-${ai.status.kind}`} aria-live="polite">
-        {connected
-          ? <CheckCircle2 aria-hidden="true" size={20} />
-          : checking
-            ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={20} />
+        {checking
+          ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={20} />
+          : connected
+            ? <CheckCircle2 aria-hidden="true" size={20} />
             : <Unplug aria-hidden="true" size={20} />}
         <div>
           <strong>{checking ? "연결 확인 중" : connectedLabel}</strong>
-          <span>{connected ? "현재 브라우저 탭에서만 유지" : "API Key를 확인한 뒤 연결할 수 있습니다."}</span>
+          {connected ? (
+            <>
+              <span>현재 브라우저 탭에서만 유지됩니다.</span>
+              <span>새로고침하거나 로그아웃하면 연결이 해제됩니다.</span>
+            </>
+          ) : (
+            <span>API Key를 확인한 뒤 연결할 수 있습니다.</span>
+          )}
         </div>
       </div>
 
@@ -73,12 +86,17 @@ export function AiConnectionSettings() {
         {(["openai", "gemini"] as const).map((providerId) => (
           <label key={providerId}>
             <input
-              checked={provider === providerId}
+              checked={(ai.connection?.provider ?? provider) === providerId}
               name="ai-provider"
               onChange={() => selectProvider(providerId)}
               type="radio"
             />
-            <span>{AI_PROVIDER_CONFIG[providerId].label}</span>
+            <span>
+              {providerId === "openai"
+                ? <Bot aria-hidden="true" size={17} />
+                : <Sparkles aria-hidden="true" size={17} />}
+              {AI_PROVIDER_CONFIG[providerId].label}
+            </span>
           </label>
         ))}
       </fieldset>
@@ -90,13 +108,14 @@ export function AiConnectionSettings() {
             <KeyRound aria-hidden="true" size={17} />
             <input
               autoComplete="off"
-              disabled={connected || checking}
+              disabled={checking}
               id="ai-connection-key"
               onChange={(event) => setApiKey(event.target.value)}
-              placeholder={connected ? "연결됨" : "API Key 입력"}
+              placeholder="API Key 입력"
+              readOnly={connected}
               spellCheck={false}
               type="password"
-              value={apiKey}
+              value={connected ? MASKED_API_KEY : apiKey}
             />
           </span>
         </label>
@@ -124,18 +143,28 @@ export function AiConnectionSettings() {
       <aside className="ai-connection-privacy">
         <ShieldCheck aria-hidden="true" size={20} />
         <p>
-          학생 자료와 API 키는 BOGUNON에 저장되지 않습니다.
-          초안 생성을 위해 입력 내용은 선택한 AI 서비스로 전송됩니다.
-          연결 정보는 현재 브라우저 탭에서만 유지되며 새로고침하면 해제됩니다.
+          <span>
+            학생 자료와 API 키는 BOGUNON에 저장되지 않습니다.
+            초안 생성을 위해 입력 내용은 선택한 AI 서비스로 전송됩니다.
+          </span>
+          <span>연결 정보는 현재 브라우저 탭에서만 유지되며 새로고침하면 해제됩니다.</span>
         </p>
       </aside>
 
       <div className="ai-connection-actions">
         {connected ? (
-          <Button onClick={disconnect} variant="secondary">
-            <Unplug aria-hidden="true" size={17} />
-            연결 해제
-          </Button>
+          <>
+            <Button disabled={checking} onClick={() => void connect()} variant="secondary">
+              {checking
+                ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={17} />
+                : <RefreshCw aria-hidden="true" size={17} />}
+              {checking ? "연결 확인 중" : "연결 상태 확인"}
+            </Button>
+            <Button disabled={checking} onClick={disconnect} variant="ghost">
+              <Unplug aria-hidden="true" size={17} />
+              연결 해제
+            </Button>
+          </>
         ) : (
           <Button
             disabled={checking || apiKey.trim().length < 8}
@@ -144,7 +173,7 @@ export function AiConnectionSettings() {
             {checking
               ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={17} />
               : <PlugZap aria-hidden="true" size={17} />}
-            연결 확인
+            {checking ? "연결 확인 중" : "연결 확인"}
           </Button>
         )}
       </div>
