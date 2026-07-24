@@ -1,6 +1,7 @@
 import type { WorkflowDatabaseTables } from "@/types/workflows";
 import type { CalendarStickerKey } from "@/lib/calendar-stickers/catalog";
 import type { NoticeCategory, UserRole } from "@/lib/notices/model";
+import type { EventDetails, EventType } from "@/lib/work-items/event-types";
 
 export type Area = "healthWork" | "schoolSchedule" | "exercise" | "personal" | "project";
 export type TaskStatus = "planned" | "inProgress" | "waitingForReply" | "needsCheck" | "completed" | "onHold";
@@ -55,6 +56,8 @@ export type EventRow = {
   user_id: string;
   title: string;
   area: Area;
+  event_type?: EventType;
+  event_details?: EventDetails | null;
   start_date: string;
   end_date: string;
   is_all_day: boolean;
@@ -109,6 +112,7 @@ export type ExerciseLogRow = {
   duration_minutes: number | null;
   note: string | null;
   record_type: ExerciseRecordType;
+  event_id?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -343,7 +347,7 @@ export type Database = {
       };
       events: {
         Row: EventRow;
-        Insert: Insert<EventRow, "id" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
+        Insert: Insert<EventRow, "id" | "event_type" | "event_details" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
         Update: Partial<EventRow>;
         Relationships: [];
       };
@@ -355,7 +359,7 @@ export type Database = {
       };
       exercise_logs: {
         Row: ExerciseLogRow;
-        Insert: Insert<ExerciseLogRow, "id" | "duration_minutes" | "note" | "record_type" | "created_at" | "updated_at">;
+        Insert: Insert<ExerciseLogRow, "id" | "event_id" | "duration_minutes" | "note" | "record_type" | "created_at" | "updated_at">;
         Update: Partial<ExerciseLogRow>;
         Relationships: [];
       };
@@ -445,6 +449,10 @@ export type Database = {
         Returns: string;
       };
       save_event_bundle_v2: {
+        Args: { p_item_id: string | null; p_values: Json; p_links?: Json; p_reminders?: Json };
+        Returns: string;
+      };
+      save_event_bundle_v3: {
         Args: { p_item_id: string | null; p_values: Json; p_links?: Json; p_reminders?: Json };
         Returns: string;
       };

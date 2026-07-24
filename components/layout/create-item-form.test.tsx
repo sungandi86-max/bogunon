@@ -73,7 +73,7 @@ describe("CreateItemForm Phase 5 workflows", () => {
     render(<CreateItemForm defaultKind="event" initialTemplate={{ key: "personal", name: "개인 일정", kind: "event", area: "personal", category: "event", title: "", description: "", priority: "normal", estimatedMinutes: 30, recommendedTiming: "선택", recurrenceFrequency: null, checklist: [], memo: "", isAllDay: false }} />);
     fireEvent.click(screen.getByRole("button", { name: "병원" }));
     expect(screen.getByRole("textbox", { name: "제목" })).toHaveValue("병원");
-    expect(screen.getByRole("combobox", { name: "영역" })).toHaveValue("personal");
+    expect(screen.getByRole("combobox", { name: "일정 카테고리" })).toHaveValue("personal");
     expect(screen.getByRole("combobox", { name: "색상" })).toHaveValue("lavender");
     expect(screen.queryByRole("combobox", { name: "업무 카테고리" })).not.toBeInTheDocument();
   });
@@ -101,9 +101,32 @@ describe("CreateItemForm Phase 5 workflows", () => {
 
     rerender(<CreateItemForm initialTemplate={eventPreset} key={eventPreset.key} />);
     expect(screen.getByLabelText("항목 종류")).toHaveValue("event");
-    expect(screen.getByLabelText("영역")).toHaveValue("healthWork");
+    expect(screen.getByLabelText("일정 카테고리")).toHaveValue("work");
     expect(screen.getByLabelText("시작 시간")).toHaveValue("09:00");
     expect(screen.getByLabelText("종료 시간")).toHaveValue("09:50");
     expect(screen.getByLabelText("알림 시점(분) 1")).toHaveValue(30);
+  });
+
+  it("shows only the minimal workout plan fields for a workout category", () => {
+    render(<CreateItemForm defaultKind="event" />);
+
+    expect(screen.queryByRole("textbox", { name: "운동 종류" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole("combobox", { name: "일정 카테고리" }), { target: { value: "workout" } });
+
+    expect(screen.getByRole("textbox", { name: "운동 종류" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "대회명" })).not.toBeInTheDocument();
+  });
+
+  it("shows tournament details only for a tournament category", () => {
+    render(<CreateItemForm defaultKind="event" />);
+
+    fireEvent.change(screen.getByRole("combobox", { name: "일정 카테고리" }), { target: { value: "tournament" } });
+
+    expect(screen.getByRole("textbox", { name: "대회명" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "참가 종목" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "파트너" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "급수" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "신청 상태" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "운동 종류" })).not.toBeInTheDocument();
   });
 });

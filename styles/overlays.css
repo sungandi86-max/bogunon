@@ -39,6 +39,12 @@
 .form-message { color: var(--success); font-size: var(--text-sm); margin: var(--space-6) 0 0; }
 .form-message--error { color: var(--danger); }
 .work-item-form > .button { margin-top: 16px; }
+.event-plan-details { background: var(--surface-subtle); border: 1px solid var(--line); border-left: 3px solid var(--event-workout); border-radius: var(--radius-md); margin-top: var(--space-8); padding: var(--space-6); }
+.event-plan-details--tournament { border-left-color: var(--event-tournament); }
+.event-plan-details > div:first-child > strong, .event-plan-details > div:first-child > span { display: block; }
+.event-plan-details > div:first-child > strong { color: var(--ink-950); font-size: var(--text-md); }
+.event-plan-details > div:first-child > span { color: var(--ink-500); font-size: var(--text-xs); margin-top: var(--space-1); }
+.event-plan-details .field { margin-top: var(--space-5); }
 .quick-input-box { background: var(--brand-50); border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-3); padding: var(--space-5); }
 .quick-input-box > div:first-child { align-items: center; color: var(--brand-900); display: flex; font-size: var(--text-sm); gap: var(--space-2); }
 .quick-input-box textarea { border: 1px solid var(--line-strong); border-radius: var(--radius-sm); min-height: 62px; padding: var(--space-4); resize: vertical; }
