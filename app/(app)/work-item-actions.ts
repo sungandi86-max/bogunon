@@ -99,8 +99,13 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
       if (colorRaw && !colorKey) return { status: "error", message: "일정 색상을 확인해 주세요." };
       const startTime = isAllDay ? null : optional(formData, "startTime");
       const endTime = isAllDay ? null : optional(formData, "endTime");
-      if (!isAllDay && (!startTime || !endTime || (startDate === endDate && endTime <= startTime))) {
-        return { status: "error", message: "종료 시간은 시작 시간 이후로 입력해 주세요." };
+      if (!isAllDay) {
+        if (!startTime) {
+          return { status: "error", message: "시작 시간을 입력해 주세요." };
+        }
+        if (endTime && startDate === endDate && endTime <= startTime) {
+          return { status: "error", message: "종료 시간은 시작 시간 이후로 입력해 주세요." };
+        }
       }
       await saveEventBundle({
         title, area: eventAreaForType(eventTypeValue), event_type: eventTypeValue, event_details: eventDetails,

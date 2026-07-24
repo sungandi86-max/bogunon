@@ -149,6 +149,64 @@ describe("saveWorkItemAction", () => {
     expect(vi.mocked(saveEventBundle)).toHaveBeenCalledWith(expect.objectContaining({ title: "교직원 회의", is_all_day: true, start_time: null, end_time: null }), { links: [], reminders: [] }, undefined);
   });
 
+  it("saves a timed event with only a start time", async () => {
+    const formData = new FormData();
+    formData.set("kind", "event");
+    formData.set("title", "배드민턴 레슨");
+    formData.set("area", "exercise");
+    formData.set("eventType", "workout");
+    formData.set("startDate", "2026-07-26");
+    formData.set("endDate", "2026-07-26");
+    formData.set("startTime", "19:00");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "success",
+      message: "저장했습니다.",
+    });
+    expect(vi.mocked(saveEventBundle)).toHaveBeenCalledWith(expect.objectContaining({
+      is_all_day: false,
+      start_time: "19:00",
+      end_time: null,
+    }), { links: [], reminders: [] }, undefined);
+  });
+
+  it("rejects a timed event with only an end time", async () => {
+    const formData = new FormData();
+    formData.set("kind", "event");
+    formData.set("title", "필라테스");
+    formData.set("area", "exercise");
+    formData.set("eventType", "workout");
+    formData.set("startDate", "2026-07-26");
+    formData.set("endDate", "2026-07-26");
+    formData.set("endTime", "08:30");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "error",
+      message: "시작 시간을 입력해 주세요.",
+    });
+    expect(vi.mocked(saveEventBundle)).not.toHaveBeenCalled();
+  });
+
+  it("rejects an end time that is not later than the start time on the same day", async () => {
+    const formData = new FormData();
+    formData.set("kind", "event");
+    formData.set("title", "성동구 배드민턴 대회");
+    formData.set("area", "exercise");
+    formData.set("eventType", "tournament");
+    formData.set("tournamentName", "성동구 배드민턴 대회");
+    formData.set("applicationStatus", "planned");
+    formData.set("startDate", "2026-07-26");
+    formData.set("endDate", "2026-07-26");
+    formData.set("startTime", "18:00");
+    formData.set("endTime", "08:30");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "error",
+      message: "종료 시간은 시작 시간 이후로 입력해 주세요.",
+    });
+    expect(vi.mocked(saveEventBundle)).not.toHaveBeenCalled();
+  });
+
   it("stores a workout as a calendar plan with structured details", async () => {
     const formData = new FormData();
     formData.set("kind", "event");

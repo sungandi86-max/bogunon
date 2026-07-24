@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { CreateItemForm } from "@/components/layout/create-item-form";
 import { HEALTH_PRESETS } from "@/lib/work-items/health-presets";
 import { BUILT_IN_TEMPLATES } from "@/lib/work-items/workflow";
-import type { TaskRow } from "@/types/database";
+import type { EventRow, TaskRow } from "@/types/database";
 
 vi.mock("@/app/(app)/work-item-actions", () => ({
   saveWorkItemAction: vi.fn(async () => ({ status: "success", message: "저장했습니다." })),
@@ -128,5 +128,41 @@ describe("CreateItemForm Phase 5 workflows", () => {
     expect(screen.getByRole("textbox", { name: "급수" })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "신청 상태" })).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "운동 종류" })).not.toBeInTheDocument();
+  });
+
+  it("starts event creation as all-day and reveals optional end time when unchecked", () => {
+    render(<CreateItemForm defaultKind="event" />);
+
+    const allDay = screen.getByRole("checkbox", { name: "종일" });
+    expect(allDay).toBeChecked();
+    expect(screen.queryByLabelText("시작 시간")).not.toBeInTheDocument();
+
+    fireEvent.click(allDay);
+
+    expect(screen.getByLabelText("시작 시간")).toBeRequired();
+    expect(screen.getByLabelText("종료 시간")).not.toBeRequired();
+  });
+
+  it("treats a legacy date-only event as all-day when editing", () => {
+    const legacyEvent: EventRow = {
+      id: "legacy-event",
+      user_id: "user",
+      title: "기존 일정",
+      area: "schoolSchedule",
+      start_date: "2026-07-26",
+      end_date: "2026-07-26",
+      is_all_day: false,
+      start_time: null,
+      end_time: null,
+      memo: null,
+      description: null,
+      created_at: "",
+      updated_at: "",
+    };
+
+    render(<CreateItemForm initialItem={legacyEvent} />);
+
+    expect(screen.getByRole("checkbox", { name: "종일" })).toBeChecked();
+    expect(screen.queryByLabelText("시작 시간")).not.toBeInTheDocument();
   });
 });

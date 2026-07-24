@@ -23,9 +23,12 @@ export function EventList({ date, events, workflow }: { readonly date: string; r
     const eventType = resolveEventType(event);
     const details = eventDetailsForType(event, eventType);
     const isPastTournament = eventType === "tournament" && event.end_date < new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+    const startTime = event.start_time?.slice(0, 5);
+    const endTime = event.end_time?.slice(0, 5);
+    const timeLabel = event.is_all_day || !startTime ? "종일" : endTime ? `${startTime} ~ ${endTime}` : startTime;
     return <article className="calendar-list__item" key={event.id}>
       <div>
-        <time>{event.start_date}{event.start_time ? ` ${event.start_time.slice(0, 5)}` : ""}</time>
+        <time>{event.start_date} · {timeLabel}</time>
         <strong>{event.title}</strong>
         <span className={`event-area-badge event-area-badge--${eventType}`}>{EVENT_TYPE_LABELS[eventType]}</span>
         {event.location && <small>장소 · {event.location}</small>}
