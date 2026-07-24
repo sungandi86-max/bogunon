@@ -26,14 +26,16 @@ import {
 import type { CalendarStickerRow } from "@/types/database";
 
 const idle = { status: "idle" as const };
-type DateStickerPack = CalendarStickerPack | CalendarEventStickerPack;
-const packs = [["school", "학교"], ["academic", "학사일정"], ["health", "보건업무"], ["holiday", "공휴일"], ["personal", "개인"], ["workout", "운동"], ["tournament", "대회"]] as const satisfies readonly (readonly [DateStickerPack, string])[];
+type DateStickerPack = Exclude<CalendarStickerPack, "academic"> | CalendarEventStickerPack;
+const packs = [["school", "학교"], ["health", "보건업무"], ["holiday", "공휴일"], ["personal", "개인"], ["workout", "운동"], ["tournament", "대회"]] as const satisfies readonly (readonly [DateStickerPack, string])[];
+const schoolGroups = [["all", "전체"], ["school", "학교생활"], ["semester", "학기"], ["exam", "시험"], ["event", "행사"], ["operation", "운영"]] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
 const academicGroups = [["all", "전체"], ["semester", "학기"], ["exam", "시험"], ["event", "행사"], ["operation", "운영"]] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
 const healthGroups = [["all", "전체"], ["screening", "건강검사"], ["education", "보건교육"], ["operation", "운영·점검"], ["administration", "행정·협업"]] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
 const holidayGroups = [["all", "전체"], ["national", "국가 공휴일"], ["traditional", "명절"], ["special", "대체·특별 휴일"], ["general", "일반 휴일"]] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
 
 function catalogForPack(pack: CalendarStickerPack) {
   if (pack === "academic") return ACADEMIC_CALENDAR_STICKERS;
+  if (pack === "school") return [...SCHOOL_CALENDAR_STICKERS, ...ACADEMIC_CALENDAR_STICKERS];
   if (pack === "health") return HEALTH_CALENDAR_STICKERS;
   if (pack === "holiday") return HOLIDAY_CALENDAR_STICKERS;
   if (pack === "personal") return PERSONAL_CALENDAR_STICKERS;
@@ -45,6 +47,7 @@ function isCalendarEventStickerPack(pack: DateStickerPack): pack is CalendarEven
 }
 
 function groupsForPack(pack: CalendarStickerPack) {
+  if (pack === "school") return schoolGroups;
   if (pack === "academic") return academicGroups;
   if (pack === "health") return healthGroups;
   if (pack === "holiday") return holidayGroups;
@@ -78,7 +81,10 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
   const visibleCatalog = useMemo(() => filterCalendarStickers(catalog, query, groups.length > 0 ? group : "all"), [catalog, group, groups.length, query]);
   const selected = stickers.filter((item) => {
     const definition = calendarStickerByKey(item.sticker_key);
-    return !eventPack && item.sticker_date <= today && (item.end_date ?? item.sticker_date) >= today && definition?.pack === pack;
+    const matchesPack = pack === "school"
+      ? definition?.pack === "school" || definition?.pack === "academic"
+      : definition?.pack === pack;
+    return !eventPack && item.sticker_date <= today && (item.end_date ?? item.sticker_date) >= today && matchesPack;
   });
   const latest = selected.at(-1);
   const selectedDays = inclusiveDayCount(selectedDate, endDate);
@@ -151,7 +157,7 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
   }
 
   return <section className="school-sticker-picker" aria-label="날짜 스티커 추가">
-    <div className="school-sticker-picker__heading"><p>날짜와 스티커를 고른 뒤 추가하면 캘린더에 바로 표시됩니다.</p></div>
+    <div className="school-sticker-picker__heading"><p>날짜 스티커를 추가하거나 운동·대회 일정을 만들 수 있습니다.</p></div>
     <div aria-label="날짜 스티커 팩" className="calendar-sticker-tabs" role="tablist">
       {packs.map(([value, label], index) => <button aria-controls="calendar-sticker-panel" aria-selected={pack === value} id={`calendar-sticker-${value}-tab`} key={value} onClick={() => selectPack(value)} onKeyDown={(event) => handlePackKeyDown(event, index)} ref={pack === value ? activeTabRef : undefined} role="tab" tabIndex={pack === value ? 0 : -1} type="button">{label}</button>)}
     </div>

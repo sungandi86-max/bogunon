@@ -20,7 +20,6 @@ describe("calendar workout sticker integration", () => {
     const tabs = within(screen.getByRole("tablist", { name: "날짜 스티커 팩" })).getAllByRole("tab");
     expect(tabs.map((tab) => tab.textContent)).toEqual([
       "학교",
-      "학사일정",
       "보건업무",
       "공휴일",
       "개인",
