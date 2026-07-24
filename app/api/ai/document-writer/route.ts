@@ -1,19 +1,16 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-import { AiDocumentWriterRequestSchema } from "@/lib/ai/document-writer";
+import { AiDocumentWriterApiRequestSchema } from "@/lib/ai/document-writer";
 import {
   AiDocumentWriterSensitiveInputError,
   generateAiDocumentDraft,
 } from "@/lib/ai/document-writer-service";
-import {
-  AiProviderConfigurationError,
-  AiProviderError,
-} from "@/lib/ai/providers";
+import { AiGatewayError, aiGatewayErrorHttpStatus } from "@/lib/ai/errors";
 import { AiRateLimitError, AiTimeoutError } from "@/lib/ai/request-control";
 import { createClient } from "@/lib/supabase/server";
 
-const MAX_REQUEST_BYTES = 96 * 1024;
+const MAX_REQUEST_BYTES = 384 * 1024;
 
 function errorResponse(
   error: string,
@@ -54,8 +51,12 @@ export async function POST(request: Request): Promise<NextResponse> {
       throw parseError;
     }
 
-    const parsed = AiDocumentWriterRequestSchema.parse(payload);
-    const result = await generateAiDocumentDraft(data.user.id, parsed);
+    const parsed = AiDocumentWriterApiRequestSchema.parse(payload);
+    const result = await generateAiDocumentDraft(
+      data.user.id,
+      parsed.connection,
+      parsed.document,
+    );
     return NextResponse.json(result);
   } catch (error) {
     if (error instanceof ZodError) {
@@ -75,11 +76,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     if (error instanceof AiTimeoutError) {
       return errorResponse("초안 작성 시간이 길어지고 있습니다. 다시 시도해 주세요.", error.code, 504);
     }
-    if (error instanceof AiProviderError) {
-      return errorResponse("초안을 만들지 못했습니다. 다시 시도해 주세요.", error.code, 502);
-    }
-    if (error instanceof AiProviderConfigurationError) {
-      return errorResponse("AI 연결 설정이 필요합니다. 관리자에게 문의해 주세요.", error.code, 503);
+    if (error instanceof AiGatewayError) {
+      return errorResponse(error.message, error.code, aiGatewayErrorHttpStatus(error));
     }
     return errorResponse("초안 작성 중 문제가 발생했습니다. 입력 내용은 그대로 유지됩니다.", "INTERNAL_ERROR", 500);
   }

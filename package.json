@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@fontsource/pretendard": "^5.2.5",
+    "@google/genai": "^2.13.0",
     "@ssabrojs/hwpxjs": "^0.4.0",
     "@supabase/ssr": "0.12.3",
     "@supabase/supabase-js": "2.110.7",
@@ -25,7 +26,7 @@
     "mammoth": "^1.12.0",
     "next": "16.2.10",
     "openai": "6.48.0",
-    "pdfjs-dist": "^5.4.149",
+    "pdfjs-dist": "4.10.38",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "tailwind-merge": "3.6.0",

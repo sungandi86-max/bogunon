@@ -108,8 +108,8 @@ export function AiDocumentWriterResultPanel({
         <div className="ai-writer-result__panel" role="tabpanel">
           <header>
             <div>
-              <Badge tone={result.mode === "mock" ? "neutral" : "success"}>
-                {result.mode === "mock" ? "예시 초안" : "AI 초안"}
+              <Badge tone="success">
+                {result.mode === "openai" ? "OpenAI 초안" : "Gemini 초안"}
               </Badge>
               <h2>생성된 초안</h2>
             </div>
@@ -118,11 +118,6 @@ export function AiDocumentWriterResultPanel({
               <div><dt>UTF-8</dt><dd>{bytes.toLocaleString("ko-KR")}바이트</dd></div>
             </dl>
           </header>
-          {result.mode === "mock" && (
-            <p className="ai-writer-message">
-              현재 AI 연결 없이 예시 초안이 표시됐습니다. 실제 운영에서는 AI 연결 설정을 확인해 주세요.
-            </p>
-          )}
           <label className="ai-writer-result__editor">
             <span>초안 내용</span>
             <textarea
@@ -195,7 +190,8 @@ export function AiDocumentWriterResultPanel({
           {!hasGuideline && (
             <p className="ai-writer-message ai-writer-message--notice">
               <Info aria-hidden="true" size={18} />
-              공식 기준자료가 없어 기재요령 기반 판정은 실행하지 않았습니다.
+              공식 기준자료가 등록되지 않아 맞춤법, 개인정보, 분량 중심으로 점검했습니다.
+              공식 근거가 없는 사항은 근거 확인이 필요합니다.
             </p>
           )}
           {issues.length === 0 ? (

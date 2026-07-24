@@ -13,6 +13,8 @@
   .workflow-template-builder { grid-column: 1 / -1; }
   .exercise-calendar-day__stickers .exercise-sticker--sm { height: 28px; margin-inline: -5px; width: 28px; }
   .exercise-calendar-sticker .exercise-record-badge { font-size: 8px; max-width: 32px; padding-inline: 3px; }
+  .ai-writer-connection { grid-template-columns: auto minmax(0, 1fr); }
+  .ai-writer-connection__actions { grid-column: 1 / -1; justify-content: flex-start; }
 }
 @media (min-width: 768px) and (max-width: 1023px) {
   .global-navigation { width: var(--sidebar-compact-width); }
@@ -313,6 +315,8 @@
   .settings-card__heading > svg, .settings-row-icon { height: var(--touch-target); width: var(--touch-target); }
   .settings-card__heading h2 { font-size: var(--text-card); }
   .settings-card__heading p { font-size: var(--text-support); margin-top: var(--space-1); }
+  .ai-connection-fields { grid-template-columns: 1fr; }
+  .ai-connection-actions .button { justify-content: center; width: 100%; }
   .settings-field-grid { gap: var(--space-5); grid-template-columns: 1fr; }
   .settings-field-grid select { min-height: calc(var(--touch-target) + var(--space-2)); }
   .settings-toggle-row { gap: var(--space-4); min-height: 60px; padding-block: var(--space-4); }

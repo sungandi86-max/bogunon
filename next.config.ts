@@ -9,6 +9,14 @@ const nextConfig = {
   poweredByHeader: false,
   outputFileTracingRoot: projectRoot,
   reactStrictMode: true,
+  webpack(config) {
+    config.module.rules.push({
+      resourceQuery: /url/,
+      test: /pdf\.worker\.min\.mjs$/,
+      type: "asset/resource",
+    });
+    return config;
+  },
   async headers() {
     return [
       {

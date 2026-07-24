@@ -3,6 +3,8 @@
 import { useMemo, useRef, useState } from "react";
 
 import { requestAiDocumentDraft } from "@/components/ai/ai-document-writer-client";
+import { useAiConnection } from "@/components/ai/ai-connection-context";
+import { AiConnectionStatusCard } from "@/components/ai/ai-connection-status-card";
 import { AiDocumentWriterForm } from "@/components/ai/ai-document-writer-form";
 import { AiDocumentWriterPrivacyNotice } from "@/components/ai/ai-document-writer-privacy-notice";
 import { AiDocumentWriterResultPanel } from "@/components/ai/ai-document-writer-result";
@@ -25,13 +27,14 @@ import {
   extractDocumentText,
 } from "@/lib/ai/document-text-extraction";
 import {
-  reviewSchoolRecordDraft,
+  mergeSchoolRecordReview,
   type SchoolRecordReviewIssue,
 } from "@/lib/ai/school-record-review";
 
-const GUIDELINE_MAX_BYTES = 2 * 1024 * 1024;
+const GUIDELINE_MAX_CHARACTERS = 100_000;
 
 export function AiDocumentWriterDesktop() {
+  const ai = useAiConnection();
   const [values, setValues] = useState(INITIAL_AI_DOCUMENT_VALUES);
   const [activityFileState, setActivityFileState] = useState<ActivityReportFileState | null>(null);
   const [result, setResult] = useState<AiDocumentWriterResult | null>(null);
@@ -98,10 +101,15 @@ export function AiDocumentWriterDesktop() {
     }
     try {
       const extracted = await extractDocumentText(file, {
-        allowedFormats: ["txt"],
-        maxBytes: GUIDELINE_MAX_BYTES,
+        allowedFormats: ["pdf", "txt"],
       });
       if (extractionId !== guidelineExtractionId.current) return;
+      if (Array.from(extracted.text).length > GUIDELINE_MAX_CHARACTERS) {
+        setGuidelineError(
+          `기준자료가 ${GUIDELINE_MAX_CHARACTERS.toLocaleString("ko-KR")}자를 초과했습니다. 더 작은 공식 자료를 선택해 주세요.`,
+        );
+        return;
+      }
       setGuideline({
         academicYear,
         fileName: file.name,
@@ -135,6 +143,7 @@ export function AiDocumentWriterDesktop() {
     if (!values.privacyConfirmed) {
       return "개인정보를 입력하지 않았다는 확인이 필요합니다.";
     }
+    if (!ai.connection) return "설정에서 OpenAI 또는 Gemini를 먼저 연결해 주세요.";
     return null;
   }
 
@@ -150,7 +159,11 @@ export function AiDocumentWriterDesktop() {
     setCopyMessage("");
     setIsSubmitting(true);
     try {
-      const response = await requestAiDocumentDraft(values);
+      if (!ai.connection) {
+        setError("설정에서 OpenAI 또는 Gemini를 먼저 연결해 주세요.");
+        return;
+      }
+      const response = await requestAiDocumentDraft(values, ai.connection, guideline);
       setResult(response);
       setDraft(response.draft);
       setDismissedIssues([]);
@@ -194,9 +207,9 @@ export function AiDocumentWriterDesktop() {
   }
 
   const issues = useMemo(
-    () => reviewSchoolRecordDraft(draft, { guidelineText: guideline?.text })
+    () => mergeSchoolRecordReview(draft, result?.review, { guidelineText: guideline?.text })
       .filter(({ id }) => !dismissedIssues.includes(id)),
-    [dismissedIssues, draft, guideline?.text],
+    [dismissedIssues, draft, guideline?.text, result?.review],
   );
 
   return (
@@ -207,7 +220,9 @@ export function AiDocumentWriterDesktop() {
           title="동아리 생활기록부 초안"
         />
         <AiDocumentWriterPrivacyNotice />
+        <AiConnectionStatusCard />
         <AiDocumentWriterForm
+          aiConnected={ai.connection !== null}
           academicYear={academicYear}
           activityFileState={activityFileState}
           error={error}

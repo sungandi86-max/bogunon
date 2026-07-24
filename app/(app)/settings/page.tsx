@@ -3,6 +3,7 @@ import { SettingsForm } from "@/components/settings/settings-form";
 import { SchoolInformationCard } from "@/components/settings/school-information-card";
 import { PageHeader } from "@/components/layout/page-header";
 import { PwaInstallCard } from "@/components/pwa/pwa-install-card";
+import { AiConnectionLinkCard } from "@/components/settings/ai-connection-link-card";
 import { DEFAULT_USER_SETTINGS } from "@/lib/settings/domain";
 import { getUserSettings } from "@/lib/settings/repository";
 import { getUserSchoolSettings } from "@/lib/neis/school-settings";
@@ -26,5 +27,5 @@ export default async function SettingsPage() {
     writingAssistanceEnabled: row.writing_assistance_enabled,
     displayDensity: row.display_density,
   } as const : DEFAULT_USER_SETTINGS;
-  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><div className="settings-layout"><PwaInstallCard version={packageMetadata.version} /><SchoolInformationCard initialSchool={school} /><SettingsForm email={email} initialValues={initialValues} /></div><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
+  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><div className="settings-layout"><AiConnectionLinkCard /><PwaInstallCard version={packageMetadata.version} /><SchoolInformationCard initialSchool={school} /><SettingsForm email={email} initialValues={initialValues} /></div><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
 }

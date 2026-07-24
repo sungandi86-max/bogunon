@@ -3,8 +3,10 @@ import {
   type AiDocumentWriterResult,
 } from "@/lib/ai/document-writer";
 import type { AiDocumentWriterFormValues } from "@/components/ai/ai-document-writer-types";
+import type { SchoolRecordGuideline } from "@/components/ai/ai-document-writer-types";
+import type { AiConnectionInput } from "@/lib/ai/types";
 
-const CLIENT_TIMEOUT_MS = 15_000;
+const CLIENT_TIMEOUT_MS = 40_000;
 
 async function responseMessage(response: Response): Promise<string> {
   try {
@@ -19,6 +21,8 @@ async function responseMessage(response: Response): Promise<string> {
 
 export async function requestAiDocumentDraft(
   values: AiDocumentWriterFormValues,
+  connection: AiConnectionInput,
+  guideline: SchoolRecordGuideline | null,
 ): Promise<AiDocumentWriterResult> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
@@ -27,7 +31,21 @@ export async function requestAiDocumentDraft(
     const response = await fetch("/api/ai/document-writer", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ...values, studentId: values.studentId.trim() }),
+      body: JSON.stringify({
+        connection,
+        document: {
+          ...values,
+          studentId: values.studentId.trim(),
+          guideline: guideline
+            ? {
+              academicYear: guideline.academicYear,
+              schoolLevel: guideline.schoolLevel,
+              sourceType: guideline.sourceType,
+              text: guideline.text,
+            }
+            : null,
+        },
+      }),
       signal: controller.signal,
     });
     if (!response.ok) throw new Error(await responseMessage(response));

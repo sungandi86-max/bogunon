@@ -142,13 +142,9 @@ function normalizePdfLine(value: string): string {
 }
 
 async function extractPdf(file: File): Promise<string> {
-  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  if (!pdfjs.GlobalWorkerOptions.workerSrc) {
-    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-      "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
-      import.meta.url,
-    ).toString();
-  }
+  const pdfjs = typeof Worker === "undefined"
+    ? await import("pdfjs-dist/legacy/build/pdf.mjs")
+    : await import("@/lib/ai/pdf-browser");
   const loadingTask = pdfjs.getDocument({
     data: new Uint8Array(await file.arrayBuffer()),
     isEvalSupported: false,

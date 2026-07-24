@@ -1,4 +1,5 @@
 import { countUtf8Bytes } from "@/lib/ai/document-writer";
+import type { StudentRecordAiResponse } from "@/lib/ai/prompts/student-record";
 
 export type SchoolRecordReviewLevel = "error" | "check" | "suggestion";
 
@@ -113,4 +114,44 @@ export function reviewSchoolRecordDraft(
     });
   }
   return issues;
+}
+
+type AiReview = StudentRecordAiResponse["review"];
+
+function aiReviewIssues(
+  draft: string,
+  review: AiReview | undefined,
+): readonly SchoolRecordReviewIssue[] {
+  if (!review) return [];
+  const groups = [
+    { items: review.errors, level: "error" },
+    { items: review.needsConfirmation, level: "check" },
+    { items: review.suggestions, level: "suggestion" },
+  ] as const;
+
+  return groups.flatMap(({ items, level }) => items
+    .filter(({ expression }) => draft.includes(expression))
+    .map((item, index) => ({
+      ...item,
+      id: `ai-${level}-${index}-${item.category}-${item.expression}`,
+      level,
+    })));
+}
+
+export function mergeSchoolRecordReview(
+  draft: string,
+  review: AiReview | undefined,
+  options: ReviewOptions = {},
+): readonly SchoolRecordReviewIssue[] {
+  const combined = [
+    ...reviewSchoolRecordDraft(draft, options),
+    ...aiReviewIssues(draft, review),
+  ];
+  const seen = new Set<string>();
+  return combined.filter((issue) => {
+    const key = `${issue.level}:${issue.category}:${issue.expression}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
