@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { CreateItemForm } from "@/components/layout/create-item-form";
 import { HEALTH_PRESETS } from "@/lib/work-items/health-presets";
 import { BUILT_IN_TEMPLATES } from "@/lib/work-items/workflow";
-import type { TaskRow } from "@/types/database";
+import type { EventRow, TaskRow } from "@/types/database";
 
 vi.mock("@/app/(app)/work-item-actions", () => ({
   saveWorkItemAction: vi.fn(async () => ({ status: "success", message: "저장했습니다." })),
@@ -73,7 +73,7 @@ describe("CreateItemForm Phase 5 workflows", () => {
     render(<CreateItemForm defaultKind="event" initialTemplate={{ key: "personal", name: "개인 일정", kind: "event", area: "personal", category: "event", title: "", description: "", priority: "normal", estimatedMinutes: 30, recommendedTiming: "선택", recurrenceFrequency: null, checklist: [], memo: "", isAllDay: false }} />);
     fireEvent.click(screen.getByRole("button", { name: "병원" }));
     expect(screen.getByRole("textbox", { name: "제목" })).toHaveValue("병원");
-    expect(screen.getByRole("combobox", { name: "영역" })).toHaveValue("personal");
+    expect(screen.getByRole("combobox", { name: "일정 카테고리" })).toHaveValue("personal");
     expect(screen.getByRole("combobox", { name: "색상" })).toHaveValue("lavender");
     expect(screen.queryByRole("combobox", { name: "업무 카테고리" })).not.toBeInTheDocument();
   });
@@ -101,9 +101,68 @@ describe("CreateItemForm Phase 5 workflows", () => {
 
     rerender(<CreateItemForm initialTemplate={eventPreset} key={eventPreset.key} />);
     expect(screen.getByLabelText("항목 종류")).toHaveValue("event");
-    expect(screen.getByLabelText("영역")).toHaveValue("healthWork");
+    expect(screen.getByLabelText("일정 카테고리")).toHaveValue("work");
     expect(screen.getByLabelText("시작 시간")).toHaveValue("09:00");
     expect(screen.getByLabelText("종료 시간")).toHaveValue("09:50");
     expect(screen.getByLabelText("알림 시점(분) 1")).toHaveValue(30);
+  });
+
+  it("shows only the minimal workout plan fields for a workout category", () => {
+    render(<CreateItemForm defaultKind="event" />);
+
+    expect(screen.queryByRole("textbox", { name: "운동 종류" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole("combobox", { name: "일정 카테고리" }), { target: { value: "workout" } });
+
+    expect(screen.getByRole("textbox", { name: "운동 종류" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "대회명" })).not.toBeInTheDocument();
+  });
+
+  it("shows tournament details only for a tournament category", () => {
+    render(<CreateItemForm defaultKind="event" />);
+
+    fireEvent.change(screen.getByRole("combobox", { name: "일정 카테고리" }), { target: { value: "tournament" } });
+
+    expect(screen.getByRole("textbox", { name: "대회명" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "참가 종목" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "파트너" })).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "급수" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "신청 상태" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "운동 종류" })).not.toBeInTheDocument();
+  });
+
+  it("starts event creation as all-day and reveals optional end time when unchecked", () => {
+    render(<CreateItemForm defaultKind="event" />);
+
+    const allDay = screen.getByRole("checkbox", { name: "종일" });
+    expect(allDay).toBeChecked();
+    expect(screen.queryByLabelText("시작 시간")).not.toBeInTheDocument();
+
+    fireEvent.click(allDay);
+
+    expect(screen.getByLabelText("시작 시간")).toBeRequired();
+    expect(screen.getByLabelText("종료 시간")).not.toBeRequired();
+  });
+
+  it("treats a legacy date-only event as all-day when editing", () => {
+    const legacyEvent: EventRow = {
+      id: "legacy-event",
+      user_id: "user",
+      title: "기존 일정",
+      area: "schoolSchedule",
+      start_date: "2026-07-26",
+      end_date: "2026-07-26",
+      is_all_day: false,
+      start_time: null,
+      end_time: null,
+      memo: null,
+      description: null,
+      created_at: "",
+      updated_at: "",
+    };
+
+    render(<CreateItemForm initialItem={legacyEvent} />);
+
+    expect(screen.getByRole("checkbox", { name: "종일" })).toBeChecked();
+    expect(screen.queryByLabelText("시작 시간")).not.toBeInTheDocument();
   });
 });

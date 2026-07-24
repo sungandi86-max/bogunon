@@ -22,6 +22,12 @@ import {
   TASK_CATEGORIES,
 } from "@/types/database";
 import type { Area, TaskStatus } from "@/types/database";
+import {
+  eventAreaForType,
+  isEventType,
+  parseEventDetails,
+  resolveEventType,
+} from "@/lib/work-items/event-types";
 
 export interface WorkItemActionState {
   readonly status: "idle" | "success" | "error";
@@ -64,6 +70,22 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
     const relations = parseWorkItemRelations(formData);
 
     if (kind === "event") {
+      const eventTypeRaw = String(formData.get("eventType") ?? "");
+      if (eventTypeRaw && !isEventType(eventTypeRaw)) return { status: "error", message: "일정 카테고리를 확인해 주세요." };
+      const eventTypeValue = isEventType(eventTypeRaw)
+        ? eventTypeRaw
+        : resolveEventType({ area: areaValue });
+      const eventDetails = parseEventDetails(eventTypeValue, {
+        workoutType: formData.get("workoutType"),
+        tournamentName: formData.get("tournamentName"),
+        discipline: formData.get("discipline"),
+        partner: formData.get("partner"),
+        level: formData.get("level"),
+        applicationStatus: formData.get("applicationStatus"),
+      });
+      if (eventDetails?.kind === "tournament" && !eventDetails.tournamentName) {
+        return { status: "error", message: "대회명을 입력해 주세요." };
+      }
       const startDate = String(formData.get("startDate") ?? "");
       const endDate = String(formData.get("endDate") ?? startDate);
       const isAllDay = formData.get("isAllDay") === "on";
@@ -77,11 +99,17 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
       if (colorRaw && !colorKey) return { status: "error", message: "일정 색상을 확인해 주세요." };
       const startTime = isAllDay ? null : optional(formData, "startTime");
       const endTime = isAllDay ? null : optional(formData, "endTime");
-      if (!isAllDay && (!startTime || !endTime || (startDate === endDate && endTime <= startTime))) {
-        return { status: "error", message: "종료 시간은 시작 시간 이후로 입력해 주세요." };
+      if (!isAllDay) {
+        if (!startTime) {
+          return { status: "error", message: "시작 시간을 입력해 주세요." };
+        }
+        if (endTime && startDate === endDate && endTime <= startTime) {
+          return { status: "error", message: "종료 시간은 시작 시간 이후로 입력해 주세요." };
+        }
       }
       await saveEventBundle({
-        title, area: areaValue, start_date: startDate, end_date: endDate, is_all_day: isAllDay,
+        title, area: eventAreaForType(eventTypeValue), event_type: eventTypeValue, event_details: eventDetails,
+        start_date: startDate, end_date: endDate, is_all_day: isAllDay,
         start_time: startTime,
         end_time: endTime,
         location: optional(formData, "location"), color_key: colorKey,

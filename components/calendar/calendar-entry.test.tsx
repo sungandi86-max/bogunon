@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { CalendarEntry } from "@/components/calendar/calendar-entry";
@@ -28,14 +28,34 @@ const legacyProjectEvent: EventRow = {
 };
 
 describe("CalendarEntry", () => {
-  it("does not offer move controls for legacy exercise events", () => {
+  it("keeps workout plans movable in the shared calendar", () => {
     const onMove = vi.fn();
     const { container } = render(<CalendarEntry item={exerciseEvent} kind="event" onMove={onMove} />);
 
-    expect(container.firstElementChild).toHaveAttribute("draggable", "false");
-    expect(screen.queryByRole("button", { name: /날짜 변경/ })).not.toBeInTheDocument();
-    fireEvent.dragStart(container.firstElementChild as Element);
-    expect(onMove).not.toHaveBeenCalled();
+    expect(container.firstElementChild).toHaveAttribute("draggable", "true");
+    expect(screen.getByRole("button", { name: /날짜 변경/ })).toBeInTheDocument();
+    expect(screen.getByText("운동")).toBeInTheDocument();
+    expect(container.firstElementChild).toHaveClass("calendar-item--event-workout");
+  });
+
+  it("renders tournament plans with a restrained tournament category style", () => {
+    const tournament = {
+      ...exerciseEvent,
+      id: "tournament",
+      event_type: "tournament" as const,
+      event_details: {
+        kind: "tournament" as const,
+        tournamentName: "클럽대회",
+        discipline: "혼합복식",
+        partner: "",
+        level: "D조",
+        applicationStatus: "applied" as const,
+      },
+    };
+    const { container } = render(<CalendarEntry item={tournament} kind="event" />);
+
+    expect(screen.getByText("대회")).toBeInTheDocument();
+    expect(container.firstElementChild).toHaveClass("calendar-item--event-tournament");
   });
 
   it("renders a legacy project item as a regular work item", () => {

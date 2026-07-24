@@ -68,6 +68,7 @@ export async function listRecentExerciseLogs(limit = 5): Promise<ExerciseLogWith
 }
 
 export type SaveExerciseLogValues = {
+  readonly eventId?: string | null;
   readonly stickerId: string;
   readonly exerciseDate: string;
   readonly recordType: ExerciseRecordType;
@@ -83,6 +84,7 @@ export async function saveExerciseLog(values: SaveExerciseLogValues): Promise<Sa
   const { supabase, userId } = await ownedClient();
   const { data, error } = await supabase.from("exercise_logs").insert({
     user_id: userId,
+    ...(values.eventId ? { event_id: values.eventId } : {}),
     sticker_id: values.stickerId,
     exercise_date: values.exerciseDate,
     record_type: values.recordType,

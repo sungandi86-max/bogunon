@@ -224,6 +224,11 @@
 .calendar-item { align-items: center; background: var(--health-soft); border-left: 3px solid var(--health); display: flex; font-size: var(--text-xs); gap: var(--space-2); margin-top: var(--space-2); overflow: hidden; padding: var(--space-1) var(--space-2); text-overflow: ellipsis; white-space: nowrap; }
 .calendar-item--school { background: var(--school-soft); border-color: var(--school); }
 .calendar-item--exercise { background: var(--exercise-soft); border-color: var(--exercise); }
+.calendar-item--event-work { background: var(--event-work-soft); border-color: var(--event-work); }
+.calendar-item--event-school { background: var(--event-school-soft); border-color: var(--event-school); }
+.calendar-item--event-workout { background: var(--event-workout-soft); border-color: var(--event-workout); }
+.calendar-item--event-tournament { background: var(--event-tournament-soft); border-color: var(--event-tournament); }
+.calendar-item--event-personal { background: var(--event-personal-soft); border-color: var(--event-personal); }
 .calendar-item--deadline { background: var(--deadline-soft); border-color: var(--deadline); }
 .calendar-cell-items { display: grid; gap: 2px; margin-top: var(--space-1); pointer-events: none; position: relative; z-index: 1; }
 .calendar-cell-items .calendar-item { margin-top: 0; }
@@ -501,6 +506,13 @@
 .duplicate-menu label { align-items: center; display: flex; font-size: var(--text-sm); gap: var(--space-2); justify-content: space-between; }
 .duplicate-menu input[type="date"] { border: 1px solid var(--line); min-height: 34px; }
 .calendar-list__item > div > small { align-items: center; color: var(--ink-500); display: flex; font-size: var(--text-xs); gap: 3px; margin-top: 3px; }
+.event-area-badge { border-radius: var(--radius-sm); display: inline-flex; font-size: var(--text-xs); font-weight: var(--weight-semibold); margin-top: var(--space-2); padding: 2px var(--space-3); }
+.event-area-badge--personal { background: var(--event-personal-soft); color: var(--event-personal); }
+.event-area-badge--work { background: var(--event-work-soft); color: var(--event-work); }
+.event-area-badge--school { background: var(--event-school-soft); color: var(--event-school); }
+.event-area-badge--workout { background: var(--event-workout-soft); color: var(--event-workout); }
+.event-area-badge--tournament { background: var(--event-tournament-soft); color: var(--event-tournament); }
+.tournament-record-link { align-items: center; color: var(--event-tournament); display: inline-flex; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); margin-top: var(--space-3); }
 .workflow-layout { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr) 310px; margin: 0 auto; max-width: 1340px; }
 .workflow-main { min-width: 0; }
 .workflow-tools, .workflow-panel-card, .workflow-instance-card, .workflow-briefing { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }

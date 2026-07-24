@@ -55,11 +55,18 @@ export async function saveTaskBundle(values: TaskWriteValues, relations: WorkIte
 
 export async function saveEventBundle(values: EventWriteValues, relations: Omit<WorkItemRelations, "checklist">, id?: string) {
   const { supabase } = await ownedClient();
-  const { data, error } = await supabase.rpc("save_event_bundle_v2", {
+  const current = await supabase.rpc("save_event_bundle_v3", {
     p_item_id: id ?? null, p_values: values as Json,
     p_links: relations.links as Json, p_reminders: relations.reminders as Json,
   });
-  if (error?.code === "PGRST202") {
+  if (!current.error) return current.data;
+  if (current.error.code === "PGRST202") {
+    const previous = await supabase.rpc("save_event_bundle_v2", {
+      p_item_id: id ?? null, p_values: values as Json,
+      p_links: relations.links as Json, p_reminders: relations.reminders as Json,
+    });
+    if (!previous.error) return previous.data;
+    if (previous.error.code !== "PGRST202") throw new Error("일정과 상세 항목을 저장하지 못했습니다.");
     const legacyValues = {
       title: values.title, area: values.area, start_date: values.start_date, end_date: values.end_date,
       is_all_day: values.is_all_day, start_time: values.start_time, end_time: values.end_time,
@@ -72,8 +79,7 @@ export async function saveEventBundle(values: EventWriteValues, relations: Omit<
     if (legacy.error) throw new Error("일정과 상세 항목을 저장하지 못했습니다.");
     return legacy.data;
   }
-  if (error) throw new Error("일정과 상세 항목을 저장하지 못했습니다.");
-  return data;
+  throw new Error("일정과 상세 항목을 저장하지 못했습니다.");
 }
 
 export async function listWorkflowData(): Promise<WorkflowData> {

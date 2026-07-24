@@ -55,12 +55,17 @@ describe("exercise V2 repository", () => {
     vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => created) } as never);
 
     await expect(saveExerciseLog({
+      eventId: "30000000-0000-4000-8000-000000000001",
       stickerId: log.sticker_id,
       exerciseDate: log.exercise_date,
       recordType: "lesson",
       durationMinutes: null,
       note: null,
     })).resolves.toEqual({ status: "created", log: { id: log.id, recordType: "lesson" } });
+    expect(created["insert"]).toHaveBeenCalledWith(expect.objectContaining({
+      event_id: "30000000-0000-4000-8000-000000000001",
+      user_id: "user-1",
+    }));
 
     const duplicate = query({ data: null, error: { code: "23505", message: "sensitive constraint detail" } });
     vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => duplicate) } as never);

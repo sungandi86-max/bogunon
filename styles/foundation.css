@@ -83,6 +83,16 @@
   --exercise-soft: #e9f3fc;
   --personal: #887023;
   --personal-soft: #fff8dc;
+  --event-personal: #66758a;
+  --event-personal-soft: #f1f4f6;
+  --event-work: #536fa0;
+  --event-work-soft: #eef3fb;
+  --event-school: #356aa0;
+  --event-school-soft: #e8f0f8;
+  --event-workout: #2f9588;
+  --event-workout-soft: #eaf8f5;
+  --event-tournament: #b8642e;
+  --event-tournament-soft: #fff0e5;
   --lavender-ink: #6758a4;
   --category-screening: #356e9f;
   --category-screening-soft: #e9f4fd;
