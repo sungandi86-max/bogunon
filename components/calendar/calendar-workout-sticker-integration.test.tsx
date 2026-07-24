@@ -32,7 +32,9 @@ describe("calendar workout sticker integration", () => {
     const openCreate = renderPicker();
 
     fireEvent.click(screen.getByRole("tab", { name: "운동" }));
-    fireEvent.click(screen.getByRole("button", { name: "배드민턴 운동 일정 만들기" }));
+    const badmintonButton = screen.getByRole("button", { name: "배드민턴 운동 일정 만들기" });
+    expect(badmintonButton.querySelector('[data-shuttlecock-part="cork"]')).toBeInTheDocument();
+    fireEvent.click(badmintonButton);
 
     expect(openCreate).toHaveBeenCalledWith(
       expect.any(HTMLButtonElement),

@@ -4,7 +4,7 @@ export const CALENDAR_EVENT_STICKER_PACKS = ["workout", "tournament"] as const;
 export type CalendarEventStickerPack = (typeof CALENDAR_EVENT_STICKER_PACKS)[number];
 
 export const CALENDAR_WORKOUT_STICKERS = [
-  { key: "badminton", label: "배드민턴", iconKey: "activity" },
+  { key: "badminton", label: "배드민턴", iconKey: "badminton" },
   { key: "pilates", label: "필라테스", iconKey: "stretch" },
   { key: "fitness", label: "헬스", iconKey: "strength" },
   { key: "running", label: "러닝", iconKey: "running" },

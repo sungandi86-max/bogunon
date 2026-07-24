@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Activity,
   Bike,
   Dumbbell,
   Ellipsis,
@@ -11,8 +10,10 @@ import {
   Trophy,
   Waves,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import type { LucideProps } from "lucide-react";
+import type { ComponentType } from "react";
 
+import { BadmintonIcon } from "@/components/exercise/exercise-sticker";
 import { useAppShellCreate } from "@/components/layout/app-shell-create-context";
 import {
   CALENDAR_WORKOUT_STICKERS,
@@ -25,7 +26,7 @@ import type {
 } from "@/lib/calendar-stickers/event-catalog";
 
 const workoutIcons = {
-  activity: Activity,
+  badminton: BadmintonIcon,
   stretch: PersonStanding,
   strength: Dumbbell,
   running: Footprints,
@@ -34,7 +35,7 @@ const workoutIcons = {
   swimming: Waves,
   hiking: Mountain,
   other: Ellipsis,
-} as const satisfies Readonly<Record<CalendarWorkoutIconKey, LucideIcon>>;
+} as const satisfies Readonly<Record<CalendarWorkoutIconKey, ComponentType<LucideProps>>>;
 
 interface CalendarEventStickerPickerProps {
   readonly date: string;

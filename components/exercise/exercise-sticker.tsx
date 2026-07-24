@@ -24,7 +24,7 @@ interface ExerciseStickerProps {
   readonly removable?: boolean;
 }
 
-function BadmintonIcon({ size = 24, ...props }: LucideProps) {
+export function BadmintonIcon({ size = 24, ...props }: LucideProps) {
   return <svg {...props} fill="none" height={size} stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" width={size}>
     <path data-shuttlecock-part="cork" d="M6.1 15.8 7 14.9 10.1 17.8 9.1 18.7 6.1 15.8" />
     <path data-shuttlecock-part="feather-face" d="M7.1 15.1 4.6 6.4a2.4 2.4 0 0 1 3.9-2.3l2.3 1.9-1.6 9.8" />
