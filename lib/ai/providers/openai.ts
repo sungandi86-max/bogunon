@@ -72,7 +72,10 @@ export function normalizeOpenAiError(error: unknown): AiGatewayError {
     return gatewayError("PROVIDER_UNAVAILABLE", TEXT_PROVIDER);
   }
   if (error instanceof SyntaxError) return gatewayError("INVALID_RESPONSE", TEXT_PROVIDER);
-  if (error instanceof OpenAI.APIConnectionTimeoutError) {
+  if (
+    error instanceof OpenAI.APIUserAbortError
+    || error instanceof OpenAI.APIConnectionTimeoutError
+  ) {
     return gatewayError("TIMEOUT", TEXT_PROVIDER);
   }
   if (error instanceof OpenAI.APIConnectionError) {

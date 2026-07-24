@@ -25,6 +25,30 @@ function request(body: unknown): Request {
   });
 }
 
+function oversizedStreamingRequest(): Request {
+  let pullCount = 0;
+  const body = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        pullCount += 1;
+        if (pullCount <= 2) {
+          controller.enqueue(new Uint8Array(3 * 1024));
+          return;
+        }
+        controller.error(new Error("The route read past its request limit"));
+      }
+    },
+    { highWaterMark: 0 },
+  );
+  const init: RequestInit & { readonly duplex: "half" } = {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body,
+    duplex: "half",
+  };
+  return new Request("https://bogunon.example/api/ai/connection", init);
+}
+
 const connection = {
   provider: "openai",
   apiKey: "sk-user-secret",
@@ -93,6 +117,13 @@ describe("POST /api/ai/connection", () => {
     });
 
     const response = await POST(oversized);
+
+    expect(response.status).toBe(413);
+    expect(validateConnection).not.toHaveBeenCalled();
+  });
+
+  it("stops reading a streaming request as soon as it exceeds the limit", async () => {
+    const response = await POST(oversizedStreamingRequest());
 
     expect(response.status).toBe(413);
     expect(validateConnection).not.toHaveBeenCalled();

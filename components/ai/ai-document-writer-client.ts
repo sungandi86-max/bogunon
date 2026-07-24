@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 import {
   AiDocumentWriterResultSchema,
   type AiDocumentWriterResult,
@@ -7,15 +9,21 @@ import type { SchoolRecordGuideline } from "@/components/ai/ai-document-writer-t
 import type { AiConnectionInput } from "@/lib/ai/types";
 
 const CLIENT_TIMEOUT_MS = 40_000;
+const ErrorResponseSchema = z.object({
+  error: z.string().min(1),
+}).loose();
 
 async function responseMessage(response: Response): Promise<string> {
   try {
-    const body = await response.json() as { error?: unknown };
-    return typeof body.error === "string"
-      ? body.error
+    const body = ErrorResponseSchema.safeParse(await response.json());
+    return body.success
+      ? body.data.error
       : "초안을 만들지 못했습니다. 다시 시도해 주세요.";
-  } catch {
-    return "초안을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.";
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      return "초안을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.";
+    }
+    throw error;
   }
 }
 

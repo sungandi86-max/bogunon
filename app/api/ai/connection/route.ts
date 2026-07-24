@@ -3,6 +3,10 @@ import { ZodError } from "zod";
 
 import { AiGatewayError, aiGatewayErrorHttpStatus } from "@/lib/ai/errors";
 import { aiGateway } from "@/lib/ai/gateway";
+import {
+  readBoundedRequestText,
+  RequestBodyTooLargeError,
+} from "@/lib/ai/bounded-request-body";
 import { InMemoryRateLimiter } from "@/lib/ai/request-control";
 import { AiConnectionInputSchema } from "@/lib/ai/types";
 import { createClient } from "@/lib/supabase/server";
@@ -35,10 +39,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       return errorResponse("연결 정보를 확인해 주세요.", "REQUEST_TOO_LARGE", 413);
     }
 
-    const body = await request.text();
-    if (new TextEncoder().encode(body).length > MAX_REQUEST_BYTES) {
-      return errorResponse("연결 정보를 확인해 주세요.", "REQUEST_TOO_LARGE", 413);
-    }
+    const body = await readBoundedRequestText(request, MAX_REQUEST_BYTES);
     const connection = AiConnectionInputSchema.parse(JSON.parse(body));
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), CONNECTION_TIMEOUT_MS);
@@ -54,6 +55,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       model: connection.model,
     });
   } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return errorResponse("연결 정보를 확인해 주세요.", "REQUEST_TOO_LARGE", 413);
+    }
     if (error instanceof SyntaxError || error instanceof ZodError) {
       return errorResponse("연결 정보를 확인해 주세요.", "INVALID_REQUEST", 400);
     }

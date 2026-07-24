@@ -1,3 +1,4 @@
+import OpenAI from "openai";
 import { describe, expect, it } from "vitest";
 
 import { normalizeGeminiError } from "@/lib/ai/providers/gemini";
@@ -26,6 +27,12 @@ describe("provider error normalization", () => {
 
     expect(error.code).toBe("QUOTA_OR_BILLING");
     expect(error.message).not.toContain("secret-key");
+  });
+
+  it("normalizes an OpenAI request aborted by the caller as a timeout", () => {
+    const error = normalizeOpenAiError(new OpenAI.APIUserAbortError());
+
+    expect(error.code).toBe("TIMEOUT");
   });
 
   it.each([

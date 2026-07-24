@@ -25,6 +25,30 @@ function request(body: unknown): Request {
   });
 }
 
+function oversizedStreamingRequest(): Request {
+  let pullCount = 0;
+  const body = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        pullCount += 1;
+        if (pullCount <= 2) {
+          controller.enqueue(new Uint8Array(200 * 1024));
+          return;
+        }
+        controller.error(new Error("The route read past its request limit"));
+      }
+    },
+    { highWaterMark: 0 },
+  );
+  const init: RequestInit & { readonly duplex: "half" } = {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body,
+    duplex: "half",
+  };
+  return new Request("https://bogunon.example/api/ai/document-writer", init);
+}
+
 const validBody = {
   connection: {
     provider: "openai",
@@ -120,6 +144,13 @@ describe("POST /api/ai/document-writer", () => {
       error: "입력 내용이 너무 깁니다. 자료를 줄여주세요.",
       code: "REQUEST_TOO_LARGE",
     });
+  });
+
+  it("stops reading a streaming request as soon as it exceeds the limit", async () => {
+    const response = await POST(oversizedStreamingRequest());
+
+    expect(response.status).toBe(413);
+    expect(generateText).not.toHaveBeenCalled();
   });
 
   it("blocks sensitive input without echoing the original value", async () => {

@@ -3,6 +3,10 @@ import { ZodError } from "zod";
 
 import { AiDocumentWriterApiRequestSchema } from "@/lib/ai/document-writer";
 import {
+  readBoundedRequestText,
+  RequestBodyTooLargeError,
+} from "@/lib/ai/bounded-request-body";
+import {
   AiDocumentWriterSensitiveInputError,
   generateAiDocumentDraft,
 } from "@/lib/ai/document-writer-service";
@@ -39,12 +43,12 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     let payload: unknown;
     try {
-      const body = await request.text();
-      if (new TextEncoder().encode(body).length > MAX_REQUEST_BYTES) {
-        return errorResponse("입력 내용이 너무 깁니다. 자료를 줄여주세요.", "REQUEST_TOO_LARGE", 413);
-      }
+      const body = await readBoundedRequestText(request, MAX_REQUEST_BYTES);
       payload = JSON.parse(body);
     } catch (parseError) {
+      if (parseError instanceof RequestBodyTooLargeError) {
+        return errorResponse("입력 내용이 너무 깁니다. 자료를 줄여주세요.", "REQUEST_TOO_LARGE", 413);
+      }
       if (parseError instanceof SyntaxError) {
         return errorResponse("입력 내용을 확인해 주세요.", "INVALID_REQUEST", 400);
       }

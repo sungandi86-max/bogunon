@@ -15,11 +15,11 @@ import {
   type GuidelineSourceType,
   type SchoolRecordGuideline,
 } from "@/components/ai/ai-document-writer-types";
+import { aiDocumentWriterValidationMessage } from "@/components/ai/ai-document-writer-validation";
 import { PageHeader } from "@/components/layout/page-header";
 import {
   countCharacters,
   countUtf8Bytes,
-  MAX_ACTIVITY_REPORT_CHARACTERS,
 } from "@/lib/ai/document-writer";
 import type { AiDocumentWriterResult } from "@/lib/ai/document-writer";
 import {
@@ -126,29 +126,12 @@ export function AiDocumentWriterDesktop() {
     }
   }
 
-  function validationMessage(): string | null {
-    if (activityFileState?.status === "extracting") {
-      return "활동보고서 텍스트 추출이 끝날 때까지 기다려 주세요.";
-    }
-    if (!values.studentId.trim()) return "학생 식별 ID를 입력해 주세요.";
-    if (!/^[A-Za-z0-9_-]+$/.test(values.studentId.trim())) {
-      return "학생 식별 ID는 영문, 숫자, 하이픈, 밑줄만 사용할 수 있습니다.";
-    }
-    if (!values.activityReport.trim()) {
-      return "활동보고서를 입력하거나 파일로 불러와 주세요.";
-    }
-    if (Array.from(values.activityReport).length > MAX_ACTIVITY_REPORT_CHARACTERS) {
-      return `활동보고서를 ${MAX_ACTIVITY_REPORT_CHARACTERS.toLocaleString("ko-KR")}자 이하로 줄여주세요.`;
-    }
-    if (!values.privacyConfirmed) {
-      return "개인정보를 입력하지 않았다는 확인이 필요합니다.";
-    }
-    if (!ai.connection) return "설정에서 OpenAI 또는 Gemini를 먼저 연결해 주세요.";
-    return null;
-  }
-
   async function generateDraft(): Promise<void> {
-    const validation = validationMessage();
+    const validation = aiDocumentWriterValidationMessage(
+      values,
+      activityFileState?.status ?? null,
+      ai.connection !== null,
+    );
     if (validation) {
       setError(validation);
       formRef.current?.querySelector<HTMLElement>("input, textarea, select")?.focus();
@@ -190,8 +173,12 @@ export function AiDocumentWriterDesktop() {
     try {
       await navigator.clipboard.writeText(draft);
       setCopyMessage("초안을 복사했습니다.");
-    } catch {
-      setCopyMessage("초안을 복사하지 못했습니다. 브라우저의 클립보드 권한을 확인해 주세요.");
+    } catch (copyError) {
+      if (copyError instanceof Error) {
+        setCopyMessage("초안을 복사하지 못했습니다. 브라우저의 클립보드 권한을 확인해 주세요.");
+        return;
+      }
+      throw copyError;
     }
   }
 
