@@ -5,8 +5,19 @@ export type AiDocumentWriterFormValues =
     readonly privacyConfirmed: boolean;
   };
 
+export type StudentMaterialKey = "activityReport" | "selfEvaluation";
+
+export type GuidelineSourceType = "guide" | "correction" | "supplement";
+
+export interface SchoolRecordGuideline {
+  readonly academicYear: string;
+  readonly fileName: string;
+  readonly schoolLevel: "고등학교";
+  readonly sourceType: GuidelineSourceType;
+  readonly text: string;
+}
+
 export const INITIAL_AI_DOCUMENT_VALUES: AiDocumentWriterFormValues = {
-  documentType: "club-record",
   studentId: "",
   activityReport: "",
   selfEvaluation: "",

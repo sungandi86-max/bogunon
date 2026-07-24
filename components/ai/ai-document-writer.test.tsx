@@ -17,7 +17,7 @@ function successfulFetch(resultDraft = draft) {
 }
 
 function fillRequiredFields(): void {
-  fireEvent.change(screen.getByLabelText(/^학생 식별 ID/), {
+  fireEvent.change(screen.getByLabelText(/^익명 학생 ID/), {
     target: { value: "S001" },
   });
   fireEvent.change(screen.getByLabelText("활동보고서"), {
@@ -31,6 +31,15 @@ function fillRequiredFields(): void {
 describe("AiDocumentWriter", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.stubGlobal("setTimeout", (callback: TimerHandler, delay?: number) => {
+      if (delay === 0 && typeof callback === "function") callback();
+      return 1;
+    });
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
     vi.stubGlobal("fetch", successfulFetch());
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -38,18 +47,45 @@ describe("AiDocumentWriter", () => {
     });
   });
 
-  it("shows the two document types and privacy notice with MVP defaults", () => {
+  it("shows the single club record purpose and privacy notice with MVP defaults", () => {
     render(<AiDocumentWriter />);
 
-    const documentType = screen.getByRole("combobox", { name: "문서 유형" });
-    expect(documentType).toHaveValue("club-record");
-    expect(screen.getByRole("option", { name: "동아리 생활기록부 초안" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "보건교육 활동 기록 초안" })).toBeInTheDocument();
-    fireEvent.change(documentType, { target: { value: "health-education-record" } });
-    expect(documentType).toHaveValue("health-education-record");
+    expect(screen.getByRole("heading", { name: "동아리 생활기록부 초안" })).toBeInTheDocument();
+    expect(screen.queryByText("보건교육 활동 기록 초안")).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "문서 유형" })).not.toBeInTheDocument();
     expect(screen.getByText("입력한 내용과 생성 결과는 저장되지 않습니다.")).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: "객관적이고 구체적으로" })).toBeChecked();
     expect(screen.getByRole("radio", { name: "1500바이트 이내" })).toBeChecked();
+  });
+
+  it("loads an activity TXT file into an editable textarea", async () => {
+    render(<AiDocumentWriter />);
+    const file = new File(["파일에서 읽은 활동 내용"], "activity.txt", { type: "text/plain" });
+
+    fireEvent.change(screen.getByLabelText("활동보고서 TXT 파일"), {
+      target: { files: [file] },
+    });
+
+    expect(await screen.findByDisplayValue("파일에서 읽은 활동 내용")).toBeInTheDocument();
+    expect(screen.getByText("activity.txt 내용을 불러왔습니다.")).toBeInTheDocument();
+  });
+
+  it("registers and removes an official guideline in memory", async () => {
+    render(<AiDocumentWriter />);
+    const file = new File(["대회 수상 관련 기재 내용을 확인한다."], "2026-guide.txt", {
+      type: "text/plain",
+    });
+
+    fireEvent.change(screen.getByLabelText("생기부 기준자료 TXT 파일"), {
+      target: { files: [file] },
+    });
+
+    expect(await screen.findByText("적용 기준")).toBeInTheDocument();
+    expect(screen.getByText(/2026학년도 학교생활기록부 기재요령/)).toBeInTheDocument();
+    expect(screen.getByText("2026-guide.txt")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "기준자료 삭제" }));
+    expect(screen.queryByText("2026-guide.txt")).not.toBeInTheDocument();
+    expect(screen.getByText(/공식 기재요령을 등록하면/)).toBeInTheDocument();
   });
 
   it("validates the anonymous ID before generating", () => {
@@ -65,7 +101,7 @@ describe("AiDocumentWriter", () => {
 
   it("requires at least one material and privacy confirmation", () => {
     render(<AiDocumentWriter />);
-    fireEvent.change(screen.getByLabelText(/^학생 식별 ID/), {
+    fireEvent.change(screen.getByLabelText(/^익명 학생 ID/), {
       target: { value: "S001" },
     });
     fireEvent.click(screen.getByRole("button", { name: "AI 초안 만들기" }));
@@ -84,8 +120,8 @@ describe("AiDocumentWriter", () => {
     fillRequiredFields();
     fireEvent.click(screen.getByRole("button", { name: "AI 초안 만들기" }));
 
-    expect(await screen.findByRole("heading", { name: "생성된 초안" })).toBeInTheDocument();
-    expect(screen.getByText(draft)).toBeInTheDocument();
+    expect(await screen.findByRole("tab", { name: "생성된 초안" })).toBeInTheDocument();
+    expect(screen.getByLabelText("생성된 초안 편집")).toHaveValue(draft);
     expect(screen.getByText(`${Array.from(draft).length}자`)).toBeInTheDocument();
     expect(screen.getByText(`${new TextEncoder().encode(draft).length}바이트`)).toBeInTheDocument();
     expect(screen.getByText("1500바이트 이내입니다.")).toBeInTheDocument();
@@ -102,8 +138,30 @@ describe("AiDocumentWriter", () => {
     fireEvent.click(screen.getByRole("button", { name: "AI 초안 만들기" }));
 
     expect(await screen.findByText("1500바이트를 초과했습니다. 내용을 줄여주세요.")).toBeInTheDocument();
-    expect(screen.getByText(longDraft)).toHaveTextContent(longDraft);
+    expect(screen.getByLabelText("생성된 초안 편집")).toHaveValue(longDraft);
     expect(screen.getByText("1,503바이트")).toBeInTheDocument();
+  });
+
+  it("shows the teacher observation notice when no teacher memo was supplied", async () => {
+    render(<AiDocumentWriter />);
+    fillRequiredFields();
+    fireEvent.click(screen.getByRole("button", { name: "AI 초안 만들기" }));
+
+    expect(await screen.findByText(/교사 메모가 없어 학생 제출자료 중심으로/)).toBeInTheDocument();
+  });
+
+  it("reviews the editable draft and applies an individual suggestion", async () => {
+    vi.stubGlobal("fetch", successfulFetch("최고의 역량을 보임."));
+    render(<AiDocumentWriter />);
+    fillRequiredFields();
+    fireEvent.click(screen.getByRole("button", { name: "AI 초안 만들기" }));
+    fireEvent.click(await screen.findByRole("tab", { name: /생기부 기재 점검/ }));
+
+    expect(screen.getByText("과장과 단정")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "제안 적용" }));
+    fireEvent.click(screen.getByRole("tab", { name: "생성된 초안" }));
+    expect(screen.getByLabelText("생성된 초안 편집"))
+      .toHaveValue("활동 자료에서 확인되는 참여 모습을 보임.");
   });
 
   it("copies the generated draft and reports success", async () => {
@@ -113,7 +171,7 @@ describe("AiDocumentWriter", () => {
     fireEvent.click(await screen.findByRole("button", { name: "초안 복사" }));
 
     await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith(draft));
-    expect(screen.getByText("초안을 복사했습니다.")).toBeInTheDocument();
+    expect(await screen.findByText("초안을 복사했습니다.")).toBeInTheDocument();
   });
 
   it("reports a clipboard permission failure", async () => {
@@ -151,14 +209,14 @@ describe("AiDocumentWriter", () => {
   it("uses memory state only and starts empty after remount", () => {
     const storage = vi.spyOn(Storage.prototype, "setItem");
     const view = render(<AiDocumentWriter />);
-    fireEvent.change(screen.getByLabelText(/^학생 식별 ID/), {
+    fireEvent.change(screen.getByLabelText(/^익명 학생 ID/), {
       target: { value: "S001" },
     });
     expect(storage).not.toHaveBeenCalled();
 
     view.unmount();
     render(<AiDocumentWriter />);
-    expect(screen.getByLabelText(/^학생 식별 ID/)).toHaveValue("");
+    expect(screen.getByLabelText(/^익명 학생 ID/)).toHaveValue("");
     expect(storage).not.toHaveBeenCalled();
   });
 
@@ -171,7 +229,7 @@ describe("AiDocumentWriter", () => {
 
     render(<AiDocumentWriter />);
 
-    expect(await screen.findByRole("heading", { name: "AI 문서 작성" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "동아리 생활기록부 초안" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "AI 초안 만들기" })).toBeInTheDocument();
   });
 
@@ -188,7 +246,7 @@ describe("AiDocumentWriter", () => {
       name: "AI 문서 작성은 PC에서 이용해주세요",
     })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "AI 초안 만들기" })).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/^학생 식별 ID/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/^익명 학생 ID/)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "오늘 화면으로 돌아가기" }))
       .toHaveAttribute("href", "/briefing");
     expect(fetch).not.toHaveBeenCalled();

@@ -1,13 +1,16 @@
 "use client";
 
 import { ShieldCheck } from "lucide-react";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 
 import { AiDocumentWriterForm } from "@/components/ai/ai-document-writer-form";
 import { AiDocumentWriterResultPanel } from "@/components/ai/ai-document-writer-result";
 import {
   INITIAL_AI_DOCUMENT_VALUES,
   type AiDocumentWriterFormValues,
+  type GuidelineSourceType,
+  type SchoolRecordGuideline,
+  type StudentMaterialKey,
 } from "@/components/ai/ai-document-writer-types";
 import {
   AiDocumentWriterResultSchema,
@@ -15,8 +18,17 @@ import {
   countUtf8Bytes,
 } from "@/lib/ai/document-writer";
 import type { AiDocumentWriterResult } from "@/lib/ai/document-writer";
+import {
+  DocumentTextExtractionError,
+  extractTextFile,
+} from "@/lib/ai/document-text-extraction";
+import {
+  reviewSchoolRecordDraft,
+  type SchoolRecordReviewIssue,
+} from "@/lib/ai/school-record-review";
 
 const CLIENT_TIMEOUT_MS = 15_000;
+const MAX_STUDENT_TEXT_LENGTH = 6_000;
 
 function hasSource(values: AiDocumentWriterFormValues): boolean {
   return [values.activityReport, values.selfEvaluation, values.teacherMemo]
@@ -37,9 +49,19 @@ async function responseMessage(response: Response): Promise<string> {
 export function AiDocumentWriterDesktop() {
   const [values, setValues] = useState(INITIAL_AI_DOCUMENT_VALUES);
   const [result, setResult] = useState<AiDocumentWriterResult | null>(null);
+  const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fileMessages, setFileMessages] = useState<
+    Partial<Record<StudentMaterialKey, string>>
+  >({});
+  const [academicYear, setAcademicYear] = useState(String(new Date().getFullYear()));
+  const [guidelineSourceType, setGuidelineSourceType] =
+    useState<GuidelineSourceType>("guide");
+  const [guideline, setGuideline] = useState<SchoolRecordGuideline | null>(null);
+  const [guidelineError, setGuidelineError] = useState("");
+  const [dismissedIssues, setDismissedIssues] = useState<readonly string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const resultRef = useRef<HTMLElement>(null);
 
@@ -48,6 +70,48 @@ export function AiDocumentWriterDesktop() {
     value: AiDocumentWriterFormValues[K],
   ): void {
     setValues((current) => ({ ...current, [key]: value }));
+  }
+
+  async function loadMaterialFile(key: StudentMaterialKey, file: File): Promise<void> {
+    try {
+      const text = await extractTextFile(file);
+      if (text.length > MAX_STUDENT_TEXT_LENGTH) {
+        throw new DocumentTextExtractionError(
+          "FILE_TOO_LARGE",
+          "추출된 내용이 너무 깁니다. 6000자 이하로 줄인 TXT 파일을 사용해 주세요.",
+        );
+      }
+      update(key, text);
+      setFileMessages((current) => ({ ...current, [key]: `${file.name} 내용을 불러왔습니다.` }));
+    } catch (fileError) {
+      const message = fileError instanceof DocumentTextExtractionError
+        ? fileError.message
+        : "파일을 읽지 못했습니다. 다시 시도해 주세요.";
+      setFileMessages((current) => ({ ...current, [key]: message }));
+    }
+  }
+
+  async function loadGuidelineFile(file: File): Promise<void> {
+    setGuidelineError("");
+    if (!/^\d{4}$/.test(academicYear)) {
+      setGuidelineError("기준 학년도를 4자리 숫자로 입력해 주세요.");
+      return;
+    }
+    try {
+      const text = await extractTextFile(file);
+      setGuideline({
+        academicYear,
+        fileName: file.name,
+        schoolLevel: "고등학교",
+        sourceType: guidelineSourceType,
+        text,
+      });
+      setDismissedIssues([]);
+    } catch (fileError) {
+      setGuidelineError(fileError instanceof DocumentTextExtractionError
+        ? fileError.message
+        : "기준자료를 읽지 못했습니다. 다시 시도해 주세요.");
+    }
   }
 
   function validationMessage(): string | null {
@@ -88,6 +152,8 @@ export function AiDocumentWriterDesktop() {
       const body = AiDocumentWriterResultSchema.safeParse(await response.json());
       if (!body.success) throw new Error("AI 응답을 읽지 못했습니다. 다시 시도해 주세요.");
       setResult(body.data);
+      setDraft(body.data.draft);
+      setDismissedIssues([]);
       window.requestAnimationFrame(() => {
         resultRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
       });
@@ -110,21 +176,29 @@ export function AiDocumentWriterDesktop() {
   async function copyDraft(): Promise<void> {
     if (!result) return;
     try {
-      await navigator.clipboard.writeText(result.draft);
+      await navigator.clipboard.writeText(draft);
       setCopyMessage("초안을 복사했습니다.");
     } catch {
       setCopyMessage("초안을 복사하지 못했습니다. 브라우저의 클립보드 권한을 확인해 주세요.");
     }
   }
 
-  function returnToInputs(): void {
-    formRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
-    formRef.current?.querySelector<HTMLTextAreaElement>("textarea")
-      ?.focus({ preventScroll: true });
+  function updateDraft(value: string): void {
+    setDraft(value);
+    setDismissedIssues([]);
+    setCopyMessage("");
   }
 
-  const characters = result ? countCharacters(result.draft) : 0;
-  const bytes = result ? countUtf8Bytes(result.draft) : 0;
+  function applySuggestion(issue: SchoolRecordReviewIssue): void {
+    if (issue.suggestion === null) return;
+    updateDraft(draft.replace(issue.expression, issue.suggestion));
+  }
+
+  const issues = useMemo(
+    () => reviewSchoolRecordDraft(draft, { guidelineText: guideline?.text })
+      .filter(({ id }) => !dismissedIssues.includes(id)),
+    [dismissedIssues, draft, guideline?.text],
+  );
   return (
     <div className="ai-writer">
       <aside className="ai-writer-privacy" aria-labelledby="ai-writer-privacy-title">
@@ -135,20 +209,40 @@ export function AiDocumentWriterDesktop() {
         </div>
       </aside>
       <AiDocumentWriterForm
+        academicYear={academicYear}
         error={error}
+        fileMessages={fileMessages}
         formRef={formRef}
+        guideline={guideline}
+        guidelineError={guidelineError}
+        guidelineSourceType={guidelineSourceType}
         isSubmitting={isSubmitting}
+        onAcademicYearChange={setAcademicYear}
+        onDeleteGuideline={() => {
+          setGuideline(null);
+          setDismissedIssues([]);
+        }}
+        onGuidelineFile={(file) => void loadGuidelineFile(file)}
+        onGuidelineSourceTypeChange={setGuidelineSourceType}
+        onMaterialFile={(key, file) => void loadMaterialFile(key, file)}
         onSubmit={() => void generateDraft()}
         onUpdate={update}
         values={values}
       />
       <AiDocumentWriterResultPanel
-        bytes={bytes}
-        characters={characters}
+        bytes={countUtf8Bytes(draft)}
+        characters={countCharacters(draft)}
         copyMessage={copyMessage}
+        draft={draft}
+        hasGuideline={guideline !== null}
         isSubmitting={isSubmitting}
+        issues={issues}
+        noTeacherMemo={!values.teacherMemo.trim()}
+        onApply={applySuggestion}
         onCopy={() => void copyDraft()}
-        onEdit={returnToInputs}
+        onDraftChange={updateDraft}
+        onEdit={() => formRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" })}
+        onKeep={(issue) => setDismissedIssues((current) => [...current, issue.id])}
         onRegenerate={() => void generateDraft()}
         result={result}
         resultRef={resultRef}

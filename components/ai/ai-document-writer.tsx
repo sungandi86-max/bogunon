@@ -2,35 +2,34 @@
 
 import { Monitor } from "lucide-react";
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 import { AiDocumentWriterDesktop } from "@/components/ai/ai-document-writer-desktop";
 import { PageHeader } from "@/components/layout/page-header";
 
 const DESKTOP_MEDIA_QUERY = "(min-width: 1024px)";
 
-function subscribeToDesktopViewport(onChange: () => void): () => void {
-  if (typeof window.matchMedia !== "function") return () => undefined;
-  const query = window.matchMedia(DESKTOP_MEDIA_QUERY);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-function getDesktopSnapshot(): boolean {
-  if (typeof window.matchMedia !== "function") return true;
-  return window.matchMedia(DESKTOP_MEDIA_QUERY).matches;
-}
-
-function getServerDesktopSnapshot(): boolean {
-  return false;
-}
-
 export function AiDocumentWriter() {
-  const isDesktop = useSyncExternalStore(
-    subscribeToDesktopViewport,
-    getDesktopSnapshot,
-    getServerDesktopSnapshot,
-  );
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    let updateTimer: number;
+
+    if (typeof window.matchMedia !== "function") {
+      updateTimer = window.setTimeout(() => setIsDesktop(true), 0);
+      return () => window.clearTimeout(updateTimer);
+    }
+    const query = window.matchMedia(DESKTOP_MEDIA_QUERY);
+    const update = () => setIsDesktop(query.matches);
+    updateTimer = window.setTimeout(update, 0);
+    query.addEventListener("change", update);
+    window.addEventListener("resize", update);
+    return () => {
+      window.clearTimeout(updateTimer);
+      query.removeEventListener("change", update);
+      window.removeEventListener("resize", update);
+    };
+  }, []);
 
   if (!isDesktop) {
     return (
@@ -48,8 +47,8 @@ export function AiDocumentWriter() {
   return (
     <>
       <PageHeader
-        description="익명화된 활동 자료와 교사 메모를 바탕으로 문서 초안을 작성합니다."
-        title="AI 문서 작성"
+        description="학생 활동자료와 교사 메모를 바탕으로 초안을 만들고, 등록된 해당 학년도 학교생활기록부 기재요령에 따라 검토합니다."
+        title="동아리 생활기록부 초안"
       />
       <AiDocumentWriterDesktop />
     </>

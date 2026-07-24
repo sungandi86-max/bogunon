@@ -18,7 +18,6 @@ function request(body: unknown): Request {
 }
 
 const validBody = {
-  documentType: "club-record",
   studentId: "S001",
   activityReport: "건강 캠페인 자료를 조사하고 발표함",
   selfEvaluation: "",
