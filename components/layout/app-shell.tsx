@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { AiAssistantPanel } from "@/components/ai/ai-assistant-panel";
 import type { AssistantDraft } from "@/components/ai/ai-assistant-panel";
+import { AiConnectionProvider } from "@/components/ai/ai-connection-context";
 import { AssistantContext } from "@/components/ai/assistant-context";
 import { HealthPresetPreferencesProvider } from "@/components/health-presets/health-preset-preferences-context";
 import type { AssistantSurface } from "@/components/ai/assistant-context";
@@ -111,6 +112,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
   }, [openCreate]);
 
   return (
+    <AiConnectionProvider>
     <CalendarPreferencesProvider>
     <HealthPresetPreferencesProvider initialPreferences={presetPreferences}>
     <AssistantContext value={{ openAssistant }}>
@@ -151,5 +153,6 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
     </AssistantContext>
     </HealthPresetPreferencesProvider>
     </CalendarPreferencesProvider>
+    </AiConnectionProvider>
   );
 }

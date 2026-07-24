@@ -90,8 +90,8 @@ export function AiDocumentWriterGuideline({
                 <Upload aria-hidden="true" size={16} />
                 교체
                 <input
-                  accept=".txt,text/plain"
-                  aria-label="생기부 기준자료 TXT 파일"
+                  accept=".pdf,.txt,application/pdf,text/plain"
+                  aria-label="생기부 기준자료 파일"
                   onChange={chooseFile}
                   type="file"
                 />
@@ -137,16 +137,17 @@ export function AiDocumentWriterGuideline({
             </div>
             <label className="button button--secondary ai-writer-file-button">
               <Upload aria-hidden="true" size={16} />
-              공식 TXT 기준자료 등록
+              공식 기준자료 등록
               <input
-                accept=".txt,text/plain"
-                aria-label="생기부 기준자료 TXT 파일"
+                accept=".pdf,.txt,application/pdf,text/plain"
+                aria-label="생기부 기준자료 파일"
                 onChange={chooseFile}
                 type="file"
               />
             </label>
             <p className="ai-writer-message ai-writer-message--notice">
               <Info aria-hidden="true" size={17} />
+              PDF를 권장하며 TXT도 지원합니다. 텍스트 기반 PDF만 읽을 수 있고 스캔 PDF는 직접 입력이 필요합니다.
               공식 기재요령을 등록하면 기재 제한 가능 표현을 함께 점검할 수 있습니다.
               등록 전에도 개인정보, 문장, 오탈자, 바이트 검토는 가능합니다.
             </p>

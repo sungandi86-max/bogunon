@@ -18,6 +18,7 @@ import {
 } from "@/lib/ai/document-writer";
 
 interface AiDocumentWriterFormProps {
+  readonly aiConnected: boolean;
   readonly academicYear: string;
   readonly activityFileState: ActivityReportFileState | null;
   readonly error: string;
@@ -48,6 +49,7 @@ const ADDITIONAL_RECORD_EXAMPLES = [
 ] as const;
 
 export function AiDocumentWriterForm({
+  aiConnected,
   academicYear,
   activityFileState,
   error,
@@ -193,6 +195,7 @@ export function AiDocumentWriterForm({
         <div className="ai-writer-submit">
           <div>
             {activityReportMissing && <small>활동보고서를 입력하거나 파일로 불러오면 생성할 수 있습니다.</small>}
+            {!aiConnected && <small>AI 연결 후 실제 초안을 생성할 수 있습니다.</small>}
             {activityReportExtracting && <small>파일에서 텍스트를 추출하고 있습니다.</small>}
             {activityReportTooLong && (
               <small className="is-warning">
@@ -204,6 +207,7 @@ export function AiDocumentWriterForm({
           <Button
             disabled={
               isSubmitting
+              || !aiConnected
               || activityReportExtracting
               || activityReportMissing
               || activityReportTooLong

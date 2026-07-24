@@ -920,6 +920,32 @@
 .settings-card__heading > svg, .settings-row-icon { align-items: center; background: var(--action-50); border-radius: var(--radius-md); color: var(--action-700); display: inline-flex; flex: 0 0 auto; height: 40px; justify-content: center; width: 40px; }
 .settings-card__heading h2 { font-size: var(--text-card); margin: 0; }
 .settings-card__heading p { color: var(--ink-500); font-size: var(--text-support); margin: var(--space-2) 0 0; }
+.ai-connection-page .settings-layout { max-width: 860px; }
+.ai-connection-settings { display: grid; gap: var(--space-7); }
+.ai-connection-settings .settings-card__heading { margin-bottom: 0; }
+.ai-connection-status { align-items: center; background: var(--surface-subtle); border: 1px solid var(--line-subtle); border-radius: var(--radius-lg); color: var(--ink-500); display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr); padding: var(--space-5) var(--space-6); }
+.ai-connection-status.is-connected { background: var(--success-soft); color: var(--success); }
+.ai-connection-status.is-checking { background: var(--action-50); color: var(--action-700); }
+.ai-connection-status > div { display: grid; gap: var(--space-1); }
+.ai-connection-status strong { color: var(--brand-950); font-size: var(--text-base); }
+.ai-connection-status span { color: var(--ink-500); font-size: var(--text-meta); }
+.ai-provider-options { border: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; min-width: 0; padding: 0; }
+.ai-provider-options legend { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); grid-column: 1 / -1; margin-bottom: var(--space-1); }
+.ai-provider-options label { cursor: pointer; position: relative; }
+.ai-provider-options input { height: 1px; opacity: 0; position: absolute; width: 1px; }
+.ai-provider-options span { align-items: center; border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-700); display: flex; gap: var(--space-2); justify-content: center; min-height: var(--touch-target); }
+.ai-provider-options input:checked + span { background: var(--action-50); border-color: var(--action-500); color: var(--action-700); font-weight: var(--weight-bold); }
+.ai-provider-options input:focus-visible + span { box-shadow: var(--focus-ring); }
+.ai-connection-fields { display: grid; gap: var(--space-5); grid-template-columns: minmax(0, 3fr) minmax(220px, 2fr); }
+.ai-connection-fields > label { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-3); min-width: 0; }
+.ai-connection-fields input, .ai-connection-fields select { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--ink-900); font: inherit; min-height: var(--control-lg); min-width: 0; padding: var(--space-3) var(--space-4); width: 100%; }
+.ai-connection-fields input:focus-visible, .ai-connection-fields select:focus-visible { border-color: var(--action-500); box-shadow: var(--focus-ring); outline: 0; }
+.ai-connection-password { align-items: center; display: grid; grid-template-columns: auto minmax(0, 1fr); position: relative; }
+.ai-connection-password > svg { color: var(--ink-400); left: var(--space-4); pointer-events: none; position: absolute; z-index: 1; }
+.ai-connection-password input { padding-left: calc(var(--space-4) + 25px); }
+.ai-connection-privacy { align-items: start; background: var(--action-50); border: 1px solid var(--action-100); border-radius: var(--radius-lg); color: var(--action-700); display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr); padding: var(--space-5) var(--space-6); }
+.ai-connection-privacy p { color: var(--ink-700); display: grid; font-size: var(--text-sm); gap: var(--space-1); line-height: var(--leading-body); margin: 0; }
+.ai-connection-actions { display: flex; gap: var(--space-2); justify-content: flex-end; }
 .settings-field-grid { display: grid; gap: var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .calendar-week-start { border: 0; display: grid; gap: var(--space-3); grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 0; }
 .calendar-week-start legend { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); grid-column: 1 / -1; margin-bottom: var(--space-1); }
@@ -1003,6 +1029,16 @@
 .ai-writer-privacy { align-items: start; background: var(--action-50); border: 1px solid var(--action-100); border-radius: var(--radius-lg); color: var(--action-700); display: grid; gap: var(--space-5); grid-template-columns: auto minmax(0, 1fr); padding: var(--space-6) var(--space-8); }
 .ai-writer-privacy strong { color: var(--brand-950); display: block; font-size: var(--text-base); }
 .ai-writer-privacy p { color: var(--ink-700); font-size: var(--text-md); line-height: var(--leading-body); margin: var(--space-1) 0 0; }
+.ai-writer-connection { align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); color: var(--ink-500); display: grid; gap: var(--space-4); grid-template-columns: auto minmax(0, 1fr) auto; padding: var(--space-5) var(--space-6); }
+.ai-writer-connection.is-connected { background: var(--success-soft); border-color: color-mix(in srgb, var(--success) 28%, transparent); color: var(--success); }
+.ai-writer-connection.is-disconnected { background: var(--surface-subtle); }
+.ai-writer-connection > div:not(.ai-writer-connection__actions) { display: grid; gap: var(--space-1); min-width: 0; }
+.ai-writer-connection strong { color: var(--brand-950); font-size: var(--text-base); }
+.ai-writer-connection span { color: var(--ink-500); font-size: var(--text-meta); line-height: var(--leading-body); }
+.ai-writer-connection__identity { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.ai-writer-connection .ai-writer-connection__state { align-items: center; color: var(--success); display: inline-flex; font-weight: var(--weight-semibold); gap: var(--space-1); }
+.ai-writer-connection__actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
+.ai-writer-connection__actions .button { white-space: nowrap; }
 .ai-writer-form { display: grid; gap: var(--space-6); }
 .ai-writer-section, .ai-writer-result, .ai-writer-guideline-disclosure { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); }
 .ai-writer-section { padding: var(--space-10); }

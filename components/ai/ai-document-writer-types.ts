@@ -2,7 +2,7 @@ import type { AiDocumentWriterRequest } from "@/lib/ai/document-writer";
 import type { DocumentFileFormat } from "@/lib/ai/document-text-extraction";
 
 export type AiDocumentWriterFormValues =
-  Omit<AiDocumentWriterRequest, "privacyConfirmed"> & {
+  Omit<AiDocumentWriterRequest, "guideline" | "privacyConfirmed"> & {
     readonly privacyConfirmed: boolean;
   };
 
