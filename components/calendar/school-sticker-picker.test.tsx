@@ -30,10 +30,10 @@ function renderPicker(stickers: readonly CalendarStickerRow[] = []) {
 }
 
 describe("SchoolStickerPicker", () => {
-  it("shows responsive school, academic, health, holiday, and personal pack tabs in pack order", () => {
+  it("shows every date sticker and event pack tab in pack order", () => {
     renderPicker();
     const tablist = screen.getByRole("tablist", { name: "날짜 스티커 팩" });
-    expect(within(tablist).getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["학교", "학사일정", "보건업무", "공휴일", "개인"]);
+    expect(within(tablist).getAllByRole("tab").map((tab) => tab.textContent)).toEqual(["학교", "학사일정", "보건업무", "공휴일", "개인", "운동", "대회"]);
     expect(screen.getByRole("tab", { name: "학교" })).toHaveAttribute("aria-selected", "true");
   });
 

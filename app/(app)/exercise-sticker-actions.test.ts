@@ -26,6 +26,7 @@ vi.mock("@/lib/exercise/review-repository", async (importOriginal) => {
 
 const stickerId = "10000000-0000-4000-8000-000000000001";
 const logId = "20000000-0000-4000-8000-000000000001";
+const eventId = "30000000-0000-4000-8000-000000000001";
 
 describe("exercise sticker actions", () => {
   beforeEach(() => vi.clearAllMocks());
@@ -61,6 +62,22 @@ describe("exercise sticker actions", () => {
       logId,
       recordType,
     });
+  });
+
+  it("links a created exercise log to the originating calendar event", async () => {
+    vi.mocked(saveExerciseLog).mockResolvedValueOnce({
+      status: "created",
+      log: { id: logId, recordType: "exercise" },
+    });
+    const form = new FormData();
+    form.set("stickerId", stickerId);
+    form.set("exerciseDate", "2026-07-18");
+    form.set("recordType", "exercise");
+    form.set("eventId", eventId);
+
+    await attachExerciseStickerAction({ status: "idle" }, form);
+
+    expect(saveExerciseLog).toHaveBeenCalledWith(expect.objectContaining({ eventId }));
   });
 
   it("returns a stable error without an id when record input or storage fails", async () => {

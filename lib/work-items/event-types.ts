@@ -97,14 +97,16 @@ function detailText(value: unknown, label: string, maxLength: number): string {
 
 export function parseEventDetails(type: EventType, values: Readonly<Record<string, unknown>>): EventDetails | null {
   if (type === "workout") {
-    return { kind: "workout", workoutType: detailText(values["workoutType"], "운동 종류", 80) };
+    const workoutType = detailText(values["workoutType"], "운동 종류", 80);
+    return { kind: "workout", workoutType };
   }
   if (type === "tournament") {
     const applicationStatus = TOURNAMENT_APPLICATION_STATUSES.find((status) => status === values["applicationStatus"]);
     if (!applicationStatus) throw new Error("대회 신청 상태를 확인해 주세요.");
+    const tournamentName = detailText(values["tournamentName"], "대회명", 120);
     return {
       kind: "tournament",
-      tournamentName: detailText(values["tournamentName"], "대회명", 120),
+      tournamentName,
       discipline: detailText(values["discipline"], "참가 종목", 80),
       partner: detailText(values["partner"], "파트너", 80),
       level: detailText(values["level"], "급수", 40),

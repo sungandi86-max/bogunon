@@ -67,6 +67,20 @@ export async function listRecentExerciseLogs(limit = 5): Promise<ExerciseLogWith
   return hydrateReviews(supabase, data);
 }
 
+export async function listExerciseLogsForEvents(
+  eventIds: readonly string[],
+): Promise<ExerciseLogRow[]> {
+  if (eventIds.length === 0) return [];
+  const { supabase, userId } = await ownedClient();
+  const { data, error } = await supabase
+    .from("exercise_logs")
+    .select("*")
+    .eq("user_id", userId)
+    .in("event_id", [...eventIds]);
+  if (error) throw new ExerciseRepositoryError("연결된 운동 기록을 불러오지 못했습니다.");
+  return data;
+}
+
 export type SaveExerciseLogValues = {
   readonly eventId?: string | null;
   readonly stickerId: string;

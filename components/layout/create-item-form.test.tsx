@@ -128,6 +128,8 @@ describe("CreateItemForm Phase 5 workflows", () => {
     expect(screen.getByRole("textbox", { name: "급수" })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "신청 상태" })).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "운동 종류" })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByRole("textbox", { name: "대회명" }), { target: { value: "성동구 오픈대회" } });
+    expect(screen.getByRole("textbox", { name: "제목" })).toHaveValue("성동구 오픈대회");
   });
 
   it("starts event creation as all-day and reveals optional end time when unchecked", () => {

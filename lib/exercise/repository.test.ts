@@ -8,12 +8,13 @@ import {
   upsertCompetitionReview,
   upsertLessonReview,
 } from "@/lib/exercise/review-repository";
-import { listExerciseStickerData, listRecentExerciseLogs, saveExerciseLog } from "@/lib/exercise/repository";
+import { listExerciseLogsForEvents, listExerciseStickerData, listRecentExerciseLogs, saveExerciseLog } from "@/lib/exercise/repository";
 import { createClient } from "@/lib/supabase/server";
 
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
 
 const auth = { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "user-1" } }, error: null }) };
+const eventId = "30000000-0000-4000-8000-000000000001";
 const log = {
   id: "20000000-0000-4000-8000-000000000001",
   user_id: "user-1",
@@ -102,6 +103,18 @@ describe("exercise V2 repository", () => {
       from: vi.fn().mockReturnValueOnce(recentLogs).mockReturnValueOnce(recentLessons).mockReturnValueOnce(recentCompetitions),
     } as never);
     await expect(listRecentExerciseLogs()).resolves.toMatchObject([{ lessonReview, competitionReview: null }]);
+  });
+
+  it("lists linked exercise logs through an explicitly owned event query", async () => {
+    const linked = query({ data: [{ ...log, event_id: eventId }], error: null });
+    vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => linked) } as never);
+
+    await expect(listExerciseLogsForEvents([eventId])).resolves.toMatchObject([
+      { id: log.id, event_id: eventId },
+    ]);
+
+    expect(linked["eq"]).toHaveBeenCalledWith("user_id", "user-1");
+    expect(linked["in"]).toHaveBeenCalledWith("event_id", [eventId]);
   });
 
   it("checks ownership and parent type before reading or writing lesson reviews", async () => {

@@ -58,6 +58,7 @@ function safeMessage(error: unknown, fallback: string): string {
 
 export async function attachExerciseStickerAction(_state: StickerActionState, formData: FormData): Promise<ExerciseCreateActionState> {
   const parsed = exerciseLogInputSchema.safeParse({
+    eventId: nullableText(formData, "eventId"),
     stickerId: String(formData.get("stickerId") ?? ""),
     exerciseDate: String(formData.get("exerciseDate") ?? ""),
     recordType: String(formData.get("recordType") ?? "exercise"),
@@ -66,7 +67,11 @@ export async function attachExerciseStickerAction(_state: StickerActionState, fo
   });
   if (!parsed.success) return { status: "error", message: "운동 종류, 날짜와 기록 유형을 확인해 주세요." };
   try {
-    const result = await saveExerciseLog(parsed.data);
+    const { eventId, ...values } = parsed.data;
+    const result = await saveExerciseLog({
+      ...values,
+      ...(eventId ? { eventId } : {}),
+    });
     refreshExercise();
     if (result.status === "duplicate") return { status: "success", outcome: "duplicate", message: "같은 날짜에 이미 기록한 운동이에요." };
     return {

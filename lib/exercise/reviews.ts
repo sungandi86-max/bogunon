@@ -18,6 +18,7 @@ const nullableText = (maximum: number) => z.string().trim().min(1).max(maximum).
 const nullableCount = z.number().int().min(0).max(1000).nullable().optional().transform((value) => value ?? null);
 
 export const exerciseLogInputSchema = z.object({
+  eventId: uuidSchema.nullable().optional(),
   stickerId: uuidSchema,
   exerciseDate: z.string().refine(isCalendarDate),
   recordType: z.enum(EXERCISE_RECORD_TYPES),

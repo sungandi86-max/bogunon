@@ -8,16 +8,18 @@ import {
   saveCompetitionReviewAction,
   type ExerciseReviewActionState,
 } from "@/app/(app)/exercise-sticker-actions";
+import type { CompetitionReviewDefaults } from "@/components/exercise/exercise-review-panel";
 import type { ExerciseCompetitionReviewRow } from "@/types/database";
 
 const initialState: ExerciseReviewActionState = { status: "idle" };
 
 interface CompetitionReviewFormProps {
+  readonly defaults?: CompetitionReviewDefaults;
   readonly exerciseLogId: string;
   readonly review: ExerciseCompetitionReviewRow | null;
 }
 
-export function CompetitionReviewForm({ exerciseLogId, review }: CompetitionReviewFormProps) {
+export function CompetitionReviewForm({ defaults, exerciseLogId, review }: CompetitionReviewFormProps) {
   const [saveState, saveAction, saving] = useActionState(saveCompetitionReviewAction, initialState);
   const [deleteState, deleteAction, deleting] = useActionState(deleteCompetitionReviewAction, initialState);
   const router = useRouter();
@@ -30,9 +32,9 @@ export function CompetitionReviewForm({ exerciseLogId, review }: CompetitionRevi
     <div className="exercise-review__heading"><h3 id={`competition-review-${exerciseLogId}`}>대회 리뷰</h3>{review === null && <p>아직 작성된 대회 리뷰가 없습니다.</p>}</div>
     <form action={saveAction} className="exercise-review-form" key={`${exerciseLogId}:${review?.updated_at ?? "empty"}`}>
       <input name="exerciseLogId" type="hidden" value={exerciseLogId} />
-      <label><span>대회명</span><input defaultValue={review?.competition_name ?? ""} maxLength={200} name="competitionName" /></label>
-      <div className="exercise-review-form__pair"><label><span>장소</span><input defaultValue={review?.location ?? ""} maxLength={200} name="location" /></label><label><span>종목</span><input defaultValue={review?.event_category ?? ""} maxLength={200} name="eventCategory" /></label></div>
-      <div className="exercise-review-form__pair"><label><span>등급</span><input defaultValue={review?.grade ?? ""} maxLength={100} name="grade" /></label><label><span>파트너</span><input defaultValue={review?.partner ?? ""} maxLength={100} name="partner" /></label></div>
+      <label><span>대회명</span><input defaultValue={review?.competition_name ?? defaults?.competitionName ?? ""} maxLength={200} name="competitionName" /></label>
+      <div className="exercise-review-form__pair"><label><span>장소</span><input defaultValue={review?.location ?? defaults?.location ?? ""} maxLength={200} name="location" /></label><label><span>종목</span><input defaultValue={review?.event_category ?? defaults?.eventCategory ?? ""} maxLength={200} name="eventCategory" /></label></div>
+      <div className="exercise-review-form__pair"><label><span>등급</span><input defaultValue={review?.grade ?? defaults?.grade ?? ""} maxLength={100} name="grade" /></label><label><span>파트너</span><input defaultValue={review?.partner ?? defaults?.partner ?? ""} maxLength={100} name="partner" /></label></div>
       <div className="exercise-review-form__scores"><label><span>전체 경기</span><input defaultValue={review?.total_games ?? ""} inputMode="numeric" max="1000" min="0" name="totalGames" type="number" /></label><label><span>승</span><input defaultValue={review?.wins ?? ""} inputMode="numeric" max="1000" min="0" name="wins" type="number" /></label><label><span>패</span><input defaultValue={review?.losses ?? ""} inputMode="numeric" max="1000" min="0" name="losses" type="number" /></label></div>
       <label><span>최종 결과</span><input defaultValue={review?.final_result ?? ""} maxLength={200} name="finalResult" /></label>
       <label><span>잘한 점</span><textarea defaultValue={review?.strengths ?? ""} maxLength={1000} name="strengths" /></label>

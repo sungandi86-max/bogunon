@@ -6,7 +6,12 @@ import { useActionState, useEffect, useMemo, useRef, useState, type KeyboardEven
 import { attachCalendarStickerAction, removeCalendarStickerAction } from "@/app/(app)/calendar-sticker-actions";
 import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
 import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
+import { CalendarEventStickerPicker } from "@/components/calendar/calendar-event-sticker-picker";
 import { useAppShellCreate } from "@/components/layout/app-shell-create-context";
+import {
+  CALENDAR_EVENT_STICKER_PACKS,
+  type CalendarEventStickerPack,
+} from "@/lib/calendar-stickers/event-catalog";
 import {
   ACADEMIC_CALENDAR_STICKERS,
   HEALTH_CALENDAR_STICKERS,
@@ -21,7 +26,8 @@ import {
 import type { CalendarStickerRow } from "@/types/database";
 
 const idle = { status: "idle" as const };
-const packs = [["school", "학교"], ["academic", "학사일정"], ["health", "보건업무"], ["holiday", "공휴일"], ["personal", "개인"]] as const satisfies readonly (readonly [CalendarStickerPack, string])[];
+type DateStickerPack = CalendarStickerPack | CalendarEventStickerPack;
+const packs = [["school", "학교"], ["academic", "학사일정"], ["health", "보건업무"], ["holiday", "공휴일"], ["personal", "개인"], ["workout", "운동"], ["tournament", "대회"]] as const satisfies readonly (readonly [DateStickerPack, string])[];
 const academicGroups = [["all", "전체"], ["semester", "학기"], ["exam", "시험"], ["event", "행사"], ["operation", "운영"]] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
 const healthGroups = [["all", "전체"], ["screening", "건강검사"], ["education", "보건교육"], ["operation", "운영·점검"], ["administration", "행정·협업"]] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
 const holidayGroups = [["all", "전체"], ["national", "국가 공휴일"], ["traditional", "명절"], ["special", "대체·특별 휴일"], ["general", "일반 휴일"]] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
@@ -32,6 +38,10 @@ function catalogForPack(pack: CalendarStickerPack) {
   if (pack === "holiday") return HOLIDAY_CALENDAR_STICKERS;
   if (pack === "personal") return PERSONAL_CALENDAR_STICKERS;
   return SCHOOL_CALENDAR_STICKERS;
+}
+
+function isCalendarEventStickerPack(pack: DateStickerPack): pack is CalendarEventStickerPack {
+  return CALENDAR_EVENT_STICKER_PACKS.some((value) => value === pack);
 }
 
 function groupsForPack(pack: CalendarStickerPack) {
@@ -51,7 +61,7 @@ function inclusiveDayCount(startDate: string, endDate: string): number {
 }
 
 export function SchoolStickerPicker({ stickers, today }: { readonly stickers: readonly CalendarStickerRow[]; readonly today: string }) {
-  const [pack, setPack] = useState<CalendarStickerPack>("school");
+  const [pack, setPack] = useState<DateStickerPack>("school");
   const [group, setGroup] = useState<CalendarStickerGroup | "all">("all");
   const [query, setQuery] = useState("");
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
@@ -62,12 +72,13 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
   const { openCreate } = useAppShellCreate();
   const eventButtonRef = useRef<HTMLButtonElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
-  const catalog = catalogForPack(pack);
-  const groups = groupsForPack(pack);
+  const eventPack = isCalendarEventStickerPack(pack);
+  const catalog = useMemo(() => isCalendarEventStickerPack(pack) ? [] : catalogForPack(pack), [pack]);
+  const groups = useMemo(() => isCalendarEventStickerPack(pack) ? [] : groupsForPack(pack), [pack]);
   const visibleCatalog = useMemo(() => filterCalendarStickers(catalog, query, groups.length > 0 ? group : "all"), [catalog, group, groups.length, query]);
   const selected = stickers.filter((item) => {
     const definition = calendarStickerByKey(item.sticker_key);
-    return item.sticker_date <= today && (item.end_date ?? item.sticker_date) >= today && definition?.pack === pack;
+    return !eventPack && item.sticker_date <= today && (item.end_date ?? item.sticker_date) >= today && definition?.pack === pack;
   });
   const latest = selected.at(-1);
   const selectedDays = inclusiveDayCount(selectedDate, endDate);
@@ -80,7 +91,7 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
     }
   }, [pack]);
 
-  function selectPack(nextPack: CalendarStickerPack): void {
+  function selectPack(nextPack: DateStickerPack): void {
     if (nextPack === pack) return;
     setPack(nextPack);
     setGroup("all");
@@ -144,16 +155,16 @@ export function SchoolStickerPicker({ stickers, today }: { readonly stickers: re
     <div aria-label="날짜 스티커 팩" className="calendar-sticker-tabs" role="tablist">
       {packs.map(([value, label], index) => <button aria-controls="calendar-sticker-panel" aria-selected={pack === value} id={`calendar-sticker-${value}-tab`} key={value} onClick={() => selectPack(value)} onKeyDown={(event) => handlePackKeyDown(event, index)} ref={pack === value ? activeTabRef : undefined} role="tab" tabIndex={pack === value ? 0 : -1} type="button">{label}</button>)}
     </div>
-    <form action={attachAction} aria-labelledby={`calendar-sticker-${pack}-tab`} className="school-sticker-picker__form" id="calendar-sticker-panel" role="tabpanel">
+    {eventPack ? <CalendarEventStickerPicker date={selectedDate} pack={pack} /> : <form action={attachAction} aria-labelledby={`calendar-sticker-${pack}-tab`} className="school-sticker-picker__form" id="calendar-sticker-panel" role="tabpanel">
       <div className="school-sticker-picker__dates"><div className="form-grid"><label className="field"><span className="field-label">시작일</span><CalendarDateInput name="stickerDate" onValueChange={(value) => { setSelectedDate(value); if (endDate && endDate < value) setEndDate(""); }} required value={selectedDate} /></label><label className="field"><span className="field-label">종료일</span><CalendarDateInput min={selectedDate} name="endDate" onValueChange={setEndDate} value={endDate} /></label></div><p>종료일을 선택하면 해당 기간의 모든 날짜에 스티커가 추가됩니다.</p></div>
       <label className="calendar-sticker-search"><span className="sr-only">스티커 검색</span><Search aria-hidden="true" size={17} /><input onChange={(event) => updateQuery(event.target.value)} placeholder="이름, 키워드, 카테고리 검색" type="search" value={query} />{query && <button aria-label="스티커 검색어 지우기" onClick={() => updateQuery("")} type="button"><X aria-hidden="true" size={16} /></button>}</label>
       {groups.length > 0 && <div aria-label={`${packs.find(([value]) => value === pack)?.[1] ?? "스티커"} 카테고리`} className="calendar-sticker-groups" role="group">{groups.map(([value, label]) => <button aria-pressed={group === value} key={value} onClick={() => selectGroup(value)} type="button">{label}</button>)}</div>}
       <input name="stickerKey" type="hidden" value={selectedKey ?? ""} />
       <p aria-live="polite" className="sr-only">{visibleCatalog.length}개의 스티커가 표시됩니다.</p>
       {visibleCatalog.length > 0 ? <div className="school-sticker-grid">{visibleCatalog.map((item) => <button aria-label={`${dateLabel(selectedDate)} ${item.label} 스티커 선택`} aria-pressed={selectedKey === item.key} className={selectedKey === item.key ? "is-selected" : undefined} key={item.key} onClick={() => setSelectedKey(item.key)} type="button"><CalendarDateSticker stickerKey={item.key} />{selectedKey === item.key && <Check aria-hidden="true" className="school-sticker-grid__check" size={16} />}</button>)}</div> : <div className="calendar-sticker-empty"><SearchX aria-hidden="true" size={22} /><strong>검색 결과가 없습니다.</strong><span>검색어를 지우고 다시 찾아보세요.</span><button onClick={() => { updateQuery(""); selectGroup("all"); }} type="button">검색 초기화</button></div>}
-    </form>
-    {selected.length > 0 && <div className="school-sticker-picker__selected-list">{selected.map((item) => <div className="school-sticker-picker__selected" key={item.id}><CalendarDateSticker stickerKey={item.sticker_key} /><div><strong>{item.label}</strong><small>{item.sticker_date}{item.end_date ? ` ~ ${item.end_date}` : ""}</small></div><form action={removeAction}><input name="stickerId" type="hidden" value={item.id} /><button className="text-action" disabled={removePending} type="submit">제거</button></form>{item.id === latest?.id && <button className="button button--secondary" onClick={openLinkedEvent} ref={eventButtonRef} type="button">{pack === "personal" ? "개인 일정도 만들기" : "학교 일정으로 만들기"}</button>}</div>)}</div>}
+    </form>}
+    {!eventPack && selected.length > 0 && <div className="school-sticker-picker__selected-list">{selected.map((item) => <div className="school-sticker-picker__selected" key={item.id}><CalendarDateSticker stickerKey={item.sticker_key} /><div><strong>{item.label}</strong><small>{item.sticker_date}{item.end_date ? ` ~ ${item.end_date}` : ""}</small></div><form action={removeAction}><input name="stickerId" type="hidden" value={item.id} /><button className="text-action" disabled={removePending} type="submit">제거</button></form>{item.id === latest?.id && <button className="button button--secondary" onClick={openLinkedEvent} ref={eventButtonRef} type="button">{pack === "personal" ? "개인 일정도 만들기" : "학교 일정으로 만들기"}</button>}</div>)}</div>}
     {(attachState.message || removeState.message) && <p aria-live="polite" className={(attachState.status === "error" || removeState.status === "error") ? "form-message form-message--error" : "form-message"}>{attachState.message ?? removeState.message}</p>}
-    <div className="school-sticker-picker__footer"><button className="button school-sticker-picker__save" disabled={!selectedKey || attachPending} form="calendar-sticker-panel" type="submit">{attachPending ? "추가 중…" : saveLabel}</button></div>
+    {!eventPack && <div className="school-sticker-picker__footer"><button className="button school-sticker-picker__save" disabled={!selectedKey || attachPending} form="calendar-sticker-panel" type="submit">{attachPending ? "추가 중…" : saveLabel}</button></div>}
   </section>;
 }

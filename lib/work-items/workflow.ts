@@ -8,6 +8,10 @@ import type {
   TaskRow,
   WorkItemKind,
 } from "@/types/database";
+import type {
+  EventType,
+  TournamentApplicationStatus,
+} from "@/lib/work-items/event-types";
 import type { ChecklistDraft, LinkDraft, ReminderDraft } from "@/lib/work-items/phase5-repository";
 
 export type TemplateDefinition = {
@@ -32,6 +36,13 @@ export type TemplateDefinition = {
   readonly endTime?: string;
   readonly isAllDay?: boolean;
   readonly colorKey?: EventRow["color_key"];
+  readonly eventType?: EventType;
+  readonly workoutType?: string;
+  readonly tournamentName?: string;
+  readonly discipline?: string;
+  readonly partner?: string;
+  readonly level?: string;
+  readonly applicationStatus?: TournamentApplicationStatus;
   readonly aiDraftId?: string;
   readonly customId?: string;
   readonly reminderOffsets?: readonly number[];
