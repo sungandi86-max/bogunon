@@ -25,7 +25,7 @@ const workout: EventRow = {
 };
 
 describe("FullMonthCalendar mobile summary", () => {
-  it("keeps the day header before desktop entries and the mobile summary", () => {
+  it("keeps the day header before desktop entries and the mobile title summary", () => {
     render(<FullMonthCalendar events={[workout]} month="2026-07" today="2026-07-25" />);
 
     const cell = screen.getByRole("gridcell", { name: /2026-07-31, 일정 1개/ });
@@ -38,11 +38,11 @@ describe("FullMonthCalendar mobile summary", () => {
     expect(summary).not.toBeNull();
     expect(header?.compareDocumentPosition(entries as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(entries?.compareDocumentPosition(summary as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(summary).toHaveTextContent("1개");
+    expect(summary).toHaveTextContent("배드민턴 레슨");
     expect(summary?.querySelector(".full-calendar__mobile-dot--workout")).not.toBeNull();
   });
 
-  it("summarizes multiple items without putting clipped titles in the mobile summary", () => {
+  it("shows two titles and an overflow count in the mobile summary", () => {
     const tournament: EventRow = {
       ...workout,
       id: "tournament-1",
@@ -57,15 +57,25 @@ describe("FullMonthCalendar mobile summary", () => {
         applicationStatus: "applied",
       },
     };
+    const personal: EventRow = {
+      ...workout,
+      id: "personal-1",
+      title: "개인 약속",
+      event_type: "personal",
+      event_details: null,
+      start_time: null,
+      end_time: null,
+    };
 
-    render(<FullMonthCalendar events={[workout, tournament]} month="2026-07" today="2026-07-25" />);
+    render(<FullMonthCalendar events={[workout, tournament, personal]} month="2026-07" today="2026-07-25" />);
 
     const summary = screen
-      .getByRole("gridcell", { name: /2026-07-31, 일정 2개/ })
+      .getByRole("gridcell", { name: /2026-07-31, 일정 3개/ })
       .querySelector(".full-calendar__mobile-summary");
-    expect(summary).toHaveTextContent("2개");
-    expect(summary).not.toHaveTextContent("배드민턴");
-    expect(summary).not.toHaveTextContent("성동구");
+    expect(summary).toHaveTextContent("배드민턴 레슨");
+    expect(summary).toHaveTextContent("성동구 오픈대회");
+    expect(summary).not.toHaveTextContent("개인 약속");
+    expect(summary).toHaveTextContent("+1");
     expect(summary?.querySelector(".full-calendar__mobile-dot--workout")).not.toBeNull();
     expect(summary?.querySelector(".full-calendar__mobile-dot--tournament")).not.toBeNull();
   });

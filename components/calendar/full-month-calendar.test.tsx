@@ -96,13 +96,15 @@ describe("FullMonthCalendar", () => {
 
     const { container } = render(<FullMonthCalendar events={events} month={month} today={date} visibleItemLimit={visibleItemLimit} />);
     const cell = screen.getByRole("gridcell", { name: new RegExp(`${date}, 일정 3개`) });
+    const desktopItems = cell.querySelector(".calendar-cell-items");
+    const desktopOverflow = cell.querySelector(".calendar-overflow");
 
     expect(container.querySelectorAll(".full-calendar__row")).toHaveLength(expectedWeeks);
-    expect(cell).toHaveTextContent("교직원 회의");
-    expect(cell).toHaveTextContent(`+${hiddenCount}`);
-    if (visibleItemLimit === 2) expect(cell).toHaveTextContent("학교 행사");
-    else expect(cell).not.toHaveTextContent("학교 행사");
-    expect(cell).not.toHaveTextContent("학부모 안내");
+    expect(desktopItems).toHaveTextContent("교직원 회의");
+    expect(desktopOverflow).toHaveTextContent(`+${hiddenCount}`);
+    if (visibleItemLimit === 2) expect(desktopItems).toHaveTextContent("학교 행사");
+    else expect(desktopItems).not.toHaveTextContent("학교 행사");
+    expect(desktopItems).not.toHaveTextContent("학부모 안내");
   });
 
   it.each([

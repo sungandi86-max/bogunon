@@ -46,6 +46,10 @@ function mobileSummaryTone(displayItem: CalendarDisplayItem): MobileSummaryTone 
   return "work";
 }
 
+function mobileSummaryTitle(displayItem: CalendarDisplayItem): string {
+  return displayItem.kind === "sticker" ? displayItem.item.label : displayItem.item.title;
+}
+
 function responsiveItemLimit(weekCount: number, calendarHeight?: number): number {
   if (typeof window === "undefined") return weekCount === 6 ? 1 : 2;
   if (window.innerWidth < 768) return weekCount === 6 && window.innerHeight < 900 ? 1 : 2;
@@ -101,7 +105,8 @@ export function FullMonthCalendar({ events = [], highlight, month = "2026-07", o
       const items = displayItems(dayEvents, dayTasks, dayStickers);
       const visibleItems = items.slice(0, itemLimit);
       const hidden = items.length - visibleItems.length;
-      const mobileSummaryTones = [...new Set(items.map(mobileSummaryTone))].slice(0, 3);
+      const mobileSummaryItems = items.slice(0, 2);
+      const mobileHidden = items.length - mobileSummaryItems.length;
       const weekday = inMonth ? new Date(`${date}T00:00:00Z`).getUTCDay() : -1;
       return <div aria-label={inMonth ? `${date}, 일정 ${dayEvents.length}개, 업무 ${dayTasks.length}개, 스티커 ${dayStickers.length}개` : "다른 달"} className={`full-calendar__cell${date === today ? " is-today" : ""}${date === selectedDate ? " is-selected" : ""}${weekday === 0 ? " is-sunday" : weekday === 6 ? " is-saturday" : ""}`} key={`${date || "empty"}-${index}`} onDragOver={(event) => { if (date) event.preventDefault(); }} onDrop={(event) => { const raw = event.dataTransfer.getData("application/x-bogunon-calendar"); if (!raw || !date) return; try { const moved = JSON.parse(raw) as { id: string; kind: "event" | "task"; date: string }; onDropDate?.({ ...moved, newDate: date }); } catch { return; } }} role="gridcell">
         <div className="full-calendar__day-header">
@@ -111,7 +116,13 @@ export function FullMonthCalendar({ events = [], highlight, month = "2026-07", o
           {visibleItems.length > 0 && <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
             ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
             : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} showTime />)}</div>}
-          {items.length > 0 && <div aria-hidden="true" className="full-calendar__mobile-summary"><span className="full-calendar__mobile-dots">{mobileSummaryTones.map((tone) => <span className={`full-calendar__mobile-dot full-calendar__mobile-dot--${tone}`} key={tone} />)}</span><span>{items.length}개</span></div>}
+          {mobileSummaryItems.length > 0 && <div aria-label={`${date} 일정 요약`} className="full-calendar__mobile-summary">
+            {mobileSummaryItems.map((displayItem) => <div className="full-calendar__mobile-summary-item" key={`mobile-${displayItem.kind}-${displayItem.id}`}>
+              <span aria-hidden="true" className={`full-calendar__mobile-dot full-calendar__mobile-dot--${mobileSummaryTone(displayItem)}`} />
+              <span className="full-calendar__mobile-title">{mobileSummaryTitle(displayItem)}</span>
+            </div>)}
+            {mobileHidden > 0 && <span aria-label={`나머지 일정 ${mobileHidden}개`} className="full-calendar__mobile-overflow">+{mobileHidden}</span>}
+          </div>}
           {hidden > 0 && <button aria-label={`숨겨진 일정 ${hidden}개 모두 보기`} className="calendar-overflow" onClick={() => onSelectDate?.(date)} type="button">+{hidden}</button>}
         </div>
       </div>;

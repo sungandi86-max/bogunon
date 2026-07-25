@@ -28,12 +28,15 @@ describe("responsive home calendar layout", () => {
     );
   });
 
-  it("uses mobile summaries instead of clipped calendar titles", () => {
+  it("uses compact mobile title summaries instead of desktop stickers", () => {
     expect(stylesheet).toMatch(
-      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-summary\s*\{[^}]*display:\s*flex;/,
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-summary\s*\{[^}]*display:\s*grid;/,
     );
     expect(stylesheet).toMatch(
       /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__event-list \.calendar-cell-items,\s*\.full-calendar__event-list \.calendar-overflow\s*\{[^}]*display:\s*none;/,
+    );
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-title\s*\{[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/,
     );
   });
 
