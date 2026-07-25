@@ -6,6 +6,7 @@ import {
   fillRequiredFields,
   renderWriter,
   setupWriterTest,
+  successfulFetch,
 } from "@/components/ai/ai-document-writer-test-helpers";
 
 describe("AiDocumentWriter", () => {
@@ -120,7 +121,7 @@ describe("AiDocumentWriter", () => {
     expect(screen.getByLabelText("활동보고서")).toHaveValue("직접 입력한 내용");
   });
 
-  it("keeps the guideline collapsed by default and registers it in memory", async () => {
+  it("keeps the guideline collapsed by default and persists extracted text", async () => {
     renderWriter();
     const summary = screen.getByText("생기부 기준자료").closest("summary");
     const details = summary?.closest("details");
@@ -136,9 +137,41 @@ describe("AiDocumentWriter", () => {
 
     expect(await screen.findByText("적용 기준")).toBeInTheDocument();
     expect(screen.getByText("2026-guide.txt")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "기준자료 삭제" }));
-    expect(screen.queryByText("2026-guide.txt")).not.toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledWith("/api/record-guidelines", expect.objectContaining({
+      method: "PUT",
+      body: expect.not.stringContaining("activityReport"),
+    }));
+    fireEvent.click(screen.getByRole("button", { name: "학교생활기록부 기재요령 삭제" }));
+    await waitFor(() => expect(screen.queryByText("2026-guide.txt")).not.toBeInTheDocument());
     expect(details).toHaveAttribute("open");
+  });
+
+  it("loads account guidelines after refresh and automatically applies the selected year", async () => {
+    vi.stubGlobal("fetch", successfulFetch(draft, [{
+      createdAt: "2026-07-25T00:00:00Z",
+      extractedText: "외부기관 관련 표현은 근거를 확인한다.",
+      fileSize: 256,
+      id: "11111111-1111-4111-8111-111111111111",
+      mimeType: "text/plain",
+      originalFilename: "2026-guide.txt",
+      schoolYear: 2026,
+      sourceType: "guide",
+      updatedAt: "2026-07-25T00:00:00Z",
+    }]));
+    renderWriter();
+
+    expect(await screen.findByText("2026학년도 · 1건 등록 완료")).toBeInTheDocument();
+    fillRequiredFields();
+    fireEvent.click(screen.getByRole("button", { name: "생기부 초안 생성" }));
+    expect(await screen.findByRole("tab", { name: "생성된 초안" })).toBeInTheDocument();
+
+    const aiCall = vi.mocked(fetch).mock.calls.find(
+      ([input]) => String(input).endsWith("/api/ai/document-writer"),
+    );
+    const payload = JSON.parse(String(aiCall?.[1]?.body)) as {
+      readonly document?: { readonly guideline?: { readonly text?: string } };
+    };
+    expect(payload.document?.guideline?.text).toContain("외부기관 관련 표현");
   });
 
   it("validates the anonymous ID and privacy confirmation", () => {
@@ -152,7 +185,10 @@ describe("AiDocumentWriter", () => {
     fireEvent.change(screen.getByLabelText(/^익명 학생 ID/), { target: { value: "S001" } });
     fireEvent.click(screen.getByRole("button", { name: "생기부 초안 생성" }));
     expect(screen.getByRole("alert")).toHaveTextContent("개인정보를 입력하지 않았다는 확인이 필요합니다.");
-    expect(fetch).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalledWith(
+      "/api/ai/document-writer",
+      expect.anything(),
+    );
   });
 
   it("keeps an over-limit report visible and blocks generation without truncating it", () => {
@@ -166,7 +202,10 @@ describe("AiDocumentWriter", () => {
     expect(screen.getByLabelText("활동보고서")).toHaveValue(longReport);
     expect(screen.getByText(/15,000자 이하로 줄여주세요/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "생기부 초안 생성" })).toBeDisabled();
-    expect(fetch).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalledWith(
+      "/api/ai/document-writer",
+      expect.anything(),
+    );
   });
 
   it("generates without an additional record and sends no self-evaluation field", async () => {
@@ -176,7 +215,9 @@ describe("AiDocumentWriter", () => {
 
     expect(await screen.findByRole("tab", { name: "생성된 초안" })).toBeInTheDocument();
     expect(screen.getByLabelText("생성된 초안 편집")).toHaveValue(draft);
-    const fetchCall = vi.mocked(fetch).mock.calls[0];
+    const fetchCall = vi.mocked(fetch).mock.calls.find(
+      ([input]) => String(input).endsWith("/api/ai/document-writer"),
+    );
     const requestOptions = fetchCall?.[1];
     const payload: unknown = JSON.parse(String(requestOptions?.body));
     expect(payload).toMatchObject({
@@ -204,7 +245,10 @@ describe("AiDocumentWriter", () => {
 
     expect(await screen.findByRole("tab", { name: "생성된 초안" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "기재 내용 점검" })).toBeInTheDocument();
-    const payload = JSON.parse(String(vi.mocked(fetch).mock.calls[0]?.[1]?.body)) as {
+    const aiCall = vi.mocked(fetch).mock.calls.find(
+      ([input]) => String(input).endsWith("/api/ai/document-writer"),
+    );
+    const payload = JSON.parse(String(aiCall?.[1]?.body)) as {
       readonly document?: { readonly additionalRecord?: unknown };
     };
     expect(payload.document?.additionalRecord).toBe("축제 부스 운영을 총괄함");

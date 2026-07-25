@@ -2,6 +2,7 @@ import type { WorkflowDatabaseTables } from "@/types/workflows";
 import type { CalendarStickerKey } from "@/lib/calendar-stickers/catalog";
 import type { NoticeCategory, UserRole } from "@/lib/notices/model";
 import type { EventDetails, EventType } from "@/lib/work-items/event-types";
+import type { GuidelineSourceType } from "@/lib/ai/record-guidelines";
 
 export type Area = "healthWork" | "schoolSchedule" | "exercise" | "personal" | "project";
 export type TaskStatus = "planned" | "inProgress" | "waitingForReply" | "needsCheck" | "completed" | "onHold";
@@ -158,6 +159,19 @@ export type CalendarStickerRow = {
   end_date: string | null;
   label: string;
   note: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type RecordGuidelineRow = {
+  id: string;
+  user_id: string;
+  school_year: number;
+  document_type: GuidelineSourceType;
+  original_filename: string;
+  mime_type: "application/pdf" | "text/plain";
+  extracted_text: string;
+  file_size: number;
   created_at: string;
   updated_at: string;
 };
@@ -379,6 +393,12 @@ export type Database = {
         Row: CalendarStickerRow;
         Insert: Insert<CalendarStickerRow, "id" | "end_date" | "note" | "created_at" | "updated_at">;
         Update: Partial<CalendarStickerRow>;
+        Relationships: [];
+      };
+      record_guidelines: {
+        Row: RecordGuidelineRow;
+        Insert: Insert<RecordGuidelineRow, "id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<RecordGuidelineRow, "id" | "user_id">>;
         Relationships: [];
       };
       annual_planner_custom_items: {
