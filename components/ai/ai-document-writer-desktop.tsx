@@ -44,6 +44,7 @@ export function AiDocumentWriterDesktop() {
   const formRef = useRef<HTMLFormElement>(null);
   const resultRef = useRef<HTMLElement>(null);
   const activityExtractionId = useRef(0);
+  const generationId = useRef(0);
 
   function update<K extends keyof AiDocumentWriterFormValues>(
     key: K,
@@ -85,6 +86,16 @@ export function AiDocumentWriterDesktop() {
   }
 
   async function generateDraft(): Promise<void> {
+    if (guidelineStore.operation === "loading") {
+      setError("기준자료를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.");
+      return;
+    }
+    if (!guidelineStore.activeGuideline) {
+      setError(
+        `${guidelineStore.academicYear}학년도 기준자료가 등록되지 않았습니다. 설정에서 기준자료를 먼저 등록해주세요.`,
+      );
+      return;
+    }
     const validation = aiDocumentWriterValidationMessage(
       values,
       activityFileState?.status ?? null,
@@ -99,6 +110,7 @@ export function AiDocumentWriterDesktop() {
     setError("");
     setCopyMessage("");
     setIsSubmitting(true);
+    const requestId = ++generationId.current;
     try {
       if (!ai.connection) {
         setError("설정에서 OpenAI 또는 Gemini를 먼저 연결해 주세요.");
@@ -107,8 +119,9 @@ export function AiDocumentWriterDesktop() {
       const response = await requestAiDocumentDraft(
         values,
         ai.connection,
-        guidelineStore.activeGuideline,
+        guidelineStore.academicYear,
       );
+      if (requestId !== generationId.current) return;
       setResult(response);
       setDraft(response.draft);
       setDismissedIssues([]);
@@ -116,6 +129,7 @@ export function AiDocumentWriterDesktop() {
         resultRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
       });
     } catch (requestError) {
+      if (requestId !== generationId.current) return;
       if (requestError instanceof DOMException && requestError.name === "AbortError") {
         setError("초안 작성 시간이 길어지고 있습니다. 다시 시도해 주세요.");
       } else if (requestError instanceof TypeError) {
@@ -126,8 +140,23 @@ export function AiDocumentWriterDesktop() {
         setError("네트워크 연결을 확인하고 다시 시도해 주세요.");
       }
     } finally {
-      setIsSubmitting(false);
+      if (requestId === generationId.current) setIsSubmitting(false);
     }
+  }
+
+  function resetGeneratedDraft(): void {
+    generationId.current += 1;
+    setResult(null);
+    setDraft("");
+    setDismissedIssues([]);
+    setCopyMessage("");
+    setError("");
+    setIsSubmitting(false);
+  }
+
+  function changeAcademicYear(value: string): void {
+    resetGeneratedDraft();
+    guidelineStore.setAcademicYear(value);
   }
 
   async function copyDraft(): Promise<void> {
@@ -183,16 +212,17 @@ export function AiDocumentWriterDesktop() {
           guidelineMessage={guidelineStore.message}
           guidelineOperation={guidelineStore.operation}
           guidelineSourceType={guidelineStore.sourceType}
+          hasGuideline={guidelineStore.activeGuideline !== null}
           isSubmitting={isSubmitting}
-          onAcademicYearChange={guidelineStore.setAcademicYear}
+          onAcademicYearChange={changeAcademicYear}
           onActivityFile={(file) => void loadActivityFile(file)}
           onDeleteGuideline={(id) => {
+            resetGeneratedDraft();
             void guidelineStore.remove(id);
-            setDismissedIssues([]);
           }}
           onGuidelineFile={(file, year, sourceType) => {
+            resetGeneratedDraft();
             void guidelineStore.upload(file, year, sourceType);
-            setDismissedIssues([]);
           }}
           onGuidelineSourceTypeChange={guidelineStore.setSourceType}
           onRemoveActivityFile={() => {
@@ -213,6 +243,7 @@ export function AiDocumentWriterDesktop() {
         draft={draft}
         hasAdditionalRecord={values.additionalRecord.trim().length > 0}
         hasGuideline={guidelineStore.activeGuideline !== null}
+        academicYear={guidelineStore.academicYear}
         isSubmitting={isSubmitting}
         issues={issues}
         onApply={applySuggestion}

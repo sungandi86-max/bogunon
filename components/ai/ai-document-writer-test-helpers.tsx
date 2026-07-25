@@ -6,11 +6,22 @@ import { AiDocumentWriter } from "@/components/ai/ai-document-writer";
 import type { RecordGuideline } from "@/lib/ai/record-guidelines";
 
 export const draft = "건강 캠페인 자료를 조사하고 발표 과정에 적극적으로 참여함.";
+export const savedGuideline: RecordGuideline = {
+  createdAt: "2026-07-25T00:00:00Z",
+  extractedText: "외부기관 관련 표현은 근거를 확인한다.",
+  fileSize: 256,
+  id: "11111111-1111-4111-8111-111111111111",
+  mimeType: "text/plain",
+  originalFilename: "2026-guide.txt",
+  schoolYear: 2026,
+  sourceType: "guide",
+  updatedAt: "2026-07-25T00:00:00Z",
+};
 const nativeSetTimeout = globalThis.setTimeout;
 
 export function successfulFetch(
   resultDraft = draft,
-  initialGuidelines: readonly RecordGuideline[] = [],
+  initialGuidelines: readonly RecordGuideline[] = [savedGuideline],
 ) {
   return vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);

@@ -24,38 +24,44 @@ describe("generateAiDocumentDraft", () => {
     });
   });
 
-  it("uses the shared gateway with the user's provider and official guideline", async () => {
+  it.each([
+    ["openai", "gpt-5.6-terra"],
+    ["gemini", "gemini-3.6-flash"],
+  ] as const)("uses the shared gateway for %s with the server-loaded guideline", async (provider, model) => {
     const result = await generateAiDocumentDraft(
       crypto.randomUUID(),
       {
-        provider: "gemini",
+        provider,
         apiKey: "user-secret-key",
-        model: "gemini-3.6-flash",
+        model,
       },
       {
+        academicYear: "2026",
         studentId: "S001",
         activityReport: "건강 캠페인 자료를 분석하고 발표함",
         additionalRecord: "축제 운영 총괄",
-        guideline: {
-          academicYear: "2026",
-          schoolLevel: "고등학교",
-          sourceType: "guide",
-          text: "공식 기재요령",
-        },
         length: "within-1500-bytes",
         privacyConfirmed: true,
         tone: "objective",
       },
+      {
+        academicYear: "2026",
+        fileName: "2026-guide.txt",
+        schoolLevel: "고등학교",
+        sourceType: "guide",
+        text: "공식 기재요령",
+      },
     );
 
-    expect(result.mode).toBe("gemini");
+    expect(result.mode).toBe(provider);
     expect(generateText).toHaveBeenCalledWith(
-      expect.objectContaining({ provider: "gemini" }),
+      expect.objectContaining({ provider }),
       expect.objectContaining({
         prompt: expect.stringContaining("공식 기재요령"),
         schemaName: "bogunon_student_record",
       }),
       expect.any(AbortSignal),
     );
+    expect(generateText.mock.calls[0]?.[1]?.prompt).toContain("[공식 기준자료]");
   });
 });

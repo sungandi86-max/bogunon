@@ -19,6 +19,7 @@ import {
   withTimeout,
 } from "@/lib/ai/request-control";
 import type { AiConnectionInput } from "@/lib/ai/types";
+import type { SchoolRecordGuideline } from "@/lib/ai/record-guidelines";
 
 export class AiDocumentWriterSensitiveInputError extends Error {
   readonly code = "SENSITIVE_INPUT";
@@ -39,6 +40,7 @@ function requestKey(
   userId: string,
   connection: AiConnectionInput,
   request: AiDocumentWriterRequest,
+  guideline: SchoolRecordGuideline,
 ): string {
   return createHash("sha256")
     .update(userId)
@@ -46,6 +48,8 @@ function requestKey(
     .update(JSON.stringify(connection))
     .update("\0")
     .update(JSON.stringify(request))
+    .update("\0")
+    .update(JSON.stringify(guideline))
     .digest("hex");
 }
 
@@ -64,8 +68,9 @@ export async function generateAiDocumentDraft(
   userId: string,
   connection: AiConnectionInput,
   request: AiDocumentWriterRequest,
+  guideline: SchoolRecordGuideline,
 ): Promise<AiDocumentWriterResult> {
-  return deduplicator.run(requestKey(userId, connection, request), async () => {
+  return deduplicator.run(requestKey(userId, connection, request, guideline), async () => {
     if (!limiter.consume(userId)) throw new AiRateLimitError();
     const warnings = inspectRequest(request);
     if (warnings.length > 0) throw new AiDocumentWriterSensitiveInputError(warnings);
@@ -73,7 +78,7 @@ export async function generateAiDocumentDraft(
     const controller = new AbortController();
     let result: AiDocumentWriterResult;
     try {
-      const prompt = buildStudentRecordPrompt(request);
+      const prompt = buildStudentRecordPrompt({ ...request, guideline });
       const response = await withTimeout(
         aiGateway.generateText(
           connection,

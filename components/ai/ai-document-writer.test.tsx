@@ -6,7 +6,6 @@ import {
   fillRequiredFields,
   renderWriter,
   setupWriterTest,
-  successfulFetch,
 } from "@/components/ai/ai-document-writer-test-helpers";
 
 describe("AiDocumentWriter", () => {
@@ -27,14 +26,16 @@ describe("AiDocumentWriter", () => {
     expect(screen.getByRole("button", { name: "생기부 초안 생성" })).toBeDisabled();
   });
 
-  it("shows readiness without repeating student source text", () => {
+  it("shows the selected year's automatic guideline status without repeating source text", async () => {
     renderWriter();
 
     const status = screen.getByLabelText("입력 준비 상태");
     expect(status).toHaveTextContent("익명 학생 ID 입력");
     expect(status).toHaveTextContent("활동보고서 준비");
     expect(status).toHaveTextContent("추가 기록 없음 · 선택 사항");
-    expect(status).toHaveTextContent("공식 기재요령 없음 · 일반 점검만 가능");
+    expect(await screen.findByText("2026학년도 학교생활기록부 기재요령 자동 적용"))
+      .toBeInTheDocument();
+    expect(status).toHaveTextContent("2026학년도 공식 기준자료 자동 적용");
     expect(screen.getByText("1,500바이트 확인 후 복사")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText(/^익명 학생 ID/), { target: { value: "S001" } });
@@ -121,61 +122,9 @@ describe("AiDocumentWriter", () => {
     expect(screen.getByLabelText("활동보고서")).toHaveValue("직접 입력한 내용");
   });
 
-  it("keeps the guideline collapsed by default and persists extracted text", async () => {
+  it("validates the anonymous ID and privacy confirmation", async () => {
     renderWriter();
-    const summary = screen.getByText("생기부 기준자료").closest("summary");
-    const details = summary?.closest("details");
-    expect(details).not.toHaveAttribute("open");
-
-    if (summary) fireEvent.click(summary);
-    const file = new File(["대회 수상 관련 기재 내용을 확인한다."], "2026-guide.txt", {
-      type: "text/plain",
-    });
-    fireEvent.change(screen.getByLabelText("생기부 기준자료 파일"), {
-      target: { files: [file] },
-    });
-
-    expect(await screen.findByText("적용 기준")).toBeInTheDocument();
-    expect(screen.getByText("2026-guide.txt")).toBeInTheDocument();
-    expect(fetch).toHaveBeenCalledWith("/api/record-guidelines", expect.objectContaining({
-      method: "PUT",
-      body: expect.not.stringContaining("activityReport"),
-    }));
-    fireEvent.click(screen.getByRole("button", { name: "학교생활기록부 기재요령 삭제" }));
-    await waitFor(() => expect(screen.queryByText("2026-guide.txt")).not.toBeInTheDocument());
-    expect(details).toHaveAttribute("open");
-  });
-
-  it("loads account guidelines after refresh and automatically applies the selected year", async () => {
-    vi.stubGlobal("fetch", successfulFetch(draft, [{
-      createdAt: "2026-07-25T00:00:00Z",
-      extractedText: "외부기관 관련 표현은 근거를 확인한다.",
-      fileSize: 256,
-      id: "11111111-1111-4111-8111-111111111111",
-      mimeType: "text/plain",
-      originalFilename: "2026-guide.txt",
-      schoolYear: 2026,
-      sourceType: "guide",
-      updatedAt: "2026-07-25T00:00:00Z",
-    }]));
-    renderWriter();
-
-    expect(await screen.findByText("2026학년도 · 1건 등록 완료")).toBeInTheDocument();
-    fillRequiredFields();
-    fireEvent.click(screen.getByRole("button", { name: "생기부 초안 생성" }));
-    expect(await screen.findByRole("tab", { name: "생성된 초안" })).toBeInTheDocument();
-
-    const aiCall = vi.mocked(fetch).mock.calls.find(
-      ([input]) => String(input).endsWith("/api/ai/document-writer"),
-    );
-    const payload = JSON.parse(String(aiCall?.[1]?.body)) as {
-      readonly document?: { readonly guideline?: { readonly text?: string } };
-    };
-    expect(payload.document?.guideline?.text).toContain("외부기관 관련 표현");
-  });
-
-  it("validates the anonymous ID and privacy confirmation", () => {
-    renderWriter();
+    await screen.findByText("2026학년도 학교생활기록부 기재요령 자동 적용");
     fireEvent.change(screen.getByLabelText("활동보고서"), {
       target: { value: "활동 내용" },
     });
@@ -210,6 +159,7 @@ describe("AiDocumentWriter", () => {
 
   it("generates without an additional record and sends no self-evaluation field", async () => {
     renderWriter();
+    await screen.findByText("2026학년도 학교생활기록부 기재요령 자동 적용");
     fillRequiredFields();
     fireEvent.click(screen.getByRole("button", { name: "생기부 초안 생성" }));
 
@@ -237,6 +187,7 @@ describe("AiDocumentWriter", () => {
 
   it("sends the optional additional record and shows both result tabs", async () => {
     renderWriter();
+    await screen.findByText("2026학년도 학교생활기록부 기재요령 자동 적용");
     fillRequiredFields();
     fireEvent.change(screen.getByRole("textbox", { name: /^추가 기록 \(선택\)/ }), {
       target: { value: "축제 부스 운영을 총괄함" },
@@ -256,6 +207,7 @@ describe("AiDocumentWriter", () => {
 
   it("updates character and UTF-8 byte counts while editing the draft", async () => {
     renderWriter();
+    await screen.findByText("2026학년도 학교생활기록부 기재요령 자동 적용");
     fillRequiredFields();
     fireEvent.click(screen.getByRole("button", { name: "생기부 초안 생성" }));
     const editor = await screen.findByLabelText("생성된 초안 편집");

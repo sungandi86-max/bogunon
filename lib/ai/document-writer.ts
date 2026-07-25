@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { StudentRecordAiResponseSchema } from "@/lib/ai/prompts/student-record";
-import { GUIDELINE_SOURCE_TYPES } from "@/lib/ai/record-guidelines";
 import { AiConnectionInputSchema, AiProviderIdSchema } from "@/lib/ai/types";
 
 export const AI_WRITING_TONES = [
@@ -26,21 +25,14 @@ export const MAX_ADDITIONAL_RECORD_CHARACTERS = 3_000;
 const toneValues = ["objective", "growth", "concise"] as const;
 const lengthValues = ["short", "normal", "within-1500-bytes"] as const;
 
-export const SchoolRecordGuidelineInputSchema = z.object({
-  academicYear: z.string().regex(/^\d{4}$/),
-  schoolLevel: z.literal("고등학교"),
-  sourceType: z.enum(GUIDELINE_SOURCE_TYPES),
-  text: z.string().trim().min(1).max(100_000),
-}).strict();
-
 export const AiDocumentWriterRequestSchema = z.object({
+  academicYear: z.string().regex(/^\d{4}$/),
   studentId: z.string().trim().min(1).max(32).regex(/^[A-Za-z0-9_-]+$/),
   activityReport: z.string().trim().min(1).max(MAX_ACTIVITY_REPORT_CHARACTERS),
   additionalRecord: z.string().max(MAX_ADDITIONAL_RECORD_CHARACTERS),
   tone: z.enum(toneValues),
   length: z.enum(lengthValues),
   privacyConfirmed: z.literal(true),
-  guideline: SchoolRecordGuidelineInputSchema.nullable(),
 }).strict();
 
 export const AiDocumentWriterApiRequestSchema = z.object({
