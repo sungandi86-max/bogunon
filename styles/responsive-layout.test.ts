@@ -54,6 +54,12 @@ describe("responsive home calendar layout", () => {
       /\.calendar-detail-panel\s*\{[^}]*height:\s*max\(560px, calc\(100dvh - var\(--app-header-height\) - 292px\)\);/,
     );
   });
+
+  it("keeps Korean words intact in the mobile AI writer notice", () => {
+    expect(screenStylesheet).toMatch(
+      /@media\s*\(max-width:\s*1023px\)[\s\S]*?\.ai-writer-desktop-only p\s*\{[^}]*word-break:\s*keep-all;/,
+    );
+  });
 });
 
 describe("responsive admin notices layout", () => {

@@ -1200,6 +1200,7 @@
 @media (max-width: 1023px) {
   .ai-writer-desktop-only { min-width: 0; padding-inline: 0; width: 100%; }
   .ai-writer-desktop-only h1 { font-size: var(--text-2xl); word-break: keep-all; }
+  .ai-writer-desktop-only p { word-break: keep-all; }
 }
 @media (min-width: 1280px) {
   .ai-writer { align-items: start; grid-template-columns: minmax(0, 11fr) minmax(380px, 9fr); }
