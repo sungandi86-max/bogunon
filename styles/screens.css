@@ -1104,7 +1104,10 @@
 .ai-writer-guideline-disclosure[open] .ai-writer-guideline-disclosure__action svg { transform: rotate(180deg); }
 .ai-writer-guideline-disclosure__body { border-top: 1px solid var(--line); display: grid; gap: var(--space-6); padding: var(--space-8); }
 .ai-writer-guideline-disclosure__description, .ai-writer-guideline-disclosure__memory { color: var(--ink-500); font-size: var(--text-meta); line-height: var(--leading-body); margin: 0; }
+.ai-writer-guideline-list { display: grid; gap: var(--space-5); }
 .ai-writer-guideline, .ai-writer-guideline-register { display: grid; gap: var(--space-6); }
+.ai-writer-guideline { border-bottom: 1px solid var(--line-subtle); padding-bottom: var(--space-6); }
+.ai-writer-guideline:last-child { border-bottom: 0; }
 .ai-writer-guideline__applied { background: var(--action-50); border: 1px solid var(--action-100); border-radius: var(--radius-lg); display: grid; gap: var(--space-2); padding: var(--space-5) var(--space-6); }
 .ai-writer-guideline__applied span { color: var(--action-700); font-size: var(--text-meta); font-weight: var(--weight-bold); }
 .ai-writer-guideline__applied strong { color: var(--brand-950); font-size: var(--text-base); line-height: var(--leading-body); }

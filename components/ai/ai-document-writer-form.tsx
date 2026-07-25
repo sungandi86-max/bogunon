@@ -7,8 +7,9 @@ import type {
   ActivityReportFileState,
   AiDocumentWriterFormValues,
   GuidelineSourceType,
-  SchoolRecordGuideline,
 } from "@/components/ai/ai-document-writer-types";
+import type { RecordGuideline } from "@/lib/ai/record-guidelines";
+import type { GuidelineOperation } from "@/components/ai/use-record-guidelines";
 import { Button } from "@/components/ui/button";
 import {
   AI_DOCUMENT_LENGTHS,
@@ -23,14 +24,20 @@ interface AiDocumentWriterFormProps {
   readonly activityFileState: ActivityReportFileState | null;
   readonly error: string;
   readonly formRef: Ref<HTMLFormElement>;
-  readonly guideline: SchoolRecordGuideline | null;
+  readonly guidelines: readonly RecordGuideline[];
   readonly guidelineError: string;
+  readonly guidelineMessage: string;
+  readonly guidelineOperation: GuidelineOperation;
   readonly guidelineSourceType: GuidelineSourceType;
   readonly isSubmitting: boolean;
   readonly onAcademicYearChange: (value: string) => void;
   readonly onActivityFile: (file: File) => void;
-  readonly onDeleteGuideline: () => void;
-  readonly onGuidelineFile: (file: File) => void;
+  readonly onDeleteGuideline: (id: string) => void;
+  readonly onGuidelineFile: (
+    file: File,
+    academicYear: string,
+    sourceType: GuidelineSourceType,
+  ) => void;
   readonly onGuidelineSourceTypeChange: (value: GuidelineSourceType) => void;
   readonly onRemoveActivityFile: () => void;
   readonly onSubmit: () => void;
@@ -54,8 +61,10 @@ export function AiDocumentWriterForm({
   activityFileState,
   error,
   formRef,
-  guideline,
+  guidelines,
   guidelineError,
+  guidelineMessage,
+  guidelineOperation,
   guidelineSourceType,
   isSubmitting,
   onAcademicYearChange,
@@ -225,11 +234,13 @@ export function AiDocumentWriterForm({
       <AiDocumentWriterGuideline
         academicYear={academicYear}
         error={guidelineError}
-        guideline={guideline}
+        guidelines={guidelines}
+        message={guidelineMessage}
         onAcademicYearChange={onAcademicYearChange}
         onDelete={onDeleteGuideline}
         onFile={onGuidelineFile}
         onSourceTypeChange={onGuidelineSourceTypeChange}
+        operation={guidelineOperation}
         sourceType={guidelineSourceType}
       />
     </form>

@@ -77,6 +77,7 @@ describe("AiDocumentWriter session behavior", () => {
     expect(screen.getByText("AI가 아직 연결되지 않았습니다.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "AI 연결하기" })).toHaveAttribute("href", "/settings/ai");
     expect(screen.getByRole("button", { name: "생기부 초안 생성" })).toBeDisabled();
-    expect(fetch).not.toHaveBeenCalled();
+    expect(fetch).toHaveBeenCalledWith("/api/record-guidelines", expect.any(Object));
+    expect(fetch).not.toHaveBeenCalledWith("/api/ai/document-writer", expect.anything());
   });
 });

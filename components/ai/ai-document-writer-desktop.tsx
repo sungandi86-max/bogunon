@@ -12,9 +12,8 @@ import {
   INITIAL_AI_DOCUMENT_VALUES,
   type ActivityReportFileState,
   type AiDocumentWriterFormValues,
-  type GuidelineSourceType,
-  type SchoolRecordGuideline,
 } from "@/components/ai/ai-document-writer-types";
+import { useRecordGuidelines } from "@/components/ai/use-record-guidelines";
 import { aiDocumentWriterValidationMessage } from "@/components/ai/ai-document-writer-validation";
 import { PageHeader } from "@/components/layout/page-header";
 import {
@@ -31,10 +30,9 @@ import {
   type SchoolRecordReviewIssue,
 } from "@/lib/ai/school-record-review";
 
-const GUIDELINE_MAX_CHARACTERS = 100_000;
-
 export function AiDocumentWriterDesktop() {
   const ai = useAiConnection();
+  const guidelineStore = useRecordGuidelines();
   const [values, setValues] = useState(INITIAL_AI_DOCUMENT_VALUES);
   const [activityFileState, setActivityFileState] = useState<ActivityReportFileState | null>(null);
   const [result, setResult] = useState<AiDocumentWriterResult | null>(null);
@@ -42,16 +40,10 @@ export function AiDocumentWriterDesktop() {
   const [error, setError] = useState("");
   const [copyMessage, setCopyMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [academicYear, setAcademicYear] = useState(String(new Date().getFullYear()));
-  const [guidelineSourceType, setGuidelineSourceType] =
-    useState<GuidelineSourceType>("guide");
-  const [guideline, setGuideline] = useState<SchoolRecordGuideline | null>(null);
-  const [guidelineError, setGuidelineError] = useState("");
   const [dismissedIssues, setDismissedIssues] = useState<readonly string[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const resultRef = useRef<HTMLElement>(null);
   const activityExtractionId = useRef(0);
-  const guidelineExtractionId = useRef(0);
 
   function update<K extends keyof AiDocumentWriterFormValues>(
     key: K,
@@ -92,40 +84,6 @@ export function AiDocumentWriterDesktop() {
     }
   }
 
-  async function loadGuidelineFile(file: File): Promise<void> {
-    const extractionId = ++guidelineExtractionId.current;
-    setGuidelineError("");
-    if (!/^\d{4}$/.test(academicYear)) {
-      setGuidelineError("기준 학년도를 4자리 숫자로 입력해 주세요.");
-      return;
-    }
-    try {
-      const extracted = await extractDocumentText(file, {
-        allowedFormats: ["pdf", "txt"],
-      });
-      if (extractionId !== guidelineExtractionId.current) return;
-      if (Array.from(extracted.text).length > GUIDELINE_MAX_CHARACTERS) {
-        setGuidelineError(
-          `기준자료가 ${GUIDELINE_MAX_CHARACTERS.toLocaleString("ko-KR")}자를 초과했습니다. 더 작은 공식 자료를 선택해 주세요.`,
-        );
-        return;
-      }
-      setGuideline({
-        academicYear,
-        fileName: file.name,
-        schoolLevel: "고등학교",
-        sourceType: guidelineSourceType,
-        text: extracted.text,
-      });
-      setDismissedIssues([]);
-    } catch (fileError) {
-      if (extractionId !== guidelineExtractionId.current) return;
-      setGuidelineError(fileError instanceof DocumentTextExtractionError
-        ? fileError.message
-        : "기준자료를 읽지 못했습니다. 다시 시도해 주세요.");
-    }
-  }
-
   async function generateDraft(): Promise<void> {
     const validation = aiDocumentWriterValidationMessage(
       values,
@@ -146,7 +104,11 @@ export function AiDocumentWriterDesktop() {
         setError("설정에서 OpenAI 또는 Gemini를 먼저 연결해 주세요.");
         return;
       }
-      const response = await requestAiDocumentDraft(values, ai.connection, guideline);
+      const response = await requestAiDocumentDraft(
+        values,
+        ai.connection,
+        guidelineStore.activeGuideline,
+      );
       setResult(response);
       setDraft(response.draft);
       setDismissedIssues([]);
@@ -194,9 +156,11 @@ export function AiDocumentWriterDesktop() {
   }
 
   const issues = useMemo(
-    () => mergeSchoolRecordReview(draft, result?.review, { guidelineText: guideline?.text })
+    () => mergeSchoolRecordReview(draft, result?.review, {
+      guidelineText: guidelineStore.activeGuideline?.text,
+    })
       .filter(({ id }) => !dismissedIssues.includes(id)),
-    [dismissedIssues, draft, guideline?.text, result?.review],
+    [dismissedIssues, draft, guidelineStore.activeGuideline?.text, result?.review],
   );
 
   return (
@@ -210,23 +174,27 @@ export function AiDocumentWriterDesktop() {
         <AiConnectionStatusCard />
         <AiDocumentWriterForm
           aiConnected={ai.connection !== null}
-          academicYear={academicYear}
+          academicYear={guidelineStore.academicYear}
           activityFileState={activityFileState}
           error={error}
           formRef={formRef}
-          guideline={guideline}
-          guidelineError={guidelineError}
-          guidelineSourceType={guidelineSourceType}
+          guidelines={guidelineStore.guidelines}
+          guidelineError={guidelineStore.error}
+          guidelineMessage={guidelineStore.message}
+          guidelineOperation={guidelineStore.operation}
+          guidelineSourceType={guidelineStore.sourceType}
           isSubmitting={isSubmitting}
-          onAcademicYearChange={setAcademicYear}
+          onAcademicYearChange={guidelineStore.setAcademicYear}
           onActivityFile={(file) => void loadActivityFile(file)}
-          onDeleteGuideline={() => {
-            guidelineExtractionId.current += 1;
-            setGuideline(null);
+          onDeleteGuideline={(id) => {
+            void guidelineStore.remove(id);
             setDismissedIssues([]);
           }}
-          onGuidelineFile={(file) => void loadGuidelineFile(file)}
-          onGuidelineSourceTypeChange={setGuidelineSourceType}
+          onGuidelineFile={(file, year, sourceType) => {
+            void guidelineStore.upload(file, year, sourceType);
+            setDismissedIssues([]);
+          }}
+          onGuidelineSourceTypeChange={guidelineStore.setSourceType}
           onRemoveActivityFile={() => {
             activityExtractionId.current += 1;
             setActivityFileState(null);
@@ -244,7 +212,7 @@ export function AiDocumentWriterDesktop() {
         copyMessage={copyMessage}
         draft={draft}
         hasAdditionalRecord={values.additionalRecord.trim().length > 0}
-        hasGuideline={guideline !== null}
+        hasGuideline={guidelineStore.activeGuideline !== null}
         isSubmitting={isSubmitting}
         issues={issues}
         onApply={applySuggestion}
