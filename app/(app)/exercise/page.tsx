@@ -13,14 +13,15 @@ interface ExercisePageSearchParams {
   readonly logId?: string;
   readonly month?: string;
   readonly recordType?: string;
+  readonly returnTo?: string;
 }
 
 export default async function ExercisePage({ searchParams }: { readonly searchParams: Promise<ExercisePageSearchParams> }) {
   const params = await searchParams;
   const today = todayInSeoul();
-  const requestedMonth = params.month;
-  const month = requestedMonth && /^\d{4}-\d{2}$/.test(requestedMonth) ? requestedMonth : today.slice(0, 7);
   const initialDate = /^\d{4}-\d{2}-\d{2}$/.test(params.date ?? "") ? String(params.date) : today;
+  const requestedMonth = params.month;
+  const month = requestedMonth && /^\d{4}-\d{2}$/.test(requestedMonth) ? requestedMonth : initialDate.slice(0, 7);
   const { first, last } = monthRange(`${month}-01`);
   const [events, stickerData, recentLogs] = await Promise.all([
     listEvents(first, last),
@@ -35,17 +36,25 @@ export default async function ExercisePage({ searchParams }: { readonly searchPa
       : undefined;
   const initialEventType = initialEvent ? resolveEventType(initialEvent) : null;
   const initialEventDetails = initialEvent && initialEventType ? eventDetailsForType(initialEvent, initialEventType) : null;
+  const returnTo = params.returnTo && /^\/(?:briefing|calendar(?:\?.*)?|exercise(?:\?.*)?)$/.test(params.returnTo)
+    ? params.returnTo
+    : undefined;
+  const recordEntryError = params.eventId && !initialEvent
+    ? "운동 일정에서만 운동 기록을 시작할 수 있습니다."
+    : undefined;
   return <ExerciseWorkspace
     dataAvailable={stickerData !== null}
     events={events.filter(isExerciseRecordEvent)}
     initialDate={initialDate}
     initialEventDetails={initialEventDetails}
-    initialOpen={stickerData !== null && (params.create === "sticker" || params.create === "1")}
+    initialOpen={stickerData !== null && (params.create === "sticker" || params.create === "1") && (!params.eventId || Boolean(initialEvent))}
     logs={stickerData?.logs ?? []}
     month={month}
     recentLogs={recentLogs}
     stickers={stickerData?.stickers ?? []}
     today={today}
+    {...(recordEntryError ? { recordEntryError } : {})}
+    {...(returnTo ? { returnTo } : {})}
     {...(initialEvent ? { initialEvent } : {})}
     {...(params.logId ? { initialLogId: params.logId } : {})}
     {...(requestedRecordType ? { initialRecordType: requestedRecordType } : {})}

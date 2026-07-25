@@ -26,7 +26,7 @@ export type ExerciseCreateActionState =
   | { readonly status: "idle"; readonly message?: string }
   | { readonly status: "error"; readonly message: string }
   | { readonly status: "success"; readonly outcome: "duplicate"; readonly message: string }
-  | { readonly status: "success"; readonly outcome: "created"; readonly message: string; readonly logId: string; readonly recordType: ExerciseRecordType };
+  | { readonly status: "success"; readonly outcome: "created" | "existing"; readonly message: string; readonly logId: string; readonly recordType: ExerciseRecordType };
 export type ExerciseReviewActionState =
   | { readonly status: "idle" }
   | { readonly status: "success"; readonly message: string }
@@ -66,6 +66,9 @@ export async function attachExerciseStickerAction(_state: StickerActionState, fo
     note: nullableText(formData, "note"),
   });
   if (!parsed.success) return { status: "error", message: "운동 종류, 날짜와 기록 유형을 확인해 주세요." };
+  if (parsed.data.eventId && parsed.data.durationMinutes === null) {
+    return { status: "error", message: "운동 시간을 입력해 주세요." };
+  }
   try {
     const { eventId, ...values } = parsed.data;
     const result = await saveExerciseLog({
@@ -74,6 +77,15 @@ export async function attachExerciseStickerAction(_state: StickerActionState, fo
     });
     refreshExercise();
     if (result.status === "duplicate") return { status: "success", outcome: "duplicate", message: "같은 날짜에 이미 기록한 운동이에요." };
+    if (result.status === "existing") {
+      return {
+        status: "success",
+        outcome: "existing",
+        message: "연결된 운동 기록을 불러왔습니다.",
+        logId: result.log.id,
+        recordType: result.log.recordType,
+      };
+    }
     return {
       status: "success",
       outcome: "created",
@@ -171,11 +183,13 @@ export async function removeExerciseStickerAction(_state: StickerActionState, fo
 
 export async function updateExerciseStickerDetailsAction(_state: StickerActionState, formData: FormData): Promise<StickerActionState> {
   const id = idSchema.safeParse(String(formData.get("logId") ?? ""));
+  const stickerIdText = String(formData.get("stickerId") ?? "").trim();
+  const stickerId = stickerIdText ? idSchema.safeParse(stickerIdText) : null;
   const duration = nullableNumber(formData, "durationMinutes");
   const note = nullableText(formData, "note");
-  if (!id.success || (duration !== null && (!Number.isInteger(duration) || duration < 1 || duration > 1440)) || (note?.length ?? 0) > 500) return { status: "error", message: "운동 시간과 메모를 확인해 주세요." };
+  if (!id.success || (stickerId && !stickerId.success) || (duration !== null && (!Number.isInteger(duration) || duration < 1 || duration > 1440)) || (note?.length ?? 0) > 500) return { status: "error", message: "운동 종류, 시간과 메모를 확인해 주세요." };
   try {
-    await updateExerciseLog(id.data, duration, note);
+    await updateExerciseLog(id.data, stickerId?.success ? stickerId.data : null, duration, note);
     refreshExercise();
     return { status: "success", message: "운동 기록을 저장했습니다." };
   } catch (error) {

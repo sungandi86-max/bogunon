@@ -92,10 +92,41 @@ export type SaveExerciseLogValues = {
 
 export type SaveExerciseLogResult =
   | { readonly status: "created"; readonly log: { readonly id: string; readonly recordType: ExerciseRecordType } }
+  | { readonly status: "existing"; readonly log: { readonly id: string; readonly recordType: ExerciseRecordType } }
   | { readonly status: "duplicate" };
 
 export async function saveExerciseLog(values: SaveExerciseLogValues): Promise<SaveExerciseLogResult> {
   const { supabase, userId } = await ownedClient();
+  if (values.eventId) {
+    const eventResult = await supabase
+      .from("events")
+      .select("id, event_type")
+      .eq("id", values.eventId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (eventResult.error) throw new ExerciseRepositoryError("연결된 운동 일정을 확인하지 못했습니다.");
+    const linkedEventType = eventResult.data?.event_type;
+    if (!linkedEventType || !["workout", "tournament"].includes(linkedEventType)) {
+      throw new ExerciseRepositoryError("운동 일정에서만 기록할 수 있습니다.");
+    }
+    const expectedRecordType: ExerciseRecordType = linkedEventType === "tournament" ? "competition" : "exercise";
+    if (values.recordType !== expectedRecordType) {
+      throw new ExerciseRepositoryError("일정 종류와 운동 기록 종류가 일치하지 않습니다.");
+    }
+    const existingResult = await supabase
+      .from("exercise_logs")
+      .select("id, record_type")
+      .eq("user_id", userId)
+      .eq("event_id", values.eventId)
+      .maybeSingle();
+    if (existingResult.error) throw new ExerciseRepositoryError("연결된 운동 기록을 확인하지 못했습니다.");
+    if (existingResult.data) {
+      return {
+        status: "existing",
+        log: { id: existingResult.data.id, recordType: existingResult.data.record_type },
+      };
+    }
+  }
   const { data, error } = await supabase.from("exercise_logs").insert({
     user_id: userId,
     ...(values.eventId ? { event_id: values.eventId } : {}),
@@ -116,9 +147,22 @@ export async function removeExerciseLog(id: string): Promise<void> {
   if (error) throw new ExerciseRepositoryError("운동 기록을 삭제하지 못했습니다.");
 }
 
-export async function updateExerciseLog(id: string, durationMinutes: number | null, note: string | null): Promise<void> {
+export async function updateExerciseLog(
+  id: string,
+  stickerId: string | null,
+  durationMinutes: number | null,
+  note: string | null,
+): Promise<void> {
   const { supabase, userId } = await ownedClient();
-  const { error } = await supabase.from("exercise_logs").update({ duration_minutes: durationMinutes, note }).eq("id", id).eq("user_id", userId);
+  const { error } = await supabase
+    .from("exercise_logs")
+    .update({
+      ...(stickerId ? { sticker_id: stickerId } : {}),
+      duration_minutes: durationMinutes,
+      note,
+    })
+    .eq("id", id)
+    .eq("user_id", userId);
   if (error) throw new ExerciseRepositoryError("운동 기록을 수정하지 못했습니다.");
 }
 

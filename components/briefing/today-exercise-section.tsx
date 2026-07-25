@@ -18,12 +18,14 @@ export function TodayExerciseSection({ events, logs, stickers, today }: { readon
     {visibleSchedules.length > 0 && <div className="today-exercise-schedules">{visibleSchedules.map((event) => {
       const type = resolveEventType(event);
       const Icon = type === "tournament" ? Trophy : Dumbbell;
+      const linkedLog = logs.find((log) => log.event_id === event.id);
       const params = new URLSearchParams({ create: "sticker", date: today, eventId: event.id });
       if (type === "tournament") params.set("recordType", "competition");
+      else params.set("returnTo", "/briefing");
       return <article key={event.id}>
         <Icon aria-hidden="true" size={18} />
         <div><span>{event.is_all_day ? "종일" : event.start_time?.slice(0, 5) ?? "시간 미정"}</span><strong>{event.title}</strong></div>
-        <Link href={`/exercise?${params.toString()}`}>기록하기</Link>
+        <Link href={`/exercise?${params.toString()}`}>{linkedLog ? "수정하기" : "기록하기"}</Link>
       </article>;
     })}{todaySchedules.length > visibleSchedules.length && <p className="today-exercise-schedules__more">+{todaySchedules.length - visibleSchedules.length}개 일정</p>}</div>}
     {todayLogs.length > 0 ? <div className="today-exercise-records">{todayLogs.slice(0, 2).map((log) => {

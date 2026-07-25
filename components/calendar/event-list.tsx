@@ -35,12 +35,14 @@ function eventHasEnded(event: EventRow, today: string, currentTime: string): boo
 function exerciseHref(event: EventRow, linkedLog?: ExerciseLogRow): string {
   const date = linkedLog?.exercise_date ?? event.start_date;
   const params = new URLSearchParams({ date, month: date.slice(0, 7) });
-  if (linkedLog) {
+  const eventType = resolveEventType(event);
+  if (linkedLog && eventType === "tournament") {
     params.set("logId", linkedLog.id);
   } else {
     params.set("create", "sticker");
     params.set("eventId", event.id);
-    params.set("recordType", resolveEventType(event) === "tournament" ? "competition" : "exercise");
+    params.set("recordType", eventType === "tournament" ? "competition" : "exercise");
+    if (eventType === "workout") params.set("returnTo", `/calendar?date=${event.start_date}`);
   }
   return `/exercise?${params.toString()}`;
 }
@@ -81,7 +83,7 @@ export function EventList({
         {event.recurrence_frequency && <small>반복 · {recurrenceLabel[event.recurrence_frequency]}</small>}
         {links.map((link) => <a className="event-link" href={link.url} key={link.id} rel="noreferrer" target="_blank"><ExternalLink size={12} />{link.title}</a>)}
         {reminders.length > 0 && <small><Bell size={12} /> 알림 {reminders.length}</small>}
-        {showRecordLink && <Link className="tournament-record-link" href={exerciseHref(event, linkedLog)}>{linkedLog ? (eventType === "tournament" ? "대회 기록 보기" : "운동 기록 보기") : (eventType === "tournament" ? "결과 기록하기" : "운동 기록 작성")}<ArrowRight aria-hidden="true" size={14} /></Link>}
+        {showRecordLink && <Link className="tournament-record-link" href={exerciseHref(event, linkedLog)}>{linkedLog ? (eventType === "tournament" ? "대회 기록 보기" : "운동 기록 수정") : (eventType === "tournament" ? "결과 기록하기" : "운동 기록 작성")}<ArrowRight aria-hidden="true" size={14} /></Link>}
       </div>
       <div className="work-item-actions">
         <details><summary><Pencil aria-hidden="true" size={16} />편집</summary><div className="inline-editor"><CreateItemForm initialItem={event} links={links} reminders={reminders} /></div></details>
