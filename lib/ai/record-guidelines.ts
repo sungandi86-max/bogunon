@@ -61,6 +61,11 @@ export interface SchoolRecordGuideline {
   readonly text: string;
 }
 
+interface GuidelineTextSource {
+  readonly extractedText: string;
+  readonly sourceType: GuidelineSourceType;
+}
+
 export const recordGuidelineInputSchema = z.object({
   schoolYear: z.number().int().min(2000).max(2100),
   sourceType: z.enum(GUIDELINE_SOURCE_TYPES),
@@ -127,10 +132,23 @@ export function combineGuidelines(
     fileName: selected.map(({ originalFilename }) => originalFilename).join(", "),
     schoolLevel: "고등학교",
     sourceType: selected[0]!.sourceType,
-    text: selected.map((guideline) =>
-      `[${GUIDELINE_SOURCE_LABELS[guideline.sourceType]}]\n${guideline.extractedText}`)
-      .join("\n\n"),
+    text: combineGuidelineText(selected),
   };
+}
+
+export function combineGuidelineText(
+  guidelines: readonly GuidelineTextSource[],
+): string {
+  return guidelines
+    .map((guideline) =>
+      `[${GUIDELINE_SOURCE_LABELS[guideline.sourceType]}]\n${guideline.extractedText}`)
+    .join("\n\n");
+}
+
+export function countCombinedGuidelineCharacters(
+  guidelines: readonly GuidelineTextSource[],
+): number {
+  return Array.from(combineGuidelineText(guidelines)).length;
 }
 
 export function safeGuidelineFilename(filename: string): string {

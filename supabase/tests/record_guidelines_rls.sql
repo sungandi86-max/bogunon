@@ -1,6 +1,6 @@
 begin;
 
-select plan(19);
+select plan(21);
 
 select has_table('public', 'record_guidelines');
 select row_security_active('public.record_guidelines');
@@ -131,6 +131,40 @@ select throws_ok(
   '23505',
   null,
   '사용자별 학년도와 자료 유형은 중복되지 않는다'
+);
+select throws_ok(
+  $$insert into public.record_guidelines (
+      user_id, school_year, document_type, original_filename,
+      mime_type, extracted_text, file_size
+    ) values (
+      '91000000-0000-0000-0000-000000000001',
+      2027,
+      'guide',
+      'student-data.txt',
+      'text/plain',
+      '학생 이름: 홍길동',
+      24
+    )$$,
+  '23514',
+  null,
+  '학생 식별정보는 직접 데이터 API 쓰기에서도 차단된다'
+);
+select throws_ok(
+  $$insert into public.record_guidelines (
+      user_id, school_year, document_type, original_filename,
+      mime_type, extracted_text, file_size
+    ) values (
+      '91000000-0000-0000-0000-000000000001',
+      2028,
+      'guide',
+      'oversized-after-label.txt',
+      'text/plain',
+      repeat('가', 100000),
+      300000
+    )$$,
+  '23514',
+  null,
+  'AI 전달용 라벨을 포함한 학년도 기준자료 길이를 제한한다'
 );
 
 select set_config(

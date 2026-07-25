@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   assertGuidelineCanBePersisted,
   combineGuidelines,
+  countCombinedGuidelineCharacters,
   GuidelineContainsPersonalDataError,
   recordGuidelineInputSchema,
   safeGuidelineFilename,
@@ -68,5 +69,13 @@ describe("record guidelines", () => {
       .toThrow(GuidelineContainsPersonalDataError);
     expect(() => assertGuidelineCanBePersisted("공식 문서에서 학생 성명 기재 기준을 설명합니다."))
       .not.toThrow();
+  });
+
+  it("counts source labels and separators in the AI guideline boundary", () => {
+    const rawText = "가".repeat(100_000);
+
+    expect(countCombinedGuidelineCharacters([
+      { extractedText: rawText, sourceType: "guide" },
+    ])).toBeGreaterThan(100_000);
   });
 });
