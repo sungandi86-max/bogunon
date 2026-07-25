@@ -95,6 +95,30 @@ describe("exercise sticker actions", () => {
     expect(saveExerciseLog).not.toHaveBeenCalled();
   });
 
+  it("keeps linked tournament records compatible without a workout duration", async () => {
+    vi.mocked(saveExerciseLog).mockResolvedValueOnce({
+      status: "created",
+      log: { id: logId, recordType: "competition" },
+    });
+    const form = new FormData();
+    form.set("stickerId", stickerId);
+    form.set("exerciseDate", "2026-07-18");
+    form.set("recordType", "competition");
+    form.set("eventId", eventId);
+
+    await expect(attachExerciseStickerAction({ status: "idle" }, form)).resolves.toMatchObject({
+      status: "success",
+      outcome: "created",
+      logId,
+      recordType: "competition",
+    });
+    expect(saveExerciseLog).toHaveBeenCalledWith(expect.objectContaining({
+      eventId,
+      durationMinutes: null,
+      recordType: "competition",
+    }));
+  });
+
   it("returns the existing linked log so the UI can open the edit flow", async () => {
     vi.mocked(saveExerciseLog).mockResolvedValueOnce({
       status: "existing",

@@ -66,7 +66,7 @@ export async function attachExerciseStickerAction(_state: StickerActionState, fo
     note: nullableText(formData, "note"),
   });
   if (!parsed.success) return { status: "error", message: "운동 종류, 날짜와 기록 유형을 확인해 주세요." };
-  if (parsed.data.eventId && parsed.data.durationMinutes === null) {
+  if (parsed.data.eventId && parsed.data.recordType === "exercise" && parsed.data.durationMinutes === null) {
     return { status: "error", message: "운동 시간을 입력해 주세요." };
   }
   try {
