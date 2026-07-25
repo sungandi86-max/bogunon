@@ -150,7 +150,7 @@
   --mobile-nav-inset: 16px;
   --mobile-nav-bottom: 12px;
   --mobile-fab-size: 54px;
-  --mobile-content-bottom-space: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + var(--mobile-fab-size) + var(--space-12));
+  --mobile-content-bottom-space: calc(var(--mobile-nav-height) + var(--mobile-nav-bottom) + var(--space-12));
   --mobile-glass: rgb(255 255 255 / 0.82);
   --mobile-nav-surface: rgb(255 255 255 / 0.96);
   --mobile-pill-surface: rgb(255 255 255 / 0.72);
