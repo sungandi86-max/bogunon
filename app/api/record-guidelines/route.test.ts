@@ -61,6 +61,19 @@ describe("/api/record-guidelines", () => {
     expect(upsertGuideline).toHaveBeenCalledWith(validInput);
   });
 
+  it("sanitizes file metadata before persistence", async () => {
+    const request = new Request("https://bogunon.example/api/record-guidelines", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...validInput, originalFilename: "../2026-guide.txt" }),
+    });
+    expect((await PUT(request)).status).toBe(200);
+    expect(upsertGuideline).toHaveBeenCalledWith({
+      ...validInput,
+      originalFilename: ".._2026-guide.txt",
+    });
+  });
+
   it("deletes by opaque id", async () => {
     const id = crypto.randomUUID();
     const response = await DELETE(new Request("https://bogunon.example/api/record-guidelines", {
@@ -93,5 +106,15 @@ describe("/api/record-guidelines", () => {
     }));
     expect(response.status).toBe(413);
     expect(upsertGuideline).not.toHaveBeenCalled();
+  });
+
+  it("does not expose unexpected persistence errors", async () => {
+    listGuidelines.mockRejectedValue(new Error("database secret detail"));
+    const response = await GET();
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toEqual({
+      error: "기준자료 요청을 처리하지 못했습니다.",
+      code: "GUIDELINE_ERROR",
+    });
   });
 });

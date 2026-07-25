@@ -8,6 +8,7 @@ import {
   upsertRecordGuideline,
 } from "@/lib/ai/record-guideline-repository";
 import {
+  GuidelineContainsPersonalDataError,
   GUIDELINE_MAX_REQUEST_BYTES,
   recordGuidelineInputSchema,
 } from "@/lib/ai/record-guidelines";
@@ -42,8 +43,14 @@ function errorResponse(error: unknown): NextResponse {
       { status: 400 },
     );
   }
+  if (error instanceof GuidelineContainsPersonalDataError) {
+    return NextResponse.json(
+      { error: error.message, code: "PERSONAL_DATA_DETECTED" },
+      { status: 400 },
+    );
+  }
   return NextResponse.json(
-    { error: error instanceof Error ? error.message : "기준자료 요청을 처리하지 못했습니다.", code: "GUIDELINE_ERROR" },
+    { error: "기준자료 요청을 처리하지 못했습니다.", code: "GUIDELINE_ERROR" },
     { status: 500 },
   );
 }

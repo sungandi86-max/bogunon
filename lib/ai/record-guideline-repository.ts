@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import {
+  assertGuidelineCanBePersisted,
   type RecordGuideline,
   type RecordGuidelineInput,
   toRecordGuideline,
@@ -35,6 +36,7 @@ export async function listRecordGuidelines(): Promise<RecordGuideline[]> {
 export async function upsertRecordGuideline(
   input: RecordGuidelineInput,
 ): Promise<RecordGuideline> {
+  assertGuidelineCanBePersisted(input.extractedText);
   const { supabase, userId } = await ownedClient();
   const { data, error } = await supabase
     .from("record_guidelines")

@@ -19,6 +19,20 @@ export const GUIDELINE_SOURCE_LABELS: Record<GuidelineSourceType, string> = {
 export const GUIDELINE_MAX_CHARACTERS = 100_000;
 export const GUIDELINE_MAX_REQUEST_BYTES = 420_000;
 
+const persistedGuidelinePrivacyPatterns = [
+  /\d{6}[-\s]?[1-4]\d{6}/,
+  /(?:연락처|전화(?:번호)?|휴대폰)\s*[:#-]?\s*0\d{1,2}[-\s]?\d{3,4}[-\s]?\d{4}/i,
+  /(?:학생\s*)?(?:이름|성명)\s*[:#-]\s*[가-힣]{2,4}(?=\s|$|[,.;])/,
+  /\d{1,2}학년\s*\d{1,2}반\s*\d{1,2}번/,
+] as const;
+
+export class GuidelineContainsPersonalDataError extends Error {
+  constructor() {
+    super("학생 개인정보로 보이는 내용이 있어 기준자료를 저장하지 않았습니다.");
+    this.name = "GuidelineContainsPersonalDataError";
+  }
+}
+
 export interface RecordGuideline {
   readonly createdAt: string;
   readonly extractedText: string;
@@ -42,7 +56,7 @@ export interface SchoolRecordGuideline {
 export const recordGuidelineInputSchema = z.object({
   schoolYear: z.number().int().min(2000).max(2100),
   sourceType: z.enum(GUIDELINE_SOURCE_TYPES),
-  originalFilename: z.string().trim().min(1).max(255),
+  originalFilename: z.string().trim().min(1).max(255).transform(safeGuidelineFilename),
   mimeType: z.enum(["application/pdf", "text/plain"]),
   extractedText: z.string().trim().min(1).max(GUIDELINE_MAX_CHARACTERS),
   fileSize: z.number().int().positive().max(15 * 1024 * 1024),
@@ -105,4 +119,10 @@ export function safeGuidelineFilename(filename: string): string {
     .replace(/[\\/]+/g, "_")
     .trim();
   return normalized.slice(0, 255) || "기준자료";
+}
+
+export function assertGuidelineCanBePersisted(extractedText: string): void {
+  if (persistedGuidelinePrivacyPatterns.some((pattern) => pattern.test(extractedText))) {
+    throw new GuidelineContainsPersonalDataError();
+  }
 }

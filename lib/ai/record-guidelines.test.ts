@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  assertGuidelineCanBePersisted,
   combineGuidelines,
+  GuidelineContainsPersonalDataError,
   recordGuidelineInputSchema,
+  safeGuidelineFilename,
   type RecordGuideline,
 } from "@/lib/ai/record-guidelines";
 
@@ -54,5 +57,16 @@ describe("record guidelines", () => {
       extractedText: "가".repeat(100_001),
       fileSize: 10,
     })).toThrow();
+  });
+
+  it("sanitizes file metadata before persistence", () => {
+    expect(safeGuidelineFilename("../guide\u0000.txt")).toBe(".._guide.txt");
+  });
+
+  it("rejects high-confidence student identifiers before persistence", () => {
+    expect(() => assertGuidelineCanBePersisted("학생 이름: 홍길동\n활동 내용"))
+      .toThrow(GuidelineContainsPersonalDataError);
+    expect(() => assertGuidelineCanBePersisted("공식 문서에서 학생 성명 기재 기준을 설명합니다."))
+      .not.toThrow();
   });
 });
