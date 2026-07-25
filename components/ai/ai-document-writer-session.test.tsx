@@ -14,6 +14,7 @@ describe("AiDocumentWriter session behavior", () => {
 
   it("copies the generated draft and reports success", async () => {
     renderWriter();
+    await screen.findByText("2026학년도 학교생활기록부 기재요령 자동 적용");
     fillRequiredFields();
     fireEvent.click(screen.getByRole("button", { name: "생기부 초안 생성" }));
     fireEvent.click(await screen.findByRole("button", { name: "초안 복사" }));
@@ -58,6 +59,7 @@ describe("AiDocumentWriter session behavior", () => {
   it("keeps the result review controls operable", async () => {
     vi.stubGlobal("fetch", successfulFetch("최고의 역량을 보임."));
     renderWriter();
+    await screen.findByText("2026학년도 학교생활기록부 기재요령 자동 적용");
     fillRequiredFields();
     fireEvent.click(screen.getByRole("button", { name: "생기부 초안 생성" }));
     const reviewTab = await screen.findByRole("tab", { name: /기재 내용 점검/ });

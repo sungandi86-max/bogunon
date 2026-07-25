@@ -6,7 +6,7 @@ import type {
 } from "@/lib/ai/record-guidelines";
 
 export type AiDocumentWriterFormValues =
-  Omit<AiDocumentWriterRequest, "guideline" | "privacyConfirmed"> & {
+  Omit<AiDocumentWriterRequest, "academicYear" | "privacyConfirmed"> & {
     readonly privacyConfirmed: boolean;
   };
 

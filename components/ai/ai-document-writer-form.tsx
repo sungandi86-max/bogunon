@@ -1,8 +1,13 @@
-import { AlertTriangle, LoaderCircle, NotebookPen, PencilLine, Sparkles } from "lucide-react";
+import {
+  AlertTriangle,
+  NotebookPen,
+  PencilLine,
+} from "lucide-react";
 import type { Ref } from "react";
 
 import { AiDocumentWriterGuideline } from "@/components/ai/ai-document-writer-guideline";
 import { AiDocumentWriterMaterialField } from "@/components/ai/ai-document-writer-material-field";
+import { AiDocumentWriterSubmit } from "@/components/ai/ai-document-writer-submit";
 import type {
   ActivityReportFileState,
   AiDocumentWriterFormValues,
@@ -10,7 +15,6 @@ import type {
 } from "@/components/ai/ai-document-writer-types";
 import type { RecordGuideline } from "@/lib/ai/record-guidelines";
 import type { GuidelineOperation } from "@/components/ai/use-record-guidelines";
-import { Button } from "@/components/ui/button";
 import {
   AI_DOCUMENT_LENGTHS,
   AI_WRITING_TONES,
@@ -29,6 +33,7 @@ interface AiDocumentWriterFormProps {
   readonly guidelineMessage: string;
   readonly guidelineOperation: GuidelineOperation;
   readonly guidelineSourceType: GuidelineSourceType;
+  readonly hasGuideline: boolean;
   readonly isSubmitting: boolean;
   readonly onAcademicYearChange: (value: string) => void;
   readonly onActivityFile: (file: File) => void;
@@ -66,6 +71,7 @@ export function AiDocumentWriterForm({
   guidelineMessage,
   guidelineOperation,
   guidelineSourceType,
+  hasGuideline,
   isSubmitting,
   onAcademicYearChange,
   onActivityFile,
@@ -81,6 +87,7 @@ export function AiDocumentWriterForm({
   const activityReportTooLong = activityReportLength > MAX_ACTIVITY_REPORT_CHARACTERS;
   const activityReportMissing = values.activityReport.trim().length === 0;
   const activityReportExtracting = activityFileState?.status === "extracting";
+  const guidelineLoading = guidelineOperation === "loading";
 
   return (
     <form
@@ -201,34 +208,18 @@ export function AiDocumentWriterForm({
             {error}
           </p>
         )}
-        <div className="ai-writer-submit">
-          <div>
-            {activityReportMissing && <small>활동보고서를 입력하거나 파일로 불러오면 생성할 수 있습니다.</small>}
-            {!aiConnected && <small>AI 연결 후 실제 초안을 생성할 수 있습니다.</small>}
-            {activityReportExtracting && <small>파일에서 텍스트를 추출하고 있습니다.</small>}
-            {activityReportTooLong && (
-              <small className="is-warning">
-                활동보고서가 {activityReportLength.toLocaleString("ko-KR")}자입니다.
-                내용을 {MAX_ACTIVITY_REPORT_CHARACTERS.toLocaleString("ko-KR")}자 이하로 줄여주세요.
-              </small>
-            )}
-          </div>
-          <Button
-            disabled={
-              isSubmitting
-              || !aiConnected
-              || activityReportExtracting
-              || activityReportMissing
-              || activityReportTooLong
-            }
-            type="submit"
-          >
-            {isSubmitting
-              ? <LoaderCircle aria-hidden="true" className="ai-writer-spinner" size={18} />
-              : <Sparkles aria-hidden="true" size={18} />}
-            {isSubmitting ? "초안 생성 중" : "생기부 초안 생성"}
-          </Button>
-        </div>
+        <AiDocumentWriterSubmit
+          academicYear={academicYear}
+          activityReportExtracting={activityReportExtracting}
+          activityReportLength={activityReportLength}
+          activityReportMissing={activityReportMissing}
+          activityReportTooLong={activityReportTooLong}
+          aiConnected={aiConnected}
+          guidelineBusy={guidelineOperation !== "idle"}
+          guidelineLoading={guidelineLoading}
+          hasGuideline={hasGuideline}
+          isSubmitting={isSubmitting}
+        />
       </section>
 
       <AiDocumentWriterGuideline

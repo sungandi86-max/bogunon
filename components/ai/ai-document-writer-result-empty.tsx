@@ -1,6 +1,7 @@
 import { CheckCircle2, Circle, Sparkles } from "lucide-react";
 
 interface AiDocumentWriterResultEmptyProps {
+  readonly academicYear: string;
   readonly activityReportReady: boolean;
   readonly hasAdditionalRecord: boolean;
   readonly hasGuideline: boolean;
@@ -8,6 +9,7 @@ interface AiDocumentWriterResultEmptyProps {
 }
 
 export function AiDocumentWriterResultEmpty({
+  academicYear,
   activityReportReady,
   hasAdditionalRecord,
   hasGuideline,
@@ -22,7 +24,9 @@ export function AiDocumentWriterResultEmpty({
     },
     {
       complete: hasGuideline,
-      label: hasGuideline ? "공식 기재요령 적용" : "공식 기재요령 없음 · 일반 점검만 가능",
+      label: hasGuideline
+        ? `${academicYear}학년도 공식 기준자료 자동 적용`
+        : `${academicYear}학년도 공식 기준자료 등록 필요`,
     },
   ] as const;
 

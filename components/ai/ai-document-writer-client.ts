@@ -5,7 +5,6 @@ import {
   type AiDocumentWriterResult,
 } from "@/lib/ai/document-writer";
 import type { AiDocumentWriterFormValues } from "@/components/ai/ai-document-writer-types";
-import type { SchoolRecordGuideline } from "@/components/ai/ai-document-writer-types";
 import type { AiConnectionInput } from "@/lib/ai/types";
 
 const CLIENT_TIMEOUT_MS = 40_000;
@@ -30,7 +29,7 @@ async function responseMessage(response: Response): Promise<string> {
 export async function requestAiDocumentDraft(
   values: AiDocumentWriterFormValues,
   connection: AiConnectionInput,
-  guideline: SchoolRecordGuideline | null,
+  academicYear: string,
 ): Promise<AiDocumentWriterResult> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), CLIENT_TIMEOUT_MS);
@@ -43,15 +42,8 @@ export async function requestAiDocumentDraft(
         connection,
         document: {
           ...values,
+          academicYear,
           studentId: values.studentId.trim(),
-          guideline: guideline
-            ? {
-              academicYear: guideline.academicYear,
-              schoolLevel: guideline.schoolLevel,
-              sourceType: guideline.sourceType,
-              text: guideline.text,
-            }
-            : null,
         },
       }),
       signal: controller.signal,

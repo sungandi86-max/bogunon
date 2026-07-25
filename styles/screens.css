@@ -1189,6 +1189,8 @@
 .ai-writer-readiness { border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-3); padding-top: var(--space-6); }
 .ai-writer-readiness p { align-items: center; color: var(--ink-500); display: flex; font-size: var(--text-meta); gap: var(--space-3); line-height: var(--leading-body); margin: 0; }
 .ai-writer-readiness p.is-complete { color: var(--success); font-weight: var(--weight-semibold); }
+.ai-writer-guideline-status { align-items: center; display: flex; gap: var(--space-2); line-height: var(--leading-body); }
+.ai-writer-guideline-status.is-ready { color: var(--success); font-weight: var(--weight-semibold); }
 .ai-writer-loading { min-height: 320px; }
 .ai-writer-desktop-only { align-items: center; display: grid; gap: var(--space-6); justify-items: center; margin: auto; max-width: 560px; min-height: calc(100dvh - 220px); padding: var(--space-12) var(--space-6); text-align: center; }
 .ai-writer-desktop-only > svg { color: var(--action-700); }

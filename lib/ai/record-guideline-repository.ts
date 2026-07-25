@@ -4,8 +4,10 @@ import {
   countCombinedGuidelineCharacters,
   GUIDELINE_MAX_COMBINED_CHARACTERS,
   GuidelineYearTextLimitError,
+  combineGuidelines,
   type RecordGuideline,
   type RecordGuidelineInput,
+  type SchoolRecordGuideline,
   toRecordGuideline,
 } from "@/lib/ai/record-guidelines";
 
@@ -34,6 +36,30 @@ export async function listRecordGuidelines(): Promise<RecordGuideline[]> {
 
   if (error) throw new Error("기준자료를 불러오지 못했습니다.");
   return (data ?? []).map(toRecordGuideline);
+}
+
+export async function loadRecordGuidelineContext(
+  schoolYear: number,
+): Promise<{
+  readonly guideline: SchoolRecordGuideline | null;
+  readonly userId: string;
+}> {
+  const { supabase, userId } = await ownedClient();
+  const { data, error } = await supabase
+    .from("record_guidelines")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("school_year", schoolYear)
+    .order("document_type");
+
+  if (error) throw new Error("기준자료를 불러오지 못했습니다.");
+  const completed = (data ?? [])
+    .map(toRecordGuideline)
+    .filter(({ extractedText }) => extractedText.trim().length > 0);
+  return {
+    guideline: combineGuidelines(completed, schoolYear),
+    userId,
+  };
 }
 
 export async function upsertRecordGuideline(

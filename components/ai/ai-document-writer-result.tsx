@@ -18,6 +18,7 @@ import type { AiDocumentWriterResult } from "@/lib/ai/document-writer";
 import type { SchoolRecordReviewIssue } from "@/lib/ai/school-record-review";
 
 interface AiDocumentWriterResultProps {
+  readonly academicYear: string;
   readonly activityReportReady: boolean;
   readonly bytes: number;
   readonly characters: number;
@@ -45,6 +46,7 @@ const LEVEL_LABELS = {
 } as const;
 
 export function AiDocumentWriterResultPanel({
+  academicYear,
   activityReportReady,
   bytes,
   characters,
@@ -68,6 +70,7 @@ export function AiDocumentWriterResultPanel({
   if (!result) {
     return (
       <AiDocumentWriterResultEmpty
+        academicYear={academicYear}
         activityReportReady={activityReportReady}
         hasAdditionalRecord={hasAdditionalRecord}
         hasGuideline={hasGuideline}
