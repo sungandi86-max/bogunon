@@ -22,6 +22,21 @@ describe("responsive home calendar layout", () => {
     );
   });
 
+  it("keeps the mobile create action clear of the bottom navigation", () => {
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.mobile-create-fab\s*\{[^}]*bottom:\s*calc\(var\(--mobile-nav-bottom\) \+ var\(--mobile-nav-height\) \+ var\(--space-8\) \+ var\(--space-5\) \+ env\(safe-area-inset-bottom\)\);[^}]*position:\s*fixed;[^}]*right:\s*var\(--space-8\);/,
+    );
+  });
+
+  it("uses mobile summaries instead of clipped calendar titles", () => {
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-summary\s*\{[^}]*display:\s*flex;/,
+    );
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__event-list \.calendar-cell-items,\s*\.full-calendar__event-list \.calendar-overflow\s*\{[^}]*display:\s*none;/,
+    );
+  });
+
   it("keeps the calendar page below the fixed account header while preserving desktop schedule density", () => {
     expect(screenStylesheet).toMatch(
       /\.calendar-page \.page-canvas\s*\{[^}]*padding-top:\s*calc\(var\(--app-header-height\) \+ var\(--space-6\)\);/,

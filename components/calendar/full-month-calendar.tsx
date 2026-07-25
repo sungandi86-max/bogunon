@@ -8,6 +8,7 @@ import { StickerManagementButton } from "@/components/calendar/sticker-managemen
 import { calendarStickerByKey } from "@/lib/calendar-stickers/catalog";
 import { calendarMonthCells, weekdayLabels } from "@/lib/calendar/preferences";
 import { taskCalendarDate } from "@/lib/calendar/smart-calendar";
+import { resolveEventType } from "@/lib/work-items/event-types";
 import { todayInSeoul } from "@/lib/work-items/date";
 import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
 
@@ -15,6 +16,8 @@ type CalendarDisplayItem =
   | { readonly id: string; readonly item: EventRow; readonly kind: "event"; readonly order: number; readonly priority: number; readonly time: string | null }
   | { readonly id: string; readonly item: TaskRow; readonly kind: "task"; readonly order: number; readonly priority: number; readonly time: null }
   | { readonly id: string; readonly item: CalendarStickerRow; readonly kind: "sticker"; readonly order: number; readonly priority: number; readonly time: null };
+
+type MobileSummaryTone = "academic" | "health" | "holiday" | "personal" | "school" | "tournament" | "work" | "workout";
 
 interface Props { readonly events?: EventRow[]; readonly highlight?: string | undefined; readonly month?: string; readonly onDropDate?: (value: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => void; readonly onMove?: ((value: MovableCalendarItem) => void) | undefined; readonly onSelectDate?: (date: string) => void; readonly schoolStickers?: CalendarStickerRow[]; readonly selectedDate?: string; readonly tasks?: TaskRow[]; readonly today?: string; readonly visibleItemLimit?: number }
 
@@ -32,6 +35,15 @@ function displayItems(events: EventRow[], tasks: TaskRow[], stickers: CalendarSt
     ...tasks.map((item, order) => ({ id: item.id, item, kind: "task" as const, order: events.length + order, priority: 0, time: null })),
     ...stickers.map((item, order) => ({ id: item.id, item, kind: "sticker" as const, order: events.length + tasks.length + order, priority: stickerPriority(item), time: null })),
   ].sort((left, right) => left.priority - right.priority || (left.time === null ? 1 : 0) - (right.time === null ? 1 : 0) || (left.time ?? "").localeCompare(right.time ?? "") || left.order - right.order);
+}
+
+function mobileSummaryTone(displayItem: CalendarDisplayItem): MobileSummaryTone {
+  if (displayItem.kind === "event") return resolveEventType(displayItem.item);
+  if (displayItem.kind === "sticker") return calendarStickerByKey(displayItem.item.sticker_key)?.pack ?? "school";
+  if (displayItem.item.area === "schoolSchedule") return "school";
+  if (displayItem.item.area === "personal") return "personal";
+  if (displayItem.item.area === "exercise") return "workout";
+  return "work";
 }
 
 function responsiveItemLimit(weekCount: number, calendarHeight?: number): number {
@@ -89,13 +101,19 @@ export function FullMonthCalendar({ events = [], highlight, month = "2026-07", o
       const items = displayItems(dayEvents, dayTasks, dayStickers);
       const visibleItems = items.slice(0, itemLimit);
       const hidden = items.length - visibleItems.length;
+      const mobileSummaryTones = [...new Set(items.map(mobileSummaryTone))].slice(0, 3);
       const weekday = inMonth ? new Date(`${date}T00:00:00Z`).getUTCDay() : -1;
       return <div aria-label={inMonth ? `${date}, 일정 ${dayEvents.length}개, 업무 ${dayTasks.length}개, 스티커 ${dayStickers.length}개` : "다른 달"} className={`full-calendar__cell${date === today ? " is-today" : ""}${date === selectedDate ? " is-selected" : ""}${weekday === 0 ? " is-sunday" : weekday === 6 ? " is-saturday" : ""}`} key={`${date || "empty"}-${index}`} onDragOver={(event) => { if (date) event.preventDefault(); }} onDrop={(event) => { const raw = event.dataTransfer.getData("application/x-bogunon-calendar"); if (!raw || !date) return; try { const moved = JSON.parse(raw) as { id: string; kind: "event" | "task"; date: string }; onDropDate?.({ ...moved, newDate: date }); } catch { return; } }} role="gridcell">
-        {inMonth && <button aria-label={`${date} 선택`} className="calendar-date-button" onClick={() => onSelectDate?.(date)} type="button"><time dateTime={date}>{day}</time></button>}
-        <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
-          ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
-          : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} showTime />)}</div>
-        {hidden > 0 && <button aria-label={`숨겨진 일정 ${hidden}개 모두 보기`} className="calendar-overflow" onClick={() => onSelectDate?.(date)} type="button">+{hidden}</button>}
+        <div className="full-calendar__day-header">
+          {inMonth && <button aria-label={`${date} 선택`} className="calendar-date-button" onClick={() => onSelectDate?.(date)} type="button"><time dateTime={date}>{day}</time></button>}
+        </div>
+        <div className="full-calendar__event-list">
+          {visibleItems.length > 0 && <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
+            ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
+            : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} showTime />)}</div>}
+          {items.length > 0 && <div aria-hidden="true" className="full-calendar__mobile-summary"><span className="full-calendar__mobile-dots">{mobileSummaryTones.map((tone) => <span className={`full-calendar__mobile-dot full-calendar__mobile-dot--${tone}`} key={tone} />)}</span><span>{items.length}개</span></div>}
+          {hidden > 0 && <button aria-label={`숨겨진 일정 ${hidden}개 모두 보기`} className="calendar-overflow" onClick={() => onSelectDate?.(date)} type="button">+{hidden}</button>}
+        </div>
       </div>;
     })}</div>)}</div>
   </section>;
