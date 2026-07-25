@@ -17,6 +17,7 @@ export const GUIDELINE_SOURCE_LABELS: Record<GuidelineSourceType, string> = {
 };
 
 export const GUIDELINE_MAX_CHARACTERS = 100_000;
+export const GUIDELINE_MAX_COMBINED_CHARACTERS = 100_000;
 export const GUIDELINE_MAX_REQUEST_BYTES = 420_000;
 
 const persistedGuidelinePrivacyPatterns = [
@@ -30,6 +31,13 @@ export class GuidelineContainsPersonalDataError extends Error {
   constructor() {
     super("학생 개인정보로 보이는 내용이 있어 기준자료를 저장하지 않았습니다.");
     this.name = "GuidelineContainsPersonalDataError";
+  }
+}
+
+export class GuidelineYearTextLimitError extends Error {
+  constructor() {
+    super("같은 학년도의 기준자료 합계가 100,000자를 초과합니다. 기존 자료를 줄이거나 교체해 주세요.");
+    this.name = "GuidelineYearTextLimitError";
   }
 }
 
@@ -63,6 +71,18 @@ export const recordGuidelineInputSchema = z.object({
 }).strict();
 
 export type RecordGuidelineInput = z.infer<typeof recordGuidelineInputSchema>;
+
+export const recordGuidelineSchema = z.object({
+  createdAt: z.string().datetime({ offset: true }),
+  extractedText: z.string().min(1).max(GUIDELINE_MAX_CHARACTERS),
+  fileSize: z.number().int().positive().max(15 * 1024 * 1024),
+  id: z.string().uuid(),
+  mimeType: z.enum(["application/pdf", "text/plain"]),
+  originalFilename: z.string().min(1).max(255),
+  schoolYear: z.number().int().min(2000).max(2100),
+  sourceType: z.enum(GUIDELINE_SOURCE_TYPES),
+  updatedAt: z.string().datetime({ offset: true }),
+}).strict();
 
 interface RecordGuidelineRow {
   readonly created_at: string;

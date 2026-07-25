@@ -10,6 +10,7 @@ import {
 import {
   GuidelineContainsPersonalDataError,
   GUIDELINE_MAX_REQUEST_BYTES,
+  GuidelineYearTextLimitError,
   recordGuidelineInputSchema,
 } from "@/lib/ai/record-guidelines";
 import {
@@ -47,6 +48,12 @@ function errorResponse(error: unknown): NextResponse {
     return NextResponse.json(
       { error: error.message, code: "PERSONAL_DATA_DETECTED" },
       { status: 400 },
+    );
+  }
+  if (error instanceof GuidelineYearTextLimitError) {
+    return NextResponse.json(
+      { error: error.message, code: "GUIDELINE_YEAR_TEXT_LIMIT" },
+      { status: 409 },
     );
   }
   return NextResponse.json(

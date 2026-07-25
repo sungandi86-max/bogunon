@@ -1,15 +1,17 @@
-import type {
-  RecordGuideline,
-  RecordGuidelineInput,
+import {
+  recordGuidelineSchema,
+  type RecordGuideline,
+  type RecordGuidelineInput,
 } from "@/lib/ai/record-guidelines";
+import { z } from "zod";
 
-interface ErrorPayload {
-  readonly error?: unknown;
-}
+const errorPayloadSchema = z.object({ error: z.string().optional() }).passthrough();
+const listPayloadSchema = z.object({ guidelines: z.array(recordGuidelineSchema) }).strict();
+const savePayloadSchema = z.object({ guideline: recordGuidelineSchema }).strict();
 
 async function responseError(response: Response, fallback: string): Promise<Error> {
-  const payload = await response.json().catch(() => null) as ErrorPayload | null;
-  return new Error(typeof payload?.error === "string" ? payload.error : fallback);
+  const payload = errorPayloadSchema.safeParse(await response.json().catch(() => null));
+  return new Error(payload.success && payload.data.error ? payload.data.error : fallback);
 }
 
 export async function fetchRecordGuidelines(signal?: AbortSignal): Promise<RecordGuideline[]> {
@@ -19,9 +21,9 @@ export async function fetchRecordGuidelines(signal?: AbortSignal): Promise<Recor
     ...(signal ? { signal } : {}),
   });
   if (!response.ok) throw await responseError(response, "기준자료를 불러오지 못했습니다.");
-  const payload = await response.json() as { readonly guidelines?: unknown };
-  if (!Array.isArray(payload.guidelines)) throw new Error("기준자료 응답을 확인하지 못했습니다.");
-  return payload.guidelines as RecordGuideline[];
+  const payload = listPayloadSchema.safeParse(await response.json());
+  if (!payload.success) throw new Error("기준자료 응답을 확인하지 못했습니다.");
+  return payload.data.guidelines;
 }
 
 export async function saveRecordGuideline(
@@ -34,9 +36,9 @@ export async function saveRecordGuideline(
     body: JSON.stringify(input),
   });
   if (!response.ok) throw await responseError(response, "기준자료를 저장하지 못했습니다.");
-  const payload = await response.json() as { readonly guideline?: RecordGuideline };
-  if (!payload.guideline) throw new Error("저장된 기준자료를 확인하지 못했습니다.");
-  return payload.guideline;
+  const payload = savePayloadSchema.safeParse(await response.json());
+  if (!payload.success) throw new Error("저장된 기준자료를 확인하지 못했습니다.");
+  return payload.data.guideline;
 }
 
 export async function removeRecordGuideline(id: string): Promise<void> {

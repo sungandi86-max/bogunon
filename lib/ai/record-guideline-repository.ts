@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import {
   assertGuidelineCanBePersisted,
+  GUIDELINE_MAX_COMBINED_CHARACTERS,
+  GuidelineYearTextLimitError,
   type RecordGuideline,
   type RecordGuidelineInput,
   toRecordGuideline,
@@ -38,6 +40,21 @@ export async function upsertRecordGuideline(
 ): Promise<RecordGuideline> {
   assertGuidelineCanBePersisted(input.extractedText);
   const { supabase, userId } = await ownedClient();
+  const { data: existing, error: existingError } = await supabase
+    .from("record_guidelines")
+    .select("document_type,extracted_text")
+    .eq("user_id", userId)
+    .eq("school_year", input.schoolYear);
+  if (existingError) throw new Error("기준자료를 저장하지 못했습니다.");
+
+  const combinedCharacters = (existing ?? [])
+    .filter(({ document_type }) => document_type !== input.sourceType)
+    .reduce((total, { extracted_text }) => total + Array.from(extracted_text).length, 0)
+    + Array.from(input.extractedText).length;
+  if (combinedCharacters > GUIDELINE_MAX_COMBINED_CHARACTERS) {
+    throw new GuidelineYearTextLimitError();
+  }
+
   const { data, error } = await supabase
     .from("record_guidelines")
     .upsert({
