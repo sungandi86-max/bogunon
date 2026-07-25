@@ -1,6 +1,6 @@
 begin;
 
-select plan(21);
+select plan(23);
 
 select has_table('public', 'record_guidelines');
 select row_security_active('public.record_guidelines');
@@ -165,6 +165,31 @@ select throws_ok(
   '23514',
   null,
   'AI 전달용 라벨을 포함한 학년도 기준자료 길이를 제한한다'
+);
+select lives_ok(
+  $$insert into public.record_guidelines (
+      user_id, school_year, document_type, original_filename,
+      mime_type, extracted_text, file_size
+    ) values (
+      '91000000-0000-0000-0000-000000000001',
+      2029,
+      'supplement',
+      'exact-boundary.txt',
+      'text/plain',
+      repeat('가', 100000 - char_length('[공식 보완자료]') - 1),
+      300000
+    )$$,
+  '라벨을 포함해 정확히 100,000자인 자료는 등록할 수 있다'
+);
+select throws_ok(
+  $$update public.record_guidelines
+    set document_type = 'guide'
+    where user_id = '91000000-0000-0000-0000-000000000001'
+      and school_year = 2029
+      and document_type = 'supplement'$$,
+  '23514',
+  null,
+  '자료 유형만 변경해도 라벨을 포함한 길이를 다시 검증한다'
 );
 
 select set_config(
