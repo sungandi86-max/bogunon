@@ -1,6 +1,6 @@
 begin;
 
-create unique index exercise_logs_event_id_unique
+create unique index if not exists exercise_logs_event_id_unique
   on public.exercise_logs(event_id)
   where event_id is not null;
 
