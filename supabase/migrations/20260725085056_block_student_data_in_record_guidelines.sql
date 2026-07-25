@@ -55,3 +55,11 @@ begin
   return new;
 end;
 $$;
+
+drop trigger if exists record_guidelines_year_text_limit
+on public.record_guidelines;
+
+create trigger record_guidelines_year_text_limit
+before insert or update of user_id, school_year, document_type, extracted_text
+on public.record_guidelines
+for each row execute function public.enforce_record_guideline_year_text_limit();
