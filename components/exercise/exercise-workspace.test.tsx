@@ -25,8 +25,9 @@ vi.mock("@/app/(app)/exercise-sticker-actions", () => ({
 
 type MockPickerProps = {
   readonly date: string;
+  readonly event?: EventRow;
   readonly eventId?: string;
-  readonly initialNote?: string;
+  readonly existingLog?: ExerciseLogRow;
   readonly initialRecordType?: ExerciseRecordType;
   readonly initialWorkoutType?: string;
   readonly onCreated?: (log: { readonly logId: string; readonly recordType: ExerciseRecordType }) => void;
@@ -39,7 +40,7 @@ type MockReviewLog = ExerciseLogRow & {
 vi.mock("@/components/exercise/exercise-sticker-picker", async () => {
   const React = await vi.importActual<typeof import("react")>("react");
   return {
-    ExerciseStickerPicker({ date, eventId, initialNote, initialRecordType = "exercise", initialWorkoutType, onCreated }: MockPickerProps) {
+    ExerciseStickerPicker({ date, event, eventId, existingLog, initialRecordType = "exercise", initialWorkoutType, onCreated }: MockPickerProps) {
       const [message, setMessage] = React.useState<string | null>(null);
 
       async function saveRecord(): Promise<void> {
@@ -49,9 +50,11 @@ vi.mock("@/components/exercise/exercise-sticker-picker", async () => {
       }
 
       return <form aria-label="운동 기록 폼">
-        {eventId && <input aria-label="연결 일정" readOnly value={eventId} />}
+        {event && <input aria-label="연결 일정" readOnly value={event.id} />}
+        {eventId && <input data-testid="picker-event-id" readOnly value={eventId} />}
+        {event && <input aria-label="연결 일정 제목" readOnly value={event.title} />}
+        {existingLog && <input aria-label="연결 운동 기록" readOnly value={existingLog.id} />}
         {initialWorkoutType && <input aria-label="운동 종류 기본값" readOnly value={initialWorkoutType} />}
-        {initialNote && <textarea aria-label="일정 메모 기본값" readOnly value={initialNote} />}
         <label><span>운동 날짜</span><input aria-label="운동 날짜" name="exerciseDate" readOnly value={date} /></label>
         <label><input defaultChecked={initialRecordType === "exercise"} name="recordType" type="radio" value="exercise" />일반 운동</label>
         <label><input name="recordType" type="radio" value="lesson" />레슨</label>
@@ -169,8 +172,9 @@ describe("ExerciseWorkspace", () => {
     />);
 
     expect(screen.getByLabelText("연결 일정")).toHaveValue("event-1");
+    expect(screen.getByTestId("picker-event-id")).toHaveValue("event-1");
     expect(screen.getByLabelText("운동 종류 기본값")).toHaveValue("배드민턴");
-    expect(screen.getByLabelText("일정 메모 기본값")).toHaveValue("시간: 19:00 ~ 20:30 · 장소: 학교 체육관");
+    expect(screen.getByLabelText("연결 일정 제목")).toHaveValue("배드민턴");
   });
 
   it("opens a linked calendar workout log directly", () => {

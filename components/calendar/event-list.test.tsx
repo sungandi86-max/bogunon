@@ -105,10 +105,9 @@ describe("EventList time details", () => {
     expect(screen.getByText("종목 · 혼합복식")).toBeInTheDocument();
     expect(screen.getByText("파트너 · S002 · 급수 · D급")).toBeInTheDocument();
     expect(screen.getByText("신청 · 신청 완료")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "결과 기록하기" })).toHaveAttribute(
-      "href",
-      expect.stringMatching(/eventId=event-1.*recordType=competition/),
-    );
+    const resultLink = screen.getByRole("link", { name: "결과 기록하기" });
+    expect(resultLink).toHaveAttribute("href", expect.stringMatching(/eventId=event-1.*recordType=competition/));
+    expect(resultLink).not.toHaveAttribute("href", expect.stringContaining("returnTo="));
   });
 
   it("opens the connected exercise record instead of creating another one", () => {
@@ -129,8 +128,9 @@ describe("EventList time details", () => {
       event_details: { kind: "workout", workoutType: "배드민턴" },
     })]} exerciseLogs={[linkedLog]} workflow={workflow} />);
 
-    const link = screen.getByRole("link", { name: "운동 기록 보기" });
-    expect(link).toHaveAttribute("href", expect.stringContaining("logId=log-1"));
-    expect(link).not.toHaveAttribute("href", expect.stringContaining("create=sticker"));
+    const link = screen.getByRole("link", { name: "운동 기록 수정" });
+    expect(link).toHaveAttribute("href", expect.stringContaining("eventId=event-1"));
+    expect(link).toHaveAttribute("href", expect.stringContaining("create=sticker"));
+    expect(link).toHaveAttribute("href", expect.stringContaining("returnTo="));
   });
 });

@@ -8,7 +8,7 @@ import {
   upsertCompetitionReview,
   upsertLessonReview,
 } from "@/lib/exercise/review-repository";
-import { listExerciseLogsForEvents, listExerciseStickerData, listRecentExerciseLogs, saveExerciseLog } from "@/lib/exercise/repository";
+import { listExerciseLogsForEvents, listExerciseStickerData, listRecentExerciseLogs, saveExerciseLog, updateExerciseLog } from "@/lib/exercise/repository";
 import { createClient } from "@/lib/supabase/server";
 
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }));
@@ -52,17 +52,29 @@ describe("exercise V2 repository", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("returns the created log id and type and reports duplicate without an id", async () => {
-    const created = query({ data: { id: log.id, record_type: "lesson" }, error: null });
-    vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => created) } as never);
+    const parentEvent = query({
+      data: { id: eventId, event_type: "workout" },
+      error: null,
+    });
+    const existingLog = query({ data: null, error: null });
+    const created = query({ data: { id: log.id, record_type: "exercise" }, error: null });
+    vi.mocked(createClient).mockResolvedValue({
+      auth,
+      from: vi
+        .fn()
+        .mockReturnValueOnce(parentEvent)
+        .mockReturnValueOnce(existingLog)
+        .mockReturnValueOnce(created),
+    } as never);
 
     await expect(saveExerciseLog({
       eventId: "30000000-0000-4000-8000-000000000001",
       stickerId: log.sticker_id,
       exerciseDate: log.exercise_date,
-      recordType: "lesson",
+      recordType: "exercise",
       durationMinutes: null,
       note: null,
-    })).resolves.toEqual({ status: "created", log: { id: log.id, recordType: "lesson" } });
+    })).resolves.toEqual({ status: "created", log: { id: log.id, recordType: "exercise" } });
     expect(created["insert"]).toHaveBeenCalledWith(expect.objectContaining({
       event_id: "30000000-0000-4000-8000-000000000001",
       user_id: "user-1",
@@ -115,6 +127,75 @@ describe("exercise V2 repository", () => {
 
     expect(linked["eq"]).toHaveBeenCalledWith("user_id", "user-1");
     expect(linked["in"]).toHaveBeenCalledWith("event_id", [eventId]);
+  });
+
+  it("returns an existing event-linked log before inserting another record", async () => {
+    const parent = query({ data: { id: eventId, event_type: "workout" }, error: null });
+    const existing = query({ data: { id: log.id, record_type: "exercise" }, error: null });
+    const from = vi.fn().mockReturnValueOnce(parent).mockReturnValueOnce(existing);
+    vi.mocked(createClient).mockResolvedValue({ auth, from } as never);
+
+    await expect(saveExerciseLog({
+      eventId,
+      stickerId: log.sticker_id,
+      exerciseDate: log.exercise_date,
+      recordType: "exercise",
+      durationMinutes: 90,
+      note: null,
+    })).resolves.toEqual({
+      status: "existing",
+      log: { id: log.id, recordType: "exercise" },
+    });
+    expect(from).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects a linked record when the owned event is not a workout or tournament", async () => {
+    const parent = query({ data: { id: eventId, event_type: "personal" }, error: null });
+    vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => parent) } as never);
+
+    await expect(saveExerciseLog({
+      eventId,
+      stickerId: log.sticker_id,
+      exerciseDate: log.exercise_date,
+      recordType: "exercise",
+      durationMinutes: 90,
+      note: null,
+    })).rejects.toThrow("운동 일정에서만 기록할 수 있습니다.");
+  });
+
+  it("rejects a linked record type that does not match the event type", async () => {
+    const parent = query({ data: { id: eventId, event_type: "workout" }, error: null });
+    vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => parent) } as never);
+
+    await expect(saveExerciseLog({
+      eventId,
+      stickerId: log.sticker_id,
+      exerciseDate: log.exercise_date,
+      recordType: "lesson",
+      durationMinutes: 90,
+      note: null,
+    })).rejects.toThrow("일정 종류와 운동 기록 종류가 일치하지 않습니다.");
+  });
+
+  it("updates the selected sticker, duration, and note on an owned record", async () => {
+    const updated = query({ data: null, error: null });
+    vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => updated) } as never);
+
+    await expect(updateExerciseLog(log.id, log.sticker_id, 75, "게임 4세트")).resolves.toBeUndefined();
+    expect(updated["update"]).toHaveBeenCalledWith({
+      sticker_id: log.sticker_id,
+      duration_minutes: 75,
+      note: "게임 4세트",
+    });
+    expect(updated["eq"]).toHaveBeenCalledWith("user_id", "user-1");
+  });
+
+  it("preserves the sticker when the existing details form omits it", async () => {
+    const updated = query({ data: null, error: null });
+    vi.mocked(createClient).mockResolvedValue({ auth, from: vi.fn(() => updated) } as never);
+
+    await expect(updateExerciseLog(log.id, null, 60, null)).resolves.toBeUndefined();
+    expect(updated["update"]).toHaveBeenCalledWith({ duration_minutes: 60, note: null });
   });
 
   it("checks ownership and parent type before reading or writing lesson reviews", async () => {

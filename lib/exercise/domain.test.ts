@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  exerciseDurationFromEvent,
   exerciseEventValues,
   exerciseRecordFromEvent,
   parseExerciseQuickInput,
@@ -66,5 +67,30 @@ describe("exercise domain", () => {
       start_time: "23:00",
       title: "러닝",
     });
+  });
+
+  it("calculates the recorded minutes only when a schedule has both times", () => {
+    expect(exerciseDurationFromEvent({
+      ...eventFixture,
+      start_time: "19:40:00",
+      end_time: "21:10:00",
+    })).toBe(90);
+    expect(exerciseDurationFromEvent({ ...eventFixture, end_time: null })).toBeNull();
+    expect(exerciseDurationFromEvent({
+      ...eventFixture,
+      is_all_day: true,
+      start_time: null,
+      end_time: null,
+    })).toBeNull();
+  });
+
+  it("calculates a cross-midnight schedule without guessing missing time", () => {
+    expect(exerciseDurationFromEvent({
+      ...eventFixture,
+      start_date: "2026-07-18",
+      end_date: "2026-07-19",
+      start_time: "23:30:00",
+      end_time: "00:30:00",
+    })).toBe(60);
   });
 });

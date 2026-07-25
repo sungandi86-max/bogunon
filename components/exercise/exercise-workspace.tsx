@@ -30,27 +30,23 @@ interface ExerciseWorkspaceProps {
   readonly initialRecordType?: ExerciseRecordType;
   readonly logs?: readonly ExerciseLogWithReview[];
   readonly month?: string;
+  readonly recordEntryError?: string;
   readonly recentLogs?: readonly ExerciseLogWithReview[];
+  readonly returnTo?: string;
   readonly stickers?: readonly ExerciseStickerRow[];
   readonly today: string;
 }
 
 type CreatedLog = { readonly logId: string; readonly recordType: ExerciseRecordType };
 
-function scheduleNote(event: EventRow | undefined, details: EventDetails | null | undefined): string {
-  if (!event) return "";
-  const workoutType = details?.kind === "workout" ? details.workoutType : "";
-  const title = event.title !== workoutType ? `일정: ${event.title}` : "";
-  const time = event.is_all_day ? "" : `시간: ${event.start_time?.slice(0, 5) ?? ""}${event.end_time ? ` ~ ${event.end_time.slice(0, 5)}` : ""}`;
-  const location = event.location ? `장소: ${event.location}` : "";
-  return [title, time, location].filter(Boolean).join(" · ");
-}
-
-export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, initialEvent, initialEventDetails, initialLogId, initialOpen = false, initialRecordType = "exercise", logs = [], month, recentLogs = logs, stickers = [], today }: ExerciseWorkspaceProps) {
+export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, initialEvent, initialEventDetails, initialLogId, initialOpen = false, initialRecordType = "exercise", logs = [], month, recordEntryError, recentLogs = logs, returnTo, stickers = [], today }: ExerciseWorkspaceProps) {
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(initialOpen);
   const [activeReview, setActiveReview] = useState<ActiveExerciseReview | null>(null);
   const linkedLog = [...logs, ...recentLogs].find((log) => log.id === initialLogId);
+  const eventLinkedLog = initialEvent
+    ? [...logs, ...recentLogs].find((log) => log.event_id === initialEvent.id)
+    : undefined;
   const [linkedLogOpen, setLinkedLogOpen] = useState(Boolean(linkedLog));
   const [selectedDate, setSelectedDate] = useState(initialDate ?? today);
   const createTriggerRef = useRef<HTMLButtonElement>(null);
@@ -97,22 +93,25 @@ export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, i
   return <main className="page-canvas exercise-page">
     <PageHeader action={dataAvailable ? createButton() : undefined} description="운동한 날에 가볍게 성취 스티커를 남겨보세요." title="운동" />
     {dataAvailable ? <>
+      {recordEntryError && <section className="settings-error" role="alert"><p>{recordEntryError}</p></section>}
       <ExerciseStickerCalendar initialDate={activeDate} key={activeMonth} logs={logs} month={activeMonth} onOpenReview={openReview} onSelectDate={setSelectedDate} selectedDate={visibleSelectedDate} stickers={stickers} />
       {latestLogs.length > 0 && <section className="recent-exercise-section" aria-labelledby="recent-exercise-title"><div className="section-title-row"><div><h2 id="recent-exercise-title">최근 운동 기록</h2><p>최근 기록을 열어 메모를 수정하거나 삭제할 수 있습니다.</p></div></div><ExerciseLogDetails logs={latestLogs} onOpenReview={openReview} stickers={stickers} /></section>}
       <CustomExerciseStickerForm stickers={stickers} />
     </> : <section className="settings-error" role="alert"><h2>운동 스티커를 불러오지 못했습니다.</h2><p>데이터 연결을 확인한 뒤 다시 시도해 주세요. 기존 운동 일정은 아래에서 계속 확인할 수 있습니다.</p><button className="button button--secondary" onClick={() => router.refresh()} type="button">다시 시도</button></section>}
     {records.length > 0 && <section className="legacy-exercise-section" aria-labelledby="legacy-exercise-title"><div className="section-title-row"><div><h2 id="legacy-exercise-title">기존 운동 일정</h2><p>이전에 일정으로 등록한 운동 기록은 그대로 보존합니다.</p></div><span>{records.length}개</span></div><div className="exercise-grid">{records.map((record) => <ExerciseCard key={record.id} record={record} />)}</div></section>}
-    <ResponsiveDetailPanel onClose={() => setCreateOpen(false)} open={dataAvailable && createOpen} returnFocusRef={createTriggerRef} title="오늘 운동 기록">
-      <p className="exercise-sheet-intro">운동 종류와 날짜를 확인한 뒤 저장하세요.</p>
+    <ResponsiveDetailPanel onClose={() => setCreateOpen(false)} open={dataAvailable && createOpen} returnFocusRef={createTriggerRef} title={initialEvent ? "운동 기록" : "오늘 운동 기록"}>
+      {!initialEvent && <p className="exercise-sheet-intro">운동 종류와 날짜를 확인한 뒤 저장하세요.</p>}
       <ExerciseStickerPicker
         date={selectedDate}
-        initialNote={scheduleNote(initialEvent, initialEventDetails)}
         initialRecordType={initialRecordType}
         key={`${selectedDate}:${initialEvent?.id ?? "manual"}`}
         logs={logs}
         onCreated={handleCreated}
         stickers={stickers}
+        {...(initialEvent ? { event: initialEvent } : {})}
         {...(initialEvent ? { eventId: initialEvent.id } : {})}
+        {...(eventLinkedLog ? { existingLog: eventLinkedLog } : {})}
+        {...(returnTo ? { returnTo } : {})}
         {...(initialEventDetails?.kind === "workout" ? { initialWorkoutType: initialEventDetails.workoutType } : {})}
       />
     </ResponsiveDetailPanel>

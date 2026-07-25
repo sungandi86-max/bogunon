@@ -74,10 +74,70 @@ describe("exercise sticker actions", () => {
     form.set("exerciseDate", "2026-07-18");
     form.set("recordType", "exercise");
     form.set("eventId", eventId);
+    form.set("durationMinutes", "90");
 
     await attachExerciseStickerAction({ status: "idle" }, form);
 
     expect(saveExerciseLog).toHaveBeenCalledWith(expect.objectContaining({ eventId }));
+  });
+
+  it("requires a duration when the record is linked to an exercise event", async () => {
+    const form = new FormData();
+    form.set("stickerId", stickerId);
+    form.set("exerciseDate", "2026-07-18");
+    form.set("recordType", "exercise");
+    form.set("eventId", eventId);
+
+    await expect(attachExerciseStickerAction({ status: "idle" }, form)).resolves.toEqual({
+      status: "error",
+      message: "운동 시간을 입력해 주세요.",
+    });
+    expect(saveExerciseLog).not.toHaveBeenCalled();
+  });
+
+  it("keeps linked tournament records compatible without a workout duration", async () => {
+    vi.mocked(saveExerciseLog).mockResolvedValueOnce({
+      status: "created",
+      log: { id: logId, recordType: "competition" },
+    });
+    const form = new FormData();
+    form.set("stickerId", stickerId);
+    form.set("exerciseDate", "2026-07-18");
+    form.set("recordType", "competition");
+    form.set("eventId", eventId);
+
+    await expect(attachExerciseStickerAction({ status: "idle" }, form)).resolves.toMatchObject({
+      status: "success",
+      outcome: "created",
+      logId,
+      recordType: "competition",
+    });
+    expect(saveExerciseLog).toHaveBeenCalledWith(expect.objectContaining({
+      eventId,
+      durationMinutes: null,
+      recordType: "competition",
+    }));
+  });
+
+  it("returns the existing linked log so the UI can open the edit flow", async () => {
+    vi.mocked(saveExerciseLog).mockResolvedValueOnce({
+      status: "existing",
+      log: { id: logId, recordType: "exercise" },
+    });
+    const form = new FormData();
+    form.set("stickerId", stickerId);
+    form.set("exerciseDate", "2026-07-18");
+    form.set("recordType", "exercise");
+    form.set("eventId", eventId);
+    form.set("durationMinutes", "90");
+
+    await expect(attachExerciseStickerAction({ status: "idle" }, form)).resolves.toEqual({
+      status: "success",
+      outcome: "existing",
+      message: "연결된 운동 기록을 불러왔습니다.",
+      logId,
+      recordType: "exercise",
+    });
   });
 
   it("returns a stable error without an id when record input or storage fails", async () => {
@@ -175,9 +235,14 @@ describe("exercise sticker actions", () => {
     expect(revalidatePath).toHaveBeenCalledWith("/exercise");
     expect(revalidatePath).not.toHaveBeenCalledWith("/calendar");
     expect(revalidatePath).toHaveBeenCalledWith("/briefing");
-    const updateForm = new FormData(); updateForm.set("logId", logId); updateForm.set("durationMinutes", ""); updateForm.set("note", "");
+    const updateForm = new FormData(); updateForm.set("logId", logId); updateForm.set("stickerId", stickerId); updateForm.set("durationMinutes", ""); updateForm.set("note", "");
     await updateExerciseStickerDetailsAction({ status: "idle" }, updateForm);
-    expect(updateExerciseLog).toHaveBeenCalledWith(logId, null, null);
+    expect(updateExerciseLog).toHaveBeenCalledWith(logId, stickerId, null, null);
+
+    vi.mocked(updateExerciseLog).mockClear();
+    updateForm.delete("stickerId");
+    await updateExerciseStickerDetailsAction({ status: "idle" }, updateForm);
+    expect(updateExerciseLog).toHaveBeenCalledWith(logId, null, null, null);
   });
 
   it("creates a custom sticker from the Pilates icon key rather than an emoji", async () => {

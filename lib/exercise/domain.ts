@@ -97,6 +97,14 @@ function fallbackDuration(event: EventRow): number {
   return Math.max(1, endMinutes - startMinutes);
 }
 
+export function exerciseDurationFromEvent(event: EventRow): number | null {
+  if (event.is_all_day || !event.start_time || !event.end_time) return null;
+  const start = Date.parse(`${event.start_date}T${event.start_time.slice(0, 5)}:00Z`);
+  const end = Date.parse(`${event.end_date}T${event.end_time.slice(0, 5)}:00Z`);
+  const durationMinutes = Math.round((end - start) / 60_000);
+  return durationMinutes >= 1 && durationMinutes <= 1440 ? durationMinutes : null;
+}
+
 export function serializeExerciseMetadata(metadata: z.infer<typeof exerciseMetadataSchema>): string {
   return `${metadataPrefix}${JSON.stringify(exerciseMetadataSchema.parse(metadata))}`;
 }
