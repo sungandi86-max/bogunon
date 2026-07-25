@@ -91,11 +91,14 @@ export function FullMonthCalendar({ events = [], highlight, month = "2026-07", o
       const hidden = items.length - visibleItems.length;
       const weekday = inMonth ? new Date(`${date}T00:00:00Z`).getUTCDay() : -1;
       return <div aria-label={inMonth ? `${date}, 일정 ${dayEvents.length}개, 업무 ${dayTasks.length}개, 스티커 ${dayStickers.length}개` : "다른 달"} className={`full-calendar__cell${date === today ? " is-today" : ""}${date === selectedDate ? " is-selected" : ""}${weekday === 0 ? " is-sunday" : weekday === 6 ? " is-saturday" : ""}`} key={`${date || "empty"}-${index}`} onDragOver={(event) => { if (date) event.preventDefault(); }} onDrop={(event) => { const raw = event.dataTransfer.getData("application/x-bogunon-calendar"); if (!raw || !date) return; try { const moved = JSON.parse(raw) as { id: string; kind: "event" | "task"; date: string }; onDropDate?.({ ...moved, newDate: date }); } catch { return; } }} role="gridcell">
-        {inMonth && <button aria-label={`${date} 선택`} className="calendar-date-button" onClick={() => onSelectDate?.(date)} type="button"><time dateTime={date}>{day}</time></button>}
-        <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
+        <div className="full-calendar__day-header">
+          {inMonth && <button aria-label={`${date} 선택`} className="calendar-date-button" onClick={() => onSelectDate?.(date)} type="button"><time dateTime={date}>{day}</time></button>}
+        </div>
+        <div className="full-calendar__event-list">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
           ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
-          : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} showTime />)}</div>
-        {hidden > 0 && <button aria-label={`숨겨진 일정 ${hidden}개 모두 보기`} className="calendar-overflow" onClick={() => onSelectDate?.(date)} type="button">+{hidden}</button>}
+          : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} showTime />)}
+          {hidden > 0 && <button aria-label={`숨겨진 일정 ${hidden}개 모두 보기`} className="calendar-overflow" onClick={() => onSelectDate?.(date)} type="button">+{hidden}</button>}
+        </div>
       </div>;
     })}</div>)}</div>
   </section>;

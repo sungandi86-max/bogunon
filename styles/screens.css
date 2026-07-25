@@ -217,8 +217,9 @@
 .calendar-date-input__grid button[aria-pressed="true"] { background: var(--action-500); color: var(--brand-950); font-weight: var(--weight-bold); }
 .calendar-date-input__grid button:disabled { color: var(--ink-300); cursor: not-allowed; }
 .calendar-date-input__close { border-top: 1px solid var(--line-subtle); color: var(--action-700); width: 100%; }
-.full-calendar__cell { border-right: 1px solid var(--line-subtle); border-top: 1px solid var(--line-subtle); min-height: 0; overflow: hidden; padding: var(--space-3); }
+.full-calendar__cell { border-right: 1px solid var(--line-subtle); border-top: 1px solid var(--line-subtle); display: flex; flex-direction: column; gap: var(--space-1); min-height: 0; overflow: hidden; padding: var(--space-3); }
 .full-calendar__cell:last-child { border-right: 0; }
+.full-calendar__day-header { flex: 0 0 32px; height: 32px; min-height: 32px; }
 .full-calendar__cell time { color: var(--ink-950); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .full-calendar__cell.is-today time { align-items: center; background: var(--action-500); border-radius: 999px; color: var(--brand-950) !important; display: inline-flex; height: 26px; justify-content: center; width: 26px; }
 .calendar-item { align-items: center; background: var(--health-soft); border-left: 3px solid var(--health); display: flex; font-size: var(--text-xs); gap: var(--space-2); margin-top: var(--space-2); overflow: hidden; padding: var(--space-1) var(--space-2); text-overflow: ellipsis; white-space: nowrap; }
@@ -230,10 +231,10 @@
 .calendar-item--event-tournament { background: var(--event-tournament-soft); border-color: var(--event-tournament); }
 .calendar-item--event-personal { background: var(--event-personal-soft); border-color: var(--event-personal); }
 .calendar-item--deadline { background: var(--deadline-soft); border-color: var(--deadline); }
-.calendar-cell-items { display: grid; gap: 2px; margin-top: var(--space-1); pointer-events: none; position: relative; z-index: 1; }
-.calendar-cell-items .calendar-item { margin-top: 0; }
-.calendar-cell-items .calendar-sticker-management__trigger { display: block; min-height: 0; min-width: 0; padding: 0; pointer-events: auto; width: 100%; }
-.calendar-cell-items .calendar-item__move { pointer-events: auto; }
+.full-calendar__event-list { align-content: start; display: grid; flex: 1 1 auto; gap: 2px; min-height: 0; overflow: hidden; pointer-events: none; position: relative; z-index: 1; }
+.full-calendar__event-list .calendar-item { margin-top: 0; }
+.full-calendar__event-list .calendar-sticker-management__trigger { display: block; min-height: 0; min-width: 0; padding: 0; pointer-events: auto; width: 100%; }
+.full-calendar__event-list .calendar-item__move { pointer-events: auto; }
 .calendar-item--sticker { width: 100%; }
 .calendar-item--academic, .calendar-item--school { background: var(--school-soft); border-color: var(--school); }
 .calendar-item--health { background: var(--health-soft); border-color: var(--health); }
