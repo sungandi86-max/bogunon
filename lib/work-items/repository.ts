@@ -254,9 +254,3 @@ export async function moveSingleDayEvent(id: string, newDate: string): Promise<v
     .maybeSingle();
   if (error || !updated) throw new Error("일정을 이동하지 못했습니다. 원래 날짜로 되돌렸습니다.");
 }
-
-export async function moveCalendarEventTime(id: string, date: string, startTime: string, endTime: string): Promise<void> {
-  const { supabase, userId } = await ownedClient();
-  const { error } = await supabase.from("events").update({ start_date: date, end_date: date, is_all_day: false, start_time: startTime, end_time: endTime }).eq("id", id).eq("user_id", userId);
-  if (error) throw new Error("일정 시간을 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.");
-}
