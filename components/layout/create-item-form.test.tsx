@@ -5,6 +5,7 @@ import { CreateItemForm } from "@/components/layout/create-item-form";
 import { HEALTH_PRESETS } from "@/lib/work-items/health-presets";
 import { BUILT_IN_TEMPLATES } from "@/lib/work-items/workflow";
 import type { EventRow, TaskRow } from "@/types/database";
+import { ProjectProvider } from "@/components/projects/project-context";
 
 vi.mock("@/app/(app)/work-item-actions", () => ({
   saveWorkItemAction: vi.fn(async () => ({ status: "success", message: "저장했습니다." })),
@@ -143,6 +144,21 @@ describe("CreateItemForm Phase 5 workflows", () => {
 
     expect(screen.getByLabelText("시작 시간")).toBeRequired();
     expect(screen.getByLabelText("종료 시간")).not.toBeRequired();
+  });
+
+  it("offers account projects for event creation and preserves the current project", () => {
+    const project = {
+      id: "project-1", user_id: "user", name: "2학기 행사", icon: "calendar" as const, color: "mint" as const,
+      description: null, start_date: null, end_date: null, created_at: "", updated_at: "",
+    };
+    const event: EventRow = {
+      id: "event-1", user_id: "user", project_id: project.id, title: "축제 준비", area: "schoolSchedule",
+      start_date: "2026-09-01", end_date: "2026-09-01", is_all_day: true, start_time: null, end_time: null,
+      memo: null, description: null, created_at: "", updated_at: "",
+    };
+    render(<ProjectProvider projects={[project]}><CreateItemForm initialItem={event} /></ProjectProvider>);
+    expect(screen.getByRole("combobox", { name: "프로젝트" })).toHaveValue(project.id);
+    expect(screen.getByRole("option", { name: project.name })).toBeInTheDocument();
   });
 
   it("treats a legacy date-only event as all-day when editing", () => {

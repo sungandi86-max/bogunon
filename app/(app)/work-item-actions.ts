@@ -61,6 +61,7 @@ function refreshWorkItems() {
   revalidatePath("/annual");
   revalidatePath("/templates");
   revalidatePath("/workflows");
+  revalidatePath("/projects");
 }
 
 export async function saveWorkItemAction(_state: WorkItemActionState, formData: FormData): Promise<WorkItemActionState> {
@@ -112,6 +113,7 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
         }
       }
       await saveEventBundle({
+        project_id: optional(formData, "projectId"),
         title, area: eventAreaForType(eventTypeValue), event_type: eventTypeValue, event_details: eventDetails,
         start_date: startDate, end_date: endDate, is_all_day: isAllDay,
         start_time: startTime,

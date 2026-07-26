@@ -1,0 +1,26 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/projects/repository", () => ({
+  getProject: vi.fn(async () => ({
+    id: "project-1", user_id: "user-1", name: "학교 행사 준비", icon: "calendar", color: "mint",
+    description: null, start_date: null, end_date: null, created_at: "", updated_at: "",
+  })),
+  listProjectEvents: vi.fn(async () => [{
+    id: "event-1", user_id: "user-1", project_id: "project-1", title: "축제 준비",
+    area: "schoolSchedule", start_date: "2026-09-01", end_date: "2026-09-01",
+    is_all_day: false, start_time: "14:00:00", end_time: "15:00:00", location: "강당",
+    memo: null, description: null, created_at: "", updated_at: "",
+  }]),
+}));
+
+import ProjectDetailPage from "@/app/(app)/projects/[...slug]/page";
+
+describe("project detail page", () => {
+  it("shows only repository-provided project events", async () => {
+    render(await ProjectDetailPage({ params: Promise.resolve({ slug: ["project-1"] }) }));
+    expect(screen.getByRole("heading", { name: "학교 행사 준비", level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /축제 준비/ })).toHaveAttribute("href", "/calendar?date=2026-09-01&highlight=event-1");
+    expect(screen.getByText("14:00 ~ 15:00")).toBeInTheDocument();
+  });
+});

@@ -55,6 +55,7 @@ export type TaskRow = {
 export type EventRow = {
   id: string;
   user_id: string;
+  project_id?: string | null;
   title: string;
   area: Area;
   event_type?: EventType;
@@ -75,6 +76,22 @@ export type EventRow = {
   created_at: string;
   updated_at: string;
 };
+
+export type ProjectRow = {
+  id: string;
+  user_id: string;
+  name: string;
+  icon: ProjectIcon;
+  color: ProjectColor;
+  description: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProjectIcon = "folder" | "calendar" | "school" | "heart" | "flag" | "star";
+export type ProjectColor = "mint" | "blue" | "yellow" | "coral" | "lavender" | "pink";
 
 export type ExerciseStickerIconKey =
   | "badminton"
@@ -361,8 +378,14 @@ export type Database = {
       };
       events: {
         Row: EventRow;
-        Insert: Insert<EventRow, "id" | "event_type" | "event_details" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
+        Insert: Insert<EventRow, "id" | "project_id" | "event_type" | "event_details" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
         Update: Partial<EventRow>;
+        Relationships: [];
+      };
+      projects: {
+        Row: ProjectRow;
+        Insert: Insert<ProjectRow, "id" | "icon" | "color" | "description" | "start_date" | "end_date" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ProjectRow, "id" | "user_id">>;
         Relationships: [];
       };
       exercise_stickers: {

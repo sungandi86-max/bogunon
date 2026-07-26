@@ -26,12 +26,15 @@ import type { TemplateDefinition } from "@/lib/work-items/workflow";
 import { defaultHealthPresetPreferences } from "@/lib/work-items/health-preset-personalization";
 import type { HealthPresetPreference } from "@/lib/work-items/health-preset-personalization";
 import type { RecurrenceFrequency, TaskCategory, TaskPriority } from "@/types/database";
+import type { ProjectRow } from "@/types/database";
+import { ProjectProvider } from "@/components/projects/project-context";
 
 interface AppShellProps {
   readonly children: ReactNode;
   readonly notices?: readonly Notice[];
   readonly profile?: AuthProfile;
   readonly presetPreferences?: readonly HealthPresetPreference[];
+  readonly projects?: readonly ProjectRow[];
 }
 
 const fallbackProfile: AuthProfile = { email: "Google 계정", initial: "보", displayName: "Google 계정", avatarUrl: null, role: "user" };
@@ -72,7 +75,7 @@ function templateFromAssistantDraft(draft: AssistantDraft, aiDraftId?: string): 
   };
 }
 
-export function AppShell({ children, notices = [], presetPreferences = defaultHealthPresetPreferences(), profile = fallbackProfile }: AppShellProps) {
+export function AppShell({ children, notices = [], presetPreferences = defaultHealthPresetPreferences(), profile = fallbackProfile, projects = [] }: AppShellProps) {
   const router = useRouter();
   const [createOpen, setCreateOpen] = useState(false);
   const [createKind, setCreateKind] = useState<"task" | "event">("task");
@@ -113,6 +116,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
 
   return (
     <AiConnectionProvider>
+    <ProjectProvider projects={projects}>
     <CalendarPreferencesProvider>
     <HealthPresetPreferencesProvider initialPreferences={presetPreferences}>
     <AssistantContext value={{ openAssistant }}>
@@ -153,6 +157,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
     </AssistantContext>
     </HealthPresetPreferencesProvider>
     </CalendarPreferencesProvider>
+    </ProjectProvider>
     </AiConnectionProvider>
   );
 }

@@ -22,6 +22,7 @@ import type { EventType, TournamentApplicationStatus } from "@/lib/work-items/ev
 import type { EventLinkRow, EventReminderRow, EventRow, TaskChecklistItemRow, TaskLinkRow, TaskReminderRow, TaskRow } from "@/types/database";
 import { AssistantTrigger } from "@/components/ai/assistant-trigger";
 import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
+import { useProjects } from "@/components/projects/project-context";
 
 type LinkDraft = { title: string; url: string };
 type ChecklistDraft = { title: string; isCompleted: boolean };
@@ -94,6 +95,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [quickText, setQuickText] = useState("");
   const [quickPreview, setQuickPreview] = useState<QuickInputResult | null>(null);
   const [state, action, pending] = useActionState(saveWorkItemAction, initialActionState);
+  const projects = useProjects();
 
   useEffect(() => { if (state.status === "success") onSaved?.(); }, [onSaved, state.status]);
   const formKey = initialItem?.id ?? "create";
@@ -172,6 +174,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
           setArea(eventAreaForType(nextType));
           setEventColor(eventColorForType(nextType));
         }} value={eventType}>{EVENT_TYPE_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
+        <div className="field"><label className="field-label" htmlFor={`${formKey}-project`}>프로젝트</label><select defaultValue={event?.project_id ?? ""} id={`${formKey}-project`} name="projectId"><option value="">프로젝트 없음</option>{projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}</select><small className="field-help">선택한 프로젝트의 상세 화면에 이 일정이 함께 표시됩니다.</small></div>
       </> : <div className="field"><label className="field-label" htmlFor={`${formKey}-area`}>영역</label><select id={`${formKey}-area`} name="area" onChange={(e) => setArea(e.target.value as typeof area)} value={area}>{taskAreas.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>}
 
       {kind === "event" && eventType === "personal" && !initialItem && !mobileScheduleForm && <section className="personal-event-presets" aria-label="개인 일정 빠른 항목"><strong>빠른 항목</strong><div>{PERSONAL_EVENT_PRESETS.map((preset) => <button aria-pressed={title === preset.title && eventColor === preset.colorKey} key={preset.key} onClick={() => applyPersonalPreset(preset)} type="button">{preset.title}</button>)}</div><small>제목과 색상만 채워집니다. 날짜와 시간을 확인한 뒤 저장하세요.</small></section>}

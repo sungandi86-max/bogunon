@@ -249,6 +249,7 @@ export function eventDuplicateValues(source: EventRow, options: { readonly date:
   ) / 86_400_000);
   return {
     title: source.title, area: source.area, start_date: date, end_date: addCalendarDays(date, duration),
+    project_id: source.project_id ?? null,
     ...(source.event_type ? { event_type: source.event_type } : {}),
     ...(source.event_details !== undefined ? { event_details: source.event_details } : {}),
     is_all_day: source.is_all_day, start_time: source.start_time, end_time: source.end_time,
