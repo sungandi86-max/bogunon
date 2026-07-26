@@ -143,6 +143,84 @@ describe("FullMonthCalendar", () => {
     expect(onSelectDate).toHaveBeenCalledTimes(2);
   });
 
+  it("enables desktop dragging only for non-recurring single-day events", () => {
+    render(<FullMonthCalendar
+      dragEnabled
+      events={[
+        schoolEvent,
+        { ...schoolEvent, id: "multi-day", title: "기간 일정", end_date: "2026-07-19" },
+        { ...schoolEvent, id: "recurring", title: "반복 일정", recurrence_frequency: "weekly" },
+      ]}
+      month="2026-07"
+      today="2026-07-18"
+      visibleItemLimit={4}
+    />);
+
+    const desktopItems = screen.getByRole("gridcell", { name: /2026-07-18/ }).querySelector(".calendar-cell-items");
+    expect(within(desktopItems as HTMLElement).getByText("교직원 회의").closest(".calendar-item")).toHaveAttribute("draggable", "true");
+    expect(within(desktopItems as HTMLElement).getByText("기간 일정").closest(".calendar-item")).toHaveAttribute("draggable", "false");
+    expect(within(desktopItems as HTMLElement).getByText("반복 일정").closest(".calendar-item")).toHaveAttribute("draggable", "false");
+  });
+
+  it("never exposes month drag handles when desktop dragging is disabled", () => {
+    render(<FullMonthCalendar dragEnabled={false} events={[schoolEvent]} month="2026-07" today="2026-07-18" />);
+
+    const desktopItems = screen.getByRole("gridcell", { name: /2026-07-18/ }).querySelector(".calendar-cell-items");
+    expect(within(desktopItems as HTMLElement).getByText("교직원 회의").closest(".calendar-item")).toHaveAttribute("draggable", "false");
+  });
+
+  it("accepts a single event drop on an adjacent-month date", () => {
+    const onDropDate = vi.fn();
+    render(<FullMonthCalendar
+      dragEnabled
+      events={[{ ...schoolEvent, start_date: "2026-07-31", end_date: "2026-07-31" }]}
+      month="2026-07"
+      onDropDate={onDropDate}
+      today="2026-07-18"
+    />);
+    const target = screen.getByRole("gridcell", { name: /2026-08-01/ });
+    const dataTransfer = {
+      getData: vi.fn(() => JSON.stringify({
+        id: "event-school",
+        kind: "event",
+        date: "2026-07-31",
+      })),
+    };
+
+    fireEvent.drop(target, { dataTransfer });
+
+    expect(onDropDate).toHaveBeenCalledWith({
+      id: "event-school",
+      kind: "event",
+      date: "2026-07-31",
+      newDate: "2026-08-01",
+    });
+  });
+
+  it("shows dragging and drop-target states during a desktop move", () => {
+    render(<FullMonthCalendar dragEnabled events={[schoolEvent]} month="2026-07" today="2026-07-18" />);
+    const source = screen.getByRole("gridcell", { name: /2026-07-18/ }).querySelector(".calendar-item") as HTMLElement;
+    const target = screen.getByRole("gridcell", { name: /2026-07-24/ });
+    const dataTransfer = {
+      effectAllowed: "",
+      setData: vi.fn(),
+    };
+
+    fireEvent.dragStart(source, { dataTransfer });
+    fireEvent.dragEnter(target, { dataTransfer });
+
+    expect(source).toHaveClass("is-dragging");
+    expect(target).toHaveClass("is-drop-target");
+    expect(dataTransfer.setData).toHaveBeenCalledWith(
+      "application/x-bogunon-calendar",
+      expect.stringContaining("event-school"),
+    );
+
+    fireEvent.dragEnd(source, { dataTransfer });
+    expect(source).not.toHaveClass("is-dragging");
+    expect(target).not.toHaveClass("is-drop-target");
+  });
+
   it("marks the supplied current date on its calendar cell", () => {
     const { container } = render(<FullMonthCalendar month="2026-07" today="2026-07-18" />);
 

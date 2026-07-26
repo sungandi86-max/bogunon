@@ -13,6 +13,7 @@ import type {
   TournamentApplicationStatus,
 } from "@/lib/work-items/event-types";
 import type { ChecklistDraft, LinkDraft, ReminderDraft } from "@/lib/work-items/phase5-repository";
+import { addCalendarDays } from "@/lib/work-items/date";
 
 export type TemplateDefinition = {
   readonly key: string;
@@ -242,8 +243,12 @@ export function taskDuplicateValues(source: TaskRow, options: { readonly date: s
 
 export function eventDuplicateValues(source: EventRow, options: { readonly date: string | null; readonly includeDescription: boolean; readonly includeMemo: boolean }) {
   const date = options.date ?? source.start_date;
+  const duration = Math.round((
+    Date.parse(`${source.end_date}T00:00:00Z`)
+    - Date.parse(`${source.start_date}T00:00:00Z`)
+  ) / 86_400_000);
   return {
-    title: `${source.title} 복사본`, area: source.area, start_date: date, end_date: date,
+    title: source.title, area: source.area, start_date: date, end_date: addCalendarDays(date, duration),
     ...(source.event_type ? { event_type: source.event_type } : {}),
     ...(source.event_details !== undefined ? { event_details: source.event_details } : {}),
     is_all_day: source.is_all_day, start_time: source.start_time, end_time: source.end_time,

@@ -218,6 +218,26 @@ export async function moveCalendarItem(kind: CalendarItemKind, id: string, newDa
   if (error) throw new Error("날짜를 변경하지 못했습니다. 잠시 후 다시 시도해 주세요.");
 }
 
+export async function moveSingleDayEvent(id: string, newDate: string): Promise<void> {
+  const { supabase, userId } = await ownedClient();
+  const { data: source, error: sourceError } = await supabase
+    .from("events")
+    .select("start_date,end_date,recurrence_frequency")
+    .eq("id", id)
+    .eq("user_id", userId)
+    .single();
+  if (sourceError || !source) throw new Error("이동할 일정을 찾지 못했습니다.");
+  if (source.start_date !== source.end_date || source.recurrence_frequency) {
+    throw new Error("단일 일정만 달력에서 바로 이동할 수 있습니다.");
+  }
+  const { error } = await supabase
+    .from("events")
+    .update({ start_date: newDate, end_date: newDate })
+    .eq("id", id)
+    .eq("user_id", userId);
+  if (error) throw new Error("일정을 이동하지 못했습니다. 원래 날짜로 되돌렸습니다.");
+}
+
 export async function moveCalendarEventTime(id: string, date: string, startTime: string, endTime: string): Promise<void> {
   const { supabase, userId } = await ownedClient();
   const { error } = await supabase.from("events").update({ start_date: date, end_date: date, is_all_day: false, start_time: startTime, end_time: endTime }).eq("id", id).eq("user_id", userId);

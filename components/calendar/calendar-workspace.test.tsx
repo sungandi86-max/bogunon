@@ -1,17 +1,40 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { CalendarWorkspace } from "@/components/calendar/calendar-workspace";
 import type { CalendarStickerRow, EventRow } from "@/types/database";
 
 const replace = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }), useSearchParams: () => new URLSearchParams("date=2026-07-18&view=month") }));
+const refresh = vi.fn();
+const moveSingleDayEventAction = vi.fn(async (
+  input: { readonly id: string; readonly newDate: string },
+): Promise<{ status: "success" | "error"; message: string }> => {
+  void input;
+  return {
+    status: "success",
+    message: "일정을 7월 24일로 이동했습니다.",
+  };
+});
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh, replace }), useSearchParams: () => new URLSearchParams("date=2026-07-18&view=month") }));
+vi.mock("@/app/(app)/work-item-actions", () => ({
+  copyEventAction: vi.fn(),
+  deleteWorkItemAction: vi.fn(),
+  duplicateWorkItemAction: vi.fn(),
+  moveCalendarItemAction: vi.fn(),
+  moveSingleDayEventAction: (input: { readonly id: string; readonly newDate: string }) => moveSingleDayEventAction(input),
+  saveWorkItemAction: vi.fn(),
+  saveWorkItemAsTemplateAction: vi.fn(),
+}));
 
 const workflow = { templates: [], templateChecklistItems: [], checklistItems: [], taskLinks: [], eventLinks: [], taskReminders: [], eventReminders: [] };
 const event: EventRow = { id: "event-1", user_id: "user", title: "보건교육", area: "healthWork", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: false, start_time: "14:00:00", end_time: "15:00:00", location: "시청각실", memo: null, description: null, created_at: "", updated_at: "" };
 
 describe("CalendarWorkspace", () => {
-  beforeEach(() => replace.mockClear());
+  beforeEach(() => {
+    replace.mockClear();
+    refresh.mockClear();
+    moveSingleDayEventAction.mockClear();
+  });
 
   it("navigates to weekly view and back to today through URL state", () => {
     render(<CalendarWorkspace events={[event]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
@@ -123,5 +146,50 @@ describe("CalendarWorkspace", () => {
 
     expect(screen.getByRole("region", { name: "2026-07-19 일정 상세" })).toHaveTextContent("다음 날 일정");
     expect(screen.getByRole("region", { name: "2026-07-19 일정 상세" })).not.toHaveTextContent("보건교육");
+  });
+
+  it("optimistically moves a dropped event and persists it immediately", async () => {
+    render(<CalendarWorkspace events={[event]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
+    const source = screen.getByText("14:00 보건교육").closest(".calendar-item");
+    const target = screen.getByRole("gridcell", { name: /2026-07-24/ });
+    const dataTransfer = {
+      getData: vi.fn(() => JSON.stringify({
+        id: "event-1",
+        kind: "event",
+        date: "2026-07-18",
+      })),
+    };
+
+    expect(source).not.toBeNull();
+    fireEvent.drop(target, { dataTransfer });
+
+    await waitFor(() => expect(moveSingleDayEventAction).toHaveBeenCalledWith({
+      id: "event-1",
+      newDate: "2026-07-24",
+    }));
+    expect(screen.getByRole("status")).toHaveTextContent("일정을 7월 24일로 이동했습니다.");
+  });
+
+  it("rolls a dropped event back when persistence fails", async () => {
+    moveSingleDayEventAction.mockResolvedValueOnce({
+      status: "error",
+      message: "일정을 이동하지 못했습니다.",
+    });
+    render(<CalendarWorkspace events={[event]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
+    const sourceCell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    const target = screen.getByRole("gridcell", { name: /2026-07-24/ });
+    const dataTransfer = {
+      getData: vi.fn(() => JSON.stringify({
+        id: "event-1",
+        kind: "event",
+        date: "2026-07-18",
+      })),
+    };
+
+    fireEvent.drop(target, { dataTransfer });
+
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("일정을 이동하지 못했습니다."));
+    expect(sourceCell).toHaveTextContent("보건교육");
+    expect(target).not.toHaveTextContent("보건교육");
   });
 });

@@ -9,7 +9,7 @@ import { calendarStickerByKey } from "@/lib/calendar-stickers/catalog";
 import { calendarMonthCells, weekdayLabels } from "@/lib/calendar/preferences";
 import { taskCalendarDate } from "@/lib/calendar/smart-calendar";
 import { resolveEventType } from "@/lib/work-items/event-types";
-import { todayInSeoul } from "@/lib/work-items/date";
+import { addCalendarDays, todayInSeoul } from "@/lib/work-items/date";
 import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
 
 type CalendarDisplayItem =
@@ -19,7 +19,7 @@ type CalendarDisplayItem =
 
 type MobileSummaryTone = "academic" | "health" | "holiday" | "personal" | "school" | "tournament" | "work" | "workout";
 
-interface Props { readonly events?: EventRow[]; readonly highlight?: string | undefined; readonly month?: string; readonly onDropDate?: (value: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => void; readonly onMove?: ((value: MovableCalendarItem) => void) | undefined; readonly onSelectDate?: (date: string) => void; readonly schoolStickers?: CalendarStickerRow[]; readonly selectedDate?: string; readonly tasks?: TaskRow[]; readonly today?: string; readonly visibleItemLimit?: number }
+interface Props { readonly dragEnabled?: boolean; readonly events?: EventRow[]; readonly highlight?: string | undefined; readonly month?: string; readonly onDropDate?: (value: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => void; readonly onMove?: ((value: MovableCalendarItem) => void) | undefined; readonly onSelectDate?: (date: string) => void; readonly schoolStickers?: CalendarStickerRow[]; readonly selectedDate?: string; readonly tasks?: TaskRow[]; readonly today?: string; readonly visibleItemLimit?: number }
 
 function stickerPriority(sticker: CalendarStickerRow): number {
   const pack = calendarStickerByKey(sticker.sticker_key)?.pack;
@@ -74,6 +74,18 @@ function useResponsiveItemLimit(weekCount: number) {
   return { calendarRef, limit };
 }
 
+function useDesktopDragEnabled(override?: boolean): boolean {
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    if (override !== undefined) return;
+    const update = () => setEnabled(window.innerWidth >= 1024);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, [override]);
+  return override ?? enabled;
+}
+
 function StickerCalendarItem({ date, highlighted, sticker }: { readonly date: string; readonly highlighted: boolean; readonly sticker: CalendarStickerRow }) {
   const pack = calendarStickerByKey(sticker.sticker_key)?.pack ?? "school";
   return <StickerManagementButton date={date} label={sticker.label} recordId={sticker.id} recordType="calendar">
@@ -84,38 +96,89 @@ function StickerCalendarItem({ date, highlighted, sticker }: { readonly date: st
   </StickerManagementButton>;
 }
 
-export function FullMonthCalendar({ events = [], highlight, month = "2026-07", onDropDate, onMove, onSelectDate, schoolStickers = [], selectedDate, tasks = [], today = todayInSeoul(), visibleItemLimit }: Props) {
+export function FullMonthCalendar({ dragEnabled, events = [], highlight, month = "2026-07", onDropDate, onMove, onSelectDate, schoolStickers = [], selectedDate, tasks = [], today = todayInSeoul(), visibleItemLimit }: Props) {
   const { weekStart } = useCalendarPreferences();
   const [year = 1970, monthNumber = 1] = month.split("-").map(Number);
-  const cells = calendarMonthCells(month, weekStart);
+  const monthCells = calendarMonthCells(month, weekStart);
+  const firstInMonthIndex = monthCells.findIndex((date) => date !== null);
+  const gridFirstDate = addCalendarDays(`${month}-01`, -firstInMonthIndex);
+  const cells = monthCells.map((_, index) => addCalendarDays(gridFirstDate, index));
   const weekdays = weekdayLabels(weekStart);
   const weekCount = cells.length / 7;
   const { calendarRef, limit: responsiveLimit } = useResponsiveItemLimit(weekCount);
+  const canDrag = useDesktopDragEnabled(dragEnabled);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dropTarget, setDropTarget] = useState<string | null>(null);
   const itemLimit = visibleItemLimit ?? responsiveLimit;
 
   return <section className="full-calendar" aria-label={`${year}년 ${monthNumber}월 월간 캘린더`} data-visible-item-limit={itemLimit} data-week-count={weekCount} ref={calendarRef} role="grid">
     <div className="full-calendar__weekdays" role="row">{weekdays.map((weekday) => <span className={weekday === "일" ? "is-sunday" : weekday === "토" ? "is-saturday" : undefined} key={weekday} role="columnheader">{weekday}</span>)}</div>
-    <div className="full-calendar__grid" role="rowgroup">{Array.from({ length: weekCount }, (_, weekIndex) => <div className="full-calendar__row" key={weekIndex} role="row">{cells.slice(weekIndex * 7, weekIndex * 7 + 7).map((cellDate, index) => {
-      const inMonth = cellDate !== null;
-      const date = cellDate ?? "";
-      const day = inMonth ? Number(date.slice(-2)) : 0;
-      const dayEvents = inMonth ? events.filter((event) => event.start_date <= date && event.end_date >= date) : [];
-      const dayTasks = inMonth ? tasks.filter((task) => taskCalendarDate(task) === date) : [];
-      const dayStickers = inMonth ? schoolStickers.filter((item) => item.sticker_date <= date && (item.end_date ?? item.sticker_date) >= date) : [];
+    <div className="full-calendar__grid" role="rowgroup">{Array.from({ length: weekCount }, (_, weekIndex) => <div className="full-calendar__row" key={weekIndex} role="row">{cells.slice(weekIndex * 7, weekIndex * 7 + 7).map((date, index) => {
+      const inMonth = date.slice(0, 7) === month;
+      const day = Number(date.slice(-2));
+      const dayEvents = events.filter((event) => event.start_date <= date && event.end_date >= date);
+      const dayTasks = tasks.filter((task) => taskCalendarDate(task) === date);
+      const dayStickers = schoolStickers.filter((item) => item.sticker_date <= date && (item.end_date ?? item.sticker_date) >= date);
       const items = displayItems(dayEvents, dayTasks, dayStickers);
       const visibleItems = items.slice(0, itemLimit);
       const hidden = items.length - visibleItems.length;
       const mobileSummaryItems = items.slice(0, 2);
       const mobileHidden = items.length - mobileSummaryItems.length;
       const weekday = inMonth ? new Date(`${date}T00:00:00Z`).getUTCDay() : -1;
-      return <div aria-label={inMonth ? `${date}, 일정 ${dayEvents.length}개, 업무 ${dayTasks.length}개, 스티커 ${dayStickers.length}개` : "다른 달"} className={`full-calendar__cell${date === today ? " is-today" : ""}${date === selectedDate ? " is-selected" : ""}${weekday === 0 ? " is-sunday" : weekday === 6 ? " is-saturday" : ""}`} key={`${date || "empty"}-${index}`} onDragOver={(event) => { if (date) event.preventDefault(); }} onDrop={(event) => { const raw = event.dataTransfer.getData("application/x-bogunon-calendar"); if (!raw || !date) return; try { const moved = JSON.parse(raw) as { id: string; kind: "event" | "task"; date: string }; onDropDate?.({ ...moved, newDate: date }); } catch { return; } }} role="gridcell">
+      return <div
+        aria-label={`${date}, 일정 ${dayEvents.length}개, 업무 ${dayTasks.length}개, 스티커 ${dayStickers.length}개`}
+        className={`full-calendar__cell${inMonth ? "" : " is-outside-month"}${date === today ? " is-today" : ""}${date === selectedDate ? " is-selected" : ""}${dropTarget === date ? " is-drop-target" : ""}${weekday === 0 ? " is-sunday" : weekday === 6 ? " is-saturday" : ""}`}
+        key={`${date}-${index}`}
+        onDragEnter={(event) => {
+          if (!draggedId) return;
+          event.preventDefault();
+          setDropTarget(date);
+        }}
+        onDragLeave={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDropTarget(null);
+        }}
+        onDragOver={(event) => {
+          if (!draggedId) return;
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "move";
+        }}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDropTarget(null);
+          const raw = event.dataTransfer.getData("application/x-bogunon-calendar");
+          if (!raw) return;
+          try {
+            const moved = JSON.parse(raw) as { id: string; kind: "event" | "task"; date: string };
+            onDropDate?.({ ...moved, newDate: date });
+          } catch {
+            return;
+          }
+        }}
+        role="gridcell"
+      >
         <div className="full-calendar__day-header">
-          {inMonth && <button aria-label={`${date} 선택`} className="calendar-date-button" onClick={() => onSelectDate?.(date)} type="button"><time dateTime={date}>{day}</time></button>}
+          <button aria-label={`${date} 선택`} className="calendar-date-button" onClick={() => onSelectDate?.(date)} type="button"><time dateTime={date}>{day}</time></button>
         </div>
         <div className="full-calendar__event-list">
           {visibleItems.length > 0 && <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
             ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
-            : <CalendarEntry compact highlighted={highlight === `${displayItem.kind}:${displayItem.id}`} item={displayItem.item} key={`${displayItem.kind}-${displayItem.id}`} kind={displayItem.kind} onMove={onMove} showTime />)}</div>}
+            : <CalendarEntry
+                compact
+                dragEnabled={canDrag
+                  && displayItem.kind === "event"
+                  && displayItem.item.start_date === displayItem.item.end_date
+                  && !displayItem.item.recurrence_frequency}
+                highlighted={highlight === `${displayItem.kind}:${displayItem.id}`}
+                item={displayItem.item}
+                key={`${displayItem.kind}-${displayItem.id}`}
+                kind={displayItem.kind}
+                onDragStateChange={(dragging) => {
+                  setDraggedId(dragging ? displayItem.id : null);
+                  if (!dragging) setDropTarget(null);
+                }}
+                onMove={onMove}
+                showTime
+              />)}</div>}
           {mobileSummaryItems.length > 0 && <div aria-label={`${date} 일정 요약`} className="full-calendar__mobile-summary">
             {mobileSummaryItems.map((displayItem) => <div className="full-calendar__mobile-summary-item" key={`mobile-${displayItem.kind}-${displayItem.id}`}>
               <span aria-hidden="true" className={`full-calendar__mobile-dot full-calendar__mobile-dot--${mobileSummaryTone(displayItem)}`} />

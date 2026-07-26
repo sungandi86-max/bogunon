@@ -1,9 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { moveCalendarItemAction, saveWorkItemAction } from "@/app/(app)/work-item-actions";
+import {
+  copyEventAction,
+  moveCalendarItemAction,
+  moveSingleDayEventAction,
+  saveWorkItemAction,
+} from "@/app/(app)/work-item-actions";
 import { deleteWorkItemAction, toggleTaskAction } from "@/app/(app)/work-item-actions";
-import { moveCalendarItem, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
-import { saveEventBundle, saveTaskBundle } from "@/lib/work-items/phase5-repository";
+import { moveCalendarItem, moveSingleDayEvent, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
+import { duplicateEvent, saveEventBundle, saveTaskBundle } from "@/lib/work-items/phase5-repository";
 import { markAiDraftApplied } from "@/lib/ai/history";
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -11,6 +16,7 @@ vi.mock("@/lib/work-items/repository", () => ({
   removeWorkItem: vi.fn(),
   setTaskCompleted: vi.fn(),
   moveCalendarItem: vi.fn(),
+  moveSingleDayEvent: vi.fn(),
   listAllEvents: vi.fn(),
   listTasks: vi.fn(),
 }));
@@ -296,5 +302,47 @@ describe("saveWorkItemAction", () => {
     formData.set("newDate", "2026-07-25"); formData.set("scope", "following");
     await expect(moveCalendarItemAction({ status: "idle" }, formData)).resolves.toEqual({ status: "success", message: "날짜를 변경했습니다." });
     expect(vi.mocked(moveCalendarItem)).toHaveBeenCalledWith("event", "event-id", "2026-07-25", "following");
+  });
+
+  it("moves a single-day event through the owned update path", async () => {
+    await expect(moveSingleDayEventAction({
+      id: "event-id",
+      newDate: "2026-07-24",
+    })).resolves.toEqual({
+      status: "success",
+      message: "일정을 7월 24일로 이동했습니다.",
+    });
+    expect(vi.mocked(moveSingleDayEvent)).toHaveBeenCalledWith("event-id", "2026-07-24");
+  });
+
+  it("returns a safe error when a single-day event move fails", async () => {
+    vi.mocked(moveSingleDayEvent).mockRejectedValueOnce(new Error("날짜를 변경하지 못했습니다."));
+
+    await expect(moveSingleDayEventAction({
+      id: "event-id",
+      newDate: "2026-07-24",
+    })).resolves.toEqual({
+      status: "error",
+      message: "날짜를 변경하지 못했습니다.",
+    });
+  });
+
+  it("copies an event to a validated target date with all user-authored fields", async () => {
+    vi.mocked(duplicateEvent).mockResolvedValueOnce("new-event-id");
+
+    await expect(copyEventAction({ status: "idle" }, new FormData())).resolves.toEqual({
+      status: "error",
+      message: "복사할 일정과 날짜를 확인해 주세요.",
+    });
+
+    const formData = new FormData();
+    formData.set("id", "event-id");
+    formData.set("targetDate", "2026-07-29");
+    await expect(copyEventAction({ status: "idle" }, formData)).resolves.toEqual({
+      status: "success",
+      message: "일정이 7월 29일로 복사되었습니다.",
+      targetDate: "2026-07-29",
+    });
+    expect(vi.mocked(duplicateEvent)).toHaveBeenCalledWith("event-id", "2026-07-29", true, true);
   });
 });

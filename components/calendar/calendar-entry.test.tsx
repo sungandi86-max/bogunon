@@ -30,12 +30,18 @@ const legacyProjectEvent: EventRow = {
 describe("CalendarEntry", () => {
   it("keeps workout plans movable in the shared calendar", () => {
     const onMove = vi.fn();
-    const { container } = render(<CalendarEntry item={exerciseEvent} kind="event" onMove={onMove} />);
+    const { container } = render(<CalendarEntry dragEnabled item={exerciseEvent} kind="event" onMove={onMove} />);
 
     expect(container.firstElementChild).toHaveAttribute("draggable", "true");
     expect(screen.getByRole("button", { name: /날짜 변경/ })).toBeInTheDocument();
     expect(screen.getByText("운동")).toBeInTheDocument();
     expect(container.firstElementChild).toHaveClass("calendar-item--event-workout");
+  });
+
+  it("does not expose drag behavior when the calendar disables it", () => {
+    const { container } = render(<CalendarEntry dragEnabled={false} item={exerciseEvent} kind="event" />);
+
+    expect(container.firstElementChild).toHaveAttribute("draggable", "false");
   });
 
   it("renders tournament plans with a restrained tournament category style", () => {
