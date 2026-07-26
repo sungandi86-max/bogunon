@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
-  copyEventAction,
   moveCalendarItemAction,
-  moveSingleDayEventAction,
   saveWorkItemAction,
 } from "@/app/(app)/work-item-actions";
+import {
+  copyEventAction,
+  moveSingleDayEventAction,
+} from "@/app/(app)/calendar-event-actions";
 import { deleteWorkItemAction, toggleTaskAction } from "@/app/(app)/work-item-actions";
 import { moveCalendarItem, moveSingleDayEvent, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
 import { duplicateEvent, saveEventBundle, saveTaskBundle } from "@/lib/work-items/phase5-repository";

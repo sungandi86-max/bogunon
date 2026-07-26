@@ -10,13 +10,22 @@ const mocks = vi.hoisted(() => ({
   insert: vi.fn(),
   insertSelect: vi.fn(),
   insertSingle: vi.fn(),
+  linkedByEvent: vi.fn(),
+  linkedByOwner: vi.fn(),
+  linkedMaybeSingle: vi.fn(),
+  linkedSelect: vi.fn(),
   select: vi.fn(),
   selectById: vi.fn(),
   selectByOwner: vi.fn(),
   selectSingle: vi.fn(),
   update: vi.fn(),
+  updateByEnd: vi.fn(),
   updateById: vi.fn(),
   updateByOwner: vi.fn(),
+  updateByStart: vi.fn(),
+  updateIsRecurring: vi.fn(),
+  updateMaybeSingle: vi.fn(),
+  updateSelect: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -63,16 +72,27 @@ describe("event calendar persistence", () => {
     mocks.select.mockReturnValue({ eq: mocks.selectById });
     mocks.selectById.mockReturnValue({ eq: mocks.selectByOwner });
     mocks.selectByOwner.mockReturnValue({ single: mocks.selectSingle });
+    mocks.linkedSelect.mockReturnValue({ eq: mocks.linkedByEvent });
+    mocks.linkedByEvent.mockReturnValue({ eq: mocks.linkedByOwner });
+    mocks.linkedByOwner.mockReturnValue({ maybeSingle: mocks.linkedMaybeSingle });
+    mocks.linkedMaybeSingle.mockResolvedValue({ data: null, error: null });
     mocks.update.mockReturnValue({ eq: mocks.updateById });
     mocks.updateById.mockReturnValue({ eq: mocks.updateByOwner });
-    mocks.updateByOwner.mockResolvedValue({ error: null });
+    mocks.updateByOwner.mockReturnValue({ eq: mocks.updateByStart });
+    mocks.updateByStart.mockReturnValue({ eq: mocks.updateByEnd });
+    mocks.updateByEnd.mockReturnValue({ is: mocks.updateIsRecurring });
+    mocks.updateIsRecurring.mockReturnValue({ select: mocks.updateSelect });
+    mocks.updateSelect.mockReturnValue({ maybeSingle: mocks.updateMaybeSingle });
+    mocks.updateMaybeSingle.mockResolvedValue({ data: { id: "event-1" }, error: null });
     mocks.insert.mockReturnValue({ select: mocks.insertSelect });
     mocks.insertSelect.mockReturnValue({ single: mocks.insertSingle });
-    mocks.from.mockReturnValue({
-      insert: mocks.insert,
-      select: mocks.select,
-      update: mocks.update,
-    });
+    mocks.from.mockImplementation((table: string) => table === "exercise_logs"
+      ? { select: mocks.linkedSelect }
+      : {
+          insert: mocks.insert,
+          select: mocks.select,
+          update: mocks.update,
+        });
   });
 
   it("moves only the dates of an owned single-day workout event", async () => {
@@ -81,6 +101,7 @@ describe("event calendar persistence", () => {
         start_date: "2026-07-22",
         end_date: "2026-07-22",
         recurrence_frequency: null,
+        event_type: "workout",
       },
       error: null,
     });
@@ -93,6 +114,46 @@ describe("event calendar persistence", () => {
     });
     expect(mocks.updateById).toHaveBeenCalledWith("id", "event-1");
     expect(mocks.updateByOwner).toHaveBeenCalledWith("user_id", "user-1");
+    expect(mocks.updateByStart).toHaveBeenCalledWith("start_date", "2026-07-22");
+    expect(mocks.updateByEnd).toHaveBeenCalledWith("end_date", "2026-07-22");
+    expect(mocks.updateIsRecurring).toHaveBeenCalledWith("recurrence_frequency", null);
+  });
+
+  it("rejects moving a workout event that already has a linked exercise log", async () => {
+    mocks.selectSingle.mockResolvedValue({
+      data: {
+        start_date: "2026-07-22",
+        end_date: "2026-07-22",
+        recurrence_frequency: null,
+        event_type: "workout",
+      },
+      error: null,
+    });
+    mocks.linkedMaybeSingle.mockResolvedValue({
+      data: { id: "log-1" },
+      error: null,
+    });
+
+    await expect(moveSingleDayEvent("event-1", "2026-07-24"))
+      .rejects.toThrow("운동 기록이 연결된 일정은 날짜를 이동할 수 없습니다.");
+
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects a move when the source event changes before the date update", async () => {
+    mocks.selectSingle.mockResolvedValue({
+      data: {
+        start_date: "2026-07-22",
+        end_date: "2026-07-22",
+        recurrence_frequency: null,
+        event_type: "personal",
+      },
+      error: null,
+    });
+    mocks.updateMaybeSingle.mockResolvedValue({ data: null, error: null });
+
+    await expect(moveSingleDayEvent("event-1", "2026-07-24"))
+      .rejects.toThrow("일정을 이동하지 못했습니다. 원래 날짜로 되돌렸습니다.");
   });
 
   it("copies the workout schedule without reading or creating an exercise log", async () => {

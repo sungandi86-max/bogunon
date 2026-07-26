@@ -222,7 +222,7 @@ export async function moveSingleDayEvent(id: string, newDate: string): Promise<v
   const { supabase, userId } = await ownedClient();
   const { data: source, error: sourceError } = await supabase
     .from("events")
-    .select("start_date,end_date,recurrence_frequency")
+    .select("start_date,end_date,recurrence_frequency,event_type")
     .eq("id", id)
     .eq("user_id", userId)
     .single();
@@ -230,12 +230,29 @@ export async function moveSingleDayEvent(id: string, newDate: string): Promise<v
   if (source.start_date !== source.end_date || source.recurrence_frequency) {
     throw new Error("단일 일정만 달력에서 바로 이동할 수 있습니다.");
   }
-  const { error } = await supabase
+  if (source.event_type === "workout" || source.event_type === "tournament") {
+    const { data: linkedLog, error: linkedLogError } = await supabase
+      .from("exercise_logs")
+      .select("id")
+      .eq("event_id", id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (linkedLogError) throw new Error("연결된 운동 기록을 확인하지 못했습니다.");
+    if (linkedLog) {
+      throw new Error("운동 기록이 연결된 일정은 날짜를 이동할 수 없습니다.");
+    }
+  }
+  const { data: updated, error } = await supabase
     .from("events")
     .update({ start_date: newDate, end_date: newDate })
     .eq("id", id)
-    .eq("user_id", userId);
-  if (error) throw new Error("일정을 이동하지 못했습니다. 원래 날짜로 되돌렸습니다.");
+    .eq("user_id", userId)
+    .eq("start_date", source.start_date)
+    .eq("end_date", source.end_date)
+    .is("recurrence_frequency", null)
+    .select("id")
+    .maybeSingle();
+  if (error || !updated) throw new Error("일정을 이동하지 못했습니다. 원래 날짜로 되돌렸습니다.");
 }
 
 export async function moveCalendarEventTime(id: string, date: string, startTime: string, endTime: string): Promise<void> {

@@ -16,12 +16,14 @@ const moveSingleDayEventAction = vi.fn(async (
   };
 });
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh, replace }), useSearchParams: () => new URLSearchParams("date=2026-07-18&view=month") }));
-vi.mock("@/app/(app)/work-item-actions", () => ({
+vi.mock("@/app/(app)/calendar-event-actions", () => ({
   copyEventAction: vi.fn(),
+  moveSingleDayEventAction: (input: { readonly id: string; readonly newDate: string }) => moveSingleDayEventAction(input),
+}));
+vi.mock("@/app/(app)/work-item-actions", () => ({
   deleteWorkItemAction: vi.fn(),
   duplicateWorkItemAction: vi.fn(),
   moveCalendarItemAction: vi.fn(),
-  moveSingleDayEventAction: (input: { readonly id: string; readonly newDate: string }) => moveSingleDayEventAction(input),
   saveWorkItemAction: vi.fn(),
   saveWorkItemAsTemplateAction: vi.fn(),
 }));
@@ -191,5 +193,32 @@ describe("CalendarWorkspace", () => {
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("일정을 이동하지 못했습니다."));
     expect(sourceCell).toHaveTextContent("보건교육");
     expect(target).not.toHaveTextContent("보건교육");
+  });
+
+  it("keeps a newer date selection when a pending move rolls back", async () => {
+    const pendingMove = Promise.withResolvers<{
+      readonly status: "success" | "error";
+      readonly message: string;
+    }>();
+    moveSingleDayEventAction.mockReturnValueOnce(pendingMove.promise);
+    render(<CalendarWorkspace events={[event]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
+    const target = screen.getByRole("gridcell", { name: /2026-07-24/ });
+    const dataTransfer = {
+      getData: vi.fn(() => JSON.stringify({
+        id: "event-1",
+        kind: "event",
+        date: "2026-07-18",
+      })),
+    };
+
+    fireEvent.drop(target, { dataTransfer });
+    fireEvent.click(screen.getByRole("button", { name: "2026-07-19 선택" }));
+    pendingMove.resolve({
+      status: "error",
+      message: "일정을 이동하지 못했습니다.",
+    });
+
+    await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("일정을 이동하지 못했습니다."));
+    expect(screen.getByRole("region", { name: "2026-07-19 일정 상세" })).toBeInTheDocument();
   });
 });

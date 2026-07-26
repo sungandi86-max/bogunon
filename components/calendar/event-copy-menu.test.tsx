@@ -16,7 +16,7 @@ const copyEventAction = vi.fn(async (
   };
 });
 
-vi.mock("@/app/(app)/work-item-actions", () => ({
+vi.mock("@/app/(app)/calendar-event-actions", () => ({
   copyEventAction: (state: unknown, formData: FormData) => copyEventAction(state, formData),
 }));
 

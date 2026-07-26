@@ -6,7 +6,7 @@ import { useActionState, useState } from "react";
 import {
   copyEventAction,
   type EventCopyActionState,
-} from "@/app/(app)/work-item-actions";
+} from "@/app/(app)/calendar-event-actions";
 import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
 import { addCalendarDays } from "@/lib/work-items/date";
 

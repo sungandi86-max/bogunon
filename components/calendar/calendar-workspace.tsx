@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight, Plus, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { moveSingleDayEventAction } from "@/app/(app)/work-item-actions";
+import { moveSingleDayEventAction } from "@/app/(app)/calendar-event-actions";
 import { CalendarMovePanel } from "@/components/calendar/calendar-move-panel";
 import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
 import type { MovableCalendarItem } from "@/components/calendar/calendar-entry";
@@ -108,7 +108,7 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
           delete next[id];
           return next;
         });
-        setSelectedDate(previousSelectedDate);
+        setSelectedDate((current) => current === newDate ? previousSelectedDate : current);
         setMoveMessage({ status: "error", text: result.message ?? "일정을 이동하지 못했습니다." });
         return;
       }
