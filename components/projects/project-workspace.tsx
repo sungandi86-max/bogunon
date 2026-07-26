@@ -77,7 +77,7 @@ export function ProjectWorkspace({ projects }: { readonly projects: readonly Pro
           ))}
         </section>
       ) : (
-        <section className="empty-state empty-state--featured">
+        <section className="empty-state empty-state--featured project-empty-state">
           <span className="empty-state__icon"><CalendarRange aria-hidden="true" size={22} /></span>
           <div className="empty-state__content"><h3>아직 프로젝트가 없습니다.</h3><p>프로젝트를 만들면 관련 일정을 연결해 모아볼 수 있습니다.</p></div>
           <button className="button button--primary" onClick={(event) => openCreate(event.currentTarget)} type="button"><Plus aria-hidden="true" size={16} />첫 프로젝트 만들기</button>
