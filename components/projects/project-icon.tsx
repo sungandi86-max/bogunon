@@ -13,6 +13,6 @@ const icons: Readonly<Record<ProjectIconKey, LucideIcon>> = {
 };
 
 export function ProjectIcon({ icon, size = 20 }: { readonly icon: ProjectIconKey; readonly size?: number }) {
-  const Icon = icons[icon];
+  const Icon = icons[icon] ?? Folder;
   return <Icon aria-hidden="true" size={size} />;
 }
