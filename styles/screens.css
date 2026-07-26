@@ -1342,7 +1342,7 @@
 .legal-footer a { color: var(--action-700); }
 
 .project-toolbar { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: var(--space-8); justify-content: space-between; margin-bottom: var(--space-8); padding-bottom: var(--space-8); }
-.project-toolbar p { color: var(--ink-700); margin: 0; }
+.project-toolbar p { color: var(--ink-700); margin: 0; word-break: keep-all; }
 .project-grid { display: grid; gap: var(--space-5); grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .project-card { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--action-600); border-radius: var(--radius-lg); display: grid; gap: var(--space-5); min-height: 150px; padding: var(--space-8); position: relative; }
 .project-card--blue { border-left-color: var(--pastel-blue); }
