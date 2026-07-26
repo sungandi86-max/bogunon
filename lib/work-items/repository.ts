@@ -156,6 +156,7 @@ export async function ensureRecurringEvents(throughDate: string): Promise<void> 
     for (const occurrenceDate of dates) {
       inserts.push({
         user_id: userId, title: root.title, area: root.area,
+        project_id: root.project_id ?? null,
         ...(root.event_type ? { event_type: root.event_type } : {}),
         ...(root.event_details !== undefined ? { event_details: root.event_details } : {}),
         start_date: occurrenceDate,

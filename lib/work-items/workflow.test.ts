@@ -123,8 +123,9 @@ describe("work item reuse", () => {
   });
 
   it("duplicates an event onto the selected date", () => {
-    expect(eventDuplicateValues(event({ description: "자료 준비", memo: "메모" }), { date: "2027-05-03", includeDescription: true, includeMemo: false })).toMatchObject({
+    expect(eventDuplicateValues(event({ project_id: "project-1", description: "자료 준비", memo: "메모" }), { date: "2027-05-03", includeDescription: true, includeMemo: false })).toMatchObject({
       title: "일정",
+      project_id: "project-1",
       start_date: "2027-05-03",
       end_date: "2027-05-03",
       description: "자료 준비",

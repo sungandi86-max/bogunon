@@ -85,6 +85,24 @@ describe("saveWorkItemAction", () => {
     expect(vi.mocked(saveTaskBundle)).toHaveBeenCalledWith(expect.objectContaining({ title: "보건교육 결과 제출", status: "waitingForReply", priority: "high", category: "officialDocument", due_date: "2026-07-17" }), { checklist: [], links: [], reminders: [] }, undefined);
   });
 
+  it("forwards an optional project association when saving an event", async () => {
+    const formData = new FormData();
+    formData.set("kind", "event");
+    formData.set("title", "축제 준비");
+    formData.set("area", "schoolSchedule");
+    formData.set("eventType", "school");
+    formData.set("projectId", "83000000-0000-0000-0000-000000000003");
+    formData.set("startDate", "2026-09-01");
+    formData.set("endDate", "2026-09-01");
+    formData.set("isAllDay", "on");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({ status: "success", message: "저장했습니다." });
+    expect(vi.mocked(saveEventBundle)).toHaveBeenCalledWith(expect.objectContaining({
+      project_id: "83000000-0000-0000-0000-000000000003",
+      title: "축제 준비",
+    }), { links: [], reminders: [] }, undefined);
+  });
+
   it("keeps an AI-created task save successful when optional history marking fails", async () => {
     vi.mocked(markAiDraftApplied).mockRejectedValueOnce(new Error("history unavailable"));
     const formData = new FormData();
