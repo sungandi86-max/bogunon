@@ -238,6 +238,7 @@
   .work-item-edit > summary, .work-item-more > summary { min-height: var(--touch-target); }
   .work-item-more-menu { max-width: calc(100vw - (var(--space-6) * 2)); position: fixed; right: var(--space-6); top: auto; }
   .work-item-duplicate .duplicate-menu { max-width: calc(100vw - (var(--space-6) * 2)); position: fixed; right: var(--space-6); top: 22vh; width: calc(100vw - (var(--space-6) * 2)); }
+  .event-copy-menu .duplicate-menu { left: auto; max-height: min(520px, calc(100dvh - var(--mobile-header-height) - var(--mobile-nav-height) - var(--space-8))); max-width: calc(100vw - (var(--space-6) * 2)); overflow-y: auto; position: fixed; right: var(--space-6); top: calc(var(--mobile-header-height) + var(--space-8)); width: calc(100vw - (var(--space-6) * 2)); }
   .inline-editor { position: fixed; right: var(--space-6); top: calc(var(--mobile-header-height) + var(--space-5)); width: calc(100vw - (var(--space-6) * 2)); }
   .calendar-list__item { align-items: flex-start; gap: var(--space-4); }
   .login-card { padding: var(--space-12) var(--space-8); }

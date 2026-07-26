@@ -1,9 +1,10 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Plus, Search, X } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { moveSingleDayEventAction } from "@/app/(app)/calendar-event-actions";
 import { CalendarMovePanel } from "@/components/calendar/calendar-move-panel";
 import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
 import type { MovableCalendarItem } from "@/components/calendar/calendar-entry";
@@ -37,6 +38,9 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
   const [stickerFilter, setStickerFilter] = useState<StickerFilter>("all");
   const [query, setQuery] = useState("");
   const [selectedDate, setSelectedDate] = useState(initialDate);
+  const [eventDateOverrides, setEventDateOverrides] = useState<Record<string, string>>({});
+  const [moveMessage, setMoveMessage] = useState<{ readonly status: "success" | "error"; readonly text: string } | null>(null);
+  const [moving, startMoving] = useTransition();
   const [stickerOpen, setStickerOpen] = useState(initialStickerOpen);
   const [moveState, setMoveState] = useState<{ readonly value: MovableCalendarItem; readonly newDate?: string } | null>(null);
   const [slotDraft, setSlotDraft] = useState<TemplateDefinition | null>(null);
@@ -61,7 +65,13 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
     }
   }, [stickerFilter]);
   const setView = (view: CalendarView) => { sessionStorage.setItem("bogunon-calendar-view", view); navigate(selectedDate, view); };
-  const visibleEvents = useMemo(() => events.filter((event) => entryFilter === "all" || resolveEventType(event) === entryFilter), [entryFilter, events]);
+  const calendarEvents = useMemo(() => events.map((event) => {
+    const overriddenDate = eventDateOverrides[event.id];
+    return overriddenDate
+      ? { ...event, start_date: overriddenDate, end_date: overriddenDate }
+      : event;
+  }), [eventDateOverrides, events]);
+  const visibleEvents = useMemo(() => calendarEvents.filter((event) => entryFilter === "all" || resolveEventType(event) === entryFilter), [calendarEvents, entryFilter]);
   const visibleTasks = useMemo(() => tasks.filter((task) => entryFilter === "all" || (entryFilter === "work" && task.area === "healthWork") || (entryFilter === "school" && task.area === "schoolSchedule") || (entryFilter === "personal" && task.area === "personal") || (entryFilter === "workout" && task.area === "exercise")), [entryFilter, tasks]);
   const visibleStickers = useMemo(() => stickers.filter((item) => stickerFilter === "all" || calendarStickerByKey(item.sticker_key)?.pack === stickerFilter), [stickerFilter, stickers]);
   const range = calendarRange(selectedDate, initialView, weekStart);
@@ -70,10 +80,45 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
   const selectedDateEvents = visibleEvents.filter((event) => event.start_date <= selectedDate && event.end_date >= selectedDate);
   const selectedDateTasks = visibleTasks.filter((task) => taskCalendarDate(task) === selectedDate);
   const selectedDateStickers = visibleStickers.filter((sticker) => sticker.sticker_date <= selectedDate && (sticker.end_date ?? sticker.sticker_date) >= selectedDate);
-  const results = useMemo(() => searchCalendar(query, events, tasks, stickers), [events, query, stickers, tasks]);
-  const openDropMove = ({ id, kind, date, newDate }: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => {
-    const item = kind === "event" ? events.find((event) => event.id === id) : tasks.find((task) => task.id === id);
-    if (item && date !== newDate) setMoveState({ value: { item, kind, date }, newDate });
+  const results = useMemo(() => searchCalendar(query, calendarEvents, tasks, stickers), [calendarEvents, query, stickers, tasks]);
+  const moveDroppedEvent = ({ id, kind, date, newDate }: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => {
+    if (date === newDate || moving) return;
+    if (kind === "task") {
+      const task = tasks.find((item) => item.id === id);
+      if (task) setMoveState({ value: { item: task, kind, date }, newDate });
+      return;
+    }
+    const event = calendarEvents.find((item) => item.id === id);
+    if (!event) return;
+    if (event.start_date !== event.end_date || event.recurrence_frequency) {
+      setMoveMessage({ status: "error", text: "단일 일정만 달력에서 바로 이동할 수 있습니다." });
+      return;
+    }
+    const previousOverride = eventDateOverrides[id];
+    const previousSelectedDate = selectedDate;
+    setMoveMessage(null);
+    setEventDateOverrides((current) => ({ ...current, [id]: newDate }));
+    setSelectedDate(newDate);
+    startMoving(async () => {
+      const result = await moveSingleDayEventAction({ id, newDate });
+      if (result.status === "error") {
+        setEventDateOverrides((current) => {
+          if (previousOverride) return { ...current, [id]: previousOverride };
+          const next = { ...current };
+          delete next[id];
+          return next;
+        });
+        setSelectedDate((current) => current === newDate ? previousSelectedDate : current);
+        setMoveMessage({ status: "error", text: result.message ?? "일정을 이동하지 못했습니다." });
+        return;
+      }
+      setMoveMessage({ status: "success", text: result.message ?? "일정 날짜를 변경했습니다." });
+      if (newDate.slice(0, 7) !== date.slice(0, 7)) {
+        navigate(newDate, initialView, `event:${id}`);
+      } else {
+        router.refresh();
+      }
+    });
   };
   const periodLabel = initialView === "month" ? `${selectedDate.slice(0, 4)}년 ${Number(selectedDate.slice(5, 7))}월` : initialView === "week" ? `${range.first.slice(5).replace("-", ".")} – ${range.last.slice(5).replace("-", ".")}` : selectedDate.replaceAll("-", ". ");
   const selectTimeItem = (item: AllDayGridItem) => { setSelectedDate(item.date); navigate(item.date, initialView, `${item.kind}:${item.id}`); };
@@ -89,7 +134,14 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
       <div className="calendar-sticker-filter" role="group" aria-label="스티커 표시 필터"><span className="calendar-filter-label">스티커 표시</span><div className="calendar-sticker-filter__scroller">{stickerFilterOptions.map(([value, label]) => <button aria-pressed={stickerFilter === value} key={value} onClick={() => setStickerFilter(value)} ref={stickerFilter === value ? activeStickerFilterRef : undefined} type="button">{label}</button>)}</div></div>
     </div>
     <div className={`calendar-workspace-layout${initialView !== "month" ? " is-time-view" : ""}`}>
-      <div className="calendar-grid-panel">{initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={openDropMove} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}</div>
+      <div className="calendar-grid-panel">
+        {moveMessage && <p
+          aria-live="polite"
+          className={`calendar-move-feedback${moveMessage.status === "error" ? " is-error" : ""}`}
+          role={moveMessage.status === "error" ? "alert" : "status"}
+        >{moveMessage.text}</p>}
+        {initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={moveDroppedEvent} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
+      </div>
       <aside aria-label={`${selectedDate} 선택 날짜 상세`} className="calendar-detail-panel">
         <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
         <EventList currentTime={currentTime} date={selectedDate} events={selectedDateEvents} exerciseLogs={exerciseLogs} today={today} workflow={workflow} />

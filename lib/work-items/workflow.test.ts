@@ -124,7 +124,21 @@ describe("work item reuse", () => {
 
   it("duplicates an event onto the selected date", () => {
     expect(eventDuplicateValues(event({ description: "자료 준비", memo: "메모" }), { date: "2027-05-03", includeDescription: true, includeMemo: false })).toMatchObject({
-      start_date: "2027-05-03", end_date: "2027-05-03", description: "자료 준비", memo: null,
+      title: "일정",
+      start_date: "2027-05-03",
+      end_date: "2027-05-03",
+      description: "자료 준비",
+      memo: null,
+    });
+  });
+
+  it("preserves a multi-day event duration when copying it", () => {
+    expect(eventDuplicateValues(event({
+      start_date: "2027-05-03",
+      end_date: "2027-05-05",
+    }), { date: "2027-06-10", includeDescription: true, includeMemo: true })).toMatchObject({
+      start_date: "2027-06-10",
+      end_date: "2027-06-12",
     });
   });
 });

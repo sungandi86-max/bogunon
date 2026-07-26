@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 
-import { moveCalendarEventTime, moveCalendarItem, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
+import {
+  moveCalendarItem,
+  removeWorkItem,
+  setTaskCompleted,
+} from "@/lib/work-items/repository";
 import {
   duplicateEvent,
   duplicateTask,
@@ -205,21 +209,6 @@ export async function moveCalendarItemAction(_state: WorkItemActionState, formDa
     return { status: "success", message: "날짜를 변경했습니다." };
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "날짜를 변경하지 못했습니다." };
-  }
-}
-
-export async function moveCalendarEventTimeAction(formData: FormData): Promise<WorkItemActionState> {
-  const id = String(formData.get("id") ?? "");
-  const date = String(formData.get("date") ?? "");
-  const startTime = String(formData.get("startTime") ?? "");
-  const endTime = String(formData.get("endTime") ?? "");
-  if (!id || !isCalendarDate(date) || !/^\d{2}:\d{2}$/.test(startTime) || !/^\d{2}:\d{2}$/.test(endTime) || endTime <= startTime) return { status: "error", message: "변경할 일정 시간을 확인해 주세요." };
-  try {
-    await moveCalendarEventTime(id, date, startTime, endTime);
-    refreshWorkItems();
-    return { status: "success", message: "일정 시간을 변경했습니다." };
-  } catch (error) {
-    return { status: "error", message: error instanceof Error ? error.message : "일정 시간을 변경하지 못했습니다." };
   }
 }
 
