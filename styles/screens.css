@@ -513,6 +513,7 @@
 .duplicate-menu { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-panel); display: grid; gap: var(--space-3); min-width: 230px; padding: var(--space-5); position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: 25; }
 .duplicate-menu label { align-items: center; display: flex; font-size: var(--text-sm); gap: var(--space-2); justify-content: space-between; }
 .duplicate-menu input[type="date"] { border: 1px solid var(--line); min-height: 34px; }
+.calendar-detail-panel .event-copy-menu .duplicate-menu { left: 0; right: auto; }
 .event-copy-menu__presets { display: grid; gap: var(--space-1); }
 .event-copy-menu__presets button { background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-700); min-height: var(--control-md); padding: 0 var(--space-3); text-align: left; }
 .event-copy-menu__presets button:hover { background: var(--action-50); color: var(--action-700); }
