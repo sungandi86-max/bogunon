@@ -71,6 +71,13 @@ Accent color communicates interaction or status. New colors must first be added 
 - States: new, duplicate, changed, selected, disabled duplicate.
 - Accessibility: full row label targets the checkbox; status is expressed with text as well as color.
 
+### Project checklist
+
+- Structure: compact add form, completion summary, sortable list rows, optional due-date status, and destructive completed-item cleanup.
+- States: empty, populated, completed, hidden-completed, editing, dragging, pending, success, and error.
+- Responsive behavior: fine-pointer desktop uses a drag handle; up/down controls remain available for keyboard and touch users, with 44px targets on mobile.
+- Accessibility: native checkboxes and date inputs, labelled icon actions, status text in addition to color, and keyboard submission with Enter.
+
 ## 6. Motion & Interaction
 
 - Micro interaction: 120ms ease-out, matching shared buttons.

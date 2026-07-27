@@ -81,6 +81,24 @@
   .project-toolbar .button { width: 100%; }
   .project-grid { grid-template-columns: 1fr; }
   .project-card { min-height: 136px; }
+  .project-checklist { padding: var(--space-6); }
+  .project-checklist__heading { align-items: stretch; flex-direction: column; gap: var(--space-4); }
+  .project-checklist__tools { justify-content: flex-start; }
+  .project-checklist__tools button { min-height: var(--touch-target); }
+  .project-checklist__add { align-items: stretch; grid-template-columns: minmax(0, 1fr) auto; }
+  .project-checklist__add > label:first-child { grid-column: 1 / -1; }
+  .project-checklist__add .button { min-height: var(--touch-target); }
+  .project-checklist-item { grid-template-columns: var(--touch-target) minmax(0, 1fr) auto; min-height: 68px; padding: var(--space-3) 0; }
+  .project-checklist-item__drag { display: none; }
+  .project-checklist-item__check { height: var(--touch-target); width: var(--touch-target); }
+  .project-checklist-item__mobile-order { display: flex; }
+  .project-checklist-item__mobile-order button, .project-checklist-item__actions button, .project-checklist-item__edit .icon-button { height: var(--touch-target); width: var(--touch-target); }
+  .project-checklist-item__actions { grid-column: 3; }
+  .project-checklist-item__mobile-order { grid-column: 2; grid-row: 2; }
+  .project-checklist-item__actions { grid-row: 1 / span 2; }
+  .project-checklist-item__edit { align-items: stretch; grid-column: 2 / -1; grid-template-columns: 1fr auto; }
+  .project-checklist-item__edit > label:first-child { grid-column: 1 / -1; }
+  .project-checklist-item__edit .button { min-height: var(--touch-target); }
   .project-event-row { gap: var(--space-4); grid-template-columns: 78px minmax(0, 1fr) auto; }
   .mobile-create-button { display: none; }
   .briefing-page { padding-top: var(--space-2); }

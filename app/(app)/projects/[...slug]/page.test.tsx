@@ -14,6 +14,10 @@ vi.mock("@/lib/projects/repository", () => ({
   }]),
 }));
 
+vi.mock("@/lib/projects/checklist-repository", () => ({
+  listProjectChecklistItems: vi.fn(async () => []),
+}));
+
 import ProjectDetailPage from "@/app/(app)/projects/[...slug]/page";
 
 describe("project detail page", () => {
@@ -22,5 +26,6 @@ describe("project detail page", () => {
     expect(screen.getByRole("heading", { name: "학교 행사 준비", level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /축제 준비/ })).toHaveAttribute("href", "/calendar?date=2026-09-01&highlight=event-1");
     expect(screen.getByText("14:00 ~ 15:00")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "체크리스트 0/0" })).toBeInTheDocument();
   });
 });

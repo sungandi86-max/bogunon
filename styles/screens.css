@@ -1371,6 +1371,46 @@
 .project-detail-summary { align-items: center; border: 1px solid var(--line); border-left: 4px solid var(--action-600); border-radius: var(--radius-lg); display: flex; gap: var(--space-5); margin-bottom: var(--space-10); padding: var(--space-6); }
 .project-detail-summary strong { color: var(--ink-700); font-size: var(--text-md); }
 .project-detail-summary p { color: var(--brand-950); font-size: var(--text-card); font-weight: var(--weight-bold); margin: var(--space-1) 0 0; }
+.project-checklist { border: 1px solid var(--line); border-radius: var(--radius-lg); margin-bottom: var(--space-10); max-width: 900px; padding: var(--space-8); }
+.project-checklist__heading { align-items: flex-start; display: flex; gap: var(--space-8); justify-content: space-between; margin-bottom: var(--space-6); }
+.project-checklist__heading h2 { color: var(--brand-950); font-size: var(--text-card); margin: 0; }
+.project-checklist__heading h2 span { color: var(--action-700); font-variant-numeric: tabular-nums; }
+.project-checklist__heading p { color: var(--ink-500); font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.project-checklist__tools { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
+.project-checklist__tools button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-700); display: inline-flex; gap: var(--space-2); min-height: var(--control-sm); padding: 0 var(--space-3); }
+.project-checklist__tools button:hover:not(:disabled) { background: var(--surface-subtle); }
+.project-checklist__tools .danger-text { color: var(--danger); }
+.project-checklist__add { align-items: end; background: var(--surface-subtle); border-radius: var(--radius-md); display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) minmax(160px, auto) auto; margin-bottom: var(--space-5); padding: var(--space-4); }
+.project-checklist__add > label:first-child input { width: 100%; }
+.project-checklist__due-input { display: grid; gap: var(--space-1); }
+.project-checklist__due-input span { color: var(--ink-500); font-size: var(--text-meta); font-weight: var(--weight-semibold); }
+.project-checklist__message, .project-checklist__hidden-note { color: var(--success); font-size: var(--text-sm); margin: 0 0 var(--space-4); }
+.project-checklist__message.is-error { color: var(--danger); }
+.project-checklist__hidden-note { color: var(--ink-500); }
+.project-checklist__list { border-top: 1px solid var(--line); list-style: none; margin: 0; padding: 0; }
+.project-checklist-item { align-items: center; border-bottom: 1px solid var(--line-subtle); display: grid; gap: var(--space-3); grid-template-columns: 24px 32px minmax(0, 1fr) auto auto; min-height: 60px; padding: var(--space-3) var(--space-2); transition: opacity 120ms ease-out, transform 120ms ease-out; }
+.project-checklist-item.is-dragging { opacity: .5; transform: scale(.99); }
+.project-checklist-item__drag { color: var(--ink-500); cursor: grab; display: inline-flex; }
+.project-checklist-item__check { align-items: center; cursor: pointer; display: inline-flex; height: var(--control-sm); justify-content: center; position: relative; width: var(--control-sm); }
+.project-checklist-item__check input { height: var(--space-8); margin: 0; opacity: 0; position: absolute; width: var(--space-8); }
+.project-checklist-item__check span { align-items: center; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: transparent; display: inline-flex; height: var(--space-8); justify-content: center; width: var(--space-8); }
+.project-checklist-item__check input:checked + span { background: var(--action-600); border-color: var(--action-600); color: var(--surface); }
+.project-checklist-item__check input:focus-visible + span { outline: 3px solid var(--action-100); outline-offset: 2px; }
+.project-checklist-item__content { display: grid; gap: var(--space-1); min-width: 0; }
+.project-checklist-item__content > span { color: var(--brand-950); line-height: var(--leading-body); overflow-wrap: anywhere; }
+.project-checklist-item.is-completed .project-checklist-item__content > span { color: var(--ink-500); text-decoration: line-through; }
+.project-checklist-item__due { align-items: center; color: var(--ink-500); display: flex; font-size: var(--text-meta); gap: var(--space-2); }
+.project-checklist-item__due strong { font-weight: var(--weight-semibold); }
+.project-checklist-item__due.is-overdue { color: var(--danger); }
+.project-checklist-item__due.is-today { color: var(--warning); }
+.project-checklist-item__actions, .project-checklist-item__mobile-order { display: flex; gap: var(--space-1); }
+.project-checklist-item__actions button, .project-checklist-item__mobile-order button, .project-checklist-item__edit .icon-button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-500); display: inline-flex; height: var(--control-sm); justify-content: center; width: var(--control-sm); }
+.project-checklist-item__actions button:hover:not(:disabled), .project-checklist-item__mobile-order button:hover:not(:disabled), .project-checklist-item__edit .icon-button:hover:not(:disabled) { background: var(--surface-subtle); color: var(--ink-700); }
+.project-checklist-item__actions .danger-text { color: var(--danger); }
+.project-checklist-item__edit { align-items: end; display: grid; gap: var(--space-3); grid-column: 3 / -1; grid-template-columns: minmax(180px, 1fr) minmax(160px, auto) auto auto; }
+.project-checklist-item__edit > label:first-child input { width: 100%; }
+.project-checklist-item__date-input { align-items: center; display: flex; gap: var(--space-2); }
+.project-checklist__empty { color: var(--ink-500); padding: var(--space-10) var(--space-4); text-align: center; }
 .project-event-section { max-width: 900px; }
 .project-event-list { border-top: 1px solid var(--line); display: grid; }
 .project-event-row { align-items: center; border-bottom: 1px solid var(--line); color: var(--ink-700); display: grid; gap: var(--space-6); grid-template-columns: 112px minmax(0, 1fr) auto; min-height: 72px; padding: var(--space-5) var(--space-3); }
