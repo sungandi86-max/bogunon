@@ -78,6 +78,13 @@ Accent color communicates interaction or status. New colors must first be added 
 - Responsive behavior: fine-pointer desktop uses a drag handle; up/down controls remain available for keyboard and touch users, with 44px targets on mobile.
 - Accessibility: native checkboxes and date inputs, labelled icon actions, status text in addition to color, and keyboard submission with Enter.
 
+### Project reservation
+
+- Structure: section heading with count and add command, compact reservation cards, and one labelled modal form for create or edit.
+- States: empty, populated, creating, editing, saving, linked-calendar, unlinked, delete-choice, success, and error.
+- Responsive behavior: cards use two columns on wide screens and one column on mobile; the modal owns one scrollable body and keeps actions reachable above the safe area.
+- Accessibility: reservation type and calendar-sync controls have visible labels, icon actions include names, and linked-calendar status is expressed with text as well as an icon.
+
 ## 6. Motion & Interaction
 
 - Micro interaction: 120ms ease-out, matching shared buttons.
