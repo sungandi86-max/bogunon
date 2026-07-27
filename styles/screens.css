@@ -1479,6 +1479,9 @@
 .project-expense-quick { align-items: end; background: var(--surface-subtle); border-radius: var(--radius-md); display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) minmax(150px, .6fr) minmax(150px, .6fr) auto; margin-bottom: var(--space-5); padding: var(--space-4); }
 .project-expense-quick label { display: grid; gap: var(--space-1); }
 .project-expense-quick label > span, .project-budget__filters label > span { color: var(--ink-500); font-size: var(--text-meta); font-weight: var(--weight-semibold); }
+.project-money-input { align-items: center; display: grid; gap: var(--space-2); grid-template-columns: minmax(0, 1fr) auto; min-width: 0; }
+.project-money-input input { min-width: 0; }
+.project-money-input span { color: var(--ink-700); font-size: var(--text-sm); }
 .project-expense-quick .form-message { grid-column: 1 / -1; margin: 0; }
 .project-budget__filters { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: var(--space-4); justify-content: space-between; margin-bottom: var(--space-2); padding-bottom: var(--space-4); }
 .project-budget__segments { background: var(--surface-subtle); border-radius: var(--radius-md); display: inline-flex; padding: var(--space-1); }
