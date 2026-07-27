@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ProjectChecklist } from "@/components/projects/project-checklist";
 import type { ProjectChecklistItemRow } from "@/types/database";
@@ -45,6 +45,10 @@ const activeItem: ProjectChecklistItemRow = {
 const initialItems: readonly ProjectChecklistItemRow[] = [completedItem, activeItem];
 
 describe("ProjectChecklist", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("adds an item with Enter and updates the completion count", async () => {
     createChecklistItemAction.mockResolvedValue({
       status: "success",
@@ -133,11 +137,13 @@ describe("ProjectChecklist", () => {
     fireEvent.dragStart(source as HTMLElement);
     fireEvent.dragOver(target as HTMLElement);
     fireEvent.drop(target as HTMLElement);
+    fireEvent.dragEnd(source as HTMLElement);
 
     await waitFor(() => expect(reorderProjectChecklistItemsAction).toHaveBeenCalledWith({
       itemIds: ["item-2", "item-1"],
       projectId: "project-1",
     }));
+    expect(reorderProjectChecklistItemsAction).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: "라켓 챙기기 아래로 이동" })).toBeInTheDocument();
   });
 });

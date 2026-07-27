@@ -29,6 +29,7 @@ interface Props {
   readonly item: ProjectChecklistItemRow;
   readonly last: boolean;
   readonly onDelete: () => Promise<void>;
+  readonly onDragEnd: () => void;
   readonly onDragStart: () => void;
   readonly onDrop: () => void;
   readonly onMove: (offset: -1 | 1) => void;
@@ -46,6 +47,7 @@ export function ProjectChecklistItem({
   item,
   last,
   onDelete,
+  onDragEnd,
   onDragStart,
   onDrop,
   onMove,
@@ -66,7 +68,7 @@ export function ProjectChecklistItem({
     <li
       className={`project-checklist-item${item.is_completed ? " is-completed" : ""}${dragging ? " is-dragging" : ""}`}
       draggable={desktopDragEnabled && !busy && !editing}
-      onDragEnd={() => onDrop()}
+      onDragEnd={onDragEnd}
       onDragOver={(event) => {
         if (desktopDragEnabled) event.preventDefault();
       }}

@@ -233,6 +233,7 @@ export function ProjectChecklist({
               key={item.id}
               last={index === visibleItems.length - 1}
               onDelete={() => removeItem(item.id)}
+              onDragEnd={() => setDraggedId(undefined)}
               onDragStart={() => setDraggedId(item.id)}
               onDrop={() => {
                 const currentDraggedId = draggedId;
