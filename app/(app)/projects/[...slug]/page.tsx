@@ -6,6 +6,7 @@ import { ProjectBudget } from "@/components/projects/project-budget";
 import { ProjectChecklist } from "@/components/projects/project-checklist";
 import { ProjectWorkspaceShell } from "@/components/projects/project-detail-workspace";
 import { ProjectReservations } from "@/components/projects/project-reservations";
+import { ProjectNotes } from "@/components/projects/project-notes";
 import { ProjectSchedule } from "@/components/projects/project-schedule";
 import { ProjectWorkspaceHeader } from "@/components/projects/project-workspace-header";
 import { ProjectWorkspaceOverview } from "@/components/projects/project-workspace-overview";
@@ -74,6 +75,7 @@ export default async function ProjectDetailPage({
             today={today}
           />
         )}
+        notes={<ProjectNotes projectId={project.id} />}
         reservations={(
           <ProjectReservations
             expenses={expenses}

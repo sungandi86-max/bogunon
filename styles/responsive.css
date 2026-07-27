@@ -92,6 +92,19 @@
   .project-workspace__tab-label { display: none; }
   .project-workspace__tab-label--mobile { display: inline; }
   .project-workspace-overview { grid-template-columns: 1fr; }
+  .project-notes { display: block; min-height: 0; overflow: visible; }
+  .project-notes-list { border-right: 0; min-height: var(--project-notes-mobile-min-height); padding: var(--space-5); }
+  .project-note-card { min-height: var(--project-note-card-mobile-min-height); }
+  .project-note-editor { display: none; min-height: var(--project-notes-mobile-min-height); padding: var(--space-5); }
+  .project-notes.is-mobile-editing .project-notes-list { display: none; }
+  .project-notes.is-mobile-editing .project-note-editor { display: flex; }
+  .project-note-editor__back { display: inline-flex !important; gap: var(--space-2); padding: 0 var(--space-3); }
+  .project-note-editor__toolbar { align-items: flex-start; gap: var(--space-3); }
+  .project-note-editor__toolbar > div { flex-wrap: wrap; justify-content: flex-end; }
+  .project-note-editor__toolbar .button { min-height: var(--touch-target); }
+  .project-note-editor__title input { font-size: var(--text-xl); min-height: var(--touch-target); }
+  .project-note-editor__content textarea, .project-note-preview { min-height: var(--project-note-editor-mobile-min-height); }
+  .project-notes-loading { min-height: var(--project-notes-mobile-min-height); }
   .project-overview-block { min-height: 0; padding: var(--space-6); }
   .project-checklist { padding: var(--space-6); }
   .project-checklist__heading { align-items: stretch; flex-direction: column; gap: var(--space-4); }

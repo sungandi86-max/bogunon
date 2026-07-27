@@ -9,6 +9,7 @@ const tabs = [
   { key: "checklist", label: "체크리스트", mobileLabel: "체크" },
   { key: "reservations", label: "예약", mobileLabel: "예약" },
   { key: "budget", label: "예산", mobileLabel: "예산" },
+  { key: "notes", label: "노트", mobileLabel: "노트" },
 ] as const;
 
 type WorkspaceTab = (typeof tabs)[number]["key"];
@@ -22,9 +23,16 @@ function tabFromHash(): WorkspaceTab {
 
 export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("overview");
+  const [activatedLazyTabs, setActivatedLazyTabs] = useState<readonly WorkspaceTab[]>([]);
 
   useEffect(() => {
-    const restoreTab = () => setActiveTab(tabFromHash());
+    const restoreTab = () => {
+      const restored = tabFromHash();
+      setActiveTab(restored);
+      if (restored === "notes") {
+        setActivatedLazyTabs((current) => current.includes(restored) ? current : [...current, restored]);
+      }
+    };
     restoreTab();
     window.addEventListener("hashchange", restoreTab);
     return () => window.removeEventListener("hashchange", restoreTab);
@@ -35,6 +43,9 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
     url.hash = tab;
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     setActiveTab(tab);
+    if (tab === "notes") {
+      setActivatedLazyTabs((current) => current.includes(tab) ? current : [...current, tab]);
+    }
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number): void {
@@ -82,7 +93,7 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
             key={tab.key}
             role="tabpanel"
           >
-            {props[tab.key]}
+            {tab.key !== "notes" || activatedLazyTabs.includes(tab.key) ? props[tab.key] : null}
           </section>
         ))}
       </div>

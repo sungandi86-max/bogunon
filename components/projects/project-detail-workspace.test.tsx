@@ -10,6 +10,7 @@ const panels = {
   checklist: <p>체크리스트 내용</p>,
   reservations: <p>예약 내용</p>,
   budget: <p>예산 내용</p>,
+  notes: <p>노트 내용</p>,
 };
 
 describe("project detail workspace", () => {
@@ -47,6 +48,19 @@ describe("project detail workspace", () => {
 
     expect(screen.getByRole("tab", { name: "일정" })).toHaveAttribute("aria-selected", "true");
     expect(window.location.hash).toBe("#schedule");
+  });
+
+  it("mounts notes on first activation and reuses the mounted panel", () => {
+    render(<ProjectWorkspaceShell {...panels} />);
+
+    expect(screen.queryByText("노트 내용")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "노트" }));
+    expect(screen.getByText("노트 내용")).toBeVisible();
+    expect(window.location.hash).toBe("#notes");
+
+    fireEvent.click(screen.getByRole("tab", { name: "개요" }));
+    expect(screen.getByText("노트 내용")).toBeInTheDocument();
+    expect(screen.getByText("노트 내용").closest("[role=tabpanel]")).toHaveAttribute("hidden");
   });
 
   it("summarizes today's work, checklist progress, next reservation, and budget", () => {
