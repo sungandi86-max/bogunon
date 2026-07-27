@@ -24,6 +24,14 @@ export const reservationTypeSchema = z.enum([
 
 const optionalText = (maximum: number) => z.string().trim().max(maximum).nullable();
 const optionalTime = z.union([z.iso.time({ precision: -1 }), z.null()]);
+const optionalWebsite = z.union([
+  z.url("웹사이트 주소를 확인해 주세요.")
+    .max(500)
+    .refine((value) => value.startsWith("https://") || value.startsWith("http://"), {
+      message: "웹사이트 주소는 http:// 또는 https://로 시작해야 합니다.",
+    }),
+  z.null(),
+]);
 
 export const reservationInputSchema = z.object({
   projectId: z.uuid(),
@@ -37,7 +45,7 @@ export const reservationInputSchema = z.object({
   confirmationNumber: optionalText(120),
   location: optionalText(300),
   phone: optionalText(60),
-  website: z.union([z.url("웹사이트 주소를 확인해 주세요.").max(500), z.null()]),
+  website: optionalWebsite,
   memo: optionalText(2000),
   syncCalendar: z.boolean(),
 }).superRefine(({ startTime, endTime }, context) => {

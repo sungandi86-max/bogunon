@@ -59,6 +59,17 @@ describe("project reservation domain", () => {
     expect(parsed.success).toBe(false);
   });
 
+  it("allows only HTTP or HTTPS reservation websites", () => {
+    expect(reservationInputSchema.safeParse({
+      ...baseInput,
+      website: "javascript:alert(1)",
+    }).success).toBe(false);
+    expect(reservationInputSchema.safeParse({
+      ...baseInput,
+      website: "https://example.com/reservation",
+    }).success).toBe(true);
+  });
+
   it("maps only calendar-safe reservation fields to a project event", () => {
     const values = reservationToEventValues(reservationInputSchema.parse(baseInput));
 
