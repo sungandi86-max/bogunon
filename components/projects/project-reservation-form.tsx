@@ -1,14 +1,27 @@
 "use client";
 
-import { CalendarPlus } from "lucide-react";
-import { useActionState, useEffect } from "react";
+import { CalendarPlus, WalletCards } from "lucide-react";
+import { useActionState, useEffect, useState } from "react";
 
 import {
   saveReservationAction,
   type ReservationActionResult,
 } from "@/app/(app)/projects/reservation-actions";
-import { RESERVATION_TYPES } from "@/lib/projects/reservations";
-import type { ProjectReservationRow } from "@/types/database";
+import { ProjectMoneyInput } from "@/components/projects/project-money-input";
+import {
+  EXPENSE_CATEGORIES,
+  PAYMENT_STATUSES,
+  expenseCategorySchema,
+  reservationExpenseDefaults,
+} from "@/lib/projects/budget";
+import {
+  RESERVATION_TYPES,
+  reservationTypeSchema,
+} from "@/lib/projects/reservations";
+import type {
+  ProjectExpenseRow,
+  ProjectReservationRow,
+} from "@/types/database";
 
 const initialState: ReservationActionResult = { status: "success", message: "" };
 
@@ -18,15 +31,23 @@ export function ProjectReservationForm({
   onSaved,
   projectId,
   reservation,
+  linkedExpense,
 }: {
   readonly formId: string;
   readonly onPendingChange: (pending: boolean) => void;
   readonly onSaved: () => void;
   readonly projectId: string;
   readonly reservation?: ProjectReservationRow;
+  readonly linkedExpense?: ProjectExpenseRow | undefined;
 }) {
   const [state, action, pending] = useActionState(saveReservationAction, initialState);
   const key = reservation?.id ?? "new";
+  const initialType = reservation?.type ?? "flight";
+  const defaults = reservationExpenseDefaults(initialType);
+  const [syncExpense, setSyncExpense] = useState(Boolean(linkedExpense));
+  const [expenseCategory, setExpenseCategory] = useState(
+    linkedExpense?.category ?? defaults.category,
+  );
 
   useEffect(() => {
     if (state.status === "success" && state.reservationId) onSaved();
@@ -43,7 +64,18 @@ export function ProjectReservationForm({
       <div className="form-grid">
         <div className="field">
           <label className="field-label" htmlFor={`${key}-reservation-type`}>예약 유형</label>
-          <select defaultValue={reservation?.type ?? "flight"} id={`${key}-reservation-type`} name="type">
+          <select
+            defaultValue={initialType}
+            id={`${key}-reservation-type`}
+            name="type"
+            onChange={(event) => {
+              if (linkedExpense) return;
+              const parsed = reservationTypeSchema.safeParse(event.currentTarget.value);
+              if (parsed.success) {
+                setExpenseCategory(reservationExpenseDefaults(parsed.data).category);
+              }
+            }}
+          >
             {RESERVATION_TYPES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </div>
@@ -97,6 +129,61 @@ export function ProjectReservationForm({
         <span><CalendarPlus aria-hidden="true" size={17} /><strong>캘린더 일정 생성</strong><small>예약 날짜와 시간이 프로젝트 일정에 함께 반영됩니다.</small></span>
       </label>
       {reservation?.linked_event_id && <p className="project-reservation-form__sync-note">이 옵션을 끄고 저장하면 연결된 캘린더 일정은 삭제됩니다.</p>}
+      <label className="project-reservation-form__sync">
+        <input
+          checked={syncExpense}
+          name="syncExpense"
+          onChange={(event) => setSyncExpense(event.currentTarget.checked)}
+          type="checkbox"
+        />
+        <span><WalletCards aria-hidden="true" size={17} /><strong>예산에 추가</strong><small>예약 비용을 같은 프로젝트의 지출로 연결합니다.</small></span>
+      </label>
+      {syncExpense && (
+        <div className="project-reservation-form__expense">
+          <div className="form-grid">
+            <div className="field">
+              <label className="field-label" htmlFor={`${key}-reservation-expense-amount`}>비용</label>
+              <ProjectMoneyInput
+                {...(linkedExpense ? { defaultValue: linkedExpense.amount } : {})}
+                id={`${key}-reservation-expense-amount`}
+                name="expenseAmount"
+                required
+              />
+            </div>
+            <div className="field">
+              <label className="field-label" htmlFor={`${key}-reservation-expense-category`}>지출 카테고리</label>
+              <select
+                id={`${key}-reservation-expense-category`}
+                name="expenseCategory"
+                onChange={(event) => {
+                  const parsed = expenseCategorySchema.safeParse(event.currentTarget.value);
+                  if (parsed.success) setExpenseCategory(parsed.data);
+                }}
+                value={expenseCategory}
+              >
+                {EXPENSE_CATEGORIES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </div>
+            <div className="field">
+              <label className="field-label" htmlFor={`${key}-reservation-expense-status`}>결제 상태</label>
+              <select
+                defaultValue={linkedExpense?.payment_status ?? defaults.paymentStatus}
+                id={`${key}-reservation-expense-status`}
+                name="expensePaymentStatus"
+              >
+                {PAYMENT_STATUSES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+              </select>
+            </div>
+          </div>
+          {linkedExpense && (
+            <label className="project-reservation-form__expense-update">
+              <input defaultChecked name="updateLinkedExpense" type="checkbox" />
+              <span>예약 이름·비용·날짜 변경을 연결 지출에도 반영</span>
+            </label>
+          )}
+        </div>
+      )}
+      {linkedExpense && !syncExpense && <p className="project-reservation-form__sync-note">저장하면 지출은 유지되고 예약 연결만 해제됩니다.</p>}
       {state.message && <p className={state.status === "error" ? "form-message form-message--error" : "form-message"} role={state.status === "error" ? "alert" : "status"}>{state.message}</p>}
     </form>
   );

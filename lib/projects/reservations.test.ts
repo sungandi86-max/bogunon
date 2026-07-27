@@ -19,6 +19,11 @@ const baseInput = {
   website: null,
   memo: null,
   syncCalendar: true,
+  syncExpense: true,
+  updateLinkedExpense: true,
+  expenseAmount: 120_000,
+  expenseCategory: "transportation",
+  expensePaymentStatus: "paid",
 } as const;
 
 describe("project reservation domain", () => {

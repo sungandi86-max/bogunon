@@ -31,6 +31,11 @@ const input = {
   website: "https://example.com",
   memo: "체크인 확인",
   syncCalendar: true,
+  syncExpense: true,
+  updateLinkedExpense: true,
+  expenseAmount: 180_000,
+  expenseCategory: "accommodation" as const,
+  expensePaymentStatus: "planned" as const,
 };
 
 describe("project reservation repository", () => {
@@ -47,9 +52,19 @@ describe("project reservation repository", () => {
 
     await expect(saveProjectReservation(input)).resolves.toBe("reservation-1");
 
-    expect(mocks.rpc).toHaveBeenCalledWith("save_project_reservation", {
+    expect(mocks.rpc).toHaveBeenCalledWith("save_project_reservation_with_expense", {
       p_reservation_id: null,
       p_sync_calendar: true,
+      p_sync_expense: true,
+      p_update_expense: true,
+      p_expense_values: {
+        amount: 180_000,
+        category: "accommodation",
+        expense_date: "2026-08-05",
+        memo: "체크인 확인",
+        payment_status: "planned",
+        title: "MJ Resort",
+      },
       p_values: {
         project_id: input.projectId,
         type: "hotel",
@@ -71,12 +86,14 @@ describe("project reservation repository", () => {
     mocks.rpc.mockResolvedValue({ data: null, error: null });
 
     await expect(deleteProjectReservation({
+      deleteLinkedExpense: true,
       deleteLinkedEvent: true,
       projectId: input.projectId,
       reservationId: "22222222-2222-4222-8222-222222222222",
     })).resolves.toBeUndefined();
 
-    expect(mocks.rpc).toHaveBeenCalledWith("delete_project_reservation", {
+    expect(mocks.rpc).toHaveBeenCalledWith("delete_project_reservation_with_expense", {
+      p_delete_linked_expense: true,
       p_delete_linked_event: true,
       p_reservation_id: "22222222-2222-4222-8222-222222222222",
     });

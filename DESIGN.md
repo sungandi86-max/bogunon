@@ -85,6 +85,13 @@ Accent color communicates interaction or status. New colors must first be added 
 - Responsive behavior: cards use two columns on wide screens and one column on mobile; the modal owns one scrollable body and keeps actions reachable above the safe area.
 - Accessibility: reservation type and calendar-sync controls have visible labels, icon actions include names, and linked-calendar status is expressed with text as well as an icon.
 
+### Project budget
+
+- Structure: one compact budget summary, optional total-budget editor, filter controls, and two-line expense rows with reservation linkage.
+- States: budget-unset, budget-set, under-budget, over-budget, empty-expenses, filtered-empty, creating, editing, pending, paid, linked-reservation, success, and error.
+- Responsive behavior: summary metrics form a restrained desktop grid and a stacked mobile list; expense rows keep the title and amount readable without forcing every field onto one line.
+- Accessibility: amount inputs have explicit currency context, status changes use labelled buttons, filters expose their selected state, and destructive actions require confirmation.
+
 ## 6. Motion & Interaction
 
 - Micro interaction: 120ms ease-out, matching shared buttons.

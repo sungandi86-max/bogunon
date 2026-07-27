@@ -1452,9 +1452,68 @@
 .project-reservation-form__sync strong { color: var(--brand-950); font-size: var(--text-md); }
 .project-reservation-form__sync small { color: var(--ink-500); font-size: var(--text-sm); grid-column: 1 / -1; }
 .project-reservation-form__sync-note { color: var(--warning); font-size: var(--text-sm); margin: calc(var(--space-4) * -1) 0 0; }
+.project-reservation-form__expense { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-4); padding: var(--space-5); }
+.project-reservation-form__expense-update, .project-reservation-delete-option { align-items: center; color: var(--ink-700); cursor: pointer; display: flex; font-size: var(--text-sm); gap: var(--space-3); min-height: var(--control-sm); }
+.project-reservation-form__expense-update input, .project-reservation-delete-option input { height: var(--space-8); margin: 0; width: var(--space-8); }
 .project-reservation-delete-panel { width: min(520px, calc(100vw - (var(--space-8) * 2))); }
 .project-reservation-delete-copy { color: var(--ink-700); line-height: var(--leading-body); margin: 0; }
 .project-reservation-delete-copy strong { color: var(--brand-950); }
+.project-budget { border: 1px solid var(--line); border-radius: var(--radius-lg); margin-bottom: var(--space-10); max-width: 900px; padding: var(--space-8); }
+.project-budget__heading { align-items: center; display: flex; gap: var(--space-8); justify-content: space-between; margin-bottom: var(--space-6); }
+.project-budget__heading h2 { color: var(--brand-950); font-size: var(--text-card); margin: 0; }
+.project-budget__heading p { color: var(--ink-500); font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.project-budget__heading > div:last-child { display: flex; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
+.project-budget-summary { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: var(--radius-md); margin-bottom: var(--space-5); overflow: hidden; }
+.project-budget-summary__lead { align-items: center; background: var(--action-50); color: var(--action-700); display: flex; gap: var(--space-3); padding: var(--space-4) var(--space-5); }
+.project-budget-summary__lead span { color: var(--ink-700); font-size: var(--text-sm); }
+.project-budget-summary__lead strong { color: var(--brand-950); margin-left: var(--space-2); }
+.project-budget-summary.is-over .project-budget-summary__lead { background: var(--warning-soft); color: var(--warning); }
+.project-budget-summary dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; }
+.project-budget-summary dl > div { border-right: 1px solid var(--line); display: grid; gap: var(--space-2); padding: var(--space-5); }
+.project-budget-summary dl > div:last-child { border-right: 0; }
+.project-budget-summary dt { color: var(--ink-500); font-size: var(--text-meta); }
+.project-budget-summary dd { color: var(--brand-950); font-size: var(--text-md); font-variant-numeric: tabular-nums; font-weight: var(--weight-bold); margin: 0; overflow-wrap: anywhere; }
+.project-budget-summary.is-over dl > div:last-child dd { color: var(--warning); }
+.project-budget__message { color: var(--success); font-size: var(--text-sm); margin: 0 0 var(--space-4); }
+.project-budget__message.is-error { color: var(--danger); }
+.project-expense-quick { align-items: end; background: var(--surface-subtle); border-radius: var(--radius-md); display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) minmax(150px, .6fr) minmax(150px, .6fr) auto; margin-bottom: var(--space-5); padding: var(--space-4); }
+.project-expense-quick label { display: grid; gap: var(--space-1); }
+.project-expense-quick label > span, .project-budget__filters label > span { color: var(--ink-500); font-size: var(--text-meta); font-weight: var(--weight-semibold); }
+.project-expense-quick .form-message { grid-column: 1 / -1; margin: 0; }
+.project-budget__filters { align-items: center; border-bottom: 1px solid var(--line); display: flex; gap: var(--space-4); justify-content: space-between; margin-bottom: var(--space-2); padding-bottom: var(--space-4); }
+.project-budget__segments { background: var(--surface-subtle); border-radius: var(--radius-md); display: inline-flex; padding: var(--space-1); }
+.project-budget__segments button { background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-500); min-height: var(--control-sm); padding: 0 var(--space-4); }
+.project-budget__segments button[aria-pressed="true"] { background: var(--surface); box-shadow: var(--shadow-sm); color: var(--brand-950); font-weight: var(--weight-semibold); }
+.project-budget__filters label { align-items: center; display: flex; gap: var(--space-3); }
+.project-budget__filters select { min-width: 160px; }
+.project-expense-list { display: grid; }
+.project-expense-card { align-items: start; border-bottom: 1px solid var(--line-subtle); display: grid; gap: var(--space-4); grid-template-columns: 36px minmax(0, 1fr) auto; min-height: 92px; padding: var(--space-5) var(--space-2); }
+.project-expense-card__icon { align-items: center; background: var(--action-50); border-radius: var(--radius-sm); color: var(--action-700); display: flex; height: 36px; justify-content: center; width: 36px; }
+.project-expense-card__content { display: grid; gap: var(--space-2); min-width: 0; }
+.project-expense-card__primary { align-items: baseline; display: flex; gap: var(--space-4); justify-content: space-between; min-width: 0; }
+.project-expense-card__primary h3 { color: var(--brand-950); font-size: var(--text-md); margin: 0; overflow-wrap: anywhere; }
+.project-expense-card__primary strong { color: var(--brand-950); flex: 0 0 auto; font-variant-numeric: tabular-nums; }
+.project-expense-card__meta { align-items: center; color: var(--ink-500); display: flex; flex-wrap: wrap; font-size: var(--text-meta); gap: var(--space-3); }
+.project-expense-card__meta span { align-items: center; display: inline-flex; gap: var(--space-1); }
+.project-expense-card__content > p { color: var(--ink-700); font-size: var(--text-sm); margin: 0; overflow-wrap: anywhere; }
+.project-expense-card__status { border: 0; border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: var(--weight-semibold); justify-self: start; min-height: var(--control-sm); padding: 0 var(--space-3); }
+.project-expense-card__status.is-planned { background: var(--warning-soft); color: var(--warning); }
+.project-expense-card__status.is-paid { background: var(--action-50); color: var(--success); }
+.project-expense-card__menu { position: relative; }
+.project-expense-card__menu summary { align-items: center; border-radius: var(--radius-sm); color: var(--ink-500); cursor: pointer; display: flex; height: var(--control-sm); justify-content: center; list-style: none; width: var(--control-sm); }
+.project-expense-card__menu summary::-webkit-details-marker { display: none; }
+.project-expense-card__menu > div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: grid; min-width: 112px; padding: var(--space-2); position: absolute; right: 0; top: var(--control-sm); z-index: 5; }
+.project-expense-card__menu button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-700); display: flex; gap: var(--space-3); min-height: var(--control-sm); padding: 0 var(--space-4); }
+.project-expense-card__menu .danger-text { color: var(--danger); }
+.project-budget__empty { align-items: center; color: var(--ink-500); display: flex; gap: var(--space-4); justify-content: center; min-height: 112px; padding: var(--space-6); }
+.project-budget__empty strong { color: var(--brand-950); }
+.project-budget__empty p { font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.project-budget-panel, .project-expense-panel { width: min(680px, calc(100vw - (var(--space-8) * 2))); }
+.project-budget-form, .project-expense-form { display: grid; gap: var(--space-6); }
+.project-budget-form textarea, .project-expense-form textarea { min-height: 88px; resize: vertical; }
+.project-expense-form__amount { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.project-expense-delete-panel { width: min(480px, calc(100vw - (var(--space-8) * 2))); }
+.project-expense-delete-copy { color: var(--ink-700); margin: 0; }
 .project-event-section { max-width: 900px; }
 .project-event-list { border-top: 1px solid var(--line); display: grid; }
 .project-event-row { align-items: center; border-bottom: 1px solid var(--line); color: var(--ink-700); display: grid; gap: var(--space-6); grid-template-columns: 112px minmax(0, 1fr) auto; min-height: 72px; padding: var(--space-5) var(--space-3); }
