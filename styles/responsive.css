@@ -81,6 +81,18 @@
   .project-toolbar .button { width: 100%; }
   .project-grid { grid-template-columns: 1fr; }
   .project-card { min-height: 136px; }
+  .project-workspace-header { gap: var(--space-6); grid-template-columns: 1fr; padding: var(--space-8); }
+  .project-workspace-header h1 { font-size: var(--text-xl); }
+  .project-workspace-header__identity { gap: var(--space-4); }
+  .project-workspace-header__stats { border-top: 1px solid var(--line); grid-template-columns: repeat(4, minmax(0, 1fr)); padding-top: var(--space-5); }
+  .project-workspace-header__stats > div { padding: 0 var(--space-2); }
+  .project-workspace-header__stats > div:first-child { border-left: 0; }
+  .project-workspace__tabs { gap: 0; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; }
+  .project-workspace__tabs button { flex: 0 0 68px; min-height: var(--touch-target); padding: 0 var(--space-4); scroll-snap-align: start; }
+  .project-workspace__tab-label { display: none; }
+  .project-workspace__tab-label--mobile { display: inline; }
+  .project-workspace-overview { grid-template-columns: 1fr; }
+  .project-overview-block { min-height: 0; padding: var(--space-6); }
   .project-checklist { padding: var(--space-6); }
   .project-checklist__heading { align-items: stretch; flex-direction: column; gap: var(--space-4); }
   .project-checklist__tools { justify-content: flex-start; }

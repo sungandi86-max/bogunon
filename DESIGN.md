@@ -92,6 +92,14 @@ Accent color communicates interaction or status. New colors must first be added 
 - Responsive behavior: summary metrics form a restrained desktop grid and a stacked mobile list; expense rows keep the title and amount readable without forcing every field onto one line.
 - Accessibility: amount inputs have explicit currency context, status changes use labelled buttons, filters expose their selected state, and destructive actions require confirmation.
 
+### Project workspace
+
+- Structure: one project summary header, a persistent tab list, and overview, schedule, checklist, reservation, and budget panels that reuse the page's initially loaded data.
+- States: overview-default, active-tab, empty-summary, populated-summary, and hash-restored tab.
+- Responsive behavior: desktop keeps all tabs in one row; mobile uses a touch-sized horizontal tab strip without causing page-level overflow.
+- Accessibility: semantic tab and tabpanel relationships, keyboard arrow navigation, visible focus, and text labels alongside project color.
+- Persistence: the selected tab is stored in the URL hash so refresh keeps context without triggering a new server fetch.
+
 ## 6. Motion & Interaction
 
 - Micro interaction: 120ms ease-out, matching shared buttons.
