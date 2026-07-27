@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
@@ -38,10 +38,25 @@ describe("project detail page", () => {
   it("shows only repository-provided project events", async () => {
     render(await ProjectDetailPage({ params: Promise.resolve({ slug: ["project-1"] }) }));
     expect(screen.getByRole("heading", { name: "학교 행사 준비", level: 1 })).toBeInTheDocument();
+    const statistics = within(screen.getByLabelText("프로젝트 통계"));
+    expect(statistics.getByText("일정").nextElementSibling).toHaveTextContent("1");
+    expect(statistics.getByText("체크리스트").nextElementSibling).toHaveTextContent("0");
+    expect(statistics.getByText("예약").nextElementSibling).toHaveTextContent("0");
+    expect(statistics.getByText("지출").nextElementSibling).toHaveTextContent("0");
+    expect(screen.getByRole("tab", { name: "개요" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("오늘 일정이 없습니다.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "일정" }));
     expect(screen.getByRole("link", { name: /축제 준비/ })).toHaveAttribute("href", "/calendar?date=2026-09-01&highlight=event-1");
     expect(screen.getByText("14:00 ~ 15:00")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "체크리스트" }));
     expect(screen.getByRole("heading", { name: "체크리스트 0/0" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "예약" }));
     expect(screen.getByRole("heading", { name: "예약 0" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "예산" }));
     expect(screen.getByRole("heading", { name: "예산" })).toBeInTheDocument();
   });
 });

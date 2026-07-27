@@ -159,6 +159,7 @@
   --mobile-accent-line: 3px;
   --mobile-summary-min-height: 116px;
   --mobile-panel-scroll-padding: 120px;
+  --project-workspace-max-width: 1120px;
   --mobile-card-shadow: 0 12px 30px rgb(67 112 105 / 0.06);
   --mobile-floating-shadow: 0 20px 48px rgb(67 112 105 / 0.14);
   --mobile-fab-shadow: 0 14px 30px rgb(63 183 167 / 0.28);
