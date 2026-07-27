@@ -1427,7 +1427,7 @@
 .project-reservation-card__schedule span, .project-reservation-card__meta span, .project-reservation-card__meta a { align-items: center; color: var(--ink-500); display: inline-flex; font-size: var(--text-meta); gap: var(--space-2); }
 .project-reservation-card__meta a { color: var(--action-700); text-decoration: underline; text-underline-offset: 2px; }
 .project-reservation-card__company { color: var(--ink-700); font-size: var(--text-md); font-weight: var(--weight-semibold); margin: 0; }
-.project-reservation-card__memo { color: var(--ink-700); display: -webkit-box; font-size: var(--text-sm); line-height: var(--leading-body); margin: var(--space-1) 0 0; overflow: hidden; white-space: pre-wrap; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.project-reservation-card__memo { color: var(--ink-700); display: -webkit-box; font-size: var(--text-sm); line-height: var(--leading-body); margin: var(--space-1) 0 0; overflow: hidden; overflow-wrap: anywhere; white-space: normal; word-break: keep-all; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .project-reservation-card__linked { align-items: center; color: var(--success); display: inline-flex; font-size: var(--text-meta); font-weight: var(--weight-semibold); gap: var(--space-2); margin-top: var(--space-1); }
 .project-reservation-card__menu { position: relative; }
 .project-reservation-card__menu summary { align-items: center; border-radius: var(--radius-sm); color: var(--ink-500); cursor: pointer; display: flex; height: var(--control-sm); justify-content: center; list-style: none; width: var(--control-sm); }
