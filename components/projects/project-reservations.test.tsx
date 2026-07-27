@@ -1,0 +1,71 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+import type { ProjectReservationRow } from "@/types/database";
+
+const mocks = vi.hoisted(() => ({
+  deleteReservationAction: vi.fn(),
+  refresh: vi.fn(),
+  saveReservationAction: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: mocks.refresh }),
+}));
+
+vi.mock("@/app/(app)/projects/reservation-actions", () => ({
+  deleteReservationAction: mocks.deleteReservationAction,
+  saveReservationAction: mocks.saveReservationAction,
+}));
+
+import { ProjectReservations } from "@/components/projects/project-reservations";
+
+const reservation: ProjectReservationRow = {
+  id: "22222222-2222-4222-8222-222222222222",
+  user_id: "user-1",
+  project_id: "11111111-1111-4111-8111-111111111111",
+  type: "flight",
+  title: "김포 → 제주",
+  reservation_date: "2026-08-04",
+  start_time: "09:00:00",
+  end_time: "10:10:00",
+  company: "제주항공",
+  confirmation_number: "ABC123",
+  location: "김포공항",
+  phone: null,
+  website: null,
+  memo: null,
+  linked_event_id: "33333333-3333-4333-8333-333333333333",
+  created_at: "",
+  updated_at: "",
+};
+
+describe("project reservations", () => {
+  it("opens the generic reservation form with calendar sync enabled", async () => {
+    render(<ProjectReservations projectId={reservation.project_id} reservations={[]} />);
+
+    expect(screen.getByText("등록된 예약이 없습니다.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "예약 추가" }));
+
+    expect(screen.getByRole("dialog", { name: "예약 추가" })).toBeInTheDocument();
+    expect(screen.getByLabelText("예약 유형")).toHaveValue("flight");
+    expect(screen.getByRole("checkbox", { name: /캘린더 일정 생성/ })).toBeChecked();
+    expect(screen.getByRole("option", { name: "배드민턴" })).toBeInTheDocument();
+  });
+
+  it("shows reservation details and separates linked-event deletion choices", async () => {
+    render(<ProjectReservations projectId={reservation.project_id} reservations={[reservation]} />);
+
+    expect(screen.getByRole("heading", { name: "김포 → 제주" })).toBeInTheDocument();
+    expect(screen.getByText("제주항공")).toBeInTheDocument();
+    expect(screen.getByText("예약번호 ABC123")).toBeInTheDocument();
+    expect(screen.getByText("캘린더 일정 연결됨")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("김포 → 제주 예약 메뉴"));
+    fireEvent.click(screen.getByRole("button", { name: "삭제" }));
+
+    expect(screen.getByRole("dialog", { name: "예약 삭제" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "예약만 삭제" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "일정과 함께 삭제" })).toBeInTheDocument();
+  });
+});

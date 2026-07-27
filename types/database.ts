@@ -102,6 +102,36 @@ export type ProjectChecklistItemRow = {
   updated_at: string;
 };
 
+export type ProjectReservationType =
+  | "flight"
+  | "hotel"
+  | "rental_car"
+  | "restaurant"
+  | "badminton"
+  | "transportation"
+  | "ticket"
+  | "custom";
+
+export type ProjectReservationRow = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  type: ProjectReservationType;
+  title: string;
+  reservation_date: string;
+  start_time: string | null;
+  end_time: string | null;
+  company: string | null;
+  confirmation_number: string | null;
+  location: string | null;
+  phone: string | null;
+  website: string | null;
+  memo: string | null;
+  linked_event_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProjectIcon = "folder" | "calendar" | "school" | "heart" | "flag" | "star";
 export type ProjectColor = "mint" | "blue" | "yellow" | "coral" | "lavender" | "pink";
 
@@ -406,6 +436,12 @@ export type Database = {
         Update: Partial<Omit<ProjectChecklistItemRow, "id" | "user_id" | "project_id">>;
         Relationships: [];
       };
+      project_reservations: {
+        Row: ProjectReservationRow;
+        Insert: Insert<ProjectReservationRow, "id" | "start_time" | "end_time" | "company" | "confirmation_number" | "location" | "phone" | "website" | "memo" | "linked_event_id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ProjectReservationRow, "id" | "user_id" | "project_id">>;
+        Relationships: [];
+      };
       exercise_stickers: {
         Row: ExerciseStickerRow;
         Insert: Insert<ExerciseStickerRow, "id" | "user_id" | "display_order" | "is_default" | "created_at" | "updated_at">;
@@ -511,6 +547,14 @@ export type Database = {
       };
       reorder_project_checklist_items: {
         Args: { p_project_id: string; p_item_ids: string[] };
+        Returns: undefined;
+      };
+      save_project_reservation: {
+        Args: { p_reservation_id: string | null; p_values: Json; p_sync_calendar: boolean };
+        Returns: string;
+      };
+      delete_project_reservation: {
+        Args: { p_reservation_id: string; p_delete_linked_event: boolean };
         Returns: undefined;
       };
       save_event_bundle_v2: {

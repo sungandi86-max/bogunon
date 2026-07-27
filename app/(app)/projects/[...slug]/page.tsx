@@ -5,7 +5,9 @@ import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { ProjectChecklist } from "@/components/projects/project-checklist";
 import { ProjectIcon } from "@/components/projects/project-icon";
+import { ProjectReservations } from "@/components/projects/project-reservations";
 import { listProjectChecklistItems } from "@/lib/projects/checklist-repository";
+import { listProjectReservations } from "@/lib/projects/reservation-repository";
 import { getProject, listProjectEvents } from "@/lib/projects/repository";
 import { todayInSeoul } from "@/lib/work-items/date";
 
@@ -23,10 +25,11 @@ export default async function ProjectDetailPage({
   const { slug } = await params;
   const id = slug[0];
   if (!id || slug.length !== 1) notFound();
-  const [project, events, checklistItems] = await Promise.all([
+  const [project, events, checklistItems, reservations] = await Promise.all([
     getProject(id),
     listProjectEvents(id),
     listProjectChecklistItems(id),
+    listProjectReservations(id),
   ]);
   if (!project) notFound();
 
@@ -47,6 +50,7 @@ export default async function ProjectDetailPage({
         projectId={project.id}
         today={todayInSeoul()}
       />
+      <ProjectReservations projectId={project.id} reservations={reservations} />
       <section aria-labelledby="project-events-title" className="project-event-section">
         <div className="section-title-row"><div><h2 id="project-events-title">프로젝트 일정</h2><p>일정 생성·수정 화면에서 이 프로젝트를 선택한 항목입니다.</p></div></div>
         {events.length ? <div className="project-event-list">{events.map((event) => (

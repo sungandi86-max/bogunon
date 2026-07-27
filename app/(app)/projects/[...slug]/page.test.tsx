@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({
+  notFound: vi.fn(),
+  useRouter: () => ({ refresh: vi.fn() }),
+}));
+
 vi.mock("@/lib/projects/repository", () => ({
   getProject: vi.fn(async () => ({
     id: "project-1", user_id: "user-1", name: "학교 행사 준비", icon: "calendar", color: "mint",
@@ -18,6 +23,10 @@ vi.mock("@/lib/projects/checklist-repository", () => ({
   listProjectChecklistItems: vi.fn(async () => []),
 }));
 
+vi.mock("@/lib/projects/reservation-repository", () => ({
+  listProjectReservations: vi.fn(async () => []),
+}));
+
 import ProjectDetailPage from "@/app/(app)/projects/[...slug]/page";
 
 describe("project detail page", () => {
@@ -27,5 +36,6 @@ describe("project detail page", () => {
     expect(screen.getByRole("link", { name: /축제 준비/ })).toHaveAttribute("href", "/calendar?date=2026-09-01&highlight=event-1");
     expect(screen.getByText("14:00 ~ 15:00")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "체크리스트 0/0" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "예약 0" })).toBeInTheDocument();
   });
 });

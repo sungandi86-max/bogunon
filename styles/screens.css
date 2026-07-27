@@ -1412,6 +1412,49 @@
 .project-checklist-item__edit > label:first-child input { width: 100%; }
 .project-checklist-item__date-input { align-items: center; display: flex; gap: var(--space-2); }
 .project-checklist__empty { color: var(--ink-500); padding: var(--space-10) var(--space-4); text-align: center; }
+.project-reservations { border: 1px solid var(--line); border-radius: var(--radius-lg); margin-bottom: var(--space-10); max-width: 900px; padding: var(--space-8); }
+.project-reservations__heading { align-items: center; display: flex; gap: var(--space-8); justify-content: space-between; margin-bottom: var(--space-6); }
+.project-reservations__heading h2 { color: var(--brand-950); font-size: var(--text-card); margin: 0; }
+.project-reservations__heading h2 span { color: var(--action-700); font-variant-numeric: tabular-nums; }
+.project-reservations__heading p { color: var(--ink-500); font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.project-reservations__grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.project-reservation-card { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-4); grid-template-columns: 36px minmax(0, 1fr) auto; min-height: 148px; padding: var(--space-5); position: relative; }
+.project-reservation-card__icon { align-items: center; background: var(--action-50); border-radius: var(--radius-sm); color: var(--action-700); display: flex; height: 36px; justify-content: center; width: 36px; }
+.project-reservation-card__content { display: grid; gap: var(--space-2); min-width: 0; }
+.project-reservation-card__type { color: var(--action-700); font-size: var(--text-xs); font-weight: var(--weight-semibold); }
+.project-reservation-card h3 { color: var(--brand-950); font-size: var(--text-section); line-height: var(--leading-heading); margin: 0; overflow-wrap: break-word; word-break: keep-all; }
+.project-reservation-card__schedule, .project-reservation-card__meta { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.project-reservation-card__schedule span, .project-reservation-card__meta span, .project-reservation-card__meta a { align-items: center; color: var(--ink-500); display: inline-flex; font-size: var(--text-meta); gap: var(--space-2); }
+.project-reservation-card__meta a { color: var(--action-700); text-decoration: underline; text-underline-offset: 2px; }
+.project-reservation-card__company { color: var(--ink-700); font-size: var(--text-md); font-weight: var(--weight-semibold); margin: 0; }
+.project-reservation-card__memo { color: var(--ink-700); display: -webkit-box; font-size: var(--text-sm); line-height: var(--leading-body); margin: var(--space-1) 0 0; overflow: hidden; white-space: pre-wrap; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.project-reservation-card__linked { align-items: center; color: var(--success); display: inline-flex; font-size: var(--text-meta); font-weight: var(--weight-semibold); gap: var(--space-2); margin-top: var(--space-1); }
+.project-reservation-card__menu { position: relative; }
+.project-reservation-card__menu summary { align-items: center; border-radius: var(--radius-sm); color: var(--ink-500); cursor: pointer; display: flex; height: var(--control-sm); justify-content: center; list-style: none; width: var(--control-sm); }
+.project-reservation-card__menu summary::-webkit-details-marker { display: none; }
+.project-reservation-card__menu > div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-md); display: grid; min-width: 112px; padding: var(--space-2); position: absolute; right: 0; top: 34px; z-index: 5; }
+.project-reservation-card__menu button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-700); display: flex; gap: var(--space-3); min-height: var(--control-sm); padding: 0 var(--space-4); width: 100%; }
+.project-reservation-card__menu button:hover { background: var(--surface-subtle); }
+.project-reservation-card__menu .danger-text { color: var(--danger); }
+.project-reservations__empty { align-items: center; background: var(--surface-subtle); border-radius: var(--radius-md); color: var(--ink-500); display: flex; gap: var(--space-4); justify-content: center; min-height: 112px; padding: var(--space-6); text-align: left; }
+.project-reservations__empty strong { color: var(--brand-950); font-size: var(--text-md); }
+.project-reservations__empty p { font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.project-reservations__message { color: var(--success); font-size: var(--text-sm); margin: 0 0 var(--space-4); }
+.project-reservations__message.is-error { color: var(--danger); }
+.project-reservation-panel { width: min(720px, calc(100vw - (var(--space-8) * 2))); }
+.project-reservation-form { display: grid; gap: var(--space-6); }
+.project-reservation-form__title { grid-column: span 2; }
+.project-reservation-form__schedule { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.project-reservation-form textarea { min-height: 88px; resize: vertical; }
+.project-reservation-form__sync { align-items: flex-start; background: var(--action-50); border: 1px solid var(--action-100); border-radius: var(--radius-md); cursor: pointer; display: flex; gap: var(--space-4); padding: var(--space-5); }
+.project-reservation-form__sync > input { flex: 0 0 auto; height: var(--space-8); margin: var(--space-1) 0 0; width: var(--space-8); }
+.project-reservation-form__sync > span { display: grid; gap: var(--space-1); grid-template-columns: auto 1fr; }
+.project-reservation-form__sync strong { color: var(--brand-950); font-size: var(--text-md); }
+.project-reservation-form__sync small { color: var(--ink-500); font-size: var(--text-sm); grid-column: 1 / -1; }
+.project-reservation-form__sync-note { color: var(--warning); font-size: var(--text-sm); margin: calc(var(--space-4) * -1) 0 0; }
+.project-reservation-delete-panel { width: min(520px, calc(100vw - (var(--space-8) * 2))); }
+.project-reservation-delete-copy { color: var(--ink-700); line-height: var(--leading-body); margin: 0; }
+.project-reservation-delete-copy strong { color: var(--brand-950); }
 .project-event-section { max-width: 900px; }
 .project-event-list { border-top: 1px solid var(--line); display: grid; }
 .project-event-row { align-items: center; border-bottom: 1px solid var(--line); color: var(--ink-700); display: grid; gap: var(--space-6); grid-template-columns: 112px minmax(0, 1fr) auto; min-height: 72px; padding: var(--space-5) var(--space-3); }

@@ -99,6 +99,17 @@
   .project-checklist-item__edit { align-items: stretch; grid-column: 2 / -1; grid-template-columns: 1fr auto; }
   .project-checklist-item__edit > label:first-child { grid-column: 1 / -1; }
   .project-checklist-item__edit .button { min-height: var(--touch-target); }
+  .project-reservations { padding: var(--space-6); }
+  .project-reservations__heading { align-items: stretch; flex-direction: column; gap: var(--space-4); }
+  .project-reservations__heading .button { min-height: var(--touch-target); width: 100%; }
+  .project-reservations__grid { grid-template-columns: 1fr; }
+  .project-reservation-card { grid-template-columns: 36px minmax(0, 1fr) var(--touch-target); padding: var(--space-5) var(--space-4); }
+  .project-reservation-card__menu summary { height: var(--touch-target); width: var(--touch-target); }
+  .project-reservation-card__menu button { min-height: var(--touch-target); }
+  .project-reservation-panel, .project-reservation-delete-panel { width: 100%; }
+  .project-reservation-form .form-grid, .project-reservation-form__schedule { grid-template-columns: 1fr; }
+  .project-reservation-form__title { grid-column: auto; }
+  .project-reservation-form input, .project-reservation-form select { min-height: var(--touch-target); }
   .project-event-row { gap: var(--space-4); grid-template-columns: 78px minmax(0, 1fr) auto; }
   .mobile-create-button { display: none; }
   .briefing-page { padding-top: var(--space-2); }
