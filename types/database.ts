@@ -132,6 +132,45 @@ export type ProjectReservationRow = {
   updated_at: string;
 };
 
+export type ProjectExpenseCategory =
+  | "transportation"
+  | "accommodation"
+  | "food"
+  | "activity"
+  | "shopping"
+  | "ticket"
+  | "supplies"
+  | "fee"
+  | "other";
+
+export type ProjectExpensePaymentStatus = "planned" | "paid";
+
+export type ProjectBudgetRow = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  budget_amount: number;
+  currency: "KRW";
+  memo: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProjectExpenseRow = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  reservation_id: string | null;
+  title: string;
+  category: ProjectExpenseCategory;
+  amount: number;
+  expense_date: string;
+  payment_status: ProjectExpensePaymentStatus;
+  memo: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProjectIcon = "folder" | "calendar" | "school" | "heart" | "flag" | "star";
 export type ProjectColor = "mint" | "blue" | "yellow" | "coral" | "lavender" | "pink";
 
@@ -442,6 +481,18 @@ export type Database = {
         Update: Partial<Omit<ProjectReservationRow, "id" | "user_id" | "project_id">>;
         Relationships: [];
       };
+      project_budgets: {
+        Row: ProjectBudgetRow;
+        Insert: Insert<ProjectBudgetRow, "id" | "currency" | "memo" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ProjectBudgetRow, "id" | "user_id" | "project_id">>;
+        Relationships: [];
+      };
+      project_expenses: {
+        Row: ProjectExpenseRow;
+        Insert: Insert<ProjectExpenseRow, "id" | "reservation_id" | "memo" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ProjectExpenseRow, "id" | "user_id" | "project_id">>;
+        Relationships: [];
+      };
       exercise_stickers: {
         Row: ExerciseStickerRow;
         Insert: Insert<ExerciseStickerRow, "id" | "user_id" | "display_order" | "is_default" | "created_at" | "updated_at">;
@@ -555,6 +606,45 @@ export type Database = {
       };
       delete_project_reservation: {
         Args: { p_reservation_id: string; p_delete_linked_event: boolean };
+        Returns: undefined;
+      };
+      save_project_budget: {
+        Args: { p_project_id: string; p_budget_amount: number; p_currency: string; p_memo: string | null };
+        Returns: string;
+      };
+      delete_project_budget: {
+        Args: { p_project_id: string };
+        Returns: undefined;
+      };
+      save_project_expense: {
+        Args: { p_expense_id: string | null; p_values: Json };
+        Returns: string;
+      };
+      delete_project_expense: {
+        Args: { p_expense_id: string };
+        Returns: undefined;
+      };
+      update_project_expense_status: {
+        Args: { p_expense_id: string; p_payment_status: string };
+        Returns: undefined;
+      };
+      save_project_reservation_with_expense: {
+        Args: {
+          p_reservation_id: string | null;
+          p_values: Json;
+          p_sync_calendar: boolean;
+          p_sync_expense: boolean;
+          p_update_expense: boolean;
+          p_expense_values: Json | null;
+        };
+        Returns: string;
+      };
+      delete_project_reservation_with_expense: {
+        Args: {
+          p_reservation_id: string;
+          p_delete_linked_event: boolean;
+          p_delete_linked_expense: boolean;
+        };
         Returns: undefined;
       };
       save_event_bundle_v2: {

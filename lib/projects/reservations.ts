@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+import {
+  expenseCategorySchema,
+  parseAmount,
+  paymentStatusSchema,
+} from "@/lib/projects/budget";
+
 export const RESERVATION_TYPES = [
   { value: "flight", label: "항공", icon: "plane" },
   { value: "hotel", label: "숙박", icon: "hotel" },
@@ -48,7 +54,12 @@ export const reservationInputSchema = z.object({
   website: optionalWebsite,
   memo: optionalText(2000),
   syncCalendar: z.boolean(),
-}).superRefine(({ startTime, endTime }, context) => {
+  syncExpense: z.boolean(),
+  updateLinkedExpense: z.boolean(),
+  expenseAmount: z.number().int().min(0).max(1_000_000_000_000).nullable(),
+  expenseCategory: expenseCategorySchema,
+  expensePaymentStatus: paymentStatusSchema,
+}).superRefine(({ startTime, endTime, syncExpense, expenseAmount }, context) => {
   if (endTime && !startTime) {
     context.addIssue({
       code: "custom",
@@ -63,12 +74,20 @@ export const reservationInputSchema = z.object({
       path: ["endTime"],
     });
   }
+  if (syncExpense && expenseAmount === null) {
+    context.addIssue({
+      code: "custom",
+      message: "예산에 추가할 비용을 입력해 주세요.",
+      path: ["expenseAmount"],
+    });
+  }
 });
 
 export const reservationDeleteSchema = z.object({
   projectId: z.uuid(),
   reservationId: z.uuid(),
   deleteLinkedEvent: z.boolean(),
+  deleteLinkedExpense: z.boolean(),
 });
 
 export type ReservationInput = z.infer<typeof reservationInputSchema>;
@@ -113,5 +132,12 @@ export function reservationInputFromFormData(formData: FormData): ReservationInp
     website: nullableFormValue(formData.get("website")),
     memo: nullableFormValue(formData.get("memo")),
     syncCalendar: formData.get("syncCalendar") === "on",
+    syncExpense: formData.get("syncExpense") === "on",
+    updateLinkedExpense: formData.get("updateLinkedExpense") === "on",
+    expenseAmount: formData.get("syncExpense") === "on"
+      ? parseAmount(formData.get("expenseAmount"))
+      : null,
+    expenseCategory: formData.get("expenseCategory") ?? "other",
+    expensePaymentStatus: formData.get("expensePaymentStatus") ?? "planned",
   });
 }

@@ -110,6 +110,31 @@
   .project-reservation-form .form-grid, .project-reservation-form__schedule { grid-template-columns: 1fr; }
   .project-reservation-form__title { grid-column: auto; }
   .project-reservation-form input, .project-reservation-form select { min-height: var(--touch-target); }
+  .project-reservation-form__expense { padding: var(--space-4); }
+  .project-reservation-form__expense-update, .project-reservation-delete-option { min-height: var(--touch-target); }
+  .project-budget { padding: var(--space-6); }
+  .project-budget__heading { align-items: stretch; flex-direction: column; gap: var(--space-4); }
+  .project-budget__heading > div:last-child { display: grid; grid-template-columns: 1fr 1fr; }
+  .project-budget__heading .button { min-height: var(--touch-target); }
+  .project-budget-summary dl { grid-template-columns: 1fr 1fr; }
+  .project-budget-summary dl > div { border-bottom: 1px solid var(--line); }
+  .project-budget-summary dl > div:nth-child(2) { border-right: 0; }
+  .project-budget-summary dl > div:nth-child(n+3) { border-bottom: 0; }
+  .project-expense-quick { align-items: stretch; grid-template-columns: 1fr 1fr; }
+  .project-expense-quick label:first-of-type, .project-expense-quick .button { grid-column: 1 / -1; }
+  .project-expense-quick input, .project-expense-quick .button { min-height: var(--touch-target); width: 100%; }
+  .project-budget__filters { align-items: stretch; flex-direction: column; }
+  .project-budget__segments { display: grid; grid-template-columns: repeat(3, 1fr); width: 100%; }
+  .project-budget__segments button, .project-budget__filters select { min-height: var(--touch-target); }
+  .project-budget__filters label { align-items: stretch; flex-direction: column; gap: var(--space-2); }
+  .project-budget__filters select { width: 100%; }
+  .project-expense-card { grid-template-columns: 36px minmax(0, 1fr) var(--touch-target); padding: var(--space-5) 0; }
+  .project-expense-card__primary { align-items: start; flex-direction: column; gap: var(--space-1); }
+  .project-expense-card__menu summary { height: var(--touch-target); width: var(--touch-target); }
+  .project-expense-card__menu button { min-height: var(--touch-target); }
+  .project-budget-panel, .project-expense-panel, .project-expense-delete-panel { width: 100%; }
+  .project-expense-form .form-grid, .project-expense-form__amount { grid-template-columns: 1fr; }
+  .project-expense-form input, .project-expense-form select { min-height: var(--touch-target); }
   .project-event-row { gap: var(--space-4); grid-template-columns: 78px minmax(0, 1fr) auto; }
   .mobile-create-button { display: none; }
   .briefing-page { padding-top: var(--space-2); }

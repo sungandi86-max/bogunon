@@ -27,6 +27,11 @@ vi.mock("@/lib/projects/reservation-repository", () => ({
   listProjectReservations: vi.fn(async () => []),
 }));
 
+vi.mock("@/lib/projects/budget-repository", () => ({
+  listProjectBudget: vi.fn(async () => null),
+  listProjectExpenses: vi.fn(async () => []),
+}));
+
 import ProjectDetailPage from "@/app/(app)/projects/[...slug]/page";
 
 describe("project detail page", () => {
@@ -37,5 +42,6 @@ describe("project detail page", () => {
     expect(screen.getByText("14:00 ~ 15:00")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "체크리스트 0/0" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "예약 0" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "예산" })).toBeInTheDocument();
   });
 });

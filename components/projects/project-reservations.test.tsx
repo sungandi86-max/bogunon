@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ProjectReservationRow } from "@/types/database";
+import type { ProjectExpenseRow, ProjectReservationRow } from "@/types/database";
 
 const mocks = vi.hoisted(() => ({
   deleteReservationAction: vi.fn(),
@@ -39,10 +39,24 @@ const reservation: ProjectReservationRow = {
   created_at: "",
   updated_at: "",
 };
+const linkedExpense: ProjectExpenseRow = {
+  amount: 120_000,
+  category: "transportation",
+  created_at: "",
+  expense_date: "2026-08-04",
+  id: "44444444-4444-4444-8444-444444444444",
+  memo: null,
+  payment_status: "paid",
+  project_id: reservation.project_id,
+  reservation_id: reservation.id,
+  title: reservation.title,
+  updated_at: "",
+  user_id: "user-1",
+};
 
 describe("project reservations", () => {
   it("opens the generic reservation form with calendar sync enabled", async () => {
-    render(<ProjectReservations projectId={reservation.project_id} reservations={[]} />);
+    render(<ProjectReservations expenses={[]} projectId={reservation.project_id} reservations={[]} />);
 
     expect(screen.getByText("등록된 예약이 없습니다.")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "예약 추가" }));
@@ -54,7 +68,7 @@ describe("project reservations", () => {
   });
 
   it("shows reservation details and separates linked-event deletion choices", async () => {
-    render(<ProjectReservations projectId={reservation.project_id} reservations={[reservation]} />);
+    render(<ProjectReservations expenses={[linkedExpense]} projectId={reservation.project_id} reservations={[reservation]} />);
 
     expect(screen.getByRole("heading", { name: "김포 → 제주" })).toBeInTheDocument();
     expect(screen.getByText("제주항공")).toBeInTheDocument();
@@ -65,7 +79,8 @@ describe("project reservations", () => {
     fireEvent.click(screen.getByRole("button", { name: "삭제" }));
 
     expect(screen.getByRole("dialog", { name: "예약 삭제" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "예약만 삭제" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "일정과 함께 삭제" })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "연결된 캘린더 일정도 함께 삭제" })).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: "연결된 지출도 함께 삭제" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "예약 삭제" })).toBeInTheDocument();
   });
 });

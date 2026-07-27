@@ -42,10 +42,21 @@ export async function saveProjectReservation(input: ReservationInput): Promise<s
     website: input.website,
     memo: input.memo,
   };
-  const { data, error } = await supabase.rpc("save_project_reservation", {
+  const expenseValues = input.expenseAmount === null ? null : {
+    title: input.title,
+    category: input.expenseCategory,
+    amount: input.expenseAmount,
+    expense_date: input.reservationDate,
+    payment_status: input.expensePaymentStatus,
+    memo: input.memo,
+  };
+  const { data, error } = await supabase.rpc("save_project_reservation_with_expense", {
     p_reservation_id: input.reservationId ?? null,
     p_values: values,
     p_sync_calendar: input.syncCalendar,
+    p_sync_expense: input.syncExpense,
+    p_update_expense: input.updateLinkedExpense,
+    p_expense_values: expenseValues,
   });
   if (error) throw new Error("예약을 저장하지 못했습니다.");
   return data;
@@ -53,9 +64,10 @@ export async function saveProjectReservation(input: ReservationInput): Promise<s
 
 export async function deleteProjectReservation(input: ReservationDeleteInput): Promise<void> {
   const { supabase } = await ownedClient();
-  const { error } = await supabase.rpc("delete_project_reservation", {
+  const { error } = await supabase.rpc("delete_project_reservation_with_expense", {
     p_reservation_id: input.reservationId,
     p_delete_linked_event: input.deleteLinkedEvent,
+    p_delete_linked_expense: input.deleteLinkedExpense,
   });
   if (error) throw new Error("예약을 삭제하지 못했습니다.");
 }
