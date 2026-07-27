@@ -90,6 +90,18 @@ export type ProjectRow = {
   updated_at: string;
 };
 
+export type ProjectChecklistItemRow = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  title: string;
+  is_completed: boolean;
+  sort_order: number;
+  due_date: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProjectIcon = "folder" | "calendar" | "school" | "heart" | "flag" | "star";
 export type ProjectColor = "mint" | "blue" | "yellow" | "coral" | "lavender" | "pink";
 
@@ -388,6 +400,12 @@ export type Database = {
         Update: Partial<Omit<ProjectRow, "id" | "user_id">>;
         Relationships: [];
       };
+      project_checklist_items: {
+        Row: ProjectChecklistItemRow;
+        Insert: Insert<ProjectChecklistItemRow, "id" | "is_completed" | "sort_order" | "due_date" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ProjectChecklistItemRow, "id" | "user_id" | "project_id">>;
+        Relationships: [];
+      };
       exercise_stickers: {
         Row: ExerciseStickerRow;
         Insert: Insert<ExerciseStickerRow, "id" | "user_id" | "display_order" | "is_default" | "created_at" | "updated_at">;
@@ -490,6 +508,10 @@ export type Database = {
       move_calendar_item: {
         Args: { p_kind: string; p_item_id: string; p_new_date: string; p_scope?: string };
         Returns: string;
+      };
+      reorder_project_checklist_items: {
+        Args: { p_project_id: string; p_item_ids: string[] };
+        Returns: undefined;
       };
       save_event_bundle_v2: {
         Args: { p_item_id: string | null; p_values: Json; p_links?: Json; p_reminders?: Json };

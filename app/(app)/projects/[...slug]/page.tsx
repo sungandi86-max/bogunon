@@ -3,8 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/layout/page-header";
+import { ProjectChecklist } from "@/components/projects/project-checklist";
 import { ProjectIcon } from "@/components/projects/project-icon";
+import { listProjectChecklistItems } from "@/lib/projects/checklist-repository";
 import { getProject, listProjectEvents } from "@/lib/projects/repository";
+import { todayInSeoul } from "@/lib/work-items/date";
 
 function eventTime(isAllDay: boolean, startTime: string | null, endTime: string | null): string {
   if (isAllDay) return "종일";
@@ -20,7 +23,11 @@ export default async function ProjectDetailPage({
   const { slug } = await params;
   const id = slug[0];
   if (!id || slug.length !== 1) notFound();
-  const [project, events] = await Promise.all([getProject(id), listProjectEvents(id)]);
+  const [project, events, checklistItems] = await Promise.all([
+    getProject(id),
+    listProjectEvents(id),
+    listProjectChecklistItems(id),
+  ]);
   if (!project) notFound();
 
   return (
@@ -35,6 +42,11 @@ export default async function ProjectDetailPage({
         <span><ProjectIcon icon={project.icon} size={22} /></span>
         <div><strong>연결된 일정</strong><p>{events.length}개</p></div>
       </section>
+      <ProjectChecklist
+        initialItems={checklistItems}
+        projectId={project.id}
+        today={todayInSeoul()}
+      />
       <section aria-labelledby="project-events-title" className="project-event-section">
         <div className="section-title-row"><div><h2 id="project-events-title">프로젝트 일정</h2><p>일정 생성·수정 화면에서 이 프로젝트를 선택한 항목입니다.</p></div></div>
         {events.length ? <div className="project-event-list">{events.map((event) => (
