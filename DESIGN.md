@@ -94,11 +94,20 @@ Accent color communicates interaction or status. New colors must first be added 
 
 ### Project workspace
 
-- Structure: one project summary header, a persistent tab list, and overview, schedule, checklist, reservation, and budget panels that reuse the page's initially loaded data.
+- Structure: one project summary header, a persistent tab list, and overview, schedule, checklist, reservation, budget, and notes panels. Existing panels reuse the page's initially loaded data; extensible panels such as notes mount on first activation and keep their client cache afterward.
 - States: overview-default, active-tab, empty-summary, populated-summary, and hash-restored tab.
 - Responsive behavior: desktop keeps all tabs in one row; mobile uses a touch-sized horizontal tab strip without causing page-level overflow.
 - Accessibility: semantic tab and tabpanel relationships, keyboard arrow navigation, visible focus, and text labels alongside project color.
 - Persistence: the selected tab is stored in the URL hash so refresh keeps context without triggering a new server fetch.
+
+### Project notes workspace
+
+- Structure: a searchable note list and a direct editor with title, Markdown Lite body, pin, save, preview, and delete commands.
+- States: first-load, empty, filtered-empty, selected, new-draft, editing, previewing, saving, saved, deleting, and error.
+- Responsive behavior: desktop uses a two-pane list/editor workspace without a modal; mobile shows the list first and changes to a full-width editor after selection, with a touch-sized back command.
+- Accessibility: semantic search and form labels, text names for icon commands, 44px touch targets, title Enter save, body Ctrl/Cmd+Enter save, Escape cancel, visible focus, and status/alert feedback.
+- Data loading: the notes panel fetches only on its first mount. Tab changes keep the mounted notes component and reuse its local cache.
+- Markdown Lite: headings, unordered and ordered list lines, task list lines, and line breaks render as React text nodes. HTML, tables, images, attachments, and code blocks are not interpreted.
 
 ## 6. Motion & Interaction
 

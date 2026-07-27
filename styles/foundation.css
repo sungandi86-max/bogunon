@@ -160,6 +160,13 @@
   --mobile-summary-min-height: 116px;
   --mobile-panel-scroll-padding: 120px;
   --project-workspace-max-width: 1120px;
+  --project-notes-list-width: 320px;
+  --project-notes-min-height: 560px;
+  --project-notes-mobile-min-height: 420px;
+  --project-note-editor-min-height: 360px;
+  --project-note-editor-mobile-min-height: 320px;
+  --project-note-card-min-height: 92px;
+  --project-note-card-mobile-min-height: 96px;
   --mobile-card-shadow: 0 12px 30px rgb(67 112 105 / 0.06);
   --mobile-floating-shadow: 0 20px 48px rgb(67 112 105 / 0.14);
   --mobile-fab-shadow: 0 14px 30px rgb(63 183 167 / 0.28);

@@ -102,6 +102,17 @@ export type ProjectChecklistItemRow = {
   updated_at: string;
 };
 
+export type ProjectNoteRow = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  title: string;
+  content: string;
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProjectReservationType =
   | "flight"
   | "hotel"
@@ -473,6 +484,12 @@ export type Database = {
         Row: ProjectChecklistItemRow;
         Insert: Insert<ProjectChecklistItemRow, "id" | "is_completed" | "sort_order" | "due_date" | "created_at" | "updated_at">;
         Update: Partial<Omit<ProjectChecklistItemRow, "id" | "user_id" | "project_id">>;
+        Relationships: [];
+      };
+      project_notes: {
+        Row: ProjectNoteRow;
+        Insert: Insert<ProjectNoteRow, "id" | "content" | "is_pinned" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ProjectNoteRow, "id" | "user_id" | "project_id">>;
         Relationships: [];
       };
       project_reservations: {
