@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { EventRow, ProjectRow } from "@/types/database";
 import type { ProjectInput } from "@/lib/projects/domain";
+import { deleteProjectFileObjects } from "@/lib/projects/files-repository";
 
 async function ownedClient() {
   const supabase = await createClient();
@@ -69,6 +70,7 @@ export async function saveProject(values: ProjectInput, id?: string): Promise<st
 
 export async function deleteProject(id: string): Promise<void> {
   const { supabase, userId } = await ownedClient();
+  await deleteProjectFileObjects(id);
   const { error } = await supabase.from("projects").delete().eq("id", id).eq("user_id", userId);
   if (error) throw new Error("프로젝트를 삭제하지 못했습니다.");
 }

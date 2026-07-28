@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ProjectBudget } from "@/components/projects/project-budget";
 import { ProjectChecklist } from "@/components/projects/project-checklist";
 import { ProjectWorkspaceShell } from "@/components/projects/project-detail-workspace";
+import { ProjectFiles } from "@/components/projects/project-files";
 import { ProjectReservations } from "@/components/projects/project-reservations";
 import { ProjectNotes } from "@/components/projects/project-notes";
 import { ProjectSchedule } from "@/components/projects/project-schedule";
@@ -65,6 +66,7 @@ export default async function ProjectDetailPage({
             today={today}
           />
         )}
+        files={<ProjectFiles projectId={project.id} />}
         overview={(
           <ProjectWorkspaceOverview
             budget={budget}

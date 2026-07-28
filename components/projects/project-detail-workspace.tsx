@@ -10,6 +10,7 @@ const tabs = [
   { key: "reservations", label: "예약", mobileLabel: "예약" },
   { key: "budget", label: "예산", mobileLabel: "예산" },
   { key: "notes", label: "노트", mobileLabel: "노트" },
+  { key: "files", label: "파일", mobileLabel: "파일" },
 ] as const;
 
 type WorkspaceTab = (typeof tabs)[number]["key"];
@@ -29,7 +30,7 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
     const restoreTab = () => {
       const restored = tabFromHash();
       setActiveTab(restored);
-      if (restored === "notes") {
+      if (restored === "notes" || restored === "files") {
         setActivatedLazyTabs((current) => current.includes(restored) ? current : [...current, restored]);
       }
     };
@@ -43,7 +44,7 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
     url.hash = tab;
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     setActiveTab(tab);
-    if (tab === "notes") {
+    if (tab === "notes" || tab === "files") {
       setActivatedLazyTabs((current) => current.includes(tab) ? current : [...current, tab]);
     }
   }
@@ -93,7 +94,9 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
             key={tab.key}
             role="tabpanel"
           >
-            {tab.key !== "notes" || activatedLazyTabs.includes(tab.key) ? props[tab.key] : null}
+            {tab.key !== "notes" && tab.key !== "files"
+              ? props[tab.key]
+              : activatedLazyTabs.includes(tab.key) ? props[tab.key] : null}
           </section>
         ))}
       </div>

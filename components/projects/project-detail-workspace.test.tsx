@@ -11,6 +11,7 @@ const panels = {
   reservations: <p>예약 내용</p>,
   budget: <p>예산 내용</p>,
   notes: <p>노트 내용</p>,
+  files: <p>파일 내용</p>,
 };
 
 describe("project detail workspace", () => {
@@ -61,6 +62,25 @@ describe("project detail workspace", () => {
     fireEvent.click(screen.getByRole("tab", { name: "개요" }));
     expect(screen.getByText("노트 내용")).toBeInTheDocument();
     expect(screen.getByText("노트 내용").closest("[role=tabpanel]")).toHaveAttribute("hidden");
+  });
+
+  it("mounts files on first activation, restores #files, and reuses the mounted panel", () => {
+    const { unmount } = render(<ProjectWorkspaceShell {...panels} />);
+
+    expect(screen.queryByText("파일 내용")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "파일" }));
+    expect(screen.getByText("파일 내용")).toBeVisible();
+    expect(window.location.hash).toBe("#files");
+
+    fireEvent.click(screen.getByRole("tab", { name: "개요" }));
+    expect(screen.getByText("파일 내용")).toBeInTheDocument();
+    expect(screen.getByText("파일 내용").closest("[role=tabpanel]")).toHaveAttribute("hidden");
+
+    window.history.replaceState(null, "", "/projects/project-1#files");
+    unmount();
+    render(<ProjectWorkspaceShell {...panels} />);
+    expect(screen.getByRole("tab", { name: "파일" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tabpanel", { name: "파일" })).toBeVisible();
   });
 
   it("summarizes today's work, checklist progress, next reservation, and budget", () => {
