@@ -113,6 +113,20 @@ export type ProjectNoteRow = {
   updated_at: string;
 };
 
+export type ProjectFileRow = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  reservation_id: string | null;
+  filename: string;
+  original_filename: string;
+  mime_type: string;
+  size_bytes: number;
+  storage_path: string;
+  uploaded_at: string;
+  updated_at: string;
+};
+
 export type ProjectReservationType =
   | "flight"
   | "hotel"
@@ -490,6 +504,12 @@ export type Database = {
         Row: ProjectNoteRow;
         Insert: Insert<ProjectNoteRow, "id" | "content" | "is_pinned" | "created_at" | "updated_at">;
         Update: Partial<Omit<ProjectNoteRow, "id" | "user_id" | "project_id">>;
+        Relationships: [];
+      };
+      project_files: {
+        Row: ProjectFileRow;
+        Insert: Insert<ProjectFileRow, "id" | "reservation_id" | "uploaded_at" | "updated_at">;
+        Update: Partial<Omit<ProjectFileRow, "id" | "user_id" | "project_id" | "storage_path">>;
         Relationships: [];
       };
       project_reservations: {

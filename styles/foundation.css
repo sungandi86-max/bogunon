@@ -167,6 +167,12 @@
   --project-note-editor-mobile-min-height: 320px;
   --project-note-card-min-height: 92px;
   --project-note-card-mobile-min-height: 96px;
+  --project-files-list-width: 340px;
+  --project-files-min-height: 560px;
+  --project-files-mobile-min-height: 420px;
+  --project-file-card-min-height: 68px;
+  --project-file-preview-min-height: 280px;
+  --project-file-preview-mobile-min-height: 240px;
   --mobile-card-shadow: 0 12px 30px rgb(67 112 105 / 0.06);
   --mobile-floating-shadow: 0 20px 48px rgb(67 112 105 / 0.14);
   --mobile-fab-shadow: 0 14px 30px rgb(63 183 167 / 0.28);

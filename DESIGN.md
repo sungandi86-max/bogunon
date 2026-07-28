@@ -94,7 +94,7 @@ Accent color communicates interaction or status. New colors must first be added 
 
 ### Project workspace
 
-- Structure: one project summary header, a persistent tab list, and overview, schedule, checklist, reservation, budget, and notes panels. Existing panels reuse the page's initially loaded data; extensible panels such as notes mount on first activation and keep their client cache afterward.
+- Structure: one project summary header, a persistent tab list, and overview, schedule, checklist, reservation, budget, notes, and files panels. Existing panels reuse the page's initially loaded data; extensible panels such as notes and files mount on first activation and keep their client cache afterward.
 - States: overview-default, active-tab, empty-summary, populated-summary, and hash-restored tab.
 - Responsive behavior: desktop keeps all tabs in one row; mobile uses a touch-sized horizontal tab strip without causing page-level overflow.
 - Accessibility: semantic tab and tabpanel relationships, keyboard arrow navigation, visible focus, and text labels alongside project color.
@@ -108,6 +108,15 @@ Accent color communicates interaction or status. New colors must first be added 
 - Accessibility: semantic search and form labels, text names for icon commands, 44px touch targets, title Enter save, body Ctrl/Cmd+Enter save, Escape cancel, visible focus, and status/alert feedback.
 - Data loading: the notes panel fetches only on its first mount. Tab changes keep the mounted notes component and reuse its local cache.
 - Markdown Lite: headings, unordered and ordered list lines, task list lines, and line breaks render as React text nodes. HTML, tables, images, attachments, and code blocks are not interpreted.
+
+### Project files workspace
+
+- Structure: a searchable and sortable file list with multi-file upload and a selected-file preview pane. Files use a private Storage bucket; preview and download commands receive short-lived signed URLs.
+- States: first-load, empty, filtered-empty, drag-over, uploading, selected, preview-loading, preview-ready, preview-error, deleting, success, and error.
+- Responsive behavior: desktop uses a two-pane list/preview workspace; mobile shows the list first and changes to a full-width preview after selection, with a touch-sized back command.
+- Accessibility: semantic search and sort controls, a keyboard-accessible file picker as the drag-and-drop alternative, named file rows and actions, visible focus, and 44px touch targets.
+- Preview policy: image and text files render in the preview pane; PDF uses a signed new-tab preview; Office documents show file information and download guidance without implying browser rendering support.
+- Data loading: the files panel fetches only on its first mount. Tab changes keep the mounted component and reuse its local cache.
 
 ## 6. Motion & Interaction
 
