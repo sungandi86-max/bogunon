@@ -144,6 +144,7 @@ export type ProjectReservationRow = {
   type: ProjectReservationType;
   title: string;
   reservation_date: string;
+  end_date: string | null;
   start_time: string | null;
   end_time: string | null;
   company: string | null;
@@ -514,7 +515,7 @@ export type Database = {
       };
       project_reservations: {
         Row: ProjectReservationRow;
-        Insert: Insert<ProjectReservationRow, "id" | "start_time" | "end_time" | "company" | "confirmation_number" | "location" | "phone" | "website" | "memo" | "linked_event_id" | "created_at" | "updated_at">;
+        Insert: Insert<ProjectReservationRow, "id" | "end_date" | "start_time" | "end_time" | "company" | "confirmation_number" | "location" | "phone" | "website" | "memo" | "linked_event_id" | "created_at" | "updated_at">;
         Update: Partial<Omit<ProjectReservationRow, "id" | "user_id" | "project_id">>;
         Relationships: [];
       };

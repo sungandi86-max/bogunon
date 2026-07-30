@@ -2,7 +2,6 @@
 
 import {
   CalendarDays,
-  Clock3,
   ExternalLink,
   Link2,
   MapPin,
@@ -14,22 +13,11 @@ import {
 
 import { ProjectReservationIcon } from "@/components/projects/project-reservation-icon";
 import { ProjectTravelActions } from "@/components/projects/project-travel-actions";
-import { RESERVATION_TYPES } from "@/lib/projects/reservations";
+import {
+  formatReservationPeriod,
+  RESERVATION_TYPES,
+} from "@/lib/projects/reservations";
 import type { ProjectFileRow, ProjectReservationRow } from "@/types/database";
-
-function displayDate(value: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
-    month: "long",
-    day: "numeric",
-    timeZone: "Asia/Seoul",
-  }).format(new Date(`${value}T00:00:00+09:00`));
-}
-
-function displayTime(startTime: string | null, endTime: string | null): string | null {
-  if (!startTime) return null;
-  const start = startTime.slice(0, 5);
-  return endTime ? `${start} ~ ${endTime.slice(0, 5)}` : start;
-}
 
 export function ProjectReservationCard({
   files = [],
@@ -43,7 +31,6 @@ export function ProjectReservationCard({
   readonly reservation: ProjectReservationRow;
 }) {
   const typeLabel = RESERVATION_TYPES.find((item) => item.value === reservation.type)?.label ?? "기타";
-  const time = displayTime(reservation.start_time, reservation.end_time);
 
   return (
     <article className="project-reservation-card">
@@ -54,8 +41,10 @@ export function ProjectReservationCard({
         <span className="project-reservation-card__type">{typeLabel}</span>
         <h3>{reservation.title}</h3>
         <div className="project-reservation-card__schedule">
-          <span><CalendarDays aria-hidden="true" size={14} />{displayDate(reservation.reservation_date)}</span>
-          {time && <span><Clock3 aria-hidden="true" size={14} />{time}</span>}
+          <span>
+            <CalendarDays aria-hidden="true" size={14} />
+            {formatReservationPeriod(reservation)}
+          </span>
         </div>
         {reservation.company && <p className="project-reservation-card__company">{reservation.company}</p>}
         <div className="project-reservation-card__meta">

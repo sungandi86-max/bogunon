@@ -10,6 +10,7 @@ const baseInput = {
   type: "flight",
   title: "김포 → 제주",
   reservationDate: "2026-08-04",
+  endDate: "2026-08-04",
   startTime: "09:00",
   endTime: "10:10",
   company: "제주항공",
@@ -54,11 +55,31 @@ describe("project reservation domain", () => {
     expect(parsed.success).toBe(false);
   });
 
-  it("rejects an end time that is not later than the start time", () => {
+  it("rejects an end time that is not later on the same date", () => {
     const parsed = reservationInputSchema.safeParse({
       ...baseInput,
       startTime: "10:10",
       endTime: "09:00",
+    });
+
+    expect(parsed.success).toBe(false);
+  });
+
+  it("accepts an earlier clock time when the reservation ends on a later date", () => {
+    const parsed = reservationInputSchema.safeParse({
+      ...baseInput,
+      endDate: "2026-08-05",
+      startTime: "23:30",
+      endTime: "01:00",
+    });
+
+    expect(parsed.success).toBe(true);
+  });
+
+  it("rejects an end date before the start date", () => {
+    const parsed = reservationInputSchema.safeParse({
+      ...baseInput,
+      endDate: "2026-08-03",
     });
 
     expect(parsed.success).toBe(false);
@@ -83,7 +104,7 @@ describe("project reservation domain", () => {
       title: baseInput.title,
       area: "project",
       start_date: baseInput.reservationDate,
-      end_date: baseInput.reservationDate,
+      end_date: baseInput.endDate,
       is_all_day: false,
       start_time: "09:00",
       end_time: "10:10",

@@ -83,6 +83,7 @@ const reservation: ProjectReservationRow = {
   phone: null,
   project_id: projectId,
   reservation_date: "2026-08-05",
+  end_date: null,
   start_time: null,
   title: "MJ Resort",
   type: "hotel",

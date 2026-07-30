@@ -3,6 +3,10 @@ import Link from "next/link";
 
 import { ProjectWorkspaceEmptyActions } from "@/components/projects/project-workspace-empty-actions";
 import { expenseSummary, formatWon } from "@/lib/projects/budget";
+import {
+  formatReservationPeriod,
+  reservationEndDate,
+} from "@/lib/projects/reservations";
 import type {
   EventRow,
   ProjectBudgetRow,
@@ -54,7 +58,7 @@ export function ProjectWorkspaceOverview({
       `${left.start_date}T${left.start_time ?? "00:00"}`.localeCompare(`${right.start_date}T${right.start_time ?? "00:00"}`)
     ))[0];
   const completedCount = checklistItems.filter((item) => item.is_completed).length;
-  const nextReservation = reservations.find((reservation) => reservation.reservation_date >= today);
+  const nextReservation = reservations.find((reservation) => reservationEndDate(reservation) >= today);
   const summary = expenseSummary(budget?.budget_amount ?? null, expenses);
   const recentActivities: readonly RecentActivity[] = [
     ...events.map((event) => ({ id: event.id, label: "일정", timestamp: event.updated_at, title: event.title })),
@@ -103,7 +107,7 @@ export function ProjectWorkspaceOverview({
         <strong>{reservations.length}건</strong>
         {nextReservation ? (
           <div className="project-overview-next">
-            <span>다음 예약 · {compactDate(nextReservation.reservation_date)}</span>
+            <span>다음 예약 · {formatReservationPeriod(nextReservation)}</span>
             <strong>{nextReservation.title}</strong>
           </div>
         ) : <p className="project-overview-block__empty">예정된 예약이 없습니다.</p>}

@@ -94,6 +94,7 @@ const reservations: readonly ProjectReservationRow[] = [
     phone: "1599-1500",
     project_id: project.id,
     reservation_date: "2026-08-04",
+    end_date: null,
     start_time: "07:10:00",
     title: "김포 → 제주",
     type: "flight",
@@ -113,6 +114,7 @@ const reservations: readonly ProjectReservationRow[] = [
     phone: null,
     project_id: project.id,
     reservation_date: "2026-08-05",
+    end_date: null,
     start_time: null,
     title: "MJ Resort",
     type: "hotel",
@@ -249,5 +251,23 @@ describe("travel project workspace", () => {
     expect(today.files.map((file) => file.original_filename)).toEqual(["항공권.pdf"]);
     expect(today.plannedAmount).toBe(85_000);
     expect(today.paidAmount).toBe(120_000);
+  });
+
+  it("keeps a multi-day reservation visible throughout its stay", () => {
+    const hotel = reservations[1];
+    expect(hotel).toBeDefined();
+    if (!hotel) return;
+
+    const today = buildTravelToday({
+      checklistItems: [],
+      events: [],
+      expenses: [],
+      files: [],
+      project,
+      reservations: [{ ...hotel, end_date: "2026-08-07" }],
+      today: "2026-08-06",
+    });
+
+    expect(today.reservations.map((reservation) => reservation.title)).toEqual(["MJ Resort"]);
   });
 });

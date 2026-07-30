@@ -27,6 +27,7 @@ const reservation: ProjectReservationRow = {
   type: "flight",
   title: "김포 → 제주",
   reservation_date: "2026-08-04",
+  end_date: "2026-08-05",
   start_time: "09:00:00",
   end_time: "10:10:00",
   company: "제주항공",
@@ -72,6 +73,8 @@ describe("project reservations", () => {
     expect(screen.getByLabelText("예약 유형")).toHaveValue("flight");
     expect(screen.getByLabelText("출발일")).toBeInTheDocument();
     expect(screen.getByLabelText("출발 시간")).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("출발일"), { target: { value: "2026-08-04" } });
+    expect(screen.getByLabelText("도착일")).toHaveValue("2026-08-04");
     expect(screen.getByLabelText("도착 시간")).toBeInTheDocument();
     expect(screen.getByText("현재 프로젝트")).toBeInTheDocument();
     expect(screen.getByText("제주 여행")).toBeInTheDocument();
@@ -93,12 +96,33 @@ describe("project reservations", () => {
     expect(screen.getByLabelText("예약 유형")).toHaveValue("hotel");
     expect(screen.getByLabelText("체크인 날짜")).toBeInTheDocument();
     expect(screen.getByLabelText("체크인 시간")).toBeInTheDocument();
+    expect(screen.getByLabelText("체크아웃 날짜")).toBeInTheDocument();
     expect(screen.getByLabelText("체크아웃 시간")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("예약 유형"), { target: { value: "restaurant" } });
     expect(screen.getByLabelText("예약일")).toBeInTheDocument();
     expect(screen.getByLabelText("예약 시간")).toBeInTheDocument();
+    expect(screen.queryByLabelText("종료일")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("종료 시간")).not.toBeInTheDocument();
+  });
+
+  it("adjusts only an empty or invalid end date when the start date changes", () => {
+    render(
+      <ProjectReservations
+        expenses={[]}
+        projectId={reservation.project_id}
+        reservations={[]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "항공 예약 추가" }));
+    fireEvent.change(screen.getByLabelText("출발일"), { target: { value: "2026-08-04" } });
+    fireEvent.change(screen.getByLabelText("도착일"), { target: { value: "2026-08-06" } });
+    fireEvent.change(screen.getByLabelText("출발일"), { target: { value: "2026-08-05" } });
+    expect(screen.getByLabelText("도착일")).toHaveValue("2026-08-06");
+
+    fireEvent.change(screen.getByLabelText("출발일"), { target: { value: "2026-08-07" } });
+    expect(screen.getByLabelText("도착일")).toHaveValue("2026-08-07");
   });
 
   it("shows reservation details and separates linked-event deletion choices", async () => {
@@ -107,6 +131,7 @@ describe("project reservations", () => {
     expect(screen.getByRole("heading", { name: "김포 → 제주" })).toBeInTheDocument();
     expect(screen.getByText("제주항공")).toBeInTheDocument();
     expect(screen.getByText("예약번호 ABC123")).toBeInTheDocument();
+    expect(screen.getByText("2026. 8. 4. 09:00 → 2026. 8. 5. 10:10")).toBeInTheDocument();
     expect(screen.getByText("캘린더 일정 연결됨")).toBeInTheDocument();
 
     fireEvent.click(screen.getByLabelText("김포 → 제주 예약 메뉴"));

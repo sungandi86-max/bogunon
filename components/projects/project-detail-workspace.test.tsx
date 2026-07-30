@@ -130,6 +130,7 @@ describe("project detail workspace", () => {
         reservations={[{
           id: "reservation-1", user_id: "user-1", project_id: "project-1", type: "hotel",
           title: "MJ Resort", reservation_date: "2026-08-05", start_time: null, end_time: null,
+          end_date: null,
           company: null, confirmation_number: null, location: null, phone: null, website: null,
           memo: null, linked_event_id: null, created_at: "", updated_at: "",
         }]}
