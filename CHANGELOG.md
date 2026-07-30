@@ -4,6 +4,36 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.9.2 - Project Creation Polish
+
+Release Date: 2026-07-30
+
+### ✨ Added
+
+- 실시간 프로젝트 미리보기
+- 대표 아이콘 더보기
+
+### 🔄 Changed
+
+- 프로젝트 이름을 첫 입력으로 이동
+- 빠른 시작을 설명 포함 카드로 개선
+- 생성 버튼을 `새 프로젝트 시작`으로 변경
+
+### 🎨 Improved
+
+- 프리셋 선택 상태 강화
+- 유형·아이콘·색상 연동 UX
+- 색상 선택 시각 피드백
+- Desktop 및 Mobile 생성 화면 완성도
+
+### ✅ Verified
+
+- 프로젝트 생성·Workspace·일정 연결 집중 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+
 ## v0.9.1 - Project Creation UX
 
 Release Date: 2026-07-30
@@ -81,7 +111,7 @@ Release Date: 2026-07-30
 
 ## 🚀 Next
 
-### v0.9.2
+### v0.9.3
 
 예정:
 
