@@ -1368,7 +1368,7 @@
 .project-form fieldset { border: 0; margin: 0; min-width: 0; padding: 0; }
 .project-form legend { color: var(--brand-950); font-size: var(--text-sm); font-weight: var(--weight-semibold); margin-bottom: var(--space-3); }
 .project-form__name input { font-size: var(--text-base); font-weight: var(--weight-semibold); }
-.project-form__templates > div { display: grid; gap: var(--space-2); grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.project-form__templates > div { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); }
 .project-form__templates button, .project-form__types button {
   align-items: center;
   background: var(--surface);
