@@ -7,7 +7,7 @@ import type { ProjectReservationRow } from "@/types/database";
 
 export const RESERVATION_FIELD_COPY = {
   badminton: {
-    dateLabel: "예약일",
+    dateLabel: "시작일",
     endDateLabel: "종료일",
     endTimeLabel: "종료 시간",
     startTimeLabel: "시작 시간",
