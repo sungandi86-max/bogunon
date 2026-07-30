@@ -95,6 +95,7 @@ export default async function ProjectDetailPage({
               checklistItems={checklistItems}
               events={events}
               expenses={expenses}
+              project={project}
               reservations={reservations}
               today={today}
             />
@@ -109,7 +110,7 @@ export default async function ProjectDetailPage({
             reservations={reservations}
           />
         )}
-        schedule={<ProjectSchedule events={events} />}
+        schedule={<ProjectSchedule events={events} project={project} />}
       />
     </main>
   );

@@ -1,12 +1,14 @@
 import { CalendarDays, CheckCircle2, CircleDollarSign, TicketCheck } from "lucide-react";
 import Link from "next/link";
 
+import { ProjectWorkspaceEmptyActions } from "@/components/projects/project-workspace-empty-actions";
 import { expenseSummary, formatWon } from "@/lib/projects/budget";
 import type {
   EventRow,
   ProjectBudgetRow,
   ProjectChecklistItemRow,
   ProjectExpenseRow,
+  ProjectRow,
   ProjectReservationRow,
 } from "@/types/database";
 
@@ -15,6 +17,7 @@ type ProjectWorkspaceOverviewProps = {
   readonly checklistItems: readonly ProjectChecklistItemRow[];
   readonly events: readonly EventRow[];
   readonly expenses: readonly ProjectExpenseRow[];
+  readonly project: ProjectRow;
   readonly reservations: readonly ProjectReservationRow[];
   readonly today: string;
 };
@@ -34,6 +37,7 @@ export function ProjectWorkspaceOverview({
   checklistItems,
   events,
   expenses,
+  project,
   reservations,
   today,
 }: ProjectWorkspaceOverviewProps) {
@@ -41,10 +45,16 @@ export function ProjectWorkspaceOverview({
   const completedCount = checklistItems.filter((item) => item.is_completed).length;
   const nextReservation = reservations.find((reservation) => reservation.reservation_date >= today);
   const summary = expenseSummary(budget?.budget_amount ?? null, expenses);
+  const isEmpty = !events.length
+    && !checklistItems.length
+    && !reservations.length
+    && !expenses.length
+    && !budget;
 
   return (
     <section aria-labelledby="project-overview-title" className="project-workspace-overview">
       <h2 id="project-overview-title">프로젝트 개요</h2>
+      {isEmpty && <ProjectWorkspaceEmptyActions project={project} />}
       <article className="project-overview-block">
         <div className="project-overview-block__heading">
           <CalendarDays aria-hidden="true" size={18} />

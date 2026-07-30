@@ -26,8 +26,17 @@ export function ProjectWorkspace({ projects }: { readonly projects: readonly Pro
   const closePanel = useCallback(() => {
     setPanelOpen(false);
     setEditing(undefined);
+  }, []);
+
+  const handleSaved = useCallback((projectId?: string) => {
+    const wasEditing = Boolean(editing);
+    closePanel();
+    if (!wasEditing && projectId) {
+      router.push(`/projects/${projectId}`);
+      return;
+    }
     router.refresh();
-  }, [router]);
+  }, [closePanel, editing, router]);
 
   function openCreate(trigger: HTMLButtonElement): void {
     triggerRef.current = trigger;
@@ -84,7 +93,7 @@ export function ProjectWorkspace({ projects }: { readonly projects: readonly Pro
         </section>
       )}
       <ResponsiveDetailPanel onClose={() => setPanelOpen(false)} open={panelOpen} returnFocusRef={triggerRef} title={editing ? "프로젝트 수정" : "새 프로젝트"}>
-        <ProjectForm key={editing?.id ?? "create"} onSaved={closePanel} {...(editing ? { project: editing } : {})} />
+        <ProjectForm key={editing?.id ?? "create"} onSaved={handleSaved} {...(editing ? { project: editing } : {})} />
       </ResponsiveDetailPanel>
     </>
   );

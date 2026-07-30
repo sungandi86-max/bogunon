@@ -1,8 +1,22 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ProjectWorkspaceShell } from "@/components/projects/project-detail-workspace";
 import { ProjectWorkspaceOverview } from "@/components/projects/project-workspace-overview";
+import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
+
+const project = {
+  id: "project-1",
+  user_id: "user-1",
+  name: "제주 여행",
+  icon: "travel" as const,
+  color: "mint" as const,
+  description: null,
+  start_date: null,
+  end_date: null,
+  created_at: "",
+  updated_at: "",
+};
 
 const panels = {
   overview: <p>개요 내용</p>,
@@ -112,6 +126,7 @@ describe("project detail workspace", () => {
             payment_status: "paid", memo: null, created_at: "", updated_at: "",
           },
         ]}
+        project={project}
         reservations={[{
           id: "reservation-1", user_id: "user-1", project_id: "project-1", type: "hotel",
           title: "MJ Resort", reservation_date: "2026-08-05", start_time: null, end_time: null,
@@ -129,5 +144,32 @@ describe("project detail workspace", () => {
     expect(screen.getByText("600,000원")).toBeInTheDocument();
     expect(screen.getByText("438,000원")).toBeInTheDocument();
     expect(screen.getByText("162,000원")).toBeInTheDocument();
+  });
+
+  it("offers direct next actions when the workspace has no linked data", () => {
+    const openCreate = vi.fn();
+    render(
+      <AppShellCreateContext value={{ openCreate }}>
+        <ProjectWorkspaceOverview
+          budget={null}
+          checklistItems={[]}
+          events={[]}
+          expenses={[]}
+          project={project}
+          reservations={[]}
+          today="2026-07-30"
+        />
+      </AppShellCreateContext>,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "일정 추가" }));
+    expect(openCreate).toHaveBeenCalledWith(
+      expect.any(HTMLButtonElement),
+      "event",
+      expect.objectContaining({ projectId: project.id }),
+    );
+    expect(screen.getByRole("link", { name: "예약 추가" })).toHaveAttribute("href", "#reservations");
+    expect(screen.getByRole("link", { name: "체크리스트 추가" })).toHaveAttribute("href", "#checklist");
+    expect(screen.getByRole("link", { name: "예산 설정" })).toHaveAttribute("href", "#budget");
   });
 });

@@ -81,6 +81,15 @@
   .project-toolbar .button { width: 100%; }
   .project-grid { grid-template-columns: 1fr; }
   .project-card { min-height: 136px; }
+  .project-form__types > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-form__customize { grid-template-columns: 1fr; }
+  .project-form__templates button, .project-form__types button, .project-form__icons button, .project-form__colors button { min-height: var(--touch-target); }
+  .project-form__icons > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-form__icons button { width: auto; }
+  .project-form__colors button { min-width: var(--touch-target); width: var(--touch-target); }
+  .project-workspace-empty-actions { align-items: stretch; grid-template-columns: 1fr; padding: var(--space-6); }
+  .project-workspace-empty-actions__commands { grid-template-columns: 1fr; }
+  .project-workspace-empty-actions__commands a, .project-workspace-empty-actions__commands button { min-height: var(--touch-target); }
   .project-workspace-header { gap: var(--space-6); grid-template-columns: 1fr; padding: var(--space-8); }
   .project-workspace-header h1 { font-size: var(--text-xl); }
   .project-workspace-header__identity { gap: var(--space-4); }

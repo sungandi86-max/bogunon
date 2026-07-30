@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import type { TemplateDefinition } from "@/lib/work-items/workflow";
 import type { ProjectColor, ProjectIcon } from "@/types/database";
 
 export const PROJECT_ICONS = [
@@ -20,6 +21,61 @@ export const PROJECT_COLORS = [
   { value: "lavender", label: "라벤더" },
   { value: "pink", label: "핑크" },
 ] as const satisfies readonly { readonly value: ProjectColor; readonly label: string }[];
+
+export const PROJECT_TYPES = [
+  { value: "travel", label: "여행", icon: "travel", color: "mint" },
+  { value: "school", label: "학교", icon: "school", color: "blue" },
+  { value: "work", label: "업무", icon: "calendar", color: "mint" },
+  { value: "publication", label: "출판", icon: "star", color: "coral" },
+  { value: "development", label: "개발", icon: "folder", color: "blue" },
+  { value: "workout", label: "운동", icon: "heart", color: "mint" },
+  { value: "personal", label: "개인", icon: "flag", color: "lavender" },
+  { value: "other", label: "기타", icon: "folder", color: "yellow" },
+] as const satisfies readonly {
+  readonly value: string;
+  readonly label: string;
+  readonly icon: ProjectIcon;
+  readonly color: ProjectColor;
+}[];
+
+export type ProjectType = (typeof PROJECT_TYPES)[number]["value"];
+
+export const PROJECT_QUICK_TEMPLATES = [
+  { key: "travel", label: "여행 프로젝트", name: "새 여행", type: "travel" },
+  { key: "school", label: "학교 프로젝트", name: "학교 프로젝트", type: "school" },
+  { key: "publication", label: "출판 프로젝트", name: "출판 프로젝트", type: "publication" },
+  { key: "workout", label: "운동 프로젝트", name: "운동 프로젝트", type: "workout" },
+  { key: "blank", label: "빈 프로젝트", name: "", type: "other" },
+] as const satisfies readonly {
+  readonly key: string;
+  readonly label: string;
+  readonly name: string;
+  readonly type: ProjectType;
+}[];
+
+export function projectTypeForIcon(icon: ProjectIcon): ProjectType {
+  return PROJECT_TYPES.find((option) => option.icon === icon)?.value ?? "other";
+}
+
+export function projectEventTemplate(projectId: string, projectName: string): TemplateDefinition {
+  return {
+    key: `project-event-${projectId}`,
+    name: `${projectName} 일정`,
+    kind: "event",
+    area: "personal",
+    category: "event",
+    title: "",
+    description: "",
+    priority: "normal",
+    estimatedMinutes: 30,
+    recommendedTiming: "날짜 선택",
+    recurrenceFrequency: null,
+    checklist: [],
+    memo: "",
+    isAllDay: true,
+    projectId,
+  };
+}
 
 const emptyToNull = (value: unknown) => {
   if (typeof value !== "string") return value;
