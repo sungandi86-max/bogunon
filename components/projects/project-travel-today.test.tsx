@@ -211,6 +211,8 @@ describe("project travel today", () => {
     expect(screen.getByText("운전면허 확인")).toBeInTheDocument();
     expect(screen.getByText("85,000원")).toBeInTheDocument();
     expect(screen.getByText("120,000원")).toBeInTheDocument();
+    expect(mocks.createFileAccess).not.toHaveBeenCalled();
+    expect(mocks.saveNote).not.toHaveBeenCalled();
   });
 
   it("copies a reservation number and opens a linked file through a signed URL", async () => {
