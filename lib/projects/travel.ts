@@ -73,9 +73,17 @@ export function buildTravelToday(input: TravelTodayInput): TravelToday {
       (left.start_time ?? "99:99:99").localeCompare(right.start_time ?? "99:99:99")
     ));
   const todayReservationIds = new Set(todayReservations.map((reservation) => reservation.id));
+  const startingTodayReservationIds = new Set(
+    input.reservations
+      .filter((reservation) => reservation.reservation_date === input.today)
+      .map((reservation) => reservation.id),
+  );
   const todayExpenses = input.expenses.filter((expense) => (
     expense.expense_date === input.today
-    || (expense.reservation_id !== null && todayReservationIds.has(expense.reservation_id))
+    || (
+      expense.reservation_id !== null
+      && startingTodayReservationIds.has(expense.reservation_id)
+    )
   ));
 
   return {

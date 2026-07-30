@@ -255,13 +255,20 @@ describe("travel project workspace", () => {
 
   it("keeps a multi-day reservation visible throughout its stay", () => {
     const hotel = reservations[1];
+    const baseExpense = expenses[0];
     expect(hotel).toBeDefined();
-    if (!hotel) return;
+    expect(baseExpense).toBeDefined();
+    if (!hotel || !baseExpense) return;
 
+    const linkedExpense = {
+      ...baseExpense,
+      expense_date: "2026-08-05",
+      reservation_id: hotel.id,
+    };
     const today = buildTravelToday({
       checklistItems: [],
       events: [],
-      expenses: [],
+      expenses: [linkedExpense],
       files: [],
       project,
       reservations: [{ ...hotel, end_date: "2026-08-07" }],
@@ -269,5 +276,6 @@ describe("travel project workspace", () => {
     });
 
     expect(today.reservations.map((reservation) => reservation.title)).toEqual(["MJ Resort"]);
+    expect(today.paidAmount).toBe(0);
   });
 });
