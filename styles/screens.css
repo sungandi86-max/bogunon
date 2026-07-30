@@ -1411,7 +1411,7 @@
 .project-form__types > div { display: grid; gap: var(--space-2); grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .project-form__types button { justify-content: center; padding: 0 var(--space-2); }
 .project-form__types button[aria-pressed="true"] { background: var(--action-50); border-color: var(--action-600); box-shadow: inset 0 0 0 1px var(--action-600); color: var(--action-700); }
-.project-form__customize { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.project-form__customize { display: grid; gap: var(--space-6); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
 .project-form__icons > div { display: grid; gap: var(--space-2); grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .project-form__colors > div { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .project-form__icons button {
