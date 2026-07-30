@@ -4,6 +4,44 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.9.4 - Multi-day Reservations
+
+Release Date: 2026-07-30
+
+### ✨ Added
+
+- 예약 종료 날짜 저장
+- 렌터카 대여·반납 기간 입력
+- 숙박 체크인·체크아웃 기간 입력
+- 항공·교통편의 익일 도착 입력
+
+### 🔄 Changed
+
+- 예약 유형에 따라 시작·종료 날짜와 시간 라벨을 맞춤 표시
+- 다일 예약의 종료 날짜를 연결된 Calendar 일정에 자동 반영
+- 예약 목록, Workspace 개요, Travel Today에서 실제 예약 기간 표시
+
+### 🎨 Improved
+
+- 시작일 변경 시 비어 있거나 잘못된 종료일만 자동 보정
+- 390px·430px 예약 입력을 한 열로 재배치
+- 기존 종료 날짜 없는 예약을 시작일 당일 예약으로 호환
+
+### 🛠 Fixed
+
+- 날짜를 넘기는 예약에서 종료 시간이 시작 시간보다 빠를 수 없던 문제
+- 다일 예약이 Calendar에서 하루 일정으로 저장되던 문제
+
+### ✅ Verified
+
+- 예약 도메인·저장소·Workspace·Travel Today 집중 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+- Desktop 1280px, 1440px
+- Mobile 390px, 430px
+
 ## v0.9.3 - Action First Workspace
 
 Release Date: 2026-07-30
@@ -145,14 +183,6 @@ Release Date: 2026-07-30
 - Travel Today 회귀 테스트
 
 ## 🚀 Next
-
-### v0.9.4
-
-예정:
-
-- Workspace 실사용 피드백 반영
-- 접근성 및 성능 개선
-- 버그 수정
 
 ### v1.0.0
 

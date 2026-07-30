@@ -6,6 +6,7 @@ import type {
   ProjectReservationRow,
   ProjectRow,
 } from "@/types/database";
+import { reservationEndDate } from "@/lib/projects/reservations";
 
 const TRAVEL_RESERVATION_TYPES = new Set<ProjectReservationRow["type"]>([
   "flight",
@@ -64,14 +65,25 @@ export function projectTravelDayLabel(project: ProjectRow, today: string): strin
 
 export function buildTravelToday(input: TravelTodayInput): TravelToday {
   const todayReservations = input.reservations
-    .filter((reservation) => reservation.reservation_date === input.today)
+    .filter((reservation) => (
+      reservation.reservation_date <= input.today
+      && reservationEndDate(reservation) >= input.today
+    ))
     .sort((left, right) => (
       (left.start_time ?? "99:99:99").localeCompare(right.start_time ?? "99:99:99")
     ));
   const todayReservationIds = new Set(todayReservations.map((reservation) => reservation.id));
+  const startingTodayReservationIds = new Set(
+    input.reservations
+      .filter((reservation) => reservation.reservation_date === input.today)
+      .map((reservation) => reservation.id),
+  );
   const todayExpenses = input.expenses.filter((expense) => (
     expense.expense_date === input.today
-    || (expense.reservation_id !== null && todayReservationIds.has(expense.reservation_id))
+    || (
+      expense.reservation_id !== null
+      && startingTodayReservationIds.has(expense.reservation_id)
+    )
   ));
 
   return {

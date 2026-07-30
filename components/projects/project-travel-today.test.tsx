@@ -51,6 +51,7 @@ const reservations: readonly ProjectReservationRow[] = [{
   phone: "1599-1500",
   project_id: project.id,
   reservation_date: "2026-08-04",
+  end_date: null,
   start_time: "07:10:00",
   title: "김포 → 제주",
   type: "flight",

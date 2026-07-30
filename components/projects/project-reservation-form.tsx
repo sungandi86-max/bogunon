@@ -9,6 +9,10 @@ import {
 } from "@/app/(app)/projects/reservation-actions";
 import { ProjectMoneyInput } from "@/components/projects/project-money-input";
 import {
+  ProjectReservationScheduleFields,
+  RESERVATION_FIELD_COPY,
+} from "@/components/projects/project-reservation-schedule-fields";
+import {
   EXPENSE_CATEGORIES,
   PAYMENT_STATUSES,
   expenseCategorySchema,
@@ -25,62 +29,6 @@ import type {
 } from "@/types/database";
 
 const initialState: ReservationActionResult = { status: "success", message: "" };
-
-const RESERVATION_FIELD_COPY = {
-  badminton: {
-    dateLabel: "예약일",
-    endTimeLabel: "종료 시간",
-    startTimeLabel: "시작 시간",
-    titlePlaceholder: "예: Victor 배드민턴",
-  },
-  custom: {
-    dateLabel: "예약일",
-    endTimeLabel: "종료 시간",
-    startTimeLabel: "시작 시간",
-    titlePlaceholder: "예: 프로젝트 예약",
-  },
-  flight: {
-    dateLabel: "출발일",
-    endTimeLabel: "도착 시간",
-    startTimeLabel: "출발 시간",
-    titlePlaceholder: "예: 김포 → 제주",
-  },
-  hotel: {
-    dateLabel: "체크인 날짜",
-    endTimeLabel: "체크아웃 시간",
-    startTimeLabel: "체크인 시간",
-    titlePlaceholder: "예: MJ Resort",
-  },
-  rental_car: {
-    dateLabel: "대여일",
-    endTimeLabel: "반납 시간",
-    startTimeLabel: "대여 시간",
-    titlePlaceholder: "예: 제주 렌터카",
-  },
-  restaurant: {
-    dateLabel: "예약일",
-    endTimeLabel: null,
-    startTimeLabel: "예약 시간",
-    titlePlaceholder: "예: 제주 저녁 식사",
-  },
-  ticket: {
-    dateLabel: "관람일",
-    endTimeLabel: "종료 시간",
-    startTimeLabel: "시작 시간",
-    titlePlaceholder: "예: 전시 입장권",
-  },
-  transportation: {
-    dateLabel: "출발일",
-    endTimeLabel: "도착 시간",
-    startTimeLabel: "출발 시간",
-    titlePlaceholder: "예: 제주 시외버스",
-  },
-} satisfies Record<ReservationType, {
-  readonly dateLabel: string;
-  readonly endTimeLabel: string | null;
-  readonly startTimeLabel: string;
-  readonly titlePlaceholder: string;
-}>;
 
 export function ProjectReservationForm({
   formId,
@@ -106,7 +54,6 @@ export function ProjectReservationForm({
   const defaultType = reservation?.type ?? initialType ?? "flight";
   const defaults = reservationExpenseDefaults(defaultType);
   const [reservationType, setReservationType] = useState<ReservationType>(defaultType);
-  const [endTime, setEndTime] = useState(reservation?.end_time?.slice(0, 5) ?? "");
   const [syncExpense, setSyncExpense] = useState(Boolean(linkedExpense));
   const [expenseCategory, setExpenseCategory] = useState(
     linkedExpense?.category ?? defaults.category,
@@ -157,28 +104,11 @@ export function ProjectReservationForm({
           <input defaultValue={reservation?.title ?? ""} id={`${key}-reservation-title`} maxLength={160} name="title" placeholder={fieldCopy.titlePlaceholder} required />
         </div>
       </div>
-      <div className="form-grid project-reservation-form__schedule">
-        <div className="field">
-          <label className="field-label" htmlFor={`${key}-reservation-date`}>{fieldCopy.dateLabel}</label>
-          <input defaultValue={reservation?.reservation_date ?? ""} id={`${key}-reservation-date`} name="reservationDate" required type="date" />
-        </div>
-        <div className="field">
-          <label className="field-label" htmlFor={`${key}-reservation-start`}>{fieldCopy.startTimeLabel}</label>
-          <input defaultValue={reservation?.start_time?.slice(0, 5) ?? ""} id={`${key}-reservation-start`} name="startTime" type="time" />
-        </div>
-        {fieldCopy.endTimeLabel ? (
-          <div className="field">
-            <label className="field-label" htmlFor={`${key}-reservation-end`}>{fieldCopy.endTimeLabel}</label>
-            <input
-              id={`${key}-reservation-end`}
-              name="endTime"
-              onChange={(event) => setEndTime(event.currentTarget.value)}
-              type="time"
-              value={endTime}
-            />
-          </div>
-        ) : <input name="endTime" type="hidden" value={endTime} />}
-      </div>
+      <ProjectReservationScheduleFields
+        fieldKey={key}
+        {...(reservation ? { reservation } : {})}
+        reservationType={reservationType}
+      />
       <div className="form-grid">
         <div className="field">
           <label className="field-label" htmlFor={`${key}-reservation-company`}>업체 또는 기관</label>

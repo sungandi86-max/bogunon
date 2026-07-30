@@ -18,6 +18,7 @@ import { createProjectFileAccessAction } from "@/app/(app)/projects/file-actions
 import { saveProjectNoteAction } from "@/app/(app)/projects/note-actions";
 import { ProjectReservationIcon } from "@/components/projects/project-reservation-icon";
 import { ProjectTravelActions } from "@/components/projects/project-travel-actions";
+import { formatReservationPeriod } from "@/lib/projects/reservations";
 import { formatWon } from "@/lib/projects/budget";
 import { buildTravelToday } from "@/lib/projects/travel";
 import type {
@@ -190,6 +191,7 @@ export function ProjectTravelToday(props: ProjectTravelTodayProps) {
                   <span><ProjectReservationIcon type={reservation.type} /></span>
                   <div>
                     <strong>{reservation.title}</strong>
+                    <small>{formatReservationPeriod(reservation)}</small>
                     {reservation.company && <small>{reservation.company}</small>}
                     <ProjectTravelActions
                       files={props.files.filter((file) => file.reservation_id === reservation.id)}

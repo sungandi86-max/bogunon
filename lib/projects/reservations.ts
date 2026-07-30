@@ -45,6 +45,7 @@ export const reservationInputSchema = z.object({
   type: reservationTypeSchema,
   title: z.string().trim().min(1, "예약 이름을 입력해 주세요.").max(160),
   reservationDate: z.iso.date(),
+  endDate: z.iso.date(),
   startTime: optionalTime,
   endTime: optionalTime,
   company: optionalText(160),
@@ -59,7 +60,22 @@ export const reservationInputSchema = z.object({
   expenseAmount: z.number().int().min(0).max(1_000_000_000_000).nullable(),
   expenseCategory: expenseCategorySchema,
   expensePaymentStatus: paymentStatusSchema,
-}).superRefine(({ startTime, endTime, syncExpense, expenseAmount }, context) => {
+}).superRefine((input, context) => {
+  const {
+    endDate,
+    endTime,
+    expenseAmount,
+    reservationDate,
+    startTime,
+    syncExpense,
+  } = input;
+  if (endDate < reservationDate) {
+    context.addIssue({
+      code: "custom",
+      message: "종료 날짜는 시작 날짜보다 빠를 수 없습니다.",
+      path: ["endDate"],
+    });
+  }
   if (endTime && !startTime) {
     context.addIssue({
       code: "custom",
@@ -67,7 +83,12 @@ export const reservationInputSchema = z.object({
       path: ["endTime"],
     });
   }
-  if (startTime && endTime && endTime <= startTime) {
+  if (
+    startTime
+    && endTime
+    && endDate === reservationDate
+    && endTime <= startTime
+  ) {
     context.addIssue({
       code: "custom",
       message: "종료 시간은 시작 시간보다 늦어야 합니다.",
@@ -100,7 +121,7 @@ export function reservationToEventValues(input: ReservationInput) {
     title: input.title,
     area: "project" as const,
     start_date: input.reservationDate,
-    end_date: input.reservationDate,
+    end_date: input.endDate,
     is_all_day: !input.startTime,
     start_time: input.startTime,
     end_time: input.endTime,
@@ -123,6 +144,7 @@ export function reservationInputFromFormData(formData: FormData): ReservationInp
     type: formData.get("type"),
     title: formData.get("title"),
     reservationDate: formData.get("reservationDate"),
+    endDate: formData.get("endDate"),
     startTime: nullableFormValue(formData.get("startTime")),
     endTime: nullableFormValue(formData.get("endTime")),
     company: nullableFormValue(formData.get("company")),
@@ -140,4 +162,41 @@ export function reservationInputFromFormData(formData: FormData): ReservationInp
     expenseCategory: formData.get("expenseCategory") ?? "other",
     expensePaymentStatus: formData.get("expensePaymentStatus") ?? "planned",
   });
+}
+
+export function reservationEndDate(
+  reservation: { readonly end_date: string | null; readonly reservation_date: string },
+): string {
+  return reservation.end_date ?? reservation.reservation_date;
+}
+
+function dottedDate(value: string): string {
+  const [year, month, day] = value.split("-");
+  return `${year}. ${Number(month)}. ${Number(day)}.`;
+}
+
+export function formatReservationPeriod(
+  reservation: {
+    readonly end_date: string | null;
+    readonly end_time: string | null;
+    readonly reservation_date: string;
+    readonly start_time: string | null;
+  },
+): string {
+  const endDate = reservationEndDate(reservation);
+  const startDateText = dottedDate(reservation.reservation_date);
+  const startTime = reservation.start_time?.slice(0, 5) ?? null;
+  const endTime = reservation.end_time?.slice(0, 5) ?? null;
+
+  if (endDate === reservation.reservation_date) {
+    if (!startTime) return startDateText;
+    return endTime
+      ? `${startDateText} ${startTime} ~ ${endTime}`
+      : `${startDateText} ${startTime}`;
+  }
+
+  return [
+    `${startDateText}${startTime ? ` ${startTime}` : ""}`,
+    `${dottedDate(endDate)}${endTime ? ` ${endTime}` : ""}`,
+  ].join(" → ");
 }

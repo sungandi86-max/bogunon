@@ -33,6 +33,7 @@ export async function saveProjectReservation(input: ReservationInput): Promise<s
     type: input.type,
     title: input.title,
     reservation_date: input.reservationDate,
+    end_date: input.endDate,
     start_time: input.startTime,
     end_time: input.endTime,
     company: input.company,

@@ -80,10 +80,11 @@ Accent color communicates interaction or status. New colors must first be added 
 
 ### Project reservation
 
-- Structure: section heading with count and add command, compact reservation cards, and one labelled modal form for create or edit.
+- Structure: section heading with count and add command, compact reservation cards, and one labelled modal form for create or edit. Date and time fields adapt to the selected reservation type and support a distinct end date.
 - States: empty, populated, creating, editing, saving, linked-calendar, unlinked, delete-choice, success, and error.
-- Responsive behavior: cards use two columns on wide screens and one column on mobile; the modal owns one scrollable body and keeps actions reachable above the safe area.
+- Responsive behavior: cards use two columns on wide screens and one column on mobile; the four-part period fields use one column on mobile, and the modal owns one scrollable body with actions reachable above the safe area.
 - Accessibility: reservation type and calendar-sync controls have visible labels, icon actions include names, and linked-calendar status is expressed with text as well as an icon.
+- Data compatibility: legacy reservations with no end date are displayed as same-day reservations. New saves synchronize the explicit reservation end date to the linked Calendar event.
 
 ### Project budget
 
