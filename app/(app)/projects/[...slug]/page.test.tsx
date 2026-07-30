@@ -33,10 +33,15 @@ vi.mock("@/lib/projects/budget-repository", () => ({
 }));
 
 import ProjectDetailPage from "@/app/(app)/projects/[...slug]/page";
+import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
 
 describe("project detail page", () => {
   it("shows only repository-provided project events", async () => {
-    render(await ProjectDetailPage({ params: Promise.resolve({ slug: ["project-1"] }) }));
+    render(
+      <AppShellCreateContext.Provider value={{ openCreate: vi.fn() }}>
+        {await ProjectDetailPage({ params: Promise.resolve({ slug: ["project-1"] }) })}
+      </AppShellCreateContext.Provider>,
+    );
     expect(screen.getByRole("heading", { name: "학교 행사 준비", level: 1 })).toBeInTheDocument();
     const statistics = within(screen.getByLabelText("프로젝트 통계"));
     expect(statistics.getByText("일정").nextElementSibling).toHaveTextContent("1");

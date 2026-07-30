@@ -38,6 +38,7 @@ export type TemplateDefinition = {
   readonly isAllDay?: boolean;
   readonly colorKey?: EventRow["color_key"];
   readonly eventType?: EventType;
+  readonly projectId?: string;
   readonly workoutType?: string;
   readonly tournamentName?: string;
   readonly discipline?: string;

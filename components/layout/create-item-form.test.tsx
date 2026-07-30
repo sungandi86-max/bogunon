@@ -161,6 +161,37 @@ describe("CreateItemForm Phase 5 workflows", () => {
     expect(screen.getByRole("option", { name: project.name })).toBeInTheDocument();
   });
 
+  it("defaults to the current workspace project for a new event", () => {
+    const project = {
+      id: "project-1", user_id: "user", name: "제주 여행", icon: "travel" as const, color: "mint" as const,
+      description: null, start_date: null, end_date: null, created_at: "", updated_at: "",
+    };
+    render(
+      <ProjectProvider projects={[project]}>
+        <CreateItemForm
+          initialTemplate={{
+            key: "project-event",
+            name: "제주 여행 일정",
+            kind: "event",
+            area: "personal",
+            category: "event",
+            title: "",
+            description: "",
+            priority: "normal",
+            estimatedMinutes: 30,
+            recommendedTiming: "날짜 선택",
+            recurrenceFrequency: null,
+            checklist: [],
+            memo: "",
+            projectId: project.id,
+          }}
+        />
+      </ProjectProvider>,
+    );
+
+    expect(screen.getByRole("combobox", { name: "프로젝트" })).toHaveValue(project.id);
+  });
+
   it("treats a legacy date-only event as all-day when editing", () => {
     const legacyEvent: EventRow = {
       id: "legacy-event",

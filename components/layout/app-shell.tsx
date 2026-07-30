@@ -95,6 +95,10 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
     setCreateOpen(true);
   }, []);
   const closeCreate = useCallback(() => setCreateOpen(false), []);
+  const completeCreate = useCallback(() => {
+    closeCreate();
+    router.refresh();
+  }, [closeCreate, router]);
   const openAssistant = useCallback((trigger: HTMLButtonElement, surface: AssistantSurface = "global", entityId?: string) => {
     assistantButtonRef.current = trigger;
     setAssistantSurface(surface);
@@ -139,7 +143,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
           returnFocusRef={createButtonRef}
           title="새로 만들기"
         >
-          <CreateItemForm defaultKind={createKind} {...(createTemplate ? { initialTemplate: createTemplate } : {})} key={`${createKind}-${createTemplate?.key ?? "blank"}-${createOpen}`} onSaved={closeCreate} titleRef={titleRef} />
+          <CreateItemForm defaultKind={createKind} {...(createTemplate ? { initialTemplate: createTemplate } : {})} key={`${createKind}-${createTemplate?.key ?? "blank"}-${createOpen}`} onSaved={completeCreate} titleRef={titleRef} />
         </ResponsiveDetailPanel>
         <ResponsiveDetailPanel
           onClose={() => setAcademicImportOpen(false)}
