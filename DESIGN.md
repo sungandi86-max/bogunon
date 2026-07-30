@@ -100,6 +100,14 @@ Accent color communicates interaction or status. New colors must first be added 
 - Accessibility: semantic tab and tabpanel relationships, keyboard arrow navigation, visible focus, and text labels alongside project color.
 - Persistence: the selected tab is stored in the URL hash so refresh keeps context without triggering a new server fetch.
 
+### Workspace action-first empty state
+
+- Structure: a concise empty-state heading, one primary command, and project-type recommendations that seed an existing form without saving.
+- States: empty, recommendation-hover, recommendation-focus, recommendation-selected-in-form, batch-pending, success, and error.
+- Responsive behavior: recommendations wrap into compact desktop rows and a two-column mobile grid with 44px touch targets.
+- Accessibility: recommendations are named buttons with Lucide icons; status text accompanies pending and batch results.
+- Data boundary: recommendations only prefill existing event, checklist, or reservation fields. No record is created until the user explicitly saves or selects `모두 추가`.
+
 ### Project creation form
 
 - Structure: project name first, optional quick-start cards, project type, representative icon and color controls, a compact live preview, optional details, and one primary start command.

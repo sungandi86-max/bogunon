@@ -4,6 +4,41 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.9.3 - Action First Workspace
+
+Release Date: 2026-07-30
+
+### ✨ Added
+
+- 프로젝트 유형별 일정 추천과 첫 일정 추가 동선
+- 프로젝트 유형별 체크리스트 추천과 `모두 추가`
+- 예약 유형별 빠른 시작 버튼
+- 프로젝트 개요의 최근 활동 요약
+- 여행·학교·출판·운동 프로젝트 헤더 핵심 정보
+
+### 🔄 Changed
+
+- 빈 Workspace를 안내 문구 중심에서 다음 행동 중심으로 개선
+- 개요 화면을 다음 일정, 예약, 체크리스트, 예산, 최근 활동 순으로 재구성
+- 예약 유형에 따라 날짜·시간 라벨과 예시 문구를 맞춤 표시
+- Workspace에서 새 항목을 만들 때 현재 프로젝트를 상단에 고정 표시
+
+### 🎨 Improved
+
+- 추천 항목의 키보드 포커스와 모바일 터치 영역
+- 390px·430px Workspace Empty State 밀도
+- 예약 생성 흐름의 프로젝트 맥락과 입력 가독성
+
+### ✅ Verified
+
+- Workspace·일정·체크리스트·예약 집중 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+- Desktop 1280px, 1440px
+- Mobile 390px, 430px
+
 ## v0.9.2 - Project Creation Polish
 
 Release Date: 2026-07-30
@@ -111,12 +146,12 @@ Release Date: 2026-07-30
 
 ## 🚀 Next
 
-### v0.9.3
+### v0.9.4
 
 예정:
 
-- 제주 여행 실사용 피드백 반영
-- UX 개선
+- Workspace 실사용 피드백 반영
+- 접근성 및 성능 개선
 - 버그 수정
 
 ### v1.0.0

@@ -146,4 +146,48 @@ describe("ProjectChecklist", () => {
     expect(reorderProjectChecklistItemsAction).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("button", { name: "라켓 챙기기 아래로 이동" })).toBeInTheDocument();
   });
+
+  it("offers project-type recommendations and adds all without requiring manual entry", async () => {
+    createChecklistItemAction
+      .mockResolvedValueOnce({
+        status: "success",
+        message: "체크리스트 항목을 추가했습니다.",
+        item: { ...activeItem, id: "travel-1", title: "캐리어", sort_order: 0 },
+      })
+      .mockResolvedValueOnce({
+        status: "success",
+        message: "체크리스트 항목을 추가했습니다.",
+        item: { ...activeItem, id: "travel-2", title: "충전기", sort_order: 1 },
+      })
+      .mockResolvedValueOnce({
+        status: "success",
+        message: "체크리스트 항목을 추가했습니다.",
+        item: { ...activeItem, id: "travel-3", title: "보조배터리", sort_order: 2 },
+      })
+      .mockResolvedValueOnce({
+        status: "success",
+        message: "체크리스트 항목을 추가했습니다.",
+        item: { ...activeItem, id: "travel-4", title: "신분증", sort_order: 3 },
+      });
+
+    render(
+      <ProjectChecklist
+        initialItems={[]}
+        projectId="project-1"
+        projectType="travel"
+        today="2026-07-27"
+      />,
+    );
+
+    expect(screen.getByText("추천 체크리스트")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "추천 항목 모두 추가" }));
+
+    await waitFor(() => expect(createChecklistItemAction).toHaveBeenCalledTimes(4));
+    expect(createChecklistItemAction).toHaveBeenNthCalledWith(1, {
+      dueDate: null,
+      projectId: "project-1",
+      title: "캐리어",
+    });
+    expect(await screen.findByText("신분증")).toBeInTheDocument();
+  });
 });

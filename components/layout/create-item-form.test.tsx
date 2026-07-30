@@ -190,6 +190,8 @@ describe("CreateItemForm Phase 5 workflows", () => {
     );
 
     expect(screen.getByRole("combobox", { name: "프로젝트" })).toHaveValue(project.id);
+    expect(screen.getByText("현재 프로젝트")).toBeInTheDocument();
+    expect(screen.getAllByText(project.name)).toHaveLength(2);
   });
 
   it("treats a legacy date-only event as all-day when editing", () => {
