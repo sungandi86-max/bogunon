@@ -214,6 +214,12 @@ describe("project travel today", () => {
   });
 
   it("copies a reservation number and opens a linked file through a signed URL", async () => {
+    const previewWindow = {
+      close: vi.fn(),
+      location: { href: "" },
+      opener: window,
+    } as unknown as Window;
+    vi.mocked(window.open).mockReturnValue(previewWindow);
     mocks.createFileAccess.mockResolvedValue({
       message: "",
       signedUrl: "https://signed.example/ticket",
@@ -243,11 +249,9 @@ describe("project travel today", () => {
       mode: "preview",
       projectId: project.id,
     }));
-    expect(window.open).toHaveBeenCalledWith(
-      "https://signed.example/ticket",
-      "_blank",
-      "noopener,noreferrer",
-    );
+    expect(window.open).toHaveBeenCalledWith("about:blank", "_blank");
+    expect(previewWindow.opener).toBeNull();
+    expect(previewWindow.location.href).toBe("https://signed.example/ticket");
   });
 
   it("saves a one-field quick note to Workspace Notes", async () => {

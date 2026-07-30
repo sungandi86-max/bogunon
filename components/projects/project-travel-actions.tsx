@@ -66,6 +66,8 @@ export function ProjectTravelActions({
 
   async function openFile(file: ProjectFileRow): Promise<void> {
     setMessage("");
+    const previewWindow = window.open("about:blank", "_blank");
+    if (previewWindow) previewWindow.opener = null;
     try {
       const result = await createProjectFileAccessAction({
         fileId: file.id,
@@ -73,11 +75,17 @@ export function ProjectTravelActions({
         projectId,
       });
       if (result.status === "error" || !result.signedUrl) {
+        previewWindow?.close();
         setMessage(result.message);
         return;
       }
-      window.open(result.signedUrl, "_blank", "noopener,noreferrer");
+      if (previewWindow) {
+        previewWindow.location.href = result.signedUrl;
+        return;
+      }
+      window.location.assign(result.signedUrl);
     } catch (error) {
+      previewWindow?.close();
       setMessage(error instanceof Error ? "파일을 열지 못했습니다." : "네트워크 연결을 확인해 주세요.");
     }
   }
