@@ -9,16 +9,18 @@ import { ProjectReservationCard } from "@/components/projects/project-reservatio
 import { ProjectReservationForm } from "@/components/projects/project-reservation-form";
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
 import { Button } from "@/components/ui/button";
-import type { ProjectExpenseRow, ProjectReservationRow } from "@/types/database";
+import type { ProjectExpenseRow, ProjectFileRow, ProjectReservationRow } from "@/types/database";
 
 const formId = "project-reservation-form";
 
 export function ProjectReservations({
   expenses,
+  files = [],
   projectId,
   reservations,
 }: {
   readonly expenses: readonly ProjectExpenseRow[];
+  readonly files?: readonly ProjectFileRow[];
   readonly projectId: string;
   readonly reservations: readonly ProjectReservationRow[];
 }) {
@@ -89,6 +91,7 @@ export function ProjectReservations({
           {reservations.map((reservation) => (
             <ProjectReservationCard
               key={reservation.id}
+              files={files.filter((file) => file.reservation_id === reservation.id)}
               onDelete={() => requestDelete(reservation)}
               onEdit={() => setEditing(reservation)}
               reservation={reservation}

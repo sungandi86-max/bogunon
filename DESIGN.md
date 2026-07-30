@@ -118,6 +118,14 @@ Accent color communicates interaction or status. New colors must first be added 
 - Preview policy: image and text files render in the preview pane; PDF uses a signed new-tab preview; Office documents show file information and download guidance without implying browser rendering support.
 - Data loading: the files panel fetches only on its first mount. Tab changes keep the mounted component and reuse its local cache.
 
+### Travel workspace today
+
+- Structure: a compact travel identity band followed by time-ordered today events, the next event, due-today checklist items, today's reservation-linked spending, reservation quick actions, linked files, and a one-field quick note.
+- States: before-trip D-day, active trip day, trip-ended, free-day, scheduled, no-checklist, no-reservation, no-linked-file, saving-note, saved-note, copy-success, and action-error.
+- Responsive behavior: desktop uses a restrained two-column dashboard; mobile keeps the travel identity and next actions first, uses one column, and gives every action a 44px touch target without page-level overflow.
+- Accessibility: real links for maps, telephone, and websites; labelled copy and file commands; live status for clipboard, signed-file, and note results; text labels accompany all icons.
+- Data loading: existing project events, checklist, reservations, expenses, notes, and files are reused. Travel Today does not refetch tab data, and reservation-linked file metadata seeds the Files panel cache.
+
 ## 6. Motion & Interaction
 
 - Micro interaction: 120ms ease-out, matching shared buttons.

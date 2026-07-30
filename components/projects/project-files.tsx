@@ -20,24 +20,28 @@ import {
   sortProjectFiles,
   type ProjectFileSort,
 } from "@/lib/projects/files";
-import type { ProjectFileRow } from "@/types/database";
+import type { ProjectFileRow, ProjectReservationRow } from "@/types/database";
 
 type ProjectFilesProps = {
+  readonly initialFiles?: readonly ProjectFileRow[];
   readonly projectId: string;
+  readonly reservations?: readonly ProjectReservationRow[];
 };
 
-export function ProjectFiles({ projectId }: ProjectFilesProps) {
-  const [files, setFiles] = useState<readonly ProjectFileRow[]>([]);
+export function ProjectFiles({ initialFiles, projectId, reservations = [] }: ProjectFilesProps) {
+  const [files, setFiles] = useState<readonly ProjectFileRow[]>(initialFiles ?? []);
   const [selected, setSelected] = useState<ProjectFileRow>();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<ProjectFileSort>("recent");
-  const [loading, setLoading] = useState(true);
+  const [uploadReservationId, setUploadReservationId] = useState("");
+  const [loading, setLoading] = useState(initialFiles === undefined);
   const [busy, setBusy] = useState(false);
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [messageIsError, setMessageIsError] = useState(false);
 
   useEffect(() => {
+    if (initialFiles !== undefined) return;
     let active = true;
     void loadProjectFilesAction({ projectId })
       .then((result) => {
@@ -60,7 +64,7 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
     return () => {
       active = false;
     };
-  }, [projectId]);
+  }, [initialFiles, projectId]);
 
   const visibleFiles = useMemo(
     () => sortProjectFiles(filterProjectFiles(files, query), sort),
@@ -91,6 +95,7 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
         mimeType: parsed.mimeType,
         originalFilename: parsed.name,
         projectId,
+        reservationId: uploadReservationId || null,
         sizeBytes: parsed.size,
         storagePath: upload.path,
       });
@@ -164,9 +169,12 @@ export function ProjectFiles({ projectId }: ProjectFilesProps) {
         files={visibleFiles}
         onFiles={(items) => void uploadFiles(items)}
         onQueryChange={setQuery}
+        onReservationChange={setUploadReservationId}
         onSelect={selectFile}
         onSortChange={setSort}
         query={query}
+        reservationId={uploadReservationId}
+        reservations={reservations}
         selectedId={selected?.id}
         sort={sort}
         totalCount={files.length}

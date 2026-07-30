@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { ProjectFileRow } from "@/types/database";
+import type { ProjectFileRow, ProjectReservationRow } from "@/types/database";
 
 const mocks = vi.hoisted(() => ({
   accessFile: vi.fn(),
@@ -31,6 +31,25 @@ vi.mock("@/lib/projects/file-upload-client", () => ({
 import { ProjectFiles } from "@/components/projects/project-files";
 
 const projectId = "22222222-2222-4222-8222-222222222222";
+const reservation: ProjectReservationRow = {
+  company: "제주항공",
+  confirmation_number: "ABC123",
+  created_at: "",
+  end_time: "08:20:00",
+  id: "55555555-5555-4555-8555-555555555555",
+  linked_event_id: null,
+  location: "김포공항",
+  memo: null,
+  phone: null,
+  project_id: projectId,
+  reservation_date: "2026-08-04",
+  start_time: "07:10:00",
+  title: "김포 → 제주",
+  type: "flight",
+  updated_at: "",
+  user_id: "user-1",
+  website: null,
+};
 const pdfFile: ProjectFileRow = {
   id: "33333333-3333-4333-8333-333333333333",
   user_id: "user-1",
@@ -95,7 +114,7 @@ describe("ProjectFiles", () => {
     expect(screen.getByRole("combobox", { name: "파일 정렬" })).toHaveValue("size");
   });
 
-  it("uploads multiple supported files and finalizes each metadata row", async () => {
+  it("uploads multiple supported files and links them to the selected reservation", async () => {
     mocks.prepareUpload
       .mockResolvedValueOnce({
         message: "",
@@ -121,9 +140,12 @@ describe("ProjectFiles", () => {
     mocks.finalizeUpload
       .mockResolvedValueOnce({ file: pdfFile, message: "파일을 업로드했습니다.", status: "success" })
       .mockResolvedValueOnce({ file: imageFile, message: "파일을 업로드했습니다.", status: "success" });
-    render(<ProjectFiles projectId={projectId} />);
+    render(<ProjectFiles projectId={projectId} reservations={[reservation]} />);
     await screen.findByLabelText("프로젝트 파일 목록");
 
+    fireEvent.change(screen.getByRole("combobox", { name: "업로드 파일 예약 연결" }), {
+      target: { value: reservation.id },
+    });
     const input = screen.getByLabelText("프로젝트 파일 선택");
     fireEvent.change(input, {
       target: {
@@ -135,6 +157,9 @@ describe("ProjectFiles", () => {
     });
 
     await waitFor(() => expect(mocks.finalizeUpload).toHaveBeenCalledTimes(2));
+    expect(mocks.finalizeUpload).toHaveBeenCalledWith(expect.objectContaining({
+      reservationId: reservation.id,
+    }));
     expect(mocks.uploadFile).toHaveBeenCalledTimes(2);
     expect(mocks.cancelUpload).not.toHaveBeenCalled();
   });

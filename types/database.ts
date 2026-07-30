@@ -196,7 +196,7 @@ export type ProjectExpenseRow = {
   updated_at: string;
 };
 
-export type ProjectIcon = "folder" | "calendar" | "school" | "heart" | "flag" | "star";
+export type ProjectIcon = "folder" | "calendar" | "school" | "heart" | "flag" | "star" | "travel";
 export type ProjectColor = "mint" | "blue" | "yellow" | "coral" | "lavender" | "pink";
 
 export type ExerciseStickerIconKey =
