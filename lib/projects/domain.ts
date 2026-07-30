@@ -5,12 +5,12 @@ import type { ProjectColor, ProjectIcon } from "@/types/database";
 
 export const PROJECT_ICONS = [
   { value: "folder", label: "폴더" },
-  { value: "calendar", label: "캘린더" },
+  { value: "travel", label: "여행" },
   { value: "school", label: "학교" },
+  { value: "calendar", label: "캘린더" },
   { value: "heart", label: "건강" },
   { value: "flag", label: "목표" },
   { value: "star", label: "중요" },
-  { value: "travel", label: "여행" },
 ] as const satisfies readonly { readonly value: ProjectIcon; readonly label: string }[];
 
 export const PROJECT_COLORS = [
@@ -41,14 +41,15 @@ export const PROJECT_TYPES = [
 export type ProjectType = (typeof PROJECT_TYPES)[number]["value"];
 
 export const PROJECT_QUICK_TEMPLATES = [
-  { key: "travel", label: "여행 프로젝트", name: "새 여행", type: "travel" },
-  { key: "school", label: "학교 프로젝트", name: "학교 프로젝트", type: "school" },
-  { key: "publication", label: "출판 프로젝트", name: "출판 프로젝트", type: "publication" },
-  { key: "workout", label: "운동 프로젝트", name: "운동 프로젝트", type: "workout" },
-  { key: "blank", label: "빈 프로젝트", name: "", type: "other" },
+  { key: "travel", label: "여행 프로젝트", description: "일정 · 예약 · 예산", name: "새 여행", type: "travel" },
+  { key: "school", label: "학교 프로젝트", description: "업무 · 일정 · 메모", name: "학교 프로젝트", type: "school" },
+  { key: "publication", label: "출판 프로젝트", description: "원고 · 일정 · 작업", name: "출판 프로젝트", type: "publication" },
+  { key: "workout", label: "운동 프로젝트", description: "훈련 · 대회 · 기록", name: "운동 프로젝트", type: "workout" },
+  { key: "blank", label: "빈 프로젝트", description: "처음부터 직접 구성", name: "", type: "other" },
 ] as const satisfies readonly {
   readonly key: string;
   readonly label: string;
+  readonly description: string;
   readonly name: string;
   readonly type: ProjectType;
 }[];

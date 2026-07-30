@@ -56,7 +56,7 @@ describe("ProjectWorkspace", () => {
       target: { value: "제주 여행" },
     });
     const form = within(screen.getByRole("dialog"))
-      .getByRole("button", { name: "프로젝트 생성" })
+      .getByRole("button", { name: "새 프로젝트 시작" })
       .closest("form");
     if (!form) throw new Error("프로젝트 생성 폼이 필요합니다.");
     fireEvent.submit(form);

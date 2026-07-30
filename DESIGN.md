@@ -100,6 +100,15 @@ Accent color communicates interaction or status. New colors must first be added 
 - Accessibility: semantic tab and tabpanel relationships, keyboard arrow navigation, visible focus, and text labels alongside project color.
 - Persistence: the selected tab is stored in the URL hash so refresh keeps context without triggering a new server fetch.
 
+### Project creation form
+
+- Structure: project name first, optional quick-start cards, project type, representative icon and color controls, a compact live preview, optional details, and one primary start command.
+- States: empty-name, quick-start selected, type customized, icon list expanded, color selected, preview-updated, details-collapsed, editing, pending, success, and error.
+- Responsive behavior: desktop keeps quick-start cards in one compact row when space permits; mobile uses two columns without page-level overflow and preserves 44px touch targets.
+- Accessibility: native fieldset labels, `aria-pressed` selection state, visible check marks alongside color and border changes, named icon controls, and visible keyboard focus.
+- Motion: selection and press feedback uses the shared 120ms transform/opacity micro interaction. The form does not animate layout dimensions.
+- Data boundary: quick starts are UI-only presets for existing project fields. They never create additional records or change the project schema.
+
 ### Project notes workspace
 
 - Structure: a searchable note list and a direct editor with title, Markdown Lite body, pin, save, preview, and delete commands.

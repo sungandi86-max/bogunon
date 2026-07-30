@@ -81,6 +81,8 @@
   .project-toolbar .button { width: 100%; }
   .project-grid { grid-template-columns: 1fr; }
   .project-card { min-height: 136px; }
+  .project-form__templates > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-form__templates button { min-height: 82px; }
   .project-form__types > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .project-form__customize { grid-template-columns: 1fr; }
   .project-form__templates button, .project-form__types button, .project-form__icons button, .project-form__colors button { min-height: var(--touch-target); }

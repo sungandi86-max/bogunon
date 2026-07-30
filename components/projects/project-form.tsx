@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, ChevronDown } from "lucide-react";
 import { useActionState, useEffect, useRef, useState } from "react";
 
 import { saveProjectAction } from "@/app/(app)/projects/actions";
@@ -13,9 +14,10 @@ import {
   projectTypeForIcon,
 } from "@/lib/projects/domain";
 import type { ProjectType } from "@/lib/projects/domain";
-import type { ProjectRow } from "@/types/database";
+import type { ProjectIcon as ProjectIconKey, ProjectRow } from "@/types/database";
 
 const initialState: ProjectActionState = { status: "idle" };
+const primaryProjectIcons = ["folder", "travel", "school", "calendar", "heart", "flag"] as const satisfies readonly ProjectIconKey[];
 
 export function ProjectForm({
   onSaved,
@@ -33,11 +35,19 @@ export function ProjectForm({
   const [icon, setIcon] = useState(project?.icon ?? "folder");
   const [color, setColor] = useState(project?.color ?? "mint");
   const [description, setDescription] = useState(project?.description ?? "");
+  const [selectedTemplateKey, setSelectedTemplateKey] = useState<string | null>(null);
+  const [iconsExpanded, setIconsExpanded] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(
     Boolean(project?.start_date || project?.end_date || project?.description),
   );
-  const nameRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const selectedType = PROJECT_TYPES.find((option) => option.value === projectType);
+  const selectedColor = PROJECT_COLORS.find((option) => option.value === color);
+  const visibleIcons = iconsExpanded
+    ? PROJECT_ICONS
+    : PROJECT_ICONS.filter(
+      (option) => primaryProjectIcons.some((value) => value === option.value) || option.value === icon,
+    );
 
   useEffect(() => {
     if (state.status === "success") onSaved(state.projectId);
@@ -53,6 +63,7 @@ export function ProjectForm({
   function selectType(type: ProjectType): void {
     const option = PROJECT_TYPES.find((item) => item.value === type);
     if (!option) return;
+    setSelectedTemplateKey(null);
     setProjectType(type);
     setIcon(option.icon);
     setColor(option.color);
@@ -61,34 +72,17 @@ export function ProjectForm({
   function applyTemplate(template: (typeof PROJECT_QUICK_TEMPLATES)[number]): void {
     const option = PROJECT_TYPES.find((item) => item.value === template.type);
     if (!option) return;
+    setSelectedTemplateKey(template.key);
     setProjectType(template.type);
-    setName(template.name);
+    setName((currentName) => currentName.trim() ? currentName : template.name);
     setIcon(option.icon);
     setColor(option.color);
-    setDescription("");
-    nameRef.current?.focus();
   }
 
   return (
     <form action={action} autoComplete="off" className="project-form" id="project-form">
       <input name="id" type="hidden" value={project?.id ?? ""} />
-      {!project && (
-        <fieldset className="project-form__templates">
-          <legend>빠른 시작</legend>
-          <div>
-            {PROJECT_QUICK_TEMPLATES.map((template) => {
-              const templateType = PROJECT_TYPES.find((option) => option.value === template.type);
-              return (
-                <button key={template.key} onClick={() => applyTemplate(template)} type="button">
-                  <ProjectIcon icon={templateType?.icon ?? "folder"} size={17} />
-                  {template.label}
-                </button>
-              );
-            })}
-          </div>
-        </fieldset>
-      )}
-      <div className="field">
+      <div className="field project-form__name">
         <label className="field-label" htmlFor={`${key}-project-name`}>프로젝트 이름</label>
         <input
           autoComplete="off"
@@ -96,12 +90,39 @@ export function ProjectForm({
           maxLength={120}
           name="name"
           onChange={(event) => setName(event.currentTarget.value)}
-          placeholder="예: 2학기 보건교육 준비"
-          ref={nameRef}
+          placeholder="예: 제주 여행"
           required
           value={name}
         />
       </div>
+      {!project && (
+        <fieldset className="project-form__templates">
+          <legend>빠른 시작</legend>
+          <div>
+            {PROJECT_QUICK_TEMPLATES.map((template) => {
+              const templateType = PROJECT_TYPES.find((option) => option.value === template.type);
+              const selected = selectedTemplateKey === template.key;
+              return (
+                <button
+                  aria-pressed={selected}
+                  key={template.key}
+                  onClick={() => applyTemplate(template)}
+                  type="button"
+                >
+                  <span className="project-form__template-icon">
+                    <ProjectIcon icon={templateType?.icon ?? "folder"} size={18} />
+                  </span>
+                  <span className="project-form__template-copy">
+                    <strong>{template.label}</strong>
+                    <small>{template.description}</small>
+                  </span>
+                  <Check aria-hidden="true" className="project-form__selection-check" size={16} />
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      )}
       <fieldset className="project-form__types">
         <legend>프로젝트 유형</legend>
         <div>
@@ -123,7 +144,7 @@ export function ProjectForm({
           <legend>대표 아이콘</legend>
           <input name="icon" type="hidden" value={icon} />
           <div>
-            {PROJECT_ICONS.map((option) => (
+            {visibleIcons.map((option) => (
               <button
                 aria-label={`${option.label} 아이콘`}
                 aria-pressed={icon === option.value}
@@ -136,6 +157,16 @@ export function ProjectForm({
                 <span>{option.label}</span>
               </button>
             ))}
+            <button
+              aria-expanded={iconsExpanded}
+              aria-label={iconsExpanded ? "대표 아이콘 접기" : "대표 아이콘 더보기"}
+              className="project-form__icon-more"
+              onClick={() => setIconsExpanded((expanded) => !expanded)}
+              type="button"
+            >
+              <ChevronDown aria-hidden="true" className={iconsExpanded ? "is-expanded" : ""} size={17} />
+              <span>{iconsExpanded ? "접기" : "더보기"}</span>
+            </button>
           </div>
         </fieldset>
         <fieldset className="project-form__colors">
@@ -152,12 +183,30 @@ export function ProjectForm({
                 title={option.label}
                 type="button"
               >
-                <span />
+                <span className="project-form__color-swatch" />
+                <Check aria-hidden="true" className="project-form__color-check" size={15} />
               </button>
             ))}
           </div>
         </fieldset>
       </div>
+      <section
+        aria-label="프로젝트 미리보기"
+        className={`project-form__preview project-form__preview--${color}`}
+      >
+        <span className="project-form__preview-icon">
+          <ProjectIcon icon={icon} size={21} />
+        </span>
+        <span className="project-form__preview-copy">
+          <small>미리보기</small>
+          <strong>{name.trim() || "프로젝트 이름"}</strong>
+          <span>
+            {selectedType?.label ?? "기타"}
+            <span aria-hidden="true">·</span>
+            {selectedColor?.label ?? "민트"}
+          </span>
+        </span>
+      </section>
       <details
         className="project-form__details"
         onToggle={(event) => setDetailsOpen(event.currentTarget.open)}
@@ -192,7 +241,7 @@ export function ProjectForm({
       </details>
       {state.message && <p aria-live="polite" className={state.status === "error" ? "form-message form-message--error" : "form-message"}>{state.message}</p>}
       <button className="button button--primary project-form__submit" disabled={pending} type="submit">
-        {pending ? "저장 중" : project ? "변경 저장" : "프로젝트 생성"}
+        {pending ? "저장 중" : project ? "변경 저장" : "새 프로젝트 시작"}
       </button>
     </form>
   );
