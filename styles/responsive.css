@@ -92,6 +92,13 @@
   .project-workspace__tab-label { display: none; }
   .project-workspace__tab-label--mobile { display: inline; }
   .project-workspace-overview { grid-template-columns: 1fr; }
+  .project-travel-today__hero { padding: var(--space-5); }
+  .project-travel-today__grid, .travel-today-reservations { grid-template-columns: 1fr; }
+  .travel-today-card--schedule, .travel-today-card--reservations { grid-column: auto; }
+  .travel-today-card { padding: var(--space-5); }
+  .travel-today-next { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
+  .project-travel-actions__commands a, .project-travel-actions__commands button, .project-travel-actions__files button, .travel-today-files button { min-height: var(--touch-target); }
+  .travel-today-note__save { min-height: var(--touch-target); width: 100%; }
   .project-notes { display: block; min-height: 0; overflow: visible; }
   .project-notes-list { border-right: 0; min-height: var(--project-notes-mobile-min-height); padding: var(--space-5); }
   .project-note-card { min-height: var(--project-note-card-mobile-min-height); }
@@ -111,6 +118,7 @@
   .project-files-list__upload { min-height: var(--touch-target); }
   .project-files-list__controls { grid-template-columns: minmax(0, 1fr) auto; }
   .project-files-list__search input, .project-files-list__sort select { height: var(--touch-target); }
+  .project-files-list__reservation select { height: var(--touch-target); }
   .project-file-card { min-height: var(--touch-target); }
   .project-file-preview { display: none; min-height: var(--project-files-mobile-min-height); padding: var(--space-5); }
   .project-files.is-mobile-previewing .project-files-list { display: none; }

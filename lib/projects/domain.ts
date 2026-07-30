@@ -9,6 +9,7 @@ export const PROJECT_ICONS = [
   { value: "heart", label: "건강" },
   { value: "flag", label: "목표" },
   { value: "star", label: "중요" },
+  { value: "travel", label: "여행" },
 ] as const satisfies readonly { readonly value: ProjectIcon; readonly label: string }[];
 
 export const PROJECT_COLORS = [
@@ -28,7 +29,7 @@ const emptyToNull = (value: unknown) => {
 
 export const projectInputSchema = z.object({
   name: z.string().trim().min(1, "프로젝트 이름을 입력해 주세요.").max(120),
-  icon: z.enum(["folder", "calendar", "school", "heart", "flag", "star"]),
+  icon: z.enum(["folder", "calendar", "school", "heart", "flag", "star", "travel"]),
   color: z.enum(["mint", "blue", "yellow", "coral", "lavender", "pink"]),
   description: z.preprocess(emptyToNull, z.string().max(1000).nullable()),
   start_date: z.preprocess(emptyToNull, z.iso.date().nullable()),

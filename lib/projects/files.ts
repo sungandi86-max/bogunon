@@ -84,6 +84,7 @@ export const projectFileFinalizeSchema = projectFileTargetSchema.extend({
   filename: z.string().min(1).max(255),
   mimeType: z.string().min(1),
   originalFilename: z.string().min(1).max(255),
+  reservationId: z.string().uuid().nullable(),
   sizeBytes: z.number().int().positive().max(MAX_PROJECT_FILE_SIZE),
   storagePath: z.string().min(1),
 });

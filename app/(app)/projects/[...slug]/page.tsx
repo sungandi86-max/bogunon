@@ -11,6 +11,7 @@ import { ProjectNotes } from "@/components/projects/project-notes";
 import { ProjectSchedule } from "@/components/projects/project-schedule";
 import { ProjectWorkspaceHeader } from "@/components/projects/project-workspace-header";
 import { ProjectWorkspaceOverview } from "@/components/projects/project-workspace-overview";
+import { ProjectTravelToday } from "@/components/projects/project-travel-today";
 import { listProjectChecklistItems } from "@/lib/projects/checklist-repository";
 import {
   listProjectBudget,
@@ -18,6 +19,8 @@ import {
 } from "@/lib/projects/budget-repository";
 import { listProjectReservations } from "@/lib/projects/reservation-repository";
 import { getProject, listProjectEvents } from "@/lib/projects/repository";
+import { listProjectFiles } from "@/lib/projects/files-repository";
+import { isTravelProject } from "@/lib/projects/travel";
 import { todayInSeoul } from "@/lib/work-items/date";
 
 export default async function ProjectDetailPage({
@@ -38,6 +41,8 @@ export default async function ProjectDetailPage({
   ]);
   if (!project) notFound();
   const today = todayInSeoul();
+  const travelMode = isTravelProject(project, reservations);
+  const projectFiles = travelMode ? await listProjectFiles(project.id) : undefined;
 
   return (
     <main className="page-canvas project-detail-page">
@@ -66,21 +71,40 @@ export default async function ProjectDetailPage({
             today={today}
           />
         )}
-        files={<ProjectFiles projectId={project.id} />}
-        overview={(
-          <ProjectWorkspaceOverview
-            budget={budget}
-            checklistItems={checklistItems}
-            events={events}
-            expenses={expenses}
+        files={(
+          <ProjectFiles
+            {...(projectFiles ? { initialFiles: projectFiles } : {})}
+            projectId={project.id}
             reservations={reservations}
-            today={today}
           />
+        )}
+        overview={(
+          travelMode && projectFiles ? (
+            <ProjectTravelToday
+              checklistItems={checklistItems}
+              events={events}
+              expenses={expenses}
+              files={projectFiles}
+              project={project}
+              reservations={reservations}
+              today={today}
+            />
+          ) : (
+            <ProjectWorkspaceOverview
+              budget={budget}
+              checklistItems={checklistItems}
+              events={events}
+              expenses={expenses}
+              reservations={reservations}
+              today={today}
+            />
+          )
         )}
         notes={<ProjectNotes projectId={project.id} />}
         reservations={(
           <ProjectReservations
             expenses={expenses}
+            files={projectFiles ?? []}
             projectId={project.id}
             reservations={reservations}
           />

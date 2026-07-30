@@ -8,16 +8,19 @@ import {
   formatProjectFileSize,
   type ProjectFileSort,
 } from "@/lib/projects/files";
-import type { ProjectFileRow } from "@/types/database";
+import type { ProjectFileRow, ProjectReservationRow } from "@/types/database";
 
 type ProjectFilesListProps = {
   readonly busy: boolean;
   readonly files: readonly ProjectFileRow[];
   readonly onFiles: (files: readonly File[]) => void;
   readonly onQueryChange: (query: string) => void;
+  readonly onReservationChange: (reservationId: string) => void;
   readonly onSelect: (file: ProjectFileRow) => void;
   readonly onSortChange: (sort: ProjectFileSort) => void;
   readonly query: string;
+  readonly reservationId: string;
+  readonly reservations: readonly ProjectReservationRow[];
   readonly selectedId: string | undefined;
   readonly sort: ProjectFileSort;
   readonly totalCount: number;
@@ -38,9 +41,12 @@ export function ProjectFilesList({
   files,
   onFiles,
   onQueryChange,
+  onReservationChange,
   onSelect,
   onSortChange,
   query,
+  reservationId,
+  reservations,
   selectedId,
   sort,
   totalCount,
@@ -120,6 +126,24 @@ export function ProjectFilesList({
           </select>
         </label>
       </div>
+      {reservations.length > 0 && (
+        <label className="project-files-list__reservation">
+          <span>업로드 파일 연결</span>
+          <select
+            aria-label="업로드 파일 예약 연결"
+            disabled={busy}
+            onChange={(event) => onReservationChange(event.target.value)}
+            value={reservationId}
+          >
+            <option value="">예약 연결 안 함</option>
+            {reservations.map((reservation) => (
+              <option key={reservation.id} value={reservation.id}>
+                {reservation.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       {busy && <p className="project-files-list__progress" role="status">파일을 처리하는 중입니다.</p>}
       {files.length ? (
         <div aria-label="프로젝트 파일 목록" className="project-files-list__items">

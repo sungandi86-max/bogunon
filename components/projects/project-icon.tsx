@@ -1,4 +1,4 @@
-import { CalendarDays, Flag, Folder, GraduationCap, HeartPulse, Star } from "lucide-react";
+import { CalendarDays, Flag, Folder, GraduationCap, HeartPulse, Plane, Star } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import type { ProjectIcon as ProjectIconKey } from "@/types/database";
@@ -10,6 +10,7 @@ const icons: Readonly<Record<ProjectIconKey, LucideIcon>> = {
   heart: HeartPulse,
   flag: Flag,
   star: Star,
+  travel: Plane,
 };
 
 export function ProjectIcon({ icon, size = 20 }: { readonly icon: ProjectIconKey; readonly size?: number }) {

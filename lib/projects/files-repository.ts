@@ -82,6 +82,7 @@ export async function finalizeProjectFileUpload(
       mime_type: parsed.mimeType,
       original_filename: parsed.name,
       project_id: input.projectId,
+      reservation_id: input.reservationId,
       size_bytes: parsed.size,
       storage_path: expectedPath,
       user_id: userId,

@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 
 import { ProjectReservationIcon } from "@/components/projects/project-reservation-icon";
+import { ProjectTravelActions } from "@/components/projects/project-travel-actions";
 import { RESERVATION_TYPES } from "@/lib/projects/reservations";
-import type { ProjectReservationRow } from "@/types/database";
+import type { ProjectFileRow, ProjectReservationRow } from "@/types/database";
 
 function displayDate(value: string): string {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -31,10 +32,12 @@ function displayTime(startTime: string | null, endTime: string | null): string |
 }
 
 export function ProjectReservationCard({
+  files = [],
   onDelete,
   onEdit,
   reservation,
 }: {
+  readonly files?: readonly ProjectFileRow[];
   readonly onDelete: () => void;
   readonly onEdit: () => void;
   readonly reservation: ProjectReservationRow;
@@ -66,6 +69,12 @@ export function ProjectReservationCard({
           )}
         </div>
         {reservation.memo && <p className="project-reservation-card__memo">{reservation.memo}</p>}
+        <ProjectTravelActions
+          files={files}
+          label={reservation.title}
+          projectId={reservation.project_id}
+          reservation={reservation}
+        />
         {reservation.linked_event_id && <span className="project-reservation-card__linked"><Link2 aria-hidden="true" size={13} />캘린더 일정 연결됨</span>}
       </div>
       <details className="project-reservation-card__menu">
