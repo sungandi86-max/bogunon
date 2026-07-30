@@ -104,6 +104,12 @@ describe("project reservations", () => {
     expect(screen.getByLabelText("예약 시간")).toBeInTheDocument();
     expect(screen.queryByLabelText("종료일")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("종료 시간")).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("예약 유형"), { target: { value: "badminton" } });
+    expect(screen.getByLabelText("시작일")).toBeInTheDocument();
+    expect(screen.getByLabelText("시작 시간")).toBeInTheDocument();
+    expect(screen.getByLabelText("종료일")).toBeInTheDocument();
+    expect(screen.getByLabelText("종료 시간")).toBeInTheDocument();
   });
 
   it("adjusts only an empty or invalid end date when the start date changes", () => {
