@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { Eye, EyeOff, ListChecks, Plus, Trash2 } from "lucide-react";
 import { type FormEvent, type KeyboardEvent, useEffect, useState } from "react";
 
 import {
@@ -15,12 +15,18 @@ import {
   normalizeChecklistOrder,
   placeChecklistItem,
 } from "@/lib/projects/checklist";
+import {
+  checklistRecommendationsFor,
+} from "@/lib/projects/workspace-presets";
+import type { ProjectType } from "@/lib/projects/domain";
+import { Button } from "@/components/ui/button";
 import type { ProjectChecklistItemRow } from "@/types/database";
 
 interface Props {
   readonly desktopDragEnabled?: boolean;
   readonly initialItems: readonly ProjectChecklistItemRow[];
   readonly projectId: string;
+  readonly projectType?: ProjectType;
   readonly today: string;
 }
 
@@ -28,6 +34,7 @@ export function ProjectChecklist({
   desktopDragEnabled: desktopOverride,
   initialItems,
   projectId,
+  projectType,
   today,
 }: Props) {
   const [items, setItems] = useState(() => normalizeChecklistOrder(initialItems));
@@ -40,6 +47,7 @@ export function ProjectChecklist({
   const [draggedId, setDraggedId] = useState<string>();
   const [desktopDragEnabled, setDesktopDragEnabled] = useState(desktopOverride ?? false);
   const effectiveDesktopDragEnabled = desktopOverride ?? desktopDragEnabled;
+  const recommendations = projectType ? checklistRecommendationsFor(projectType) : [];
   const completedCount = items.filter((item) => item.is_completed).length;
   const visibleItems = showCompleted ? items : items.filter((item) => !item.is_completed);
 
@@ -77,6 +85,39 @@ export function ProjectChecklist({
     } catch (actionError) {
       setError(true);
       setMessage(actionError instanceof Error ? "네트워크 연결을 확인해 주세요." : "항목을 추가하지 못했습니다.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function addRecommendations(): Promise<void> {
+    if (busy || !recommendations.length) return;
+    setBusy(true);
+    const createdItems: ProjectChecklistItemRow[] = [];
+    try {
+      for (const recommendation of recommendations) {
+        const result = await createChecklistItemAction({
+          dueDate: null,
+          projectId,
+          title: recommendation,
+        });
+        if (result.status === "error" || !result.item) {
+          if (createdItems.length) {
+            setItems((current) => normalizeChecklistOrder([...current, ...createdItems]));
+          }
+          showResult(result);
+          return;
+        }
+        createdItems.push(result.item);
+      }
+      setItems((current) => normalizeChecklistOrder([...current, ...createdItems]));
+      showResult({ message: `추천 항목 ${createdItems.length}개를 추가했습니다.`, status: "success" });
+    } catch (actionError) {
+      if (createdItems.length) {
+        setItems((current) => normalizeChecklistOrder([...current, ...createdItems]));
+      }
+      setError(true);
+      setMessage(actionError instanceof Error ? "네트워크 연결을 확인해 주세요." : "추천 항목을 추가하지 못했습니다.");
     } finally {
       setBusy(false);
     }
@@ -221,6 +262,25 @@ export function ProjectChecklist({
       </form>
       {message && <p className={`project-checklist__message${error ? " is-error" : ""}`} role={error ? "alert" : "status"}>{message}</p>}
       {!showCompleted && completedCount > 0 && <p className="project-checklist__hidden-note">완료 항목 {completedCount}개를 숨겼습니다.</p>}
+      {!items.length && recommendations.length > 0 && (
+        <div className="project-checklist__recommendations">
+          <div>
+            <span className="workspace-action-empty__icon"><ListChecks aria-hidden="true" size={20} /></span>
+            <div><strong>추천 체크리스트</strong><p>프로젝트를 시작할 때 자주 필요한 항목입니다.</p></div>
+          </div>
+          <ul>
+            {recommendations.map((recommendation) => <li key={recommendation}>{recommendation}</li>)}
+          </ul>
+          <Button
+            aria-label="추천 항목 모두 추가"
+            disabled={busy}
+            onClick={() => void addRecommendations()}
+            variant="secondary"
+          >
+            <Plus aria-hidden="true" size={17} />모두 추가
+          </Button>
+        </div>
+      )}
       {visibleItems.length ? (
         <ul className="project-checklist__list">
           {visibleItems.map((item, index) => (
@@ -249,7 +309,7 @@ export function ProjectChecklist({
             />
           ))}
         </ul>
-      ) : <div className="project-checklist__empty">{items.length ? "표시할 미완료 항목이 없습니다." : "첫 체크리스트 항목을 추가해 보세요."}</div>}
+      ) : <div className="project-checklist__empty">{items.length ? "표시할 미완료 항목이 없습니다." : recommendations.length ? "추천을 한 번에 추가하거나 필요한 항목부터 입력하세요." : "첫 체크리스트 항목을 추가해 보세요."}</div>}
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { CalendarDays, CheckCircle2, CircleDollarSign, TicketCheck } from "lucide-react";
+import { Activity, CalendarDays, CheckCircle2, CircleDollarSign, TicketCheck } from "lucide-react";
 import Link from "next/link";
 
 import { ProjectWorkspaceEmptyActions } from "@/components/projects/project-workspace-empty-actions";
@@ -32,6 +32,13 @@ function eventTime(event: EventRow): string {
   return event.start_time?.slice(0, 5) ?? "시간 미정";
 }
 
+type RecentActivity = {
+  readonly id: string;
+  readonly label: string;
+  readonly timestamp: string;
+  readonly title: string;
+};
+
 export function ProjectWorkspaceOverview({
   budget,
   checklistItems,
@@ -41,10 +48,28 @@ export function ProjectWorkspaceOverview({
   reservations,
   today,
 }: ProjectWorkspaceOverviewProps) {
-  const todayEvents = events.filter((event) => event.start_date <= today && event.end_date >= today);
+  const nextEvent = [...events]
+    .filter((event) => event.end_date >= today)
+    .sort((left, right) => (
+      `${left.start_date}T${left.start_time ?? "00:00"}`.localeCompare(`${right.start_date}T${right.start_time ?? "00:00"}`)
+    ))[0];
   const completedCount = checklistItems.filter((item) => item.is_completed).length;
   const nextReservation = reservations.find((reservation) => reservation.reservation_date >= today);
   const summary = expenseSummary(budget?.budget_amount ?? null, expenses);
+  const recentActivities: readonly RecentActivity[] = [
+    ...events.map((event) => ({ id: event.id, label: "일정", timestamp: event.updated_at, title: event.title })),
+    ...checklistItems.map((item) => ({ id: item.id, label: "체크리스트", timestamp: item.updated_at, title: item.title })),
+    ...reservations.map((reservation) => ({
+      id: reservation.id,
+      label: "예약",
+      timestamp: reservation.updated_at,
+      title: reservation.title,
+    })),
+    ...expenses.map((expense) => ({ id: expense.id, label: "지출", timestamp: expense.updated_at, title: expense.title })),
+  ]
+    .filter((activity) => activity.timestamp)
+    .sort((left, right) => right.timestamp.localeCompare(left.timestamp))
+    .slice(0, 3);
   const isEmpty = !events.length
     && !checklistItems.length
     && !reservations.length
@@ -58,18 +83,30 @@ export function ProjectWorkspaceOverview({
       <article className="project-overview-block">
         <div className="project-overview-block__heading">
           <CalendarDays aria-hidden="true" size={18} />
-          <h3>오늘 일정</h3>
+          <h3>다음 일정</h3>
         </div>
-        {todayEvents.length ? (
+        {nextEvent ? (
           <div className="project-overview-events">
-            {todayEvents.map((event) => (
-              <Link href={`/calendar?date=${today}&highlight=${event.id}`} key={event.id}>
-                <span>{eventTime(event)}</span>
-                <strong>{event.title}</strong>
-              </Link>
-            ))}
+            <Link href={`/calendar?date=${nextEvent.start_date}&highlight=${nextEvent.id}`}>
+              <span>{compactDate(nextEvent.start_date)} · {eventTime(nextEvent)}</span>
+              <strong>{nextEvent.title}</strong>
+            </Link>
           </div>
-        ) : <p className="project-overview-block__empty">오늘 일정이 없습니다.</p>}
+        ) : <p className="project-overview-block__empty">예정된 일정이 없습니다.</p>}
+      </article>
+
+      <article className="project-overview-block">
+        <div className="project-overview-block__heading">
+          <TicketCheck aria-hidden="true" size={18} />
+          <h3>예약 현황</h3>
+        </div>
+        <strong>{reservations.length}건</strong>
+        {nextReservation ? (
+          <div className="project-overview-next">
+            <span>다음 예약 · {compactDate(nextReservation.reservation_date)}</span>
+            <strong>{nextReservation.title}</strong>
+          </div>
+        ) : <p className="project-overview-block__empty">예정된 예약이 없습니다.</p>}
       </article>
 
       <article className="project-overview-block">
@@ -88,20 +125,6 @@ export function ProjectWorkspaceOverview({
 
       <article className="project-overview-block">
         <div className="project-overview-block__heading">
-          <TicketCheck aria-hidden="true" size={18} />
-          <h3>예약 요약</h3>
-        </div>
-        <strong>{reservations.length}건</strong>
-        {nextReservation ? (
-          <div className="project-overview-next">
-            <span>다음 예약 · {compactDate(nextReservation.reservation_date)}</span>
-            <strong>{nextReservation.title}</strong>
-          </div>
-        ) : <p className="project-overview-block__empty">예정된 예약이 없습니다.</p>}
-      </article>
-
-      <article className="project-overview-block">
-        <div className="project-overview-block__heading">
           <CircleDollarSign aria-hidden="true" size={18} />
           <h3>예산 요약</h3>
         </div>
@@ -113,6 +136,26 @@ export function ProjectWorkspaceOverview({
             <dd>{summary.remainingAmount === null ? "계산 전" : formatWon(Math.abs(summary.remainingAmount))}</dd>
           </div>
         </dl>
+      </article>
+
+      <article className="project-overview-block project-overview-block--wide">
+        <div className="project-overview-block__heading">
+          <Activity aria-hidden="true" size={18} />
+          <h3>최근 활동</h3>
+        </div>
+        {recentActivities.length ? (
+          <ul className="project-overview-activity">
+            {recentActivities.map((activity) => (
+              <li key={`${activity.label}-${activity.id}`}>
+                <span>{activity.label}</span>
+                <strong>{activity.title}</strong>
+                <time dateTime={activity.timestamp}>
+                  {new Intl.DateTimeFormat("ko-KR", { month: "short", day: "numeric" }).format(new Date(activity.timestamp))}
+                </time>
+              </li>
+            ))}
+          </ul>
+        ) : <p className="project-overview-block__empty">아직 기록된 활동이 없습니다.</p>}
       </article>
     </section>
   );

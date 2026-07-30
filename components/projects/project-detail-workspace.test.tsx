@@ -97,7 +97,7 @@ describe("project detail workspace", () => {
     expect(screen.getByRole("tabpanel", { name: "파일" })).toBeVisible();
   });
 
-  it("summarizes today's work, checklist progress, next reservation, and budget", () => {
+  it("summarizes project status in next-event, reservation, checklist, budget, and activity order", () => {
     render(
       <ProjectWorkspaceOverview
         budget={{
@@ -137,6 +137,7 @@ describe("project detail workspace", () => {
       />,
     );
 
+    expect(screen.getByRole("heading", { name: "다음 일정" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /09:00.*출발 준비/ })).toBeInTheDocument();
     expect(screen.getByText("1 / 2 완료")).toBeInTheDocument();
     expect(screen.getByRole("progressbar", { name: "체크리스트 1/2 완료" })).toHaveValue(1);
@@ -144,6 +145,7 @@ describe("project detail workspace", () => {
     expect(screen.getByText("600,000원")).toBeInTheDocument();
     expect(screen.getByText("438,000원")).toBeInTheDocument();
     expect(screen.getByText("162,000원")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "최근 활동" })).toBeInTheDocument();
   });
 
   it("offers direct next actions when the workspace has no linked data", () => {

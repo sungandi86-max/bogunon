@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Link2, Plus, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, FolderKanban, Link2, Plus, ShieldCheck, Sparkles, Trash2 } from "lucide-react";
 import type { RefObject } from "react";
 import { useActionState, useEffect, useMemo, useState } from "react";
 
@@ -96,6 +96,9 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   const [quickPreview, setQuickPreview] = useState<QuickInputResult | null>(null);
   const [state, action, pending] = useActionState(saveWorkItemAction, initialActionState);
   const projects = useProjects();
+  const workspaceProject = initialTemplate?.projectId
+    ? projects.find((project) => project.id === initialTemplate.projectId)
+    : undefined;
 
   useEffect(() => { if (state.status === "success") onSaved?.(); }, [onSaved, state.status]);
   const formKey = initialItem?.id ?? "create";
@@ -153,6 +156,15 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
       <input name="reminders" type="hidden" value={remindersJson} />
       {initialTemplate?.aiDraftId && <input name="aiDraftId" type="hidden" value={initialTemplate.aiDraftId} />}
       {initialTemplate?.requiredDate && <input name="requiredDate" type="hidden" value="true" />}
+
+      {!initialItem && workspaceProject && (
+        <div className="workspace-project-context">
+          <FolderKanban aria-hidden="true" size={18} />
+          <span>현재 프로젝트</span>
+          <strong>{workspaceProject.name}</strong>
+          <small>이 일정은 현재 Workspace에 연결됩니다.</small>
+        </div>
+      )}
 
       {!initialItem && !mobileScheduleForm && (
         <section className="quick-input-box" aria-labelledby="quick-input-title">

@@ -11,7 +11,6 @@ import { ProjectNotes } from "@/components/projects/project-notes";
 import { ProjectSchedule } from "@/components/projects/project-schedule";
 import { ProjectWorkspaceHeader } from "@/components/projects/project-workspace-header";
 import { ProjectWorkspaceOverview } from "@/components/projects/project-workspace-overview";
-import { ProjectTravelToday } from "@/components/projects/project-travel-today";
 import { listProjectChecklistItems } from "@/lib/projects/checklist-repository";
 import {
   listProjectBudget,
@@ -21,6 +20,7 @@ import { listProjectReservations } from "@/lib/projects/reservation-repository";
 import { getProject, listProjectEvents } from "@/lib/projects/repository";
 import { listProjectFiles } from "@/lib/projects/files-repository";
 import { isTravelProject } from "@/lib/projects/travel";
+import { projectTypeForIcon } from "@/lib/projects/domain";
 import { todayInSeoul } from "@/lib/work-items/date";
 
 export default async function ProjectDetailPage({
@@ -50,9 +50,11 @@ export default async function ProjectDetailPage({
       <ProjectWorkspaceHeader
         checklistCount={checklistItems.length}
         eventCount={events.length}
+        events={events}
         expenseCount={expenses.length}
         project={project}
         reservationCount={reservations.length}
+        today={today}
       />
       <ProjectWorkspaceShell
         budget={(
@@ -68,6 +70,7 @@ export default async function ProjectDetailPage({
           <ProjectChecklist
             initialItems={checklistItems}
             projectId={project.id}
+            projectType={projectTypeForIcon(project.icon)}
             today={today}
           />
         )}
@@ -79,27 +82,15 @@ export default async function ProjectDetailPage({
           />
         )}
         overview={(
-          travelMode && projectFiles ? (
-            <ProjectTravelToday
-              checklistItems={checklistItems}
-              events={events}
-              expenses={expenses}
-              files={projectFiles}
-              project={project}
-              reservations={reservations}
-              today={today}
-            />
-          ) : (
-            <ProjectWorkspaceOverview
-              budget={budget}
-              checklistItems={checklistItems}
-              events={events}
-              expenses={expenses}
-              project={project}
-              reservations={reservations}
-              today={today}
-            />
-          )
+          <ProjectWorkspaceOverview
+            budget={budget}
+            checklistItems={checklistItems}
+            events={events}
+            expenses={expenses}
+            project={project}
+            reservations={reservations}
+            today={today}
+          />
         )}
         notes={<ProjectNotes projectId={project.id} />}
         reservations={(
@@ -107,6 +98,7 @@ export default async function ProjectDetailPage({
             expenses={expenses}
             files={projectFiles ?? []}
             projectId={project.id}
+            projectName={project.name}
             reservations={reservations}
           />
         )}

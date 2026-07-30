@@ -37,6 +37,17 @@ describe("ProjectSchedule", () => {
         projectId: project.id,
       }),
     );
-    expect(screen.getByText("아직 연결된 일정이 없습니다.")).toBeInTheDocument();
+    expect(screen.getByText("아직 일정이 없습니다.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "공항 출발" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "숙소 체크인" }));
+    expect(openCreate).toHaveBeenLastCalledWith(
+      expect.any(HTMLButtonElement),
+      "event",
+      expect.objectContaining({
+        projectId: project.id,
+        title: "숙소 체크인",
+      }),
+    );
   });
 });

@@ -98,11 +98,24 @@
   .project-workspace-header__stats { border-top: 1px solid var(--line); grid-template-columns: repeat(4, minmax(0, 1fr)); padding-top: var(--space-5); }
   .project-workspace-header__stats > div { padding: 0 var(--space-2); }
   .project-workspace-header__stats > div:first-child { border-left: 0; }
+  .project-workspace-header__milestone { align-items: flex-start; display: grid; grid-template-columns: auto 1fr; }
+  .project-workspace-header__milestone span + span { border-left: 0; padding-left: 0; }
   .project-workspace__tabs { gap: 0; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; }
   .project-workspace__tabs button { flex: 0 0 68px; min-height: var(--touch-target); padding: 0 var(--space-4); scroll-snap-align: start; }
   .project-workspace__tab-label { display: none; }
   .project-workspace__tab-label--mobile { display: inline; }
   .project-workspace-overview { grid-template-columns: 1fr; }
+  .project-overview-block--wide { grid-column: auto; }
+  .project-overview-activity li { grid-template-columns: 64px minmax(0, 1fr); }
+  .project-overview-activity time { display: none; }
+  .workspace-project-context { grid-template-columns: auto minmax(0, 1fr); }
+  .workspace-project-context > span { grid-column: 2; }
+  .workspace-project-context > strong { grid-column: 2; }
+  .workspace-project-context > small { grid-column: 2; }
+  .workspace-action-empty { padding: var(--space-6); }
+  .workspace-action-empty > .button { min-height: var(--touch-target); width: 100%; }
+  .workspace-recommendations__grid { grid-template-columns: 1fr; }
+  .workspace-recommendations__grid button { min-height: var(--touch-target); }
   .project-travel-today__hero { padding: var(--space-5); }
   .project-travel-today__grid, .travel-today-reservations { grid-template-columns: 1fr; }
   .travel-today-card--schedule, .travel-today-card--reservations { grid-column: auto; }
@@ -160,10 +173,14 @@
   .project-checklist-item__edit { align-items: stretch; grid-column: 2 / -1; grid-template-columns: 1fr auto; }
   .project-checklist-item__edit > label:first-child { grid-column: 1 / -1; }
   .project-checklist-item__edit .button { min-height: var(--touch-target); }
+  .project-checklist__recommendations { align-items: stretch; grid-template-columns: 1fr; }
+  .project-checklist__recommendations .button { min-height: var(--touch-target); width: 100%; }
   .project-reservations { padding: var(--space-6); }
   .project-reservations__heading { align-items: stretch; flex-direction: column; gap: var(--space-4); }
   .project-reservations__heading .button { min-height: var(--touch-target); width: 100%; }
   .project-reservations__grid { grid-template-columns: 1fr; }
+  .project-reservations__suggestions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .project-reservations__suggestions button { min-height: var(--touch-target); }
   .project-reservation-card { grid-template-columns: 36px minmax(0, 1fr) var(--touch-target); padding: var(--space-5) var(--space-4); }
   .project-reservation-card__menu summary { height: var(--touch-target); width: var(--touch-target); }
   .project-reservation-card__menu button { min-height: var(--touch-target); }

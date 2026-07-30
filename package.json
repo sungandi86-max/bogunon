@@ -1,6 +1,6 @@
 {
   "name": "bogunon",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "private": true,
   "overrides": {
     "postcss": "8.5.19"

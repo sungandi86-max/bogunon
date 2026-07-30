@@ -49,7 +49,8 @@ describe("project detail page", () => {
     expect(statistics.getByText("예약").nextElementSibling).toHaveTextContent("0");
     expect(statistics.getByText("지출").nextElementSibling).toHaveTextContent("0");
     expect(screen.getByRole("tab", { name: "개요" })).toHaveAttribute("aria-selected", "true");
-    expect(screen.getByText("오늘 일정이 없습니다.")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "다음 일정" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /9월 1일 · 14:00축제 준비/ })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "일정" }));
     expect(screen.getByRole("link", { name: /축제 준비/ })).toHaveAttribute("href", "/calendar?date=2026-09-01&highlight=event-1");
