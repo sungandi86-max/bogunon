@@ -87,6 +87,8 @@ export function ProjectTravelToday(props: ProjectTravelTodayProps) {
 
   async function openTodayFile(file: ProjectFileRow): Promise<void> {
     setFileMessage("");
+    const previewWindow = window.open("about:blank", "_blank");
+    if (previewWindow) previewWindow.opener = null;
     try {
       const result = await createProjectFileAccessAction({
         fileId: file.id,
@@ -94,11 +96,17 @@ export function ProjectTravelToday(props: ProjectTravelTodayProps) {
         projectId: props.project.id,
       });
       if (result.status === "error" || !result.signedUrl) {
+        previewWindow?.close();
         setFileMessage(result.message);
         return;
       }
-      window.open(result.signedUrl, "_blank", "noopener,noreferrer");
+      if (previewWindow) {
+        previewWindow.location.href = result.signedUrl;
+        return;
+      }
+      window.location.assign(result.signedUrl);
     } catch (error) {
+      previewWindow?.close();
       setFileMessage(error instanceof Error ? "파일을 열지 못했습니다." : "네트워크 연결을 확인해 주세요.");
     }
   }
