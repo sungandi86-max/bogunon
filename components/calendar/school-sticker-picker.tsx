@@ -7,71 +7,13 @@ import { removeCalendarStickerAction } from "@/app/(app)/calendar-sticker-action
 import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
 import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
 import { CalendarEventStickerPicker } from "@/components/calendar/calendar-event-sticker-picker";
+import { DATE_STICKER_PACKS as packs, catalogForPack, groupsForPack, isCalendarEventStickerPack, type DateStickerPack } from "@/components/calendar/sticker-picker-config";
 import { useAppShellCreate } from "@/components/layout/app-shell-create-context";
-import { CALENDAR_EVENT_STICKER_PACKS, dateStickerEventTemplate, type CalendarEventStickerPack } from "@/lib/calendar-stickers/event-catalog";
-import { ACADEMIC_CALENDAR_STICKERS, HEALTH_CALENDAR_STICKERS, HOLIDAY_CALENDAR_STICKERS, PERSONAL_CALENDAR_STICKERS, SCHOOL_CALENDAR_STICKERS, calendarStickerByKey, filterCalendarStickers, type CalendarStickerGroup, type CalendarStickerPack } from "@/lib/calendar-stickers/catalog";
+import { dateStickerEventTemplate } from "@/lib/calendar-stickers/event-catalog";
+import { calendarStickerByKey, filterCalendarStickers, type CalendarStickerGroup } from "@/lib/calendar-stickers/catalog";
 import type { CalendarStickerRow } from "@/types/database";
 
 const idle = { status: "idle" as const };
-type DateStickerPack = Exclude<CalendarStickerPack, "academic"> | CalendarEventStickerPack;
-const packs = [
-  ["school", "학교"],
-  ["health", "보건업무"],
-  ["holiday", "공휴일"],
-  ["personal", "개인"],
-  ["workout", "운동"],
-  ["tournament", "대회"],
-] as const satisfies readonly (readonly [DateStickerPack, string])[];
-const schoolGroups = [
-  ["all", "전체"],
-  ["school", "학교생활"],
-  ["semester", "학기"],
-  ["exam", "시험"],
-  ["event", "행사"],
-  ["operation", "운영"],
-] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
-const academicGroups = [
-  ["all", "전체"],
-  ["semester", "학기"],
-  ["exam", "시험"],
-  ["event", "행사"],
-  ["operation", "운영"],
-] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
-const healthGroups = [
-  ["all", "전체"],
-  ["screening", "건강검사"],
-  ["education", "보건교육"],
-  ["operation", "운영·점검"],
-  ["administration", "행정·협업"],
-] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
-const holidayGroups = [
-  ["all", "전체"],
-  ["national", "국가 공휴일"],
-  ["traditional", "명절"],
-  ["special", "대체·특별 휴일"],
-  ["general", "일반 휴일"],
-] as const satisfies readonly (readonly [CalendarStickerGroup | "all", string])[];
-
-function catalogForPack(pack: CalendarStickerPack) {
-  if (pack === "academic") return ACADEMIC_CALENDAR_STICKERS;
-  if (pack === "school") return [...SCHOOL_CALENDAR_STICKERS, ...ACADEMIC_CALENDAR_STICKERS];
-  if (pack === "health") return HEALTH_CALENDAR_STICKERS;
-  if (pack === "holiday") return HOLIDAY_CALENDAR_STICKERS;
-  if (pack === "personal") return PERSONAL_CALENDAR_STICKERS;
-  return SCHOOL_CALENDAR_STICKERS;
-}
-
-function isCalendarEventStickerPack(pack: DateStickerPack): pack is CalendarEventStickerPack {
-  return CALENDAR_EVENT_STICKER_PACKS.some((value) => value === pack);
-}
-
-function groupsForPack(pack: CalendarStickerPack) {
-  if (pack === "school") return schoolGroups;
-  if (pack === "academic") return academicGroups;
-  if (pack === "health") return healthGroups;
-  if (pack === "holiday") return holidayGroups;
-  return [];
-}
 
 function dateLabel(date: string): string {
   return `${Number(date.slice(5, 7))}월 ${Number(date.slice(8, 10))}일`;

@@ -2,11 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import {
-  moveCalendarItem,
-  removeWorkItem,
-  setTaskCompleted,
-} from "@/lib/work-items/repository";
+import { listAllEvents, listTasks, moveCalendarItem, removeWorkItem, setTaskCompleted } from "@/lib/work-items/repository";
 import {
   duplicateEvent,
   duplicateTask,
@@ -20,11 +16,7 @@ import {
 } from "@/lib/work-items/phase5-repository";
 import { markAiDraftApplied } from "@/lib/ai/history";
 import { BUILT_IN_TEMPLATES, parseWorkItemRelations } from "@/lib/work-items/workflow";
-import { listAllEvents, listTasks } from "@/lib/work-items/repository";
-import {
-  RECURRENCE_FREQUENCIES,
-  TASK_CATEGORIES,
-} from "@/types/database";
+import { RECURRENCE_FREQUENCIES, TASK_CATEGORIES } from "@/types/database";
 import type { Area, TaskStatus } from "@/types/database";
 import {
   eventAreaForType,
