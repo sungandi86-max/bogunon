@@ -38,7 +38,11 @@ function displayItems(events: EventRow[], tasks: TaskRow[], stickers: CalendarSt
 }
 
 function mobileSummaryTone(displayItem: CalendarDisplayItem): MobileSummaryTone {
-  if (displayItem.kind === "event") return resolveEventType(displayItem.item);
+  if (displayItem.kind === "event") {
+    return displayItem.item.sticker_key
+      ? calendarStickerByKey(displayItem.item.sticker_key)?.pack ?? resolveEventType(displayItem.item)
+      : resolveEventType(displayItem.item);
+  }
   if (displayItem.kind === "sticker") return calendarStickerByKey(displayItem.item.sticker_key)?.pack ?? "school";
   if (displayItem.item.area === "schoolSchedule") return "school";
   if (displayItem.item.area === "personal") return "personal";
@@ -92,6 +96,35 @@ function StickerCalendarItem({ date, highlighted, sticker }: { readonly date: st
     <span className={`calendar-item calendar-item--sticker calendar-item--${pack}${highlighted ? " is-highlighted" : ""}`}>
       <span aria-hidden="true" className="calendar-item__indicator" />
       <span className="calendar-item__title">{sticker.label}</span>
+    </span>
+  </StickerManagementButton>;
+}
+
+function EventStickerCalendarItem({ canDrag, date, event, highlighted, onDragStateChange }: {
+  readonly canDrag: boolean;
+  readonly date: string;
+  readonly event: EventRow;
+  readonly highlighted: boolean;
+  readonly onDragStateChange: (dragging: boolean) => void;
+}) {
+  const definition = event.sticker_key ? calendarStickerByKey(event.sticker_key) : undefined;
+  const pack = definition?.pack ?? "school";
+  const timePrefix = !event.is_all_day ? event.start_time?.slice(0, 5) : null;
+  const draggable = canDrag && event.start_date === event.end_date && !event.recurrence_frequency;
+  return <StickerManagementButton date={date} event={event} label={event.title} recordId={event.id} recordType="event">
+    <span
+      className={`calendar-item calendar-item--sticker calendar-item--${pack}${highlighted ? " is-highlighted" : ""}`}
+      draggable={draggable}
+      onDragEnd={() => onDragStateChange(false)}
+      onDragStart={(dragEvent) => {
+        if (!draggable) return;
+        onDragStateChange(true);
+        dragEvent.dataTransfer.effectAllowed = "move";
+        dragEvent.dataTransfer.setData("application/x-bogunon-calendar", JSON.stringify({ id: event.id, kind: "event", date: event.start_date }));
+      }}
+    >
+      <span aria-hidden="true" className="calendar-item__indicator" />
+      <span className="calendar-item__title">{timePrefix ? `${timePrefix} ${event.title}` : event.title}</span>
     </span>
   </StickerManagementButton>;
 }
@@ -162,7 +195,19 @@ export function FullMonthCalendar({ dragEnabled, events = [], highlight, month =
         <div className="full-calendar__event-list">
           {visibleItems.length > 0 && <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
             ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
-            : <CalendarEntry
+            : displayItem.kind === "event" && displayItem.item.sticker_key
+              ? <EventStickerCalendarItem
+                  canDrag={canDrag}
+                  date={date}
+                  event={displayItem.item}
+                  highlighted={highlight === `event:${displayItem.id}`}
+                  key={`event-sticker-${displayItem.id}`}
+                  onDragStateChange={(dragging) => {
+                    setDraggedId(dragging ? displayItem.id : null);
+                    if (!dragging) setDropTarget(null);
+                  }}
+                />
+              : <CalendarEntry
                 compact
                 dragEnabled={canDrag
                   && displayItem.kind === "event"

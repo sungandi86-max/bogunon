@@ -1,4 +1,5 @@
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
+import type { CalendarStickerDefinition } from "@/lib/calendar-stickers/catalog";
 
 export const CALENDAR_EVENT_STICKER_PACKS = ["workout", "tournament"] as const;
 export type CalendarEventStickerPack = (typeof CALENDAR_EVENT_STICKER_PACKS)[number];
@@ -63,5 +64,34 @@ export function tournamentEventTemplate(date: string): TemplateDefinition {
     eventType: "tournament",
     applicationStatus: "planned",
     colorKey: "coral",
+  };
+}
+
+const stickerEventDefaults = {
+  personal: { area: "personal", eventType: "personal", colorKey: "pink" },
+  health: { area: "healthWork", eventType: "work", colorKey: "mint" },
+  holiday: { area: "schoolSchedule", eventType: "school", colorKey: "yellow" },
+  school: { area: "schoolSchedule", eventType: "school", colorKey: "blue" },
+  academic: { area: "schoolSchedule", eventType: "school", colorKey: "blue" },
+} as const;
+
+export function dateStickerEventTemplate(
+  sticker: CalendarStickerDefinition,
+  startDate: string,
+  endDate = startDate,
+): TemplateDefinition {
+  const defaults = stickerEventDefaults[sticker.pack];
+  return {
+    ...eventTemplate(startDate),
+    key: `calendar-sticker-${sticker.key}-${startDate}`,
+    name: `${sticker.label} 일정`,
+    title: sticker.label,
+    description: "",
+    area: defaults.area,
+    eventType: defaults.eventType,
+    colorKey: sticker.key === "academic.club" ? "lavender" : defaults.colorKey,
+    startDate,
+    endDate,
+    stickerKey: sticker.key,
   };
 }

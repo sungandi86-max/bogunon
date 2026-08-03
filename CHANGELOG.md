@@ -4,6 +4,41 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.9.5 - Timed Stickers
+
+Release Date: 2026-08-03
+
+### ✨ Added
+
+- 모든 스티커 일정의 종일·시작 시간·종료 시간 설정
+- 온라인 연수 수강, 온라인 연수 강의, 대면 연수 참석, 연수 자료 준비 스티커
+- 스티커 관리 화면의 전체 시간 표시와 일정 수정 진입점
+
+### 🔄 Changed
+
+- 학교생활·학사일정·보건업무·공휴일·개인 스티커를 공통 Event 생성·수정 흐름으로 통합
+- 기존 날짜 전용 스티커를 종일 Event로 호환 이관
+
+### 🎨 Improved
+
+- 월간 캘린더에서 시간 스티커의 시작 시간을 한 줄로 표시
+- Today와 모바일 날짜 목록에서 동일 Event 시간 데이터 재사용
+
+### 🛠 Fixed
+
+- 일반 스티커에서 시간 지정과 수정이 불가능하던 문제
+- 스티커 등록 경로에 따라 저장 구조가 달라지던 문제
+
+### ✅ Verified
+
+- 스티커 카탈로그·생성·수정·월간 표시 집중 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+- Desktop 1280px, 1440px
+- Mobile 390px, 430px
+
 ## v0.9.4 - Multi-day Reservations
 
 Release Date: 2026-07-30

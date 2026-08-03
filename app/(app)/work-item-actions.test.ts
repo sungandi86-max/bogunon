@@ -196,6 +196,27 @@ describe("saveWorkItemAction", () => {
     }), { links: [], reminders: [] }, undefined);
   });
 
+  it("persists a general sticker through the shared timed Event payload", async () => {
+    const formData = new FormData();
+    formData.set("kind", "event");
+    formData.set("title", "온라인 연수 수강");
+    formData.set("area", "schoolSchedule");
+    formData.set("eventType", "school");
+    formData.set("stickerKey", "academic.online-training-study");
+    formData.set("startDate", "2026-07-26");
+    formData.set("endDate", "2026-07-26");
+    formData.set("startTime", "15:00");
+    formData.set("endTime", "17:00");
+
+    await expect(saveWorkItemAction({ status: "idle" }, formData)).resolves.toEqual({ status: "success", message: "저장했습니다." });
+    expect(vi.mocked(saveEventBundle)).toHaveBeenCalledWith(expect.objectContaining({
+      sticker_key: "academic.online-training-study",
+      is_all_day: false,
+      start_time: "15:00",
+      end_time: "17:00",
+    }), { links: [], reminders: [] }, undefined);
+  });
+
   it("rejects a timed event with only an end time", async () => {
     const formData = new FormData();
     formData.set("kind", "event");

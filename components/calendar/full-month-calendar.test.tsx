@@ -252,6 +252,23 @@ describe("FullMonthCalendar", () => {
     expect(screen.getByRole("button", { name: "7월 18일 병원 스티커 관리" })).toBeInTheDocument();
   });
 
+  it("renders a timed Event-backed sticker with its start time and management action", () => {
+    render(<FullMonthCalendar events={[{
+      ...schoolEvent,
+      id: "event-training",
+      title: "온라인 연수 수강",
+      event_type: "school",
+      sticker_key: "academic.online-training-study",
+      is_all_day: false,
+      start_time: "15:00",
+      end_time: "17:00",
+    }]} month="2026-07" today="2026-07-18" />);
+
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    expect(cell).toHaveTextContent("15:00 온라인 연수 수강");
+    expect(screen.getByRole("button", { name: "7월 18일 온라인 연수 수강 스티커 관리" })).toBeInTheDocument();
+  });
+
   it("counts academic sticker overflow inside the unified limit", () => {
     render(<FullMonthCalendar events={[{ id: "event", user_id: "user", title: "교직원 회의", area: "schoolSchedule", start_date: "2026-07-18", end_date: "2026-07-18", is_all_day: true, start_time: null, end_time: null, memo: null, description: null, created_at: "", updated_at: "" }]} month="2026-07" schoolStickers={[
       { id: "academic-1", user_id: "user", sticker_key: "academic.admission", sticker_date: "2026-07-18", end_date: null, label: "입학식", note: null, created_at: "", updated_at: "" },

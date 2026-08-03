@@ -151,6 +151,7 @@ export function CreateItemForm({ defaultKind = "task", initialItem, initialTempl
   return (
     <form action={action} className="work-item-form" id={initialItem ? `edit-${initialItem.id}` : "create-work-item-form"}>
       <input name="id" type="hidden" value={initialItem?.id ?? ""} />
+      <input name="stickerKey" type="hidden" value={event?.sticker_key ?? initialTemplate?.stickerKey ?? ""} />
       <input name="checklist" type="hidden" value={checklistJson} />
       <input name="links" type="hidden" value={linksJson} />
       <input name="reminders" type="hidden" value={remindersJson} />

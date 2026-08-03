@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <title>대면 연수 참석</title>
+  <rect x="9" y="9" width="46" height="31" rx="4" fill="#fff5df" stroke="#a66a16" stroke-width="3"/>
+  <path d="M20 22h24M20 29h17" stroke="#a66a16" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="22" cy="49" r="5" fill="#207a68"/>
+  <circle cx="42" cy="49" r="5" fill="#2869a8"/>
+</svg>

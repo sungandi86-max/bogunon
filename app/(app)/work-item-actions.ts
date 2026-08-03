@@ -32,6 +32,7 @@ import {
   parseEventDetails,
   resolveEventType,
 } from "@/lib/work-items/event-types";
+import { calendarStickerByKey } from "@/lib/calendar-stickers/catalog";
 
 export interface WorkItemActionState {
   readonly status: "idle" | "success" | "error";
@@ -75,6 +76,10 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
     const relations = parseWorkItemRelations(formData);
 
     if (kind === "event") {
+      const stickerKey = optional(formData, "stickerKey");
+      if (stickerKey && !calendarStickerByKey(stickerKey)) {
+        return { status: "error", message: "스티커를 확인해 주세요." };
+      }
       const eventTypeRaw = String(formData.get("eventType") ?? "");
       if (eventTypeRaw && !isEventType(eventTypeRaw)) return { status: "error", message: "일정 카테고리를 확인해 주세요." };
       const eventTypeValue = isEventType(eventTypeRaw)
@@ -115,6 +120,7 @@ export async function saveWorkItemAction(_state: WorkItemActionState, formData: 
       await saveEventBundle({
         project_id: optional(formData, "projectId"),
         title, area: eventAreaForType(eventTypeValue), event_type: eventTypeValue, event_details: eventDetails,
+        sticker_key: stickerKey,
         start_date: startDate, end_date: endDate, is_all_day: isAllDay,
         start_time: startTime,
         end_time: endTime,

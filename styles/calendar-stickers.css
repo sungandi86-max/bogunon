@@ -109,6 +109,7 @@
 .calendar-sticker-management__preview { align-items: center; background: var(--action-50); border-radius: var(--radius-md); display: flex; justify-content: center; min-height: 72px; }
 .calendar-sticker-management__panel > strong { color: var(--brand-950); }
 .calendar-sticker-management__panel > time { color: var(--ink-500); font-size: var(--text-md); }
+.calendar-sticker-management__time { color: var(--brand-950); font-size: var(--text-md); font-weight: var(--weight-semibold); }
 .calendar-sticker-management__remove, .calendar-sticker-management__close { border-radius: var(--radius-md); font-weight: var(--weight-semibold); min-height: var(--touch-target); }
 .calendar-sticker-management__remove { background: var(--danger-soft); border: 1px solid color-mix(in srgb, var(--danger) 28%, var(--line)); color: var(--danger); }
 .calendar-sticker-management__close { background: var(--surface); border: 1px solid var(--line); color: var(--ink-700); }
