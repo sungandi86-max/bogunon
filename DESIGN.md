@@ -144,6 +144,14 @@ Accent color communicates interaction or status. New colors must first be added 
 - Accessibility: real links for maps, telephone, and websites; labelled copy and file commands; live status for clipboard, signed-file, and note results; text labels accompany all icons.
 - Data loading: existing project events, checklist, reservations, expenses, notes, and files are reused. Travel Today does not refetch tab data, and reservation-linked file metadata seeds the Files panel cache.
 
+### Today calendar workspace
+
+- Structure: the integrated month calendar is the primary desktop surface, paired with a compact information rail for today's schedule, meal, weather, quick memo, and collapsed school information.
+- Desktop behavior: at 1280px and wider the calendar occupies approximately three quarters of the available workspace; the information rail remains narrow and uses compact card spacing.
+- Tablet behavior: the information rail moves below the calendar and uses two columns when space allows.
+- Mobile behavior: the calendar, selected-date list, and information cards form one column without page-level horizontal overflow.
+- Hierarchy: school information stays last and collapsed by default, showing only the school name and region in its summary.
+
 ## 6. Motion & Interaction
 
 - Micro interaction: 120ms ease-out, matching shared buttons.

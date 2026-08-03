@@ -725,10 +725,10 @@
 .desktop-navigation { gap: var(--space-8); overflow-y: auto; }
 .navigation-group { display: grid; gap: var(--space-1); }
 .navigation-group > p { color: var(--ink-500); font-size: var(--text-2xs); font-weight: var(--weight-bold); letter-spacing: .08em; margin: 0 0 var(--space-2) var(--space-6); }
-.operations-dashboard { gap: var(--space-10); grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr); }
+.operations-dashboard { gap: var(--space-8); grid-template-columns: minmax(0, 3fr) minmax(248px, 1fr); }
 .month-overview .full-calendar { border-radius: var(--radius-lg); }
-.operations-rail { align-self: start; background: transparent; border: 0; border-radius: 0; box-shadow: none; display: grid; gap: var(--space-8); overflow: visible; }
-.operations-rail > section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-10); }
+.operations-rail { align-self: start; background: transparent; border: 0; border-radius: 0; box-shadow: none; display: grid; gap: var(--space-6); overflow: visible; }
+.operations-rail > section, .operations-rail > details { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-8); }
 .operations-rail > section + section { border-top: 1px solid var(--line); }
 .operations-rail > section:nth-child(1) { border-top-color: var(--pastel-blue); }
 .operations-rail > section:nth-child(2) { border-top-color: var(--pastel-pink); }
@@ -736,6 +736,15 @@
 .operations-rail > section:nth-child(4) { border-top-color: var(--pastel-lavender); }
 .operations-rail > section:nth-child(5) { border-top-color: var(--pastel-orange); }
 .operations-rail > section:nth-child(6) { border-top-color: var(--pastel-yellow); }
+.operations-rail .rail-heading { margin-bottom: var(--space-3); }
+.operations-rail .rail-empty { margin-top: var(--space-4); }
+.operations-rail .daily-schedule-row { gap: var(--space-3); grid-template-columns: 38px minmax(0, 1fr) auto; min-height: var(--touch-target); }
+.operations-rail .meal-menu { gap: var(--space-1); margin-top: var(--space-3); }
+.operations-rail .meal-calories { margin-top: var(--space-3); padding-top: var(--space-3); }
+.operations-rail .quick-note > p { margin-bottom: var(--space-3); }
+.operations-rail .quick-memo-list { margin-top: var(--space-3); }
+.operations-rail .school-info-card { padding: 0; }
+.operations-rail .school-info-card summary, .operations-rail .school-info-card__body { padding: var(--space-8); }
 .ai-briefing-card { background: var(--action-50) !important; }
 .quick-add { background: var(--surface); color: var(--ink-950); }
 .quick-add .rail-heading h2 { color: var(--brand-950); }

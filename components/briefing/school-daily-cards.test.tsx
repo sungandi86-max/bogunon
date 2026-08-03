@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { MealCard } from "@/components/briefing/meal-card";
+import { SchoolInfoCard } from "@/components/briefing/school-info-card";
 import { WeatherCard } from "@/components/briefing/weather-card";
 import { fetchTodayMeal } from "@/lib/neis/meals";
 import type { UserSchoolSettings } from "@/lib/neis/types";
@@ -53,5 +54,10 @@ describe("briefing school daily cards", () => {
     render(<WeatherCard school={school} />);
     expect(screen.getByText("학교 지역 날씨 연동을 준비하고 있습니다.")).toBeInTheDocument();
     expect(screen.getByText(/서울특별시/)).toBeInTheDocument();
+  });
+
+  it("keeps the collapsed school information to the school name and region", () => {
+    render(<SchoolInfoCard school={school} />);
+    expect(screen.getByText("여의도고등학교 · 서울특별시")).toBeInTheDocument();
   });
 });
