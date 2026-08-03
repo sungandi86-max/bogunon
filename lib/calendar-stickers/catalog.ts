@@ -57,7 +57,11 @@ export const ACADEMIC_CALENDAR_STICKERS = [
   { key: "academic.vacation-camp", label: "방학캠프", pack: "academic", category: "operation", assetPath: "/stickers/academic/vacation-camp.svg", keywords: ["방학", "캠프", "텐트"], sortOrder: 340 },
   { key: "academic.supplementary-class", label: "보충수업", pack: "academic", category: "operation", assetPath: "/stickers/academic/supplementary-class.svg", keywords: ["수업", "보충", "책"], sortOrder: 350 },
   { key: "staff-training", label: "교직원 연수", pack: "academic", category: "operation", assetPath: "/stickers/academic/staff-training.svg", keywords: ["교직원", "연수", "교육", "발표"], sortOrder: 360 },
-  { key: "academic.curriculum-review", label: "교육과정 평가회", pack: "academic", category: "operation", assetPath: "/stickers/academic/curriculum-review.svg", keywords: ["교육과정", "평가", "회의", "차트"], sortOrder: 370 },
+  { key: "academic.online-training-study", label: "온라인 연수 수강", pack: "academic", category: "operation", assetPath: "/stickers/academic/online-training-study.svg", keywords: ["연수", "온라인 연수", "수강", "교육"], sortOrder: 370 },
+  { key: "academic.online-training-lecture", label: "온라인 연수 강의", pack: "academic", category: "operation", assetPath: "/stickers/academic/online-training-lecture.svg", keywords: ["연수", "온라인 연수", "강의", "강사"], sortOrder: 380 },
+  { key: "academic.in-person-training", label: "대면 연수 참석", pack: "academic", category: "operation", assetPath: "/stickers/academic/in-person-training.svg", keywords: ["연수", "대면 연수", "참석", "교육"], sortOrder: 390 },
+  { key: "academic.training-material-prep", label: "연수 자료 준비", pack: "academic", category: "operation", assetPath: "/stickers/academic/training-material-prep.svg", keywords: ["연수", "연수 자료", "자료", "준비"], sortOrder: 400 },
+  { key: "academic.curriculum-review", label: "교육과정 평가회", pack: "academic", category: "operation", assetPath: "/stickers/academic/curriculum-review.svg", keywords: ["교육과정", "평가", "회의", "차트"], sortOrder: 410 },
 ] as const satisfies readonly CalendarStickerDefinition[];
 
 export const HEALTH_CALENDAR_STICKERS = [

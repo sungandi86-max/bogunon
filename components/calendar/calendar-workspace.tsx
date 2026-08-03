@@ -71,7 +71,11 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
       ? { ...event, start_date: overriddenDate, end_date: overriddenDate }
       : event;
   }), [eventDateOverrides, events]);
-  const visibleEvents = useMemo(() => calendarEvents.filter((event) => entryFilter === "all" || resolveEventType(event) === entryFilter), [calendarEvents, entryFilter]);
+  const visibleEvents = useMemo(() => calendarEvents.filter((event) => {
+    if (entryFilter !== "all" && resolveEventType(event) !== entryFilter) return false;
+    if (stickerFilter === "all" || !event.sticker_key) return true;
+    return calendarStickerByKey(event.sticker_key)?.pack === stickerFilter;
+  }), [calendarEvents, entryFilter, stickerFilter]);
   const visibleTasks = useMemo(() => tasks.filter((task) => entryFilter === "all" || (entryFilter === "work" && task.area === "healthWork") || (entryFilter === "school" && task.area === "schoolSchedule") || (entryFilter === "personal" && task.area === "personal") || (entryFilter === "workout" && task.area === "exercise")), [entryFilter, tasks]);
   const visibleStickers = useMemo(() => stickers.filter((item) => stickerFilter === "all" || calendarStickerByKey(item.sticker_key)?.pack === stickerFilter), [stickerFilter, stickers]);
   const range = calendarRange(selectedDate, initialView, weekStart);

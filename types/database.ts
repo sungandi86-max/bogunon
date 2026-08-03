@@ -60,6 +60,7 @@ export type EventRow = {
   area: Area;
   event_type?: EventType;
   event_details?: EventDetails | null;
+  sticker_key?: string | null;
   start_date: string;
   end_date: string;
   is_all_day: boolean;
@@ -485,7 +486,7 @@ export type Database = {
       };
       events: {
         Row: EventRow;
-        Insert: Insert<EventRow, "id" | "project_id" | "event_type" | "event_details" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
+        Insert: Insert<EventRow, "id" | "project_id" | "event_type" | "event_details" | "sticker_key" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
         Update: Partial<EventRow>;
         Relationships: [];
       };

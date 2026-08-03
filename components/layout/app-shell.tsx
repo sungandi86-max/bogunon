@@ -25,8 +25,7 @@ import type { Notice } from "@/lib/notices/model";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
 import { defaultHealthPresetPreferences } from "@/lib/work-items/health-preset-personalization";
 import type { HealthPresetPreference } from "@/lib/work-items/health-preset-personalization";
-import type { RecurrenceFrequency, TaskCategory, TaskPriority } from "@/types/database";
-import type { ProjectRow } from "@/types/database";
+import type { EventRow, ProjectRow, RecurrenceFrequency, TaskCategory, TaskPriority } from "@/types/database";
 import { ProjectProvider } from "@/components/projects/project-context";
 
 interface AppShellProps {
@@ -80,11 +79,14 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
   const [createOpen, setCreateOpen] = useState(false);
   const [createKind, setCreateKind] = useState<"task" | "event">("task");
   const [createTemplate, setCreateTemplate] = useState<TemplateDefinition>();
+  const [editEvent, setEditEvent] = useState<EventRow>();
+  const [editOpen, setEditOpen] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [academicImportOpen, setAcademicImportOpen] = useState(false);
   const [assistantSurface, setAssistantSurface] = useState<AssistantSurface>("global");
   const [assistantEntityId, setAssistantEntityId] = useState<string>();
   const createButtonRef = useRef<HTMLButtonElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
   const assistantButtonRef = useRef<HTMLButtonElement>(null);
   const academicImportButtonRef = useRef<HTMLButtonElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -95,6 +97,16 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
     setCreateOpen(true);
   }, []);
   const closeCreate = useCallback(() => setCreateOpen(false), []);
+  const openEdit = useCallback((trigger: HTMLButtonElement, event: EventRow) => {
+    editButtonRef.current = trigger;
+    setEditEvent(event);
+    setEditOpen(true);
+  }, []);
+  const closeEdit = useCallback(() => setEditOpen(false), []);
+  const completeEdit = useCallback(() => {
+    closeEdit();
+    router.refresh();
+  }, [closeEdit, router]);
   const completeCreate = useCallback(() => {
     closeCreate();
     router.refresh();
@@ -124,7 +136,7 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
     <CalendarPreferencesProvider>
     <HealthPresetPreferencesProvider initialPreferences={presetPreferences}>
     <AssistantContext value={{ openAssistant }}>
-      <AppShellCreateContext value={{ openCreate }}>
+      <AppShellCreateContext value={{ openCreate, openEdit }}>
         <div className="app-shell">
         <GlobalNavigation notices={notices} onAcademicImport={openAcademicImport} onCreate={openCreate} />
         <AppHeader notices={notices} profile={profile} />
@@ -144,6 +156,16 @@ export function AppShell({ children, notices = [], presetPreferences = defaultHe
           title="새로 만들기"
         >
           <CreateItemForm defaultKind={createKind} {...(createTemplate ? { initialTemplate: createTemplate } : {})} key={`${createKind}-${createTemplate?.key ?? "blank"}-${createOpen}`} onSaved={completeCreate} titleRef={titleRef} />
+        </ResponsiveDetailPanel>
+        <ResponsiveDetailPanel
+          footer={editEvent ? <><Button onClick={closeEdit} variant="secondary">취소</Button><Button form={`edit-${editEvent.id}`} type="submit">저장</Button></> : undefined}
+          initialFocusRef={titleRef}
+          onClose={closeEdit}
+          open={editOpen}
+          returnFocusRef={editButtonRef}
+          title="일정 수정"
+        >
+          {editEvent && <CreateItemForm initialItem={editEvent} key={`${editEvent.id}-${editOpen}`} onSaved={completeEdit} titleRef={titleRef} />}
         </ResponsiveDetailPanel>
         <ResponsiveDetailPanel
           onClose={() => setAcademicImportOpen(false)}

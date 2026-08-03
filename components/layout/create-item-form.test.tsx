@@ -216,4 +216,30 @@ describe("CreateItemForm Phase 5 workflows", () => {
     expect(screen.getByRole("checkbox", { name: "종일" })).toBeChecked();
     expect(screen.queryByLabelText("시작 시간")).not.toBeInTheDocument();
   });
+
+  it("restores a timed sticker Event without losing its sticker identity", () => {
+    const timedSticker: EventRow = {
+      id: "timed-sticker",
+      user_id: "user",
+      title: "온라인 연수 강의",
+      area: "schoolSchedule",
+      event_type: "school",
+      sticker_key: "academic.online-training-lecture",
+      start_date: "2026-07-26",
+      end_date: "2026-07-26",
+      is_all_day: false,
+      start_time: "19:00",
+      end_time: "21:00",
+      memo: null,
+      description: null,
+      created_at: "",
+      updated_at: "",
+    };
+
+    const { container } = render(<CreateItemForm initialItem={timedSticker} />);
+    expect(screen.getByRole("checkbox", { name: "종일" })).not.toBeChecked();
+    expect(screen.getByLabelText("시작 시간")).toHaveValue("19:00");
+    expect(screen.getByLabelText("종료 시간")).toHaveValue("21:00");
+    expect(container.querySelector<HTMLInputElement>('input[name="stickerKey"]')).toHaveValue("academic.online-training-lecture");
+  });
 });

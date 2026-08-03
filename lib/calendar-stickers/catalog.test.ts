@@ -39,7 +39,7 @@ describe("calendar sticker catalog", () => {
   ] as const;
 
   it("keeps legacy school and personal keys while registering the academic pack", () => {
-    expect(ACADEMIC_CALENDAR_STICKERS).toHaveLength(28);
+    expect(ACADEMIC_CALENDAR_STICKERS).toHaveLength(32);
     expect(ACADEMIC_CALENDAR_STICKERS.some((item) => item.key === "vacation-ceremony")).toBe(true);
     expect(ACADEMIC_CALENDAR_STICKERS.some((item) => item.key === "opening-ceremony")).toBe(true);
     expect(PERSONAL_CALENDAR_STICKERS).toHaveLength(12);
@@ -49,6 +49,18 @@ describe("calendar sticker catalog", () => {
     expect(calendarStickerCategory("personal.hospital")).toBe("personal");
     expect(calendarStickerByKey("academic.club")).toMatchObject({ label: "동아리", pack: "academic", category: "event", assetPath: "/stickers/academic/club.svg", sortOrder: 290 });
     expect(filterCalendarStickers(ACADEMIC_CALENDAR_STICKERS, "동아리").map((item) => item.key)).toEqual(["academic.club"]);
+  });
+
+  it("registers the training stickers beside staff training and searches their shared terms", () => {
+    expect(ACADEMIC_CALENDAR_STICKERS.filter((item) => item.key.includes("training")).map((item) => item.label)).toEqual([
+      "교직원 연수",
+      "온라인 연수 수강",
+      "온라인 연수 강의",
+      "대면 연수 참석",
+      "연수 자료 준비",
+    ]);
+    expect(filterCalendarStickers(ACADEMIC_CALENDAR_STICKERS, "강사").map((item) => item.label)).toContain("온라인 연수 강의");
+    expect(filterCalendarStickers(ACADEMIC_CALENDAR_STICKERS, "연수 자료").map((item) => item.label)).toContain("연수 자료 준비");
   });
 
   it("registers the 20-sticker holiday pack with exact metadata and legacy keys moved once", () => {

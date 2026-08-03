@@ -107,6 +107,33 @@ describe("CalendarWorkspace", () => {
     expect(cell).not.toHaveTextContent("병원");
   });
 
+  it("applies sticker filters to Event-backed stickers without hiding ordinary events", () => {
+    const schoolEventSticker: EventRow = {
+      ...event,
+      id: "school-event-sticker",
+      title: "온라인 연수 수강",
+      area: "schoolSchedule",
+      event_type: "school",
+      sticker_key: "academic.online-training-study",
+    };
+    const personalEventSticker: EventRow = {
+      ...event,
+      id: "personal-event-sticker",
+      title: "약속",
+      area: "personal",
+      event_type: "personal",
+      sticker_key: "personal.appointment",
+    };
+    render(<CalendarWorkspace events={[event, schoolEventSticker, personalEventSticker]} initialDate="2026-07-18" initialView="month" stickers={[]} tasks={[]} today="2026-07-18" workflow={workflow} />);
+
+    fireEvent.click(within(screen.getByRole("group", { name: "스티커 표시 필터" })).getByRole("button", { name: "개인" }));
+
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    expect(cell).toHaveTextContent("보건교육");
+    expect(cell).toHaveTextContent("약속");
+    expect(cell).not.toHaveTextContent("온라인 연수 수강");
+  });
+
   it("recalculates unified overflow after entry and sticker filters", () => {
     const originalWidth = window.innerWidth;
     const originalHeight = window.innerHeight;

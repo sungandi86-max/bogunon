@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { SchoolStickerPicker } from "@/components/calendar/school-sticker-picker";
@@ -6,27 +6,14 @@ import { AppShellCreateContext } from "@/components/layout/app-shell-create-cont
 import { HOLIDAY_CALENDAR_STICKERS } from "@/lib/calendar-stickers/catalog";
 import type { CalendarStickerRow } from "@/types/database";
 
-const actions = vi.hoisted(() => ({ attach: vi.fn(), remove: vi.fn() }));
+const actions = vi.hoisted(() => ({ remove: vi.fn() }));
 
 vi.mock("@/app/(app)/calendar-sticker-actions", () => ({
-  attachCalendarStickerAction: actions.attach,
   removeCalendarStickerAction: actions.remove,
 }));
 
-const personalSticker: CalendarStickerRow = {
-  id: "a5000000-0000-4000-8000-000000000003",
-  user_id: "user",
-  sticker_key: "personal.hospital",
-  sticker_date: "2026-07-18",
-  end_date: null,
-  label: "병원",
-  note: null,
-  created_at: "",
-  updated_at: "",
-};
-
-function renderPicker(stickers: readonly CalendarStickerRow[] = []) {
-  return render(<AppShellCreateContext value={{ openCreate: vi.fn() }}><SchoolStickerPicker stickers={stickers} today="2026-07-18" /></AppShellCreateContext>);
+function renderPicker(stickers: readonly CalendarStickerRow[] = [], openCreate = vi.fn()) {
+  return render(<AppShellCreateContext value={{ openCreate }}><SchoolStickerPicker stickers={stickers} today="2026-07-18" /></AppShellCreateContext>);
 }
 
 describe("SchoolStickerPicker", () => {
@@ -49,7 +36,7 @@ describe("SchoolStickerPicker", () => {
     expect(screen.getByRole("button", { name: "7월 18일 여름방학 스티커 선택" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "7월 18일 방학캠프 스티커 선택" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 여름방학 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "여름방학 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "여름방학 일정 설정" })).toBeEnabled();
     fireEvent.change(search, { target: { value: "시험" } });
     expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
     fireEvent.click(screen.getByRole("button", { name: "스티커 검색어 지우기" }));
@@ -57,26 +44,27 @@ describe("SchoolStickerPicker", () => {
     expect(screen.getAllByRole("button", { name: /스티커 선택$/ })).toHaveLength(5);
   });
 
-  it("does not persist a sticker until the explicit save action", async () => {
-    actions.attach.mockResolvedValue({ status: "success", message: "입학식 스티커를 붙였어요." });
-    renderPicker();
+  it("opens the shared Event form instead of persisting a date-only sticker", () => {
+    const openCreate = vi.fn();
+    renderPicker([], openCreate);
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 입학식 스티커 선택" }));
-    expect(actions.attach).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "7월 18일 입학식 스티커 선택" })).toHaveAttribute("aria-pressed", "true");
-    fireEvent.click(screen.getByRole("button", { name: "입학식 추가" }));
-    await waitFor(() => expect(actions.attach).toHaveBeenCalledTimes(1));
-    const formData = actions.attach.mock.calls[0]?.[1];
-    expect(formData).toBeInstanceOf(FormData);
-    expect(formData?.get("stickerKey")).toBe("academic.admission");
+    fireEvent.click(screen.getByRole("button", { name: "입학식 일정 설정" }));
+    expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "event", expect.objectContaining({
+      title: "입학식",
+      startDate: "2026-07-18",
+      endDate: "2026-07-18",
+      isAllDay: true,
+      stickerKey: "academic.admission",
+    }));
   });
 
   it("offers club as an all-day lavender school event that can be changed to a timed event", () => {
     const openCreate = vi.fn();
-    const clubSticker: CalendarStickerRow = { ...personalSticker, id: "a5000000-0000-4000-8000-000000000004", sticker_key: "academic.club", label: "동아리" };
-    render(<AppShellCreateContext value={{ openCreate }}><SchoolStickerPicker stickers={[clubSticker]} today="2026-07-18" /></AppShellCreateContext>);
-    expect(screen.getByRole("button", { name: "7월 18일 동아리 스티커 선택" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "학교 일정으로 만들기" }));
-    expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "event", expect.objectContaining({ area: "schoolSchedule", title: "동아리", isAllDay: true, colorKey: "lavender" }));
+    renderPicker([], openCreate);
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 동아리 스티커 선택" }));
+    fireEvent.click(screen.getByRole("button", { name: "동아리 일정 설정" }));
+    expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "event", expect.objectContaining({ area: "schoolSchedule", title: "동아리", isAllDay: true, colorKey: "lavender", stickerKey: "academic.club" }));
   });
 
   it("shows health categories and searches health stickers by school terms", () => {
@@ -109,32 +97,32 @@ describe("SchoolStickerPicker", () => {
     renderPicker();
     fireEvent.click(screen.getByRole("tab", { name: "보건업무" }));
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 학생건강검진 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "학생건강검진 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "학생건강검진 일정 설정" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("tab", { name: "보건업무" }));
     fireEvent.click(screen.getByRole("button", { name: "건강검사" }));
     fireEvent.change(screen.getByRole("searchbox", { name: "스티커 검색" }), { target: { value: "건강검진" } });
-    expect(screen.getByRole("button", { name: "학생건강검진 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "학생건강검진 일정 설정" })).toBeEnabled();
     fireEvent.click(screen.getByRole("button", { name: "스티커 검색어 지우기" }));
-    expect(screen.getByRole("button", { name: "학생건강검진 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "학생건강검진 일정 설정" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("button", { name: "보건교육" }));
     expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 심폐소생술 교육 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "심폐소생술 교육 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "심폐소생술 교육 일정 설정" })).toBeEnabled();
     fireEvent.change(screen.getByRole("searchbox", { name: "스티커 검색" }), { target: { value: "담임" } });
     expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
 
     fireEvent.click(screen.getByRole("button", { name: "전체" }));
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 담임 협조 요청 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "담임 협조 요청 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "담임 협조 요청 일정 설정" })).toBeEnabled();
     fireEvent.click(screen.getByRole("tab", { name: "개인" }));
     expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
   });
 
   it("shows holiday categories, searches required holiday terms, and clears hidden holiday selections", () => {
-    const { container } = renderPicker();
+    renderPicker();
     fireEvent.click(screen.getByRole("tab", { name: "공휴일" }));
     const categoryGroup = screen.getByRole("group", { name: "공휴일 카테고리" });
     expect(within(categoryGroup).getAllByRole("button").map((button) => button.textContent)).toEqual(["전체", "국가 공휴일", "명절", "대체·특별 휴일", "일반 휴일"]);
@@ -169,18 +157,16 @@ describe("SchoolStickerPicker", () => {
     fireEvent.change(search, { target: { value: "한글" } });
     expect(screen.getByRole("button", { name: "7월 18일 한글날 스티커 선택" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 한글날 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "한글날 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "한글날 일정 설정" })).toBeEnabled();
 
     fireEvent.click(within(categoryGroup).getByRole("button", { name: "명절" }));
     expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
-    expect(container.querySelector<HTMLInputElement>('input[name="stickerKey"]')?.value).toBe("");
 
     fireEvent.change(search, { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 설날 스티커 선택" }));
-    expect(screen.getByRole("button", { name: "설날 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "설날 일정 설정" })).toBeEnabled();
     fireEvent.change(search, { target: { value: "투표" } });
     expect(screen.getByRole("button", { name: "스티커를 선택하세요" })).toBeDisabled();
-    expect(container.querySelector<HTMLInputElement>('input[name="stickerKey"]')?.value).toBe("");
 
     fireEvent.click(within(categoryGroup).getByRole("button", { name: "전체" }));
     fireEvent.change(search, { target: { value: "석가탄신일" } });
@@ -205,14 +191,15 @@ describe("SchoolStickerPicker", () => {
     fireEvent.click(screen.getByRole("button", { name: "7월 18일 공휴일 스티커 선택" }));
     fireEvent.click(screen.getByRole("combobox", { name: "종료일" }));
     fireEvent.click(within(screen.getByRole("dialog", { name: "날짜 선택" })).getByRole("button", { name: "20" }));
-    expect(screen.getByRole("button", { name: "3일간 추가" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "공휴일 일정 설정" })).toBeEnabled();
   });
 
   it("opens the existing Event form with personal defaults only after user choice", () => {
     const openCreate = vi.fn();
-    render(<AppShellCreateContext value={{ openCreate }}><SchoolStickerPicker stickers={[personalSticker]} today="2026-07-18" /></AppShellCreateContext>);
+    render(<AppShellCreateContext value={{ openCreate }}><SchoolStickerPicker stickers={[]} today="2026-07-18" /></AppShellCreateContext>);
     fireEvent.click(screen.getByRole("tab", { name: "개인" }));
-    fireEvent.click(screen.getByRole("button", { name: "개인 일정도 만들기" }));
-    expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "event", expect.objectContaining({ area: "personal", title: "병원", isAllDay: true }));
+    fireEvent.click(screen.getByRole("button", { name: "7월 18일 병원 스티커 선택" }));
+    fireEvent.click(screen.getByRole("button", { name: "병원 일정 설정" }));
+    expect(openCreate).toHaveBeenCalledWith(expect.any(HTMLButtonElement), "event", expect.objectContaining({ area: "personal", title: "병원", isAllDay: true, stickerKey: "personal.hospital" }));
   });
 });

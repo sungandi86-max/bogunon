@@ -2,9 +2,11 @@
 
 import { createContext, use } from "react";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
+import type { EventRow } from "@/types/database";
 
 interface AppShellCreateContextValue {
   readonly openCreate: (trigger: HTMLButtonElement, kind?: "task" | "event", template?: TemplateDefinition) => void;
+  readonly openEdit?: (trigger: HTMLButtonElement, event: EventRow) => void;
 }
 
 export const AppShellCreateContext = createContext<AppShellCreateContextValue | null>(null);

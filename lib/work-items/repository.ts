@@ -159,6 +159,7 @@ export async function ensureRecurringEvents(throughDate: string): Promise<void> 
         project_id: root.project_id ?? null,
         ...(root.event_type ? { event_type: root.event_type } : {}),
         ...(root.event_details !== undefined ? { event_details: root.event_details } : {}),
+        sticker_key: root.sticker_key ?? null,
         start_date: occurrenceDate,
         end_date: shiftFromAnchor(root.recurrence_date, root.end_date, occurrenceDate) ?? occurrenceDate,
         is_all_day: root.is_all_day, start_time: root.start_time, end_time: root.end_time,

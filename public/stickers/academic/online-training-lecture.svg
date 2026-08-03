@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <title>온라인 연수 강의</title>
+  <rect x="7" y="11" width="50" height="36" rx="5" fill="#edf4ff" stroke="#2869a8" stroke-width="3"/>
+  <circle cx="25" cy="25" r="6" fill="#2869a8"/>
+  <path d="M16 40c2-7 16-7 18 0M39 23h11M39 30h9M22 54h20M32 47v7" stroke="#18324a" stroke-width="3" stroke-linecap="round"/>
+</svg>
