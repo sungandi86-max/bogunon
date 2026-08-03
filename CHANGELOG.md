@@ -4,6 +4,37 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.9.6 - Calendar First Layout
+
+Release Date: 2026-08-04
+
+### 🔄 Changed
+
+- Today 데스크톱 레이아웃을 월간 달력 우선 구조로 조정
+- 우측 정보 패널을 화면 크기와 관계없이 296~336px 범위로 제한
+- 달력과 우측 패널 사이 간격 및 월간 셀의 좌우 여백 축소
+
+### 🎨 Improved
+
+- 월간 일정 제목 표시 공간 확대
+- 오늘 일정, 급식, 날씨, 빠른 메모 카드의 내부 여백과 세로 간격 압축
+- 급식 메뉴를 최대 5~6줄 높이로 제한하고 초과 항목은 카드 안에서 확인
+- 학교 정보를 접힌 한 줄 요약으로 유지
+
+### 🛠 Fixed
+
+- 후속 CSS 규칙이 우측 패널을 약 33%까지 확장하던 레이아웃 우선순위 문제
+
+### ✅ Verified
+
+- Today 레이아웃 집중 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+- Desktop 1280px, 1366px, 1440px, 1600px
+- Mobile 390px, 430px
+
 ## v0.9.5 - Timed Stickers
 
 Release Date: 2026-08-03

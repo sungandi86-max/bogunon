@@ -13,6 +13,30 @@ const screenStylesheet = readFileSync(
 );
 
 describe("responsive home calendar layout", () => {
+  it("keeps the desktop Today rail narrow so the month calendar owns the page", () => {
+    expect(screenStylesheet).toMatch(
+      /\.operations-dashboard\s*\{[^}]*gap:\s*var\(--space-6\);[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+clamp\(296px,\s*21vw,\s*336px\);/,
+    );
+    expect(screenStylesheet).toMatch(
+      /\.operations-rail\s*\{[^}]*gap:\s*var\(--space-5\);/,
+    );
+    expect(screenStylesheet).toMatch(
+      /\.operations-rail\s*>\s*:is\(section,\s*details\)\s*\{[^}]*padding:\s*var\(--space-6\);/,
+    );
+  });
+
+  it("caps meal content and keeps compact rail controls readable", () => {
+    expect(screenStylesheet).toMatch(
+      /\.meal-menu\s*\{[^}]*max-height:\s*calc\(var\(--space-20\)\s*\+\s*var\(--space-20\)\s*\+\s*var\(--space-20\)\);[^}]*overflow-y:\s*auto;/,
+    );
+    expect(screenStylesheet).toMatch(
+      /\.quick-note\s*>\s*p[^}]*margin:\s*0\s+0\s+var\(--space-3\);/,
+    );
+    expect(screenStylesheet).toMatch(
+      /\.school-info-card summary\s*\{[^}]*padding:\s*var\(--space-6\);/,
+    );
+  });
+
   it("releases the desktop viewport height on mobile", () => {
     expect(stylesheet).toMatch(
       /@media\s*\(max-width:\s*767px\)[\s\S]*?\.month-overview \.full-calendar\s*\{[^}]*height:\s*auto;/,
