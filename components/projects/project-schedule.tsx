@@ -13,6 +13,7 @@ import {
   Search,
   Trophy,
   Users,
+  MapPinned,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -80,7 +81,8 @@ export function ProjectSchedule({
       {events.length ? (
         <div className="project-event-list">
           {events.map((event) => (
-            <Link className="project-event-row" href={`/calendar?date=${event.start_date}&highlight=${event.id}`} key={event.id}>
+            <div className="project-event-row" key={event.id}>
+              <Link className="project-event-row__main" href={`/calendar?date=${event.start_date}&highlight=${event.id}`}>
               <span className={`project-event-row__date event-color--${event.color_key ?? "mint"}`}>
                 <strong>{event.start_date.slice(5).replace("-", ".")}</strong>
                 <small>{eventTime(event)}</small>
@@ -89,8 +91,10 @@ export function ProjectSchedule({
                 <strong>{event.title}</strong>
                 {event.location && <small><MapPin aria-hidden="true" size={13} />{event.location}</small>}
               </span>
-              <CalendarDays aria-hidden="true" size={17} />
-            </Link>
+                <CalendarDays aria-hidden="true" size={17} />
+              </Link>
+              {event.location && <Link aria-label={`${event.title} 지도에 장소 추가`} className="project-event-row__map" href={`/projects/${project.id}?placeEvent=${event.id}#map`}><MapPinned aria-hidden="true" size={16} />지도에 장소 추가</Link>}
+            </div>
           ))}
         </div>
       ) : (

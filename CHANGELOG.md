@@ -4,6 +4,40 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.10.0 - Travel Map & Routes
+
+Release Date: 2026-08-08
+
+### ✨ Added
+
+- 모든 Project Workspace에서 사용할 수 있는 지도 탭
+- 장소 검색, 수동 좌표 입력, 날짜별 번호 핀과 기본 polyline 코스
+- 장소 방문 예정·완료 상태와 여행 종료 후 방문 요약
+- 일정·예약에서 사용자가 확인 후 장소를 추가하는 연결 흐름
+
+### 🔄 Changed
+
+- 프로젝트 장소를 일정·예약과 같은 사용자·같은 프로젝트에서만 연결하도록 데이터 무결성 강화
+- 일정·예약 삭제 시 장소는 유지하고 연결 ID만 해제
+
+### 🎨 Improved
+
+- Desktop 지도·목록 2열과 Mobile 지도·목록 전환 UX
+- Desktop drag, Mobile 위·아래 버튼을 통한 방문 순서 관리
+
+### 🛠 Fixed
+
+- 실제 사용자 데이터와 Production QA 데이터를 구분하도록 장소 테이블을 QA 정리 검증 대상에 추가
+
+### ✅ Verified
+
+- Project Places 집중 테스트
+- RLS 및 연결 무결성 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+
 ## v0.9.6 - Calendar First Layout
 
 Release Date: 2026-08-04

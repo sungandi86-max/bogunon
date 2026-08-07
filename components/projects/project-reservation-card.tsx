@@ -10,6 +10,7 @@ import {
   Phone,
   Trash2,
 } from "lucide-react";
+import Link from "next/link";
 
 import { ProjectReservationIcon } from "@/components/projects/project-reservation-icon";
 import { ProjectTravelActions } from "@/components/projects/project-travel-actions";
@@ -64,6 +65,7 @@ export function ProjectReservationCard({
           projectId={reservation.project_id}
           reservation={reservation}
         />
+        {reservation.location && <Link className="project-reservation-card__map" href={`/projects/${reservation.project_id}?placeReservation=${reservation.id}#map`}><MapPin aria-hidden="true" size={15} />지도에 장소 추가</Link>}
         {reservation.linked_event_id && <span className="project-reservation-card__linked"><Link2 aria-hidden="true" size={13} />캘린더 일정 연결됨</span>}
       </div>
       <details className="project-reservation-card__menu">

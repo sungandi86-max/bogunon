@@ -8,6 +8,7 @@ import { ProjectWorkspaceShell } from "@/components/projects/project-detail-work
 import { ProjectFiles } from "@/components/projects/project-files";
 import { ProjectReservations } from "@/components/projects/project-reservations";
 import { ProjectNotes } from "@/components/projects/project-notes";
+import { ProjectMap } from "@/components/projects/project-map";
 import { ProjectSchedule } from "@/components/projects/project-schedule";
 import { ProjectWorkspaceHeader } from "@/components/projects/project-workspace-header";
 import { ProjectWorkspaceOverview } from "@/components/projects/project-workspace-overview";
@@ -19,25 +20,30 @@ import {
 import { listProjectReservations } from "@/lib/projects/reservation-repository";
 import { getProject, listProjectEvents } from "@/lib/projects/repository";
 import { listProjectFiles } from "@/lib/projects/files-repository";
+import { listProjectPlaces } from "@/lib/projects/places-repository";
 import { isTravelProject } from "@/lib/projects/travel";
 import { projectTypeForIcon } from "@/lib/projects/domain";
 import { todayInSeoul } from "@/lib/work-items/date";
 
 export default async function ProjectDetailPage({
   params,
+  searchParams,
 }: {
   readonly params: Promise<{ readonly slug: string[] }>;
+  readonly searchParams?: Promise<{ readonly placeEvent?: string; readonly placeReservation?: string }>;
 }) {
   const { slug } = await params;
+  const seeds: { readonly placeEvent?: string; readonly placeReservation?: string } = searchParams ? await searchParams : {};
   const id = slug[0];
   if (!id || slug.length !== 1) notFound();
-  const [project, events, checklistItems, reservations, budget, expenses] = await Promise.all([
+  const [project, events, checklistItems, reservations, budget, expenses, places] = await Promise.all([
     getProject(id),
     listProjectEvents(id),
     listProjectChecklistItems(id),
     listProjectReservations(id),
     listProjectBudget(id),
     listProjectExpenses(id),
+    listProjectPlaces(id),
   ]);
   if (!project) notFound();
   const today = todayInSeoul();
@@ -93,6 +99,18 @@ export default async function ProjectDetailPage({
           />
         )}
         notes={<ProjectNotes projectId={project.id} />}
+        map={(
+          <ProjectMap
+            events={events}
+            initialPlaces={places}
+            project={project}
+            reservations={reservations}
+            {...(seeds.placeEvent ? { seedEventId: seeds.placeEvent } : {})}
+            {...(seeds.placeReservation ? { seedReservationId: seeds.placeReservation } : {})}
+            today={today}
+            travelMode={travelMode}
+          />
+        )}
         reservations={(
           <ProjectReservations
             expenses={expenses}

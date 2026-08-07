@@ -22,6 +22,7 @@ The required zero-count set is:
 - `project_budgets`
 - `project_expenses`
 - `project_notes`
+- `project_places`
 - `project_files`
 - `storage.objects`
 

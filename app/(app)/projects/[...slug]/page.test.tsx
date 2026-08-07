@@ -32,6 +32,10 @@ vi.mock("@/lib/projects/budget-repository", () => ({
   listProjectExpenses: vi.fn(async () => []),
 }));
 
+vi.mock("@/lib/projects/places-repository", () => ({
+  listProjectPlaces: vi.fn(async () => []),
+}));
+
 import ProjectDetailPage from "@/app/(app)/projects/[...slug]/page";
 import { AppShellCreateContext } from "@/components/layout/app-shell-create-context";
 
@@ -53,7 +57,7 @@ describe("project detail page", () => {
     expect(screen.getByRole("link", { name: /9월 1일 · 14:00축제 준비/ })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "일정" }));
-    expect(screen.getByRole("link", { name: /축제 준비/ })).toHaveAttribute("href", "/calendar?date=2026-09-01&highlight=event-1");
+    expect(screen.getByRole("link", { name: /14:00 ~ 15:00축제 준비강당/ })).toHaveAttribute("href", "/calendar?date=2026-09-01&highlight=event-1");
     expect(screen.getByText("14:00 ~ 15:00")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: "체크리스트" }));

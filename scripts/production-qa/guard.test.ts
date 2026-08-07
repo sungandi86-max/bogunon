@@ -57,6 +57,7 @@ describe("Production QA guard", () => {
       project_expenses: 0,
       project_files: 0,
       project_notes: 0,
+      project_places: 0,
       project_reservations: 0,
       projects: 0,
       storage_objects: 0,

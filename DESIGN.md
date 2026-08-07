@@ -136,6 +136,14 @@ Accent color communicates interaction or status. New colors must first be added 
 - Preview policy: image and text files render in the preview pane; PDF uses a signed new-tab preview; Office documents show file information and download guidance without implying browser rendering support.
 - Data loading: the files panel fetches only on its first mount. Tab changes keep the mounted component and reuse its local cache.
 
+### Project map workspace
+
+- Structure: a project-wide map tab with date and visit-status filters, numbered pins, a matching ordered list, and one place editor. The map and list share the same filtered order so pin numbers remain stable.
+- States: empty, searching, provider-unconfigured, map, list, selected-place, no-coordinate, editing, dragging, visited, and post-project summary.
+- Responsive behavior: desktop keeps map and route list side by side; mobile switches between full-width map and list with a segmented control and uses explicit up/down ordering controls.
+- Accessibility: every map action has a text or accessible name, list ordering remains operable without drag, visit state is expressed with text, and no GPS permission is requested.
+- Data boundary: only user-confirmed places are stored. Existing events and reservations never create places merely by being read.
+
 ### Travel workspace today
 
 - Structure: a compact travel identity band followed by time-ordered today events, the next event, due-today checklist items, today's reservation-linked spending, reservation quick actions, linked files, and a one-field quick note.
