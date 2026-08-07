@@ -26,6 +26,7 @@ const panels = {
   budget: <p>예산 내용</p>,
   notes: <p>노트 내용</p>,
   files: <p>파일 내용</p>,
+  map: <p>지도 내용</p>,
 };
 
 describe("project detail workspace", () => {
@@ -95,6 +96,17 @@ describe("project detail workspace", () => {
     render(<ProjectWorkspaceShell {...panels} />);
     expect(screen.getByRole("tab", { name: "파일" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel", { name: "파일" })).toBeVisible();
+  });
+
+  it("mounts the map on first activation and restores #map", () => {
+    const { unmount } = render(<ProjectWorkspaceShell {...panels} />);
+    expect(screen.queryByText("지도 내용")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "지도" }));
+    expect(screen.getByText("지도 내용")).toBeVisible();
+    expect(window.location.hash).toBe("#map");
+    unmount();
+    render(<ProjectWorkspaceShell {...panels} />);
+    expect(screen.getByRole("tabpanel", { name: "지도" })).toBeVisible();
   });
 
   it("summarizes project status in next-event, reservation, checklist, budget, and activity order", () => {

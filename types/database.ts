@@ -128,6 +128,39 @@ export type ProjectFileRow = {
   updated_at: string;
 };
 
+export type ProjectPlaceCategory =
+  | "airport"
+  | "accommodation"
+  | "restaurant"
+  | "cafe"
+  | "activity"
+  | "shopping"
+  | "transportation"
+  | "sports"
+  | "sightseeing"
+  | "other";
+
+export type ProjectPlaceRow = {
+  id: string;
+  user_id: string;
+  project_id: string;
+  event_id: string | null;
+  reservation_id: string | null;
+  name: string;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  visited_date: string | null;
+  visited_time: string | null;
+  sort_order: number;
+  category: ProjectPlaceCategory;
+  memo: string | null;
+  is_visited: boolean;
+  qa_run_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProjectReservationType =
   | "flight"
   | "hotel"
@@ -514,6 +547,12 @@ export type Database = {
         Update: Partial<Omit<ProjectFileRow, "id" | "user_id" | "project_id" | "storage_path">>;
         Relationships: [];
       };
+      project_places: {
+        Row: ProjectPlaceRow;
+        Insert: Insert<ProjectPlaceRow, "id" | "event_id" | "reservation_id" | "address" | "latitude" | "longitude" | "visited_date" | "visited_time" | "sort_order" | "category" | "memo" | "is_visited" | "qa_run_id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<ProjectPlaceRow, "id" | "user_id" | "project_id">>;
+        Relationships: [];
+      };
       project_reservations: {
         Row: ProjectReservationRow;
         Insert: Insert<ProjectReservationRow, "id" | "end_date" | "start_time" | "end_time" | "company" | "confirmation_number" | "location" | "phone" | "website" | "memo" | "linked_event_id" | "created_at" | "updated_at">;
@@ -637,6 +676,10 @@ export type Database = {
       };
       reorder_project_checklist_items: {
         Args: { p_project_id: string; p_item_ids: string[] };
+        Returns: undefined;
+      };
+      reorder_project_places: {
+        Args: { p_project_id: string; p_place_ids: string[] };
         Returns: undefined;
       };
       save_project_reservation: {

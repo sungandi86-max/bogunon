@@ -11,6 +11,7 @@ const tabs = [
   { key: "budget", label: "예산", mobileLabel: "예산" },
   { key: "notes", label: "노트", mobileLabel: "노트" },
   { key: "files", label: "파일", mobileLabel: "파일" },
+  { key: "map", label: "지도", mobileLabel: "지도" },
 ] as const;
 
 type WorkspaceTab = (typeof tabs)[number]["key"];
@@ -30,7 +31,7 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
     const restoreTab = () => {
       const restored = tabFromHash();
       setActiveTab(restored);
-      if (restored === "notes" || restored === "files") {
+      if (restored === "notes" || restored === "files" || restored === "map") {
         setActivatedLazyTabs((current) => current.includes(restored) ? current : [...current, restored]);
       }
     };
@@ -44,7 +45,7 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
     url.hash = tab;
     window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
     setActiveTab(tab);
-    if (tab === "notes" || tab === "files") {
+    if (tab === "notes" || tab === "files" || tab === "map") {
       setActivatedLazyTabs((current) => current.includes(tab) ? current : [...current, tab]);
     }
   }
@@ -94,7 +95,7 @@ export function ProjectWorkspaceShell(props: ProjectWorkspaceShellProps) {
             key={tab.key}
             role="tabpanel"
           >
-            {tab.key !== "notes" && tab.key !== "files"
+            {tab.key !== "notes" && tab.key !== "files" && tab.key !== "map"
               ? props[tab.key]
               : activatedLazyTabs.includes(tab.key) ? props[tab.key] : null}
           </section>

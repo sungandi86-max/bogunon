@@ -8,6 +8,7 @@ const QA_TABLES = [
   "project_expenses",
   "project_files",
   "project_notes",
+  "project_places",
   "project_reservations",
   "projects",
   "storage_objects",
