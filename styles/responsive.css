@@ -219,9 +219,11 @@
   .project-event-row__map { justify-self: end; }
   .project-map-view-switch { display: flex; }
   .project-map-layout { display: block; min-height: 460px; }
-  .project-map-layout--map .project-map-list, .project-map-layout--list .project-map-canvas { display: none; }
+  .project-map-layout--map .project-map-course, .project-map-layout--list .project-map-canvas { display: none; }
   .project-map-canvas, .project-place-map { min-height: 460px; }
-  .project-map-list { border-left: 0; max-height: none; }
+  .project-map-course { border-left: 0; max-height: none; }
+  .project-map-course__heading { position: static; }
+  .project-map-list { max-height: none; }
   .project-map-list__handle { display: none; }
   .project-map-list__move { display: flex; }
   .project-map-list__actions a, .project-map-list__actions button, .project-map-list__move button { height: var(--touch-target); width: var(--touch-target); }
@@ -230,9 +232,14 @@
   .project-map-filters { display: grid; }
   .project-map-date-filter, .project-map-visit-filter { max-width: calc(100vw - var(--space-10)); }
   .project-map-summary, .project-map-selected { align-items: flex-start; flex-direction: column; }
+  .project-map-summary__days { margin-left: 0; }
+  .project-map-suggestions article { align-items: start; grid-template-columns: 32px minmax(0, 1fr); }
+  .project-map-suggestions article .button { grid-column: 1 / -1; min-height: var(--touch-target); width: 100%; }
   .project-place-form { max-width: none; padding: var(--space-6) var(--space-5); }
   .project-place-form__grid { grid-template-columns: 1fr; }
   .project-place-form__wide, .project-place-form__visited { grid-column: auto; }
+  .project-place-form__coordinates { grid-column: auto; }
+  .project-place-form__coordinates > div { grid-template-columns: 1fr; }
   .project-place-form__actions .button { min-height: var(--touch-target); flex: 1; }
   .mobile-create-button { display: none; }
   .briefing-page { padding-top: var(--space-2); }
