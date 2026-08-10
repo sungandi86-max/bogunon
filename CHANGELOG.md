@@ -4,6 +4,43 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.10.1 - Travel Map UX v2
+
+Release Date: 2026-08-11
+
+### ✨ Added
+
+- 프로젝트 기간과 연결 데이터로 계산하는 여행 DAY별 코스
+- 일정·예약의 미등록 장소 추천과 Kakao 검색 기반 확인 흐름
+- 여행 종료 후 DAY별 방문 장소 회고 요약
+
+### 🔄 Changed
+
+- Desktop 지도를 지도 65%·코스 목록 35%의 연결된 2-Pane Workspace로 개선
+- Mobile 지도·코스 전환에서 날짜별 실제 장소 목록을 표시
+- 장소 검색 결과를 먼저 선택하고 여행 정보만 확인하는 추가 흐름으로 단순화
+
+### 🎨 Improved
+
+- 장소 수와 프로젝트 지역에 따라 대한민국·지역 중심·단일 장소·fitBounds를 선택하는 지도 viewport
+- 지도 핀과 코스 목록의 양방향 선택 및 포커스 동기화
+- 날짜별로 분리된 번호 핀과 polyline, DAY chip 가독성
+
+### 🛠 Fixed
+
+- 전체 보기에서 서로 다른 날짜의 장소가 하나의 연속 route로 연결되던 문제
+- 지도 선택 전환 시 OpenStreetMap TileLayer가 중복될 수 있던 문제
+- 좌표가 없는 일정·예약 장소를 다시 직접 입력해야 했던 흐름
+
+### ✅ Verified
+
+- Travel Map DAY·viewport·추천·상호작용 집중 테스트
+- Kakao 장소 검색 provider 회귀 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+
 ## v0.10.0 - Travel Map & Routes
 
 Release Date: 2026-08-08
