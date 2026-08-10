@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest) {
     "font-src 'self' data:",
     "form-action 'self'",
     "frame-ancestors 'none'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://*.tile.openstreetmap.org",
     "manifest-src 'self'",
     "object-src 'none'",
     `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""}`,

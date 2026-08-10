@@ -28,6 +28,7 @@ Release Date: 2026-08-08
 ### 🛠 Fixed
 
 - 실제 사용자 데이터와 Production QA 데이터를 구분하도록 장소 테이블을 QA 정리 검증 대상에 추가
+- Content Security Policy가 OpenStreetMap 타일 이미지를 차단해 지도가 회색으로 표시되던 문제
 
 ### ✅ Verified
 
