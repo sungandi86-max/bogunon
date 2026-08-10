@@ -85,6 +85,9 @@ describe("Supabase session proxy", () => {
     const response = await appProxy(new NextRequest("https://bogunon.example/privacy"));
 
     expect(response.headers.get("content-security-policy")).toContain("default-src 'self'");
+    expect(response.headers.get("content-security-policy")).toContain(
+      "img-src 'self' data: blob: https://*.tile.openstreetmap.org",
+    );
     expect(response.headers.get("content-security-policy")).toMatch(/script-src 'self' 'nonce-[^']+'/);
     expect(response.headers.get("content-security-policy")).toContain("frame-ancestors 'none'");
     expect(response.headers.get("x-frame-options")).toBe("DENY");
