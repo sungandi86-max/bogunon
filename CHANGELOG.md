@@ -4,6 +4,39 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.10.2 - Contextual Workspace
+
+Release Date: 2026-08-11
+
+### ✨ Added
+
+- 프로젝트 프리셋 정체성을 재사용하는 유형별 Workspace 탐색 우선순위
+- 여행 프로젝트의 저빈도 노트 탭을 위한 접근 가능한 더보기 메뉴
+
+### 🔄 Changed
+
+- 여행 프로젝트를 일정·예약·지도 중심 순서로 재배치
+- 학교·출판·개발·운동 프로젝트의 실제 작업 흐름에 맞춰 탭 순서 변경
+- 개요 Empty State와 빠른 액션을 프로젝트 유형별 핵심 작업으로 조정
+
+### 🎨 Improved
+
+- Mobile 가로 탭에서 중요한 기능을 먼저 노출하고 44px 터치 영역 유지
+- 더보기 내부 탭의 직접 hash 접근, 선택 상태, 키보드 탐색 피드백
+
+### 🛠 Fixed
+
+- 모든 프로젝트에 동일한 탭 순서가 노출되던 정보구조 문제
+- 유형을 확실히 판별할 수 없는 프로젝트가 임의 유형으로 분류될 수 있던 문제
+
+### ✅ Verified
+
+- 유형별 탭·CTA·hash 복원 집중 테스트
+- Typecheck
+- Lint
+- Clean Build
+- `git diff --check`
+
 ## v0.10.1 - Travel Map UX v2
 
 Release Date: 2026-08-11
