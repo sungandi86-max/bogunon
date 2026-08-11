@@ -28,6 +28,7 @@ const panels = {
   files: <p>파일 내용</p>,
   map: <p>지도 내용</p>,
 };
+const travelPanels = { ...panels, projectType: "travel" as const };
 
 describe("project detail workspace", () => {
   beforeEach(() => {
@@ -35,7 +36,7 @@ describe("project detail workspace", () => {
   });
 
   it("opens overview by default and keeps every loaded panel mounted", () => {
-    render(<ProjectWorkspaceShell {...panels} />);
+    render(<ProjectWorkspaceShell {...travelPanels} />);
 
     expect(screen.getByRole("tab", { name: "개요" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel", { name: "개요" })).toBeVisible();
@@ -44,20 +45,20 @@ describe("project detail workspace", () => {
   });
 
   it("writes the active tab to the hash and restores it after refresh", () => {
-    const { unmount } = render(<ProjectWorkspaceShell {...panels} />);
+    const { unmount } = render(<ProjectWorkspaceShell {...travelPanels} />);
 
     fireEvent.click(screen.getByRole("tab", { name: "예약" }));
     expect(window.location.hash).toBe("#reservations");
     expect(screen.getByRole("tabpanel", { name: "예약" })).toBeVisible();
 
     unmount();
-    render(<ProjectWorkspaceShell {...panels} />);
+    render(<ProjectWorkspaceShell {...travelPanels} />);
     expect(screen.getByRole("tab", { name: "예약" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel", { name: "예약" })).toBeVisible();
   });
 
   it("supports arrow-key tab navigation", () => {
-    render(<ProjectWorkspaceShell {...panels} />);
+    render(<ProjectWorkspaceShell {...travelPanels} />);
 
     const overviewTab = screen.getByRole("tab", { name: "개요" });
     fireEvent.keyDown(overviewTab, { key: "ArrowRight" });
@@ -67,10 +68,11 @@ describe("project detail workspace", () => {
   });
 
   it("mounts notes on first activation and reuses the mounted panel", () => {
-    render(<ProjectWorkspaceShell {...panels} />);
+    render(<ProjectWorkspaceShell {...travelPanels} />);
 
     expect(screen.queryByText("노트 내용")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("tab", { name: "노트" }));
+    fireEvent.click(screen.getByRole("button", { name: "더보기" }));
+    fireEvent.click(screen.getByRole("menuitem", { name: "노트" }));
     expect(screen.getByText("노트 내용")).toBeVisible();
     expect(window.location.hash).toBe("#notes");
 
@@ -80,7 +82,7 @@ describe("project detail workspace", () => {
   });
 
   it("mounts files on first activation, restores #files, and reuses the mounted panel", () => {
-    const { unmount } = render(<ProjectWorkspaceShell {...panels} />);
+    const { unmount } = render(<ProjectWorkspaceShell {...travelPanels} />);
 
     expect(screen.queryByText("파일 내용")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: "파일" }));
@@ -93,61 +95,86 @@ describe("project detail workspace", () => {
 
     window.history.replaceState(null, "", "/projects/project-1#files");
     unmount();
-    render(<ProjectWorkspaceShell {...panels} />);
+    render(<ProjectWorkspaceShell {...travelPanels} />);
     expect(screen.getByRole("tab", { name: "파일" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tabpanel", { name: "파일" })).toBeVisible();
   });
 
   it("mounts the map on first activation and restores #map", () => {
-    const { unmount } = render(<ProjectWorkspaceShell {...panels} />);
+    const { unmount } = render(<ProjectWorkspaceShell {...travelPanels} />);
     expect(screen.queryByText("지도 내용")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: "지도" }));
     expect(screen.getByText("지도 내용")).toBeVisible();
     expect(window.location.hash).toBe("#map");
     unmount();
-    render(<ProjectWorkspaceShell {...panels} />);
+    render(<ProjectWorkspaceShell {...travelPanels} />);
     expect(screen.getByRole("tabpanel", { name: "지도" })).toBeVisible();
+  });
+
+  it("shows travel priorities first and keeps notes in an accessible overflow menu", () => {
+    render(<ProjectWorkspaceShell {...travelPanels} />);
+
+    expect(screen.getAllByRole("tab").map((tab) => tab.getAttribute("aria-label"))).toEqual([
+      "개요", "일정", "예약", "지도", "체크리스트", "예산", "파일",
+    ]);
+    const more = screen.getByRole("button", { name: "더보기" });
+    fireEvent.click(more);
+    expect(more).toHaveAttribute("aria-expanded", "true");
+    fireEvent.click(screen.getByRole("menuitem", { name: "노트" }));
+    expect(window.location.hash).toBe("#notes");
+    expect(screen.getByRole("tabpanel", { name: "노트" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "더보기, 현재 노트" })).toHaveAttribute("aria-current", "page");
+  });
+
+  it("uses the school priority without changing panel loading", () => {
+    render(<ProjectWorkspaceShell {...panels} projectType="school" />);
+    expect(screen.getAllByRole("tab").map((tab) => tab.getAttribute("aria-label"))).toEqual([
+      "개요", "일정", "체크리스트", "노트", "파일", "예산", "예약", "지도",
+    ]);
+    expect(screen.queryByRole("button", { name: "더보기" })).not.toBeInTheDocument();
   });
 
   it("summarizes project status in next-event, reservation, checklist, budget, and activity order", () => {
     render(
-      <ProjectWorkspaceOverview
-        budget={{
-          id: "budget-1", user_id: "user-1", project_id: "project-1", budget_amount: 600_000,
-          currency: "KRW", memo: null, created_at: "", updated_at: "",
-        }}
-        checklistItems={[
-          {
-            id: "item-1", user_id: "user-1", project_id: "project-1", title: "완료",
-            is_completed: true, sort_order: 0, due_date: null, created_at: "", updated_at: "",
-          },
-          {
-            id: "item-2", user_id: "user-1", project_id: "project-1", title: "진행",
-            is_completed: false, sort_order: 1, due_date: null, created_at: "", updated_at: "",
-          },
-        ]}
-        events={[{
-          id: "event-1", user_id: "user-1", project_id: "project-1", title: "출발 준비",
-          area: "project", start_date: "2026-07-28", end_date: "2026-07-28", is_all_day: false,
-          start_time: "09:00:00", end_time: null, memo: null, description: null, created_at: "", updated_at: "",
-        }]}
-        expenses={[
-          {
-            id: "expense-1", user_id: "user-1", project_id: "project-1", reservation_id: null,
-            title: "결제", category: "fee", amount: 438_000, expense_date: "2026-07-28",
-            payment_status: "paid", memo: null, created_at: "", updated_at: "",
-          },
-        ]}
-        project={project}
-        reservations={[{
-          id: "reservation-1", user_id: "user-1", project_id: "project-1", type: "hotel",
-          title: "MJ Resort", reservation_date: "2026-08-05", start_time: null, end_time: null,
-          end_date: null,
-          company: null, confirmation_number: null, location: null, phone: null, website: null,
-          memo: null, linked_event_id: null, created_at: "", updated_at: "",
-        }]}
-        today="2026-07-28"
-      />,
+      <AppShellCreateContext value={{ openCreate: vi.fn() }}>
+        <ProjectWorkspaceOverview
+          budget={{
+            id: "budget-1", user_id: "user-1", project_id: "project-1", budget_amount: 600_000,
+            currency: "KRW", memo: null, created_at: "", updated_at: "",
+          }}
+          checklistItems={[
+            {
+              id: "item-1", user_id: "user-1", project_id: "project-1", title: "완료",
+              is_completed: true, sort_order: 0, due_date: null, created_at: "", updated_at: "",
+            },
+            {
+              id: "item-2", user_id: "user-1", project_id: "project-1", title: "진행",
+              is_completed: false, sort_order: 1, due_date: null, created_at: "", updated_at: "",
+            },
+          ]}
+          events={[{
+            id: "event-1", user_id: "user-1", project_id: "project-1", title: "출발 준비",
+            area: "project", start_date: "2026-07-28", end_date: "2026-07-28", is_all_day: false,
+            start_time: "09:00:00", end_time: null, memo: null, description: null, created_at: "", updated_at: "",
+          }]}
+          expenses={[
+            {
+              id: "expense-1", user_id: "user-1", project_id: "project-1", reservation_id: null,
+              title: "결제", category: "fee", amount: 438_000, expense_date: "2026-07-28",
+              payment_status: "paid", memo: null, created_at: "", updated_at: "",
+            },
+          ]}
+          project={project}
+          reservations={[{
+            id: "reservation-1", user_id: "user-1", project_id: "project-1", type: "hotel",
+            title: "MJ Resort", reservation_date: "2026-08-05", start_time: null, end_time: null,
+            end_date: null,
+            company: null, confirmation_number: null, location: null, phone: null, website: null,
+            memo: null, linked_event_id: null, created_at: "", updated_at: "",
+          }]}
+          today="2026-07-28"
+        />
+      </AppShellCreateContext>,
     );
 
     expect(screen.getByRole("heading", { name: "다음 일정" })).toBeInTheDocument();
@@ -159,6 +186,7 @@ describe("project detail workspace", () => {
     expect(screen.getByText("438,000원")).toBeInTheDocument();
     expect(screen.getByText("162,000원")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "최근 활동" })).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "프로젝트 빠른 작업" })).toBeInTheDocument();
   });
 
   it("offers direct next actions when the workspace has no linked data", () => {
@@ -185,6 +213,6 @@ describe("project detail workspace", () => {
     );
     expect(screen.getByRole("link", { name: "예약 추가" })).toHaveAttribute("href", "#reservations");
     expect(screen.getByRole("link", { name: "체크리스트 추가" })).toHaveAttribute("href", "#checklist");
-    expect(screen.getByRole("link", { name: "예산 설정" })).toHaveAttribute("href", "#budget");
+    expect(screen.getByRole("link", { name: "지도에 장소 추가" })).toHaveAttribute("href", "#map");
   });
 });

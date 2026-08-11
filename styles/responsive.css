@@ -100,10 +100,17 @@
   .project-workspace-header__stats > div:first-child { border-left: 0; }
   .project-workspace-header__milestone { align-items: flex-start; display: grid; grid-template-columns: auto 1fr; }
   .project-workspace-header__milestone span + span { border-left: 0; padding-left: 0; }
-  .project-workspace__tabs { gap: 0; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; }
-  .project-workspace__tabs button { flex: 0 0 68px; min-height: var(--touch-target); padding: 0 var(--space-4); scroll-snap-align: start; }
+  .project-workspace__tabs { gap: 0; overflow-x: auto; overflow-y: hidden; overscroll-behavior-inline: contain; scroll-snap-type: x proximity; }
+  .project-workspace__tablist { flex: 0 0 auto; gap: 0; }
+  .project-workspace__tablist > button { flex: 0 0 68px; min-height: var(--touch-target); padding: 0 var(--space-4); scroll-snap-align: start; }
+  .project-workspace__more { flex: 0 0 76px; min-width: 76px; scroll-snap-align: start; }
+  .project-workspace__more > button { min-height: var(--touch-target); padding: 0 var(--space-3); }
+  .project-workspace__more > button span { display: none; }
+  .project-workspace__more-menu { position: fixed; right: var(--space-4); top: auto; bottom: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom) + var(--space-4)); }
   .project-workspace__tab-label { display: none; }
   .project-workspace__tab-label--mobile { display: inline; }
+  .project-workspace-empty-actions--compact { align-items: stretch; }
+  .project-workspace-empty-actions--compact .project-workspace-empty-actions__commands { display: grid; grid-template-columns: 1fr; width: 100%; }
   .project-workspace-overview { grid-template-columns: 1fr; }
   .project-overview-block--wide { grid-column: auto; }
   .project-overview-activity li { grid-template-columns: 64px minmax(0, 1fr); }

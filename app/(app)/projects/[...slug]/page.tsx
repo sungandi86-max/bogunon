@@ -22,7 +22,7 @@ import { getProject, listProjectEvents } from "@/lib/projects/repository";
 import { listProjectFiles } from "@/lib/projects/files-repository";
 import { listProjectPlaces } from "@/lib/projects/places-repository";
 import { isTravelProject } from "@/lib/projects/travel";
-import { projectTypeForIcon } from "@/lib/projects/domain";
+import { workspaceProjectType } from "@/lib/projects/workspace-navigation";
 import { todayInSeoul } from "@/lib/work-items/date";
 
 export default async function ProjectDetailPage({
@@ -48,6 +48,7 @@ export default async function ProjectDetailPage({
   if (!project) notFound();
   const today = todayInSeoul();
   const travelMode = isTravelProject(project, reservations);
+  const projectType = workspaceProjectType(project);
   const projectFiles = travelMode ? await listProjectFiles(project.id) : undefined;
 
   return (
@@ -76,7 +77,7 @@ export default async function ProjectDetailPage({
           <ProjectChecklist
             initialItems={checklistItems}
             projectId={project.id}
-            projectType={projectTypeForIcon(project.icon)}
+            projectType={projectType}
             today={today}
           />
         )}
@@ -99,6 +100,7 @@ export default async function ProjectDetailPage({
           />
         )}
         notes={<ProjectNotes projectId={project.id} />}
+        projectType={projectType}
         map={(
           <ProjectMap
             events={events}

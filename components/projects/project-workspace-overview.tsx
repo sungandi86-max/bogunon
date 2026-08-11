@@ -83,7 +83,7 @@ export function ProjectWorkspaceOverview({
   return (
     <section aria-labelledby="project-overview-title" className="project-workspace-overview">
       <h2 id="project-overview-title">프로젝트 개요</h2>
-      {isEmpty && <ProjectWorkspaceEmptyActions project={project} />}
+      <ProjectWorkspaceEmptyActions compact={!isEmpty} project={project} />
       <article className="project-overview-block">
         <div className="project-overview-block__heading">
           <CalendarDays aria-hidden="true" size={18} />

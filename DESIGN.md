@@ -95,11 +95,12 @@ Accent color communicates interaction or status. New colors must first be added 
 
 ### Project workspace
 
-- Structure: one project summary header, a persistent tab list, and overview, schedule, checklist, reservation, budget, notes, and files panels. Existing panels reuse the page's initially loaded data; extensible panels such as notes and files mount on first activation and keep their client cache afterward.
-- States: overview-default, active-tab, empty-summary, populated-summary, and hash-restored tab.
-- Responsive behavior: desktop keeps all tabs in one row; mobile uses a touch-sized horizontal tab strip without causing page-level overflow.
-- Accessibility: semantic tab and tabpanel relationships, keyboard arrow navigation, visible focus, and text labels alongside project color.
+- Structure: one project summary header, a contextual tab list, and overview, schedule, checklist, reservation, budget, notes, files, and map panels. Tab priority follows the project's existing preset identity; ambiguous projects retain the default order. Low-frequency desktop tabs use the existing compact popover pattern without changing their hash or panel.
+- States: overview-default, active-tab, overflow-open, overflow-tab-active, empty-summary, populated-summary, and hash-restored tab.
+- Responsive behavior: desktop keeps priority tabs and a compact overflow command in one row; mobile uses the same contextual priority in a touch-sized horizontal strip without causing page-level overflow.
+- Accessibility: semantic tabs and tabpanels, keyboard arrow navigation, keyboard-operable overflow menu, visible focus, selected text treatment in addition to color, and text labels alongside project color.
 - Persistence: the selected tab is stored in the URL hash so refresh keeps context without triggering a new server fetch.
+- Data loading: contextual ordering never changes panel mounting or cache rules. Notes, files, and map still mount only on first activation and remain mounted afterward.
 
 ### Workspace action-first empty state
 
