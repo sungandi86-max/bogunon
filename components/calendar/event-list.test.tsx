@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { EventList } from "@/components/calendar/event-list";
@@ -48,6 +48,20 @@ function event(values: Partial<EventRow> = {}): EventRow {
 }
 
 describe("EventList time details", () => {
+  it("delegates editing without rendering a nested inline editor", () => {
+    const onEdit = vi.fn();
+    const selectedEvent = event({
+      event_type: "workout",
+      event_details: { kind: "workout", workoutType: "배드민턴" },
+    });
+
+    const { container } = render(<EventList date="2026-07-26" events={[selectedEvent]} onEdit={onEdit} workflow={workflow} />);
+    fireEvent.click(screen.getByRole("button", { name: "편집" }));
+
+    expect(onEdit).toHaveBeenCalledWith(selectedEvent);
+    expect(container.querySelector(".inline-editor")).not.toBeInTheDocument();
+  });
+
   it("labels an all-day event as all-day", () => {
     render(<EventList date="2026-07-26" events={[event()]} workflow={workflow} />);
 
