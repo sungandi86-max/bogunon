@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { deleteWorkItemAction, saveWorkItemAsTemplateAction } from "@/app/(app)/work-item-actions";
 import { EventCopyMenu } from "@/components/calendar/event-copy-menu";
-import { CreateItemForm } from "@/components/layout/create-item-form";
 import type { WorkflowData } from "@/lib/work-items/phase5-repository";
 import type { EventRow } from "@/types/database";
 import type { ExerciseLogRow } from "@/types/database";
@@ -21,6 +20,7 @@ interface EventListProps {
   readonly date: string;
   readonly events: readonly EventRow[];
   readonly exerciseLogs?: readonly ExerciseLogRow[];
+  readonly onEdit?: (event: EventRow) => void;
   readonly today?: string;
   readonly workflow: WorkflowData;
 }
@@ -52,6 +52,7 @@ export function EventList({
   date,
   events,
   exerciseLogs = [],
+  onEdit,
   today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date()),
   workflow,
 }: EventListProps) {
@@ -86,7 +87,7 @@ export function EventList({
         {showRecordLink && <Link className="tournament-record-link" href={exerciseHref(event, linkedLog)}>{linkedLog ? (eventType === "tournament" ? "대회 기록 보기" : "운동 기록 수정") : (eventType === "tournament" ? "결과 기록하기" : "운동 기록 작성")}<ArrowRight aria-hidden="true" size={14} /></Link>}
       </div>
       <div className="work-item-actions">
-        <details><summary><Pencil aria-hidden="true" size={16} />편집</summary><div className="inline-editor"><CreateItemForm initialItem={event} links={links} reminders={reminders} /></div></details>
+        <button className="icon-text-action" onClick={() => onEdit?.(event)} type="button"><Pencil aria-hidden="true" size={16} />편집</button>
         <EventCopyMenu eventId={event.id} startDate={event.start_date} />
         <form action={saveWorkItemAsTemplateAction}><input name="id" type="hidden" value={event.id} /><input name="kind" type="hidden" value="event" /><button className="icon-text-action" title="템플릿으로 저장" type="submit"><Save size={16} />템플릿</button></form>
         <form action={deleteWorkItemAction}><input name="id" type="hidden" value={event.id} /><input name="kind" type="hidden" value="event" /><button className="danger-action" type="submit"><Trash2 aria-hidden="true" size={16} />삭제</button></form>

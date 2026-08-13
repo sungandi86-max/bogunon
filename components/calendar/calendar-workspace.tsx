@@ -44,6 +44,7 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
   const [stickerOpen, setStickerOpen] = useState(initialStickerOpen);
   const [moveState, setMoveState] = useState<{ readonly value: MovableCalendarItem; readonly newDate?: string } | null>(null);
   const [slotDraft, setSlotDraft] = useState<TemplateDefinition | null>(null);
+  const [editingEvent, setEditingEvent] = useState<EventRow | null>(null);
   const stickerButtonRef = useRef<HTMLButtonElement>(null);
   const activeStickerFilterRef = useRef<HTMLButtonElement>(null);
   const moveButtonRef = useRef<HTMLButtonElement>(null);
@@ -126,6 +127,10 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
   };
   const periodLabel = initialView === "month" ? `${selectedDate.slice(0, 4)}년 ${Number(selectedDate.slice(5, 7))}월` : initialView === "week" ? `${range.first.slice(5).replace("-", ".")} – ${range.last.slice(5).replace("-", ".")}` : selectedDate.replaceAll("-", ". ");
   const selectTimeItem = (item: AllDayGridItem) => { setSelectedDate(item.date); navigate(item.date, initialView, `${item.kind}:${item.id}`); };
+  const completeEdit = useCallback(() => {
+    setEditingEvent(null);
+    router.refresh();
+  }, [router]);
 
   return <>
     <div className="smart-calendar-toolbar"><div className="smart-calendar-toolbar__period"><button aria-label={initialView === "month" ? "이전 달" : initialView === "week" ? "이전 주" : "이전 날짜"} onClick={() => navigate(shiftCalendarPeriod(selectedDate, initialView, -1))} type="button"><ChevronLeft /></button><strong>{periodLabel}</strong><button aria-label={initialView === "month" ? "다음 달" : initialView === "week" ? "다음 주" : "다음 날짜"} onClick={() => navigate(shiftCalendarPeriod(selectedDate, initialView, 1))} type="button"><ChevronRight /></button><button aria-label="오늘 날짜로 이동" className="button button--secondary" onClick={() => navigate(today)} type="button">오늘</button></div><div className="calendar-view-switch calendar-view-switch--desktop" role="group" aria-label="캘린더 보기"><button aria-pressed={initialView === "month"} className={initialView === "month" ? "is-active" : ""} onClick={() => setView("month")} type="button">월간</button><button aria-pressed={initialView === "week"} className={initialView === "week" ? "is-active" : ""} onClick={() => setView("week")} type="button">주간</button><button aria-pressed={initialView === "day"} className={initialView === "day" ? "is-active" : ""} onClick={() => setView("day")} type="button">일간</button></div><div className="calendar-view-switch calendar-view-switch--mobile" role="group" aria-label="모바일 캘린더 보기"><button aria-pressed={initialView === "month"} className={initialView === "month" ? "is-active" : ""} onClick={() => setView("month")} type="button">월간</button><button aria-pressed={initialView !== "month"} className={initialView !== "month" ? "is-active" : ""} onClick={() => setView("day")} type="button">일정표</button></div>{toolbarAction}</div>
@@ -146,11 +151,16 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
         >{moveMessage.text}</p>}
         {initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={moveDroppedEvent} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
       </div>
-      <aside aria-label={`${selectedDate} 선택 날짜 상세`} className="calendar-detail-panel">
-        <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
-        <EventList currentTime={currentTime} date={selectedDate} events={selectedDateEvents} exerciseLogs={exerciseLogs} today={today} workflow={workflow} />
-        {selectedDateTasks.length > 0 && <section aria-label={`${selectedDate} 업무`} className="calendar-detail-panel__group calendar-detail-panel__group--task"><h3>업무</h3>{selectedDateTasks.map((task) => <div className="calendar-detail-panel__item" key={task.id}><span className="calendar-item__indicator" /><strong>{task.title}</strong></div>)}</section>}
-        {selectedDateStickers.length > 0 && <section aria-label={`${selectedDate} 스티커`} className="calendar-detail-panel__group"><h3>날짜 스티커</h3>{selectedDateStickers.map((sticker) => <div className="calendar-detail-panel__item" key={sticker.id}><span className="calendar-item__indicator" /><strong>{sticker.label}</strong></div>)}</section>}
+      <aside aria-label={editingEvent ? `${editingEvent.title} 일정 편집` : `${selectedDate} 선택 날짜 상세`} className={`calendar-detail-panel${editingEvent ? " calendar-detail-panel--editing" : ""}`}>
+        {editingEvent ? <>
+          <header className="calendar-detail-panel__header calendar-detail-panel__header--editing"><span>일정 편집</span><strong>{editingEvent.title}</strong><button className="button button--secondary" onClick={() => setEditingEvent(null)} type="button">취소</button></header>
+          <div className="calendar-detail-panel__editor"><CreateItemForm initialItem={editingEvent} key={editingEvent.id} links={workflow.eventLinks.filter((item) => item.event_id === editingEvent.id)} onSaved={completeEdit} reminders={workflow.eventReminders.filter((item) => item.event_id === editingEvent.id)} /></div>
+        </> : <>
+          <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
+          <EventList currentTime={currentTime} date={selectedDate} events={selectedDateEvents} exerciseLogs={exerciseLogs} onEdit={setEditingEvent} today={today} workflow={workflow} />
+          {selectedDateTasks.length > 0 && <section aria-label={`${selectedDate} 업무`} className="calendar-detail-panel__group calendar-detail-panel__group--task"><h3>업무</h3>{selectedDateTasks.map((task) => <div className="calendar-detail-panel__item" key={task.id}><span className="calendar-item__indicator" /><strong>{task.title}</strong></div>)}</section>}
+          {selectedDateStickers.length > 0 && <section aria-label={`${selectedDate} 스티커`} className="calendar-detail-panel__group"><h3>날짜 스티커</h3>{selectedDateStickers.map((sticker) => <div className="calendar-detail-panel__item" key={sticker.id}><span className="calendar-item__indicator" /><strong>{sticker.label}</strong></div>)}</section>}
+        </>}
       </aside>
     </div>
     <ResponsiveDetailPanel onClose={() => setStickerOpen(false)} open={stickerOpen} returnFocusRef={stickerButtonRef} title="날짜 스티커 추가"><SchoolStickerPicker stickers={stickers} today={selectedDate} /></ResponsiveDetailPanel>
