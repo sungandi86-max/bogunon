@@ -8,9 +8,10 @@ import type { EventRow, ExerciseLogRow, ExerciseRecordType, ExerciseStickerRow }
 const mocks = vi.hoisted(() => ({
   attach: vi.fn(async (): Promise<import("@/app/(app)/exercise-sticker-actions").ExerciseCreateActionState> => ({ status: "success", outcome: "created", message: "저장", logId: "20000000-0000-4000-8000-000000000002", recordType: "lesson" })),
   refresh: vi.fn(),
+  replace: vi.fn(),
 }));
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: mocks.refresh }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: mocks.refresh, replace: mocks.replace }) }));
 vi.mock("@/app/(app)/exercise-sticker-actions", () => ({
   attachExerciseStickerAction: mocks.attach,
   removeExerciseStickerAction: vi.fn(async () => ({ status: "success", message: "운동 스티커를 떼었어요." })),
@@ -149,6 +150,19 @@ describe("ExerciseWorkspace", () => {
   it("opens the same sticker picker from the page action", () => {
     render(<ExerciseWorkspace events={[]} logs={[]} month="2026-07" stickers={[sticker]} today="2026-07-18" />);
     fireEvent.click(screen.getByRole("button", { name: "운동 기록" }));
+    expect(screen.getByRole("dialog", { name: "오늘 운동 기록" })).toBeInTheDocument();
+  });
+
+  it("clears route entry state on close and reopens when the create route returns", () => {
+    const props = { events: [], logs: [], month: "2026-07", stickers: [sticker], today: "2026-07-18" } as const;
+    const { rerender } = render(<ExerciseWorkspace {...props} initialOpen key="create" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "패널 닫기" }));
+    expect(mocks.replace).toHaveBeenCalledWith("/exercise?month=2026-07", { scroll: false });
+    expect(screen.queryByRole("dialog", { name: "오늘 운동 기록" })).not.toBeInTheDocument();
+
+    rerender(<ExerciseWorkspace {...props} initialOpen={false} key="browse" />);
+    rerender(<ExerciseWorkspace {...props} initialOpen key="create-again" />);
     expect(screen.getByRole("dialog", { name: "오늘 운동 기록" })).toBeInTheDocument();
   });
 

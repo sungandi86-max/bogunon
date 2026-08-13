@@ -2,8 +2,8 @@
 
 import { CalendarDays, CalendarPlus, ClipboardList, Dumbbell, FolderKanban, Home, Plus, Settings, Sticker, StickyNote } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { type MouseEvent, useRef, useState } from "react";
 
 import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
@@ -48,12 +48,19 @@ const mobileQuickMemoTemplate = {
 
 export function MobileBottomNavigation({ onCreate }: MobileBottomNavigationProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [createMenuOpen, setCreateMenuOpen] = useState(false);
   const launcherRef = useRef<HTMLButtonElement>(null);
 
   function chooseCreate(trigger: HTMLButtonElement, kind: "task" | "event", template?: TemplateDefinition): void {
     setCreateMenuOpen(false);
     onCreate(launcherRef.current ?? trigger, kind, template);
+  }
+
+  function openExerciseRecord(event: MouseEvent<HTMLAnchorElement>): void {
+    event.preventDefault();
+    router.push("/exercise?create=sticker");
+    setCreateMenuOpen(false);
   }
 
   return (
@@ -87,7 +94,7 @@ export function MobileBottomNavigation({ onCreate }: MobileBottomNavigationProps
       >
         <div className="mobile-create-menu">
           <button onClick={(event) => chooseCreate(event.currentTarget, "event", mobileScheduleTemplate)} type="button"><CalendarPlus aria-hidden="true" size={20} /><span><strong>일정 추가</strong><small>학교 일정 또는 개인 일정을 등록합니다.</small></span></button>
-          <Link href="/exercise?create=sticker" onClick={() => setCreateMenuOpen(false)}><Dumbbell aria-hidden="true" size={20} /><span><strong>운동 기록</strong><small>운동, 레슨, 대회 기록을 남깁니다.</small></span></Link>
+          <Link href="/exercise?create=sticker" onClick={openExerciseRecord}><Dumbbell aria-hidden="true" size={20} /><span><strong>운동 기록</strong><small>운동, 레슨, 대회 기록을 남깁니다.</small></span></Link>
           <Link href="/calendar?create=sticker" onClick={() => setCreateMenuOpen(false)}><Sticker aria-hidden="true" size={20} /><span><strong>날짜 스티커 붙이기</strong><small>학교 일정이나 개인 약속을 날짜에 간단히 표시합니다.</small></span></Link>
           <button onClick={(event) => chooseCreate(event.currentTarget, "event", mobileQuickMemoTemplate)} type="button"><StickyNote aria-hidden="true" size={20} /><span><strong>빠른 메모</strong><small>떠오른 내용을 간단히 기록합니다.</small></span></button>
         </div>

@@ -6,6 +6,7 @@ import { MobileBottomNavigation } from "@/components/layout/mobile-bottom-naviga
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/ai-writer",
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 describe("AI writer navigation", () => {
