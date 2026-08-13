@@ -67,8 +67,8 @@ export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, i
   }
 
   function closeCreate(): void {
-    setCreateOpen(false);
     if (initialOpen) router.replace(`/exercise?month=${activeMonth}`, { scroll: false });
+    setCreateOpen(false);
   }
 
   function handleCreated(log: CreatedLog): void {
