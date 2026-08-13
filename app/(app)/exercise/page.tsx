@@ -53,6 +53,7 @@ export default async function ExercisePage({ searchParams }: { readonly searchPa
     recentLogs={recentLogs}
     stickers={stickerData?.stickers ?? []}
     today={today}
+    key={params.create === "sticker" || params.create === "1" ? `create:${params.eventId ?? "manual"}` : `browse:${month}`}
     {...(recordEntryError ? { recordEntryError } : {})}
     {...(returnTo ? { returnTo } : {})}
     {...(initialEvent ? { initialEvent } : {})}

@@ -66,8 +66,13 @@ export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, i
     setActiveReview(review);
   }
 
-  function handleCreated(log: CreatedLog): void {
+  function closeCreate(): void {
+    if (initialOpen) router.replace(`/exercise?month=${activeMonth}`, { scroll: false });
     setCreateOpen(false);
+  }
+
+  function handleCreated(log: CreatedLog): void {
+    closeCreate();
     if (log.recordType !== "exercise") {
       reviewTriggerRef.current = createTriggerRef.current;
       const competitionDefaults = initialEventDetails?.kind === "tournament" ? {
@@ -99,7 +104,7 @@ export function ExerciseWorkspace({ dataAvailable = true, events, initialDate, i
       <CustomExerciseStickerForm stickers={stickers} />
     </> : <section className="settings-error" role="alert"><h2>운동 스티커를 불러오지 못했습니다.</h2><p>데이터 연결을 확인한 뒤 다시 시도해 주세요. 기존 운동 일정은 아래에서 계속 확인할 수 있습니다.</p><button className="button button--secondary" onClick={() => router.refresh()} type="button">다시 시도</button></section>}
     {records.length > 0 && <section className="legacy-exercise-section" aria-labelledby="legacy-exercise-title"><div className="section-title-row"><div><h2 id="legacy-exercise-title">기존 운동 일정</h2><p>이전에 일정으로 등록한 운동 기록은 그대로 보존합니다.</p></div><span>{records.length}개</span></div><div className="exercise-grid">{records.map((record) => <ExerciseCard key={record.id} record={record} />)}</div></section>}
-    <ResponsiveDetailPanel onClose={() => setCreateOpen(false)} open={dataAvailable && createOpen} returnFocusRef={createTriggerRef} title={initialEvent ? "운동 기록" : "오늘 운동 기록"}>
+    <ResponsiveDetailPanel onClose={closeCreate} open={dataAvailable && createOpen} returnFocusRef={createTriggerRef} title={initialEvent ? "운동 기록" : "오늘 운동 기록"}>
       {!initialEvent && <p className="exercise-sheet-intro">운동 종류와 날짜를 확인한 뒤 저장하세요.</p>}
       <ExerciseStickerPicker
         date={selectedDate}
