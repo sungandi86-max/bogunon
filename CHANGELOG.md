@@ -4,6 +4,18 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.11.0 - Health Support Instructor Manager
+
+Release Date: 2026-08-18
+
+### Added
+
+- 보건 보조인력 관리(Health Support Instructor Manager): 강사 정보, 근무 기록, 월별 정산, Excel 가져오기 및 출력 문서를 한 작업 공간에서 관리
+
+### Verified
+
+- Health Support Instructor Manager 집중 테스트 및 로컬 회귀 검증 범위 기록
+
 ## v0.10.2 - Contextual Workspace
 
 Release Date: 2026-08-11

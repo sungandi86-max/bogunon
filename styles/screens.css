@@ -76,6 +76,75 @@
 .page-header__eyebrow { color: var(--ink-500); font-size: var(--text-xs); font-weight: var(--weight-semibold); letter-spacing: .03em; margin: 0 0 var(--space-2); }
 .page-header h1 { color: var(--brand-950); font-size: var(--text-page); font-weight: var(--weight-bold); line-height: var(--leading-heading); margin: 0; }
 .page-header__description { color: var(--ink-700); font-size: var(--text-md); margin: var(--space-3) 0 0; }
+.health-support-instructors-page { min-width: 0; }
+.health-support-instructors-page .page-canvas { inline-size: 100%; max-width: 1260px; min-width: 0; }
+.health-support-workspace { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+.health-support-workspace--empty { align-items: center; color: var(--action-700); display: grid; justify-items: center; min-height: 300px; padding: var(--space-16); text-align: center; }
+.health-support-workspace--empty h2 { color: var(--brand-950); font-size: var(--text-card); margin: var(--space-4) 0 0; }
+.health-support-workspace--empty p { color: var(--ink-500); font-size: var(--text-support); margin: var(--space-3) 0 var(--space-6); }
+.health-support-workspace__context { align-items: end; background: var(--surface-subtle); border-bottom: 1px solid var(--line); display: flex; gap: var(--space-8); justify-content: space-between; padding: var(--space-8) var(--space-10); }
+.health-support-workspace__context p { color: var(--action-700); font-size: var(--text-meta); font-weight: var(--weight-semibold); margin: 0 0 var(--space-1); }
+.health-support-workspace__context h2 { color: var(--brand-950); font-size: var(--text-card); margin: 0; }
+.health-support-workspace__context span, .health-support-workspace__context label { color: var(--ink-500); font-size: var(--text-sm); }
+.health-support-workspace__context label { display: grid; gap: var(--space-2); font-weight: var(--weight-semibold); min-width: 220px; }
+.health-support-workspace__context select { min-height: var(--control-md); }
+.health-support-workspace__tabs { border-bottom: 1px solid var(--line); display: flex; gap: var(--space-1); overflow-x: auto; padding: var(--space-3) var(--space-6); }
+.health-support-workspace__tabs button { background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-500); flex: 0 0 auto; font-size: var(--text-sm); font-weight: var(--weight-semibold); min-height: var(--control-md); padding: 0 var(--space-5); }
+.health-support-workspace__tabs button[aria-selected="true"] { background: var(--action-50); color: var(--action-700); }
+.health-support-workspace__tabs button:focus-visible { box-shadow: var(--focus-ring); outline: 0; }
+.health-support-workspace__panel { padding: var(--space-10); }
+.health-support-dashboard { display: grid; gap: var(--space-8); }
+.health-support-dashboard__summary { border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: hidden; }
+.health-support-dashboard__summary > div { display: grid; gap: var(--space-2); padding: var(--space-6); }
+.health-support-dashboard__summary > div + div { border-left: 1px solid var(--line); }
+.health-support-dashboard__summary span { color: var(--ink-500); font-size: var(--text-meta); }
+.health-support-dashboard__summary strong { color: var(--brand-950); font-size: var(--text-section); font-variant-numeric: tabular-nums; }
+.health-support-dashboard__grid { display: grid; gap: var(--space-6); grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr); }
+.health-support-dashboard__grid article, .health-support-record-list, .health-support-worklog-form, .health-support-placeholder { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: var(--radius-md); padding: var(--space-6); }
+.health-support-dashboard h3, .health-support-record-list h3, .health-support-placeholder h3 { color: var(--brand-950); font-size: var(--text-section); margin: 0 0 var(--space-4); }
+.health-support-dashboard p, .health-support-record-list > p, .health-support-placeholder p { color: var(--ink-500); font-size: var(--text-support); line-height: var(--leading-body); margin: 0; }
+.health-support-dashboard ul, .health-support-record-list ul { list-style: none; margin: 0; padding: 0; }
+.health-support-dashboard li { align-items: center; border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-4); grid-template-columns: 100px minmax(0, 1fr) auto; min-height: 46px; }
+.health-support-dashboard li span, .health-support-dashboard li em { color: var(--ink-500); font-size: var(--text-meta); font-style: normal; font-variant-numeric: tabular-nums; }
+.health-support-dashboard li strong { color: var(--ink-700); font-size: var(--text-support); }
+.health-support-records { display: grid; gap: var(--space-6); grid-template-columns: minmax(340px, .9fr) minmax(0, 1.1fr); }
+.health-support-worklog-form { align-content: start; display: grid; gap: var(--space-5); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.health-support-worklog-form label { color: var(--ink-700); display: grid; font-size: var(--text-meta); font-weight: var(--weight-semibold); gap: var(--space-2); }
+.health-support-worklog-form input, .health-support-worklog-form textarea { min-width: 0; }
+.health-support-worklog-form__note, .health-support-worklog-form .form-message, .health-support-worklog-form > div { grid-column: 1 / -1; }
+.health-support-worklog-form > div { display: flex; gap: var(--space-3); }
+.health-support-record-list li { align-items: center; border-top: 1px solid var(--line-subtle); display: flex; gap: var(--space-4); justify-content: space-between; padding: var(--space-4) 0; }
+.health-support-record-list li > div:first-child { min-width: 0; }
+.health-support-record-list li > div:last-child { flex: 0 0 auto; }
+.health-support-record-list li div { display: grid; gap: var(--space-1); }
+.health-support-record-list li strong { color: var(--ink-700); font-size: var(--text-support); }
+.health-support-record-list li span { color: var(--ink-500); font-size: var(--text-meta); font-variant-numeric: tabular-nums; }
+.health-support-placeholder { align-items: flex-start; display: flex; gap: var(--space-4); min-height: 150px; }
+.health-support-placeholder > svg { color: var(--action-700); flex: 0 0 auto; }
+.health-support-workspace, .health-support-workspace__panel, .health-support-dashboard, .health-support-dashboard__grid, .health-support-records { min-width: 0; }
+.health-support-document__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.health-support-document__table { border: 1px solid var(--line); border-radius: var(--radius-md); overflow-x: auto; }
+.health-support-document table { border-collapse: collapse; color: var(--ink-700); font-size: var(--text-support); table-layout: fixed; width: 100%; }
+.health-support-document caption { caption-side: top; color: var(--brand-950); font-size: var(--text-section); font-weight: var(--weight-semibold); padding: var(--space-5); text-align: left; }
+.health-support-document th, .health-support-document td { border-top: 1px solid var(--line); overflow-wrap: anywhere; padding: var(--space-3) var(--space-4); text-align: center; }
+.health-support-document th { background: var(--surface-subtle); color: var(--ink-700); font-weight: var(--weight-semibold); }
+.health-support-document tfoot { font-variant-numeric: tabular-nums; font-weight: var(--weight-semibold); }
+
+@media print {
+  body:has(.health-support-workspace[data-print-document]) { background: var(--surface); color: var(--ink-950); font-family: var(--font-family-sans); font-size: 10pt; }
+  body:has(.health-support-workspace[data-print-document]) .global-navigation, body:has(.health-support-workspace[data-print-document]) .app-header, body:has(.health-support-workspace[data-print-document]) .mobile-navigation, body:has(.health-support-workspace[data-print-document]) .mobile-create-fab, body:has(.health-support-workspace[data-print-document]) .page-header, body:has(.health-support-workspace[data-print-document]) .health-support-workspace__context, body:has(.health-support-workspace[data-print-document]) .health-support-workspace__tabs, body:has(.health-support-workspace[data-print-document]) .health-support-document__actions, body:has(.health-support-workspace[data-print-document]) input, body:has(.health-support-workspace[data-print-document]) select, body:has(.health-support-workspace[data-print-document]) textarea, body:has(.health-support-workspace[data-print-document]) button { display: none !important; }
+  body:has(.health-support-workspace[data-print-document]) .page-canvas, body:has(.health-support-workspace[data-print-document]) .health-support-workspace, body:has(.health-support-workspace[data-print-document]) .health-support-workspace__panel { background: transparent; border: 0; box-shadow: none; margin: 0; max-width: none; padding: 0; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-workspace__panel > :not(.health-support-document) { display: none; }
+  body:has(.health-support-workspace[data-print-document="work-detail"]) .health-support-document:not(.health-support-document--work-detail), body:has(.health-support-workspace[data-print-document="payment-statement"]) .health-support-document:not(.health-support-document--payment-statement) { display: none; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-document { color: var(--ink-950); display: grid; gap: 6mm; inline-size: 182mm; min-block-size: 269mm; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary, body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__grid { break-inside: avoid; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary > div { padding: 4mm; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-document table { font-size: 9pt; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-document thead { display: table-header-group; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-document tr { break-inside: avoid; }
+  body:has(.health-support-workspace[data-print-document]) .health-support-document th, body:has(.health-support-workspace[data-print-document]) .health-support-document td { padding: 2.25mm 2mm; }
+}
 .mobile-create-button { display: none; }
 
 .club-records-page { max-width: none; }
