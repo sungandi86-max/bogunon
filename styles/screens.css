@@ -163,6 +163,9 @@
   body:has(.health-support-workspace[data-print-document]) .health-support-workspace__panel > :not(.health-support-document) { display: none; }
   body:has(.health-support-workspace[data-print-document="work-detail"]) .health-support-document:not(.health-support-document--work-detail), body:has(.health-support-workspace[data-print-document="payment-statement"]) .health-support-document:not(.health-support-document--payment-statement), body:has(.health-support-workspace[data-print-document="attendance-register"]) .health-support-document:not(.health-support-document--attendance-register) { display: none; }
   body:has(.health-support-workspace[data-print-document]) .health-support-document { color: var(--ink-950); display: grid; gap: 6mm; inline-size: 182mm; min-block-size: 269mm; }
+  body:has(.health-support-workspace[data-print-document="work-detail"]) .health-support-document--work-detail > :not(.health-support-document__table), body:has(.health-support-workspace[data-print-document="payment-statement"]) .health-support-document--payment-statement > :not(.payment-statement-preview) { display: none !important; }
+  body:has(.health-support-workspace[data-print-document="work-detail"]) .health-support-document__table { border: 0; overflow: visible; }
+  body:has(.health-support-workspace[data-print-document="work-detail"]) .health-support-document__table h3 { display: none; }
   body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary, body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__grid { break-inside: avoid; }
   body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary > div { padding: 4mm; }
