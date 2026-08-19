@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ClipboardList, Dumbbell, FolderKanban, Home, Plus, Settings, Sticker, StickyNote } from "lucide-react";
+import { CalendarDays, CalendarPlus, ClipboardList, Dumbbell, FolderKanban, Home, Plus, Settings, Sticker, StickyNote, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { type MouseEvent, useRef, useState } from "react";
@@ -14,6 +14,7 @@ const links = [
   ["일정", "/calendar", CalendarDays],
   ["프로젝트", "/projects", FolderKanban],
   ["운동", "/exercise", Dumbbell],
+  ["강사", "/health-support-instructors", UsersRound],
   ["설정", "/settings", Settings],
 ] as const;
 

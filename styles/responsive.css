@@ -65,7 +65,7 @@
   .profile-button__label, .profile-button > svg { display: none; }
   .mobile-navigation { background: transparent; border: 0; bottom: calc(var(--mobile-nav-bottom) + env(safe-area-inset-bottom)); display: block; left: var(--mobile-nav-inset); position: fixed; right: var(--mobile-nav-inset); z-index: 40; }
   .app-shell:has(.smart-calendar-page) .mobile-navigation { display: none; }
-  .mobile-navigation__links { background: var(--mobile-nav-surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-nav-radius); box-shadow: var(--mobile-floating-shadow); display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); overflow: hidden; padding: var(--space-2); }
+  .mobile-navigation__links { background: var(--mobile-nav-surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-nav-radius); box-shadow: var(--mobile-floating-shadow); display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); overflow: hidden; padding: var(--space-2); }
   .mobile-navigation a { align-items: center; color: var(--mobile-body); display: flex; flex-direction: column; font-size: var(--text-xs); font-weight: var(--weight-medium); gap: var(--space-2); justify-content: center; min-height: var(--mobile-nav-height); min-width: 0; position: relative; }
   .mobile-navigation a svg { height: var(--space-10); width: var(--space-10); }
   .mobile-navigation a span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -77,6 +77,23 @@
   .page-header { align-items: center; min-height: var(--mobile-header-height); margin-bottom: var(--space-6); }
   .page-header h1 { font-size: var(--text-xl); line-height: var(--leading-heading); }
   .page-header__description { display: none; }
+  .health-support-instructors-page .page-canvas { padding-inline: var(--space-6); }
+  .health-support-workspace { border-radius: var(--mobile-card-radius); }
+  .health-support-workspace__context { align-items: stretch; flex-direction: column; gap: var(--space-5); padding: var(--space-6); }
+  .health-support-workspace__context label { min-width: 0; }
+  .health-support-workspace__tabs { padding-inline: var(--space-3); }
+  .health-support-workspace__tabs button { min-height: var(--touch-target); }
+  .health-support-workspace__panel { padding: var(--space-6); }
+  .health-support-dashboard__summary, .health-support-dashboard__grid, .health-support-records { grid-template-columns: 1fr; }
+  .health-support-dashboard__summary > div + div { border-left: 0; border-top: 1px solid var(--line); }
+  .health-support-dashboard li { grid-template-columns: 86px minmax(0, 1fr) auto; }
+  .health-support-record-list li { align-items: flex-start; }
+  .health-support-worklog-form { grid-template-columns: 1fr; }
+  .health-support-worklog-form__note, .health-support-worklog-form .form-message, .health-support-worklog-form > div { grid-column: auto; }
+  .health-support-worklog-form .button { min-height: var(--touch-target); }
+  .health-support-document__actions .button { flex: 1 1 140px; }
+  .health-support-document caption { font-size: var(--text-support); padding: var(--space-4); }
+  .health-support-document th, .health-support-document td { font-size: var(--text-xs); padding: var(--space-3) var(--space-2); }
   .project-toolbar { align-items: stretch; flex-direction: column; }
   .project-toolbar .button { width: 100%; }
   .project-grid { grid-template-columns: 1fr; }
