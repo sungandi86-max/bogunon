@@ -1,1 +1,10 @@
 .codegraph
+node_modules
+.next
+.next.preclean-*
+.omo
+.preview-logs
+.debug-journal.md
+.env.local
+tsconfig.tsbuildinfo
+.vercel
