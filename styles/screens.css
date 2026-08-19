@@ -129,13 +129,39 @@
 .health-support-document th, .health-support-document td { border-top: 1px solid var(--line); overflow-wrap: anywhere; padding: var(--space-3) var(--space-4); text-align: center; }
 .health-support-document th { background: var(--surface-subtle); color: var(--ink-700); font-weight: var(--weight-semibold); }
 .health-support-document tfoot { font-variant-numeric: tabular-nums; font-weight: var(--weight-semibold); }
+.health-support-document__heading { align-items: end; display: flex; gap: var(--space-5); justify-content: space-between; }
+.health-support-document__heading label { display: grid; gap: var(--space-2); min-inline-size: 220px; }
+.attendance-register-preview { background: var(--surface); color: var(--ink-950); padding: var(--space-7); }
+.attendance-register-preview h2 { font-size: var(--text-title); letter-spacing: .18em; margin: 0 0 var(--space-6); text-align: center; }
+.attendance-register-preview__meta { display: grid; gap: var(--space-3) var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-block-end: var(--space-5); }
+.attendance-register-preview__meta span { font-size: var(--text-support); }
+.attendance-register-preview table { border: 1px solid var(--ink-950); color: var(--ink-950); table-layout: fixed; }
+.attendance-register-preview th, .attendance-register-preview td { border: 1px solid var(--ink-950); }
+.attendance-register-preview th:nth-child(1), .attendance-register-preview td:nth-child(1) { inline-size: 17%; }
+.attendance-register-preview th:nth-child(2), .attendance-register-preview td:nth-child(2) { inline-size: 12%; }
+.attendance-register-preview th:nth-child(3), .attendance-register-preview td:nth-child(3), .attendance-register-preview th:nth-child(4), .attendance-register-preview td:nth-child(4) { inline-size: 14%; }
+.attendance-register-preview th:nth-child(5), .attendance-register-preview td:nth-child(5), .attendance-register-preview th:nth-child(6), .attendance-register-preview td:nth-child(6) { inline-size: 21.5%; min-block-size: 10mm; }
+.attendance-register-preview__verifier { margin: var(--space-7) 0 0; text-align: right; }
+.payment-statement-preview { background: var(--surface); color: var(--ink-950); padding: var(--space-7); }
+.payment-statement-preview__actions { display: flex; justify-content: flex-end; margin-block-end: var(--space-4); }
+.payment-statement-preview h2 { font-size: var(--text-title); letter-spacing: .12em; margin: 0 0 var(--space-6); text-align: center; }
+.payment-statement-preview__meta { display: grid; gap: var(--space-3) var(--space-6); grid-template-columns: repeat(2, minmax(0, 1fr)); margin-block-end: var(--space-5); }
+.payment-statement-preview table { border: 1px solid var(--ink-950); color: var(--ink-950); table-layout: fixed; }
+.payment-statement-preview th, .payment-statement-preview td { border: 1px solid var(--ink-950); }
+.payment-statement-preview th:nth-child(1), .payment-statement-preview td:nth-child(1) { inline-size: 24%; }
+.payment-statement-preview th:nth-child(2), .payment-statement-preview td:nth-child(2) { inline-size: 18%; }
+.payment-statement-preview th:nth-child(3), .payment-statement-preview td:nth-child(3) { inline-size: 22%; }
+.payment-statement-preview th:nth-child(4), .payment-statement-preview td:nth-child(4) { inline-size: 36%; }
+.payment-statement-preview__weekly { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-block-start: var(--space-4); }
+.payment-statement-preview__weekly span { border: 1px solid var(--line); padding: var(--space-2) var(--space-3); }
 
 @media print {
+  @page { margin: 12mm; size: A4 portrait; }
   body:has(.health-support-workspace[data-print-document]) { background: var(--surface); color: var(--ink-950); font-family: var(--font-family-sans); font-size: 10pt; }
   body:has(.health-support-workspace[data-print-document]) .global-navigation, body:has(.health-support-workspace[data-print-document]) .app-header, body:has(.health-support-workspace[data-print-document]) .mobile-navigation, body:has(.health-support-workspace[data-print-document]) .mobile-create-fab, body:has(.health-support-workspace[data-print-document]) .page-header, body:has(.health-support-workspace[data-print-document]) .health-support-workspace__context, body:has(.health-support-workspace[data-print-document]) .health-support-workspace__tabs, body:has(.health-support-workspace[data-print-document]) .health-support-document__actions, body:has(.health-support-workspace[data-print-document]) input, body:has(.health-support-workspace[data-print-document]) select, body:has(.health-support-workspace[data-print-document]) textarea, body:has(.health-support-workspace[data-print-document]) button { display: none !important; }
   body:has(.health-support-workspace[data-print-document]) .page-canvas, body:has(.health-support-workspace[data-print-document]) .health-support-workspace, body:has(.health-support-workspace[data-print-document]) .health-support-workspace__panel { background: transparent; border: 0; box-shadow: none; margin: 0; max-width: none; padding: 0; }
   body:has(.health-support-workspace[data-print-document]) .health-support-workspace__panel > :not(.health-support-document) { display: none; }
-  body:has(.health-support-workspace[data-print-document="work-detail"]) .health-support-document:not(.health-support-document--work-detail), body:has(.health-support-workspace[data-print-document="payment-statement"]) .health-support-document:not(.health-support-document--payment-statement) { display: none; }
+  body:has(.health-support-workspace[data-print-document="work-detail"]) .health-support-document:not(.health-support-document--work-detail), body:has(.health-support-workspace[data-print-document="payment-statement"]) .health-support-document:not(.health-support-document--payment-statement), body:has(.health-support-workspace[data-print-document="attendance-register"]) .health-support-document:not(.health-support-document--attendance-register) { display: none; }
   body:has(.health-support-workspace[data-print-document]) .health-support-document { color: var(--ink-950); display: grid; gap: 6mm; inline-size: 182mm; min-block-size: 269mm; }
   body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary, body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__grid { break-inside: avoid; }
   body:has(.health-support-workspace[data-print-document]) .health-support-dashboard__summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -144,6 +170,13 @@
   body:has(.health-support-workspace[data-print-document]) .health-support-document thead { display: table-header-group; }
   body:has(.health-support-workspace[data-print-document]) .health-support-document tr { break-inside: avoid; }
   body:has(.health-support-workspace[data-print-document]) .health-support-document th, body:has(.health-support-workspace[data-print-document]) .health-support-document td { padding: 2.25mm 2mm; }
+  body:has(.health-support-workspace[data-print-document="attendance-register"]) .attendance-register-preview { padding: 0; }
+  body:has(.health-support-workspace[data-print-document="attendance-register"]) .attendance-register-preview__meta { gap: 2mm 6mm; margin-block-end: 4mm; }
+  body:has(.health-support-workspace[data-print-document="attendance-register"]) .attendance-register-preview table { font-size: 9pt; }
+  body:has(.health-support-workspace[data-print-document="attendance-register"]) .attendance-register-preview th:nth-child(5), body:has(.health-support-workspace[data-print-document="attendance-register"]) .attendance-register-preview td:nth-child(5), body:has(.health-support-workspace[data-print-document="attendance-register"]) .attendance-register-preview th:nth-child(6), body:has(.health-support-workspace[data-print-document="attendance-register"]) .attendance-register-preview td:nth-child(6) { min-block-size: 11mm; }
+  body:has(.health-support-workspace[data-print-document="payment-statement"]) .payment-statement-preview { padding: 0; }
+  body:has(.health-support-workspace[data-print-document="payment-statement"]) .payment-statement-preview__actions, body:has(.health-support-workspace[data-print-document="payment-statement"]) .payment-statement-preview__weekly { display: none; }
+  body:has(.health-support-workspace[data-print-document="payment-statement"]) .payment-statement-preview table { font-size: 9pt; }
 }
 .mobile-create-button { display: none; }
 

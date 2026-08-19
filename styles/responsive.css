@@ -92,6 +92,12 @@
   .health-support-worklog-form__note, .health-support-worklog-form .form-message, .health-support-worklog-form > div { grid-column: auto; }
   .health-support-worklog-form .button { min-height: var(--touch-target); }
   .health-support-document__actions .button { flex: 1 1 140px; }
+  .health-support-document__heading { align-items: stretch; flex-direction: column; }
+  .health-support-document__heading label { min-inline-size: 0; }
+  .attendance-register-preview { padding: var(--space-5); }
+  .attendance-register-preview__meta { grid-template-columns: 1fr; }
+  .payment-statement-preview { padding: var(--space-5); }
+  .payment-statement-preview__meta { grid-template-columns: 1fr; }
   .health-support-document caption { font-size: var(--text-support); padding: var(--space-4); }
   .health-support-document th, .health-support-document td { font-size: var(--text-xs); padding: var(--space-3) var(--space-2); }
   .project-toolbar { align-items: stretch; flex-direction: column; }

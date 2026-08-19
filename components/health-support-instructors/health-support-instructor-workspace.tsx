@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { Plus, UsersRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { AttendanceRegisterPanel } from "@/components/health-support-instructors/attendance-register-panel";
 import { HealthSupportCalendarContext } from "@/components/health-support-instructors/calendar-context";
 import { InstructorSettingsForm } from "@/components/health-support-instructors/instructor-settings-form";
+import { PaymentStatementPreview } from "@/components/health-support-instructors/payment-statement-preview";
 import { Dashboard, SettlementPanel } from "@/components/health-support-instructors/health-support-instructor-status-pane";
 import { deleteHealthSupportWorkLogAction, type HealthSupportActionState } from "@/app/(app)/health-support-instructors/actions";
 import { calculateHealthSupportInstructorManager } from "@/lib/health-support-instructors/domain";
@@ -21,7 +23,7 @@ type WorkspaceTab = (typeof tabs)[number];
 type SaveInstructor = (state: HealthSupportActionState, formData: FormData) => Promise<HealthSupportActionState>;
 type SaveWorkLog = (state: HealthSupportActionState, formData: FormData) => Promise<HealthSupportActionState>;
 type DeleteWorkLog = (formData: FormData) => Promise<void>;
-type PrintableDocument = "work-detail" | "payment-statement";
+type PrintableDocument = "work-detail" | "payment-statement" | "attendance-register";
 
 interface HealthSupportInstructorWorkspaceProps {
   readonly calendarEvents?: readonly EventRow[];
@@ -66,6 +68,8 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], deleteWo
   const [selectedMonth, setSelectedMonth] = useState(() => settlementMonthFor(instructors[0], workLogs));
   const [showWorkDetail, setShowWorkDetail] = useState(false);
   const [showPaymentStatement, setShowPaymentStatement] = useState(false);
+  const [showAttendanceRegister, setShowAttendanceRegister] = useState(false);
+  const [verifierName, setVerifierName] = useState("");
   const [printDocument, setPrintDocument] = useState<PrintableDocument>();
   const instructor = instructors.find((candidate) => candidate.id === instructorId) ?? instructors[0];
   const selectedLogs = workLogs.filter((log) => log.instructorId === instructor?.id);
@@ -138,7 +142,7 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], deleteWo
       {activeTab === "대시보드" && documents && calculation && <Dashboard calculation={calculation} documents={documents} instructor={instructor} onOpenWorkLogs={() => setActiveTab("근무기록")} />}
       {activeTab === "근무기록" && calculation && <CalendarAwareWorkLogPanel {...(editingLog ? { editingLog } : {})} {...(formError ? { formError } : {})} {...(formMessage ? { formMessage } : {})} calculation={calculation} calendarEvents={calendarEvents} deleteWorkLog={deleteWorkLog} instructor={instructor} key={`${instructor.id}-${editingLog?.id ?? "new"}`} logs={selectedLogs} month={selectedMonth} onEdit={setEditingLog} onMonthChange={setSelectedMonth} onSubmit={submitWorkLog} />}
       {activeTab === "월별 정산" && documents && <SettlementPanel documents={documents} onMonthChange={setSelectedMonth} onPrint={() => printDocumentPreview("work-detail")} onToggleDetail={() => setShowWorkDetail(true)} printActive={printDocument === "work-detail"} selectedMonth={selectedMonth} showWorkDetail={showWorkDetail} />}
-      {activeTab === "지급명세서·출력" && documents && <PaymentStatementPanel documents={documents} onPrint={() => printDocumentPreview("payment-statement")} onTogglePreview={() => setShowPaymentStatement(true)} printActive={printDocument === "payment-statement"} showPreview={showPaymentStatement} />}
+      {activeTab === "지급명세서·출력" && documents && <PaymentStatementPanel documents={documents} onAttendancePrint={() => printDocumentPreview("attendance-register")} onAttendanceTogglePreview={() => setShowAttendanceRegister(true)} onPrint={() => printDocumentPreview("payment-statement")} onTogglePreview={() => setShowPaymentStatement(true)} printActive={printDocument === "payment-statement"} printAttendanceActive={printDocument === "attendance-register"} showAttendancePreview={showAttendanceRegister} showPreview={showPaymentStatement} verifierName={verifierName} onVerifierNameChange={setVerifierName} />}
       {activeTab === "설정" && <InstructorSettingsForm instructor={instructor} {...(saveInstructor ? { saveInstructor } : {})} />}
     </div>
   </section>;
@@ -184,21 +188,32 @@ function InstructorRegistrationForm({ saveInstructor }: { readonly saveInstructo
 }
 
 type PaymentStatementPanelProps = {
+  readonly onAttendancePrint: () => void;
+  readonly onAttendanceTogglePreview: () => void;
   readonly documents: HealthSupportSettlementDocuments;
   readonly onPrint: () => void;
   readonly onTogglePreview: () => void;
   readonly printActive: boolean;
+  readonly printAttendanceActive: boolean;
+  readonly showAttendancePreview: boolean;
   readonly showPreview: boolean;
+  readonly verifierName: string;
+  readonly onVerifierNameChange: (name: string) => void;
 };
 
-function PaymentStatementPanel({ documents, onPrint, onTogglePreview, printActive, showPreview }: PaymentStatementPanelProps) {
+function PaymentStatementPanel({ documents, onAttendancePrint, onAttendanceTogglePreview, onPrint, onTogglePreview, printActive, printAttendanceActive, showAttendancePreview, showPreview, verifierName, onVerifierNameChange }: PaymentStatementPanelProps) {
   const { paymentStatement } = documents;
-  return <section aria-label="Payment statement document" className="health-support-dashboard health-support-document health-support-document--payment-statement">
+  const hasRows = paymentStatement.rows.length > 0;
+  return <>
+    <section aria-label="Payment statement document" className="health-support-dashboard health-support-document health-support-document--payment-statement">
     <h3>지급명세</h3>
     <p>{paymentStatement.month} · {paymentStatement.hours.toFixed(1)}시간 × {won(paymentStatement.hourlyRate)}</p>
-    <div className="health-support-document__actions"><Button aria-label="Preview payment statement" onClick={onTogglePreview} variant="secondary">지급명세 미리보기</Button><Button aria-label="Print payment statement" onClick={onPrint} variant="secondary">지급명세 출력</Button></div>
-    {(showPreview || printActive) && <section aria-labelledby="payment-statement-preview-title" className="health-support-dashboard__summary"><h3 aria-label="Payment statement preview" id="payment-statement-preview-title">지급명세 미리보기</h3><div><span>근무 시간</span><strong>{paymentStatement.hours.toFixed(1)}시간</strong></div><div><span>지급 금액</span><strong>{won(paymentStatement.amount)}</strong></div></section>}
-  </section>;
+    <div className="health-support-document__actions"><Button aria-label="Preview payment statement" disabled={!hasRows} onClick={onTogglePreview} variant="secondary">지급명세 미리보기</Button><Button aria-label="Print payment statement" disabled={!hasRows} onClick={onPrint} variant="secondary">지급명세 출력</Button></div>
+    <PaymentStatementPreview documents={documents} printActive={printActive} showPreview={showPreview} />
+    {!hasRows && <p role="status">해당 월의 근무기록이 없습니다.</p>}
+    </section>
+    <AttendanceRegisterPanel documents={documents} onPrint={onAttendancePrint} onTogglePreview={onAttendanceTogglePreview} printActive={printAttendanceActive} showPreview={showAttendancePreview} verifierName={verifierName} onVerifierNameChange={onVerifierNameChange} />
+  </>;
 }
 
 type WorkLogPanelProps = { readonly calculation: ReturnType<typeof calculateHealthSupportInstructorManager>; readonly calendarEvents: readonly EventRow[]; readonly deleteWorkLog: DeleteWorkLog; readonly editingLog?: HealthSupportWorkLog; readonly formError?: string; readonly formMessage?: string; readonly instructor: HealthSupportInstructor; readonly logs: readonly HealthSupportWorkLog[]; readonly month: string; readonly onEdit: (log: HealthSupportWorkLog | undefined) => void; readonly onMonthChange: (month: string) => void; readonly onSubmit: (formData: FormData, refresh?: boolean) => Promise<void> };
