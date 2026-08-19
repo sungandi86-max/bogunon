@@ -14,7 +14,10 @@ import type { Ref } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { AiDocumentWriterResultEmpty } from "@/components/ai/ai-document-writer-result-empty";
-import type { AiDocumentWriterResult } from "@/lib/ai/document-writer";
+import {
+  MAX_SCHOOL_RECORD_BYTES,
+  type AiDocumentWriterResult,
+} from "@/lib/ai/document-writer";
 import type { SchoolRecordReviewIssue } from "@/lib/ai/school-record-review";
 
 interface AiDocumentWriterResultProps {
@@ -84,7 +87,7 @@ export function AiDocumentWriterResultPanel({
     check: issues.filter(({ level }) => level === "check").length,
     suggestion: issues.filter(({ level }) => level === "suggestion").length,
   };
-  const exceedsLimit = bytes > 1_500;
+  const exceedsLimit = bytes > MAX_SCHOOL_RECORD_BYTES;
   return (
     <section className="ai-writer-result" aria-label="초안 작성 결과" ref={resultRef}>
       <div className="ai-writer-tabs" role="tablist" aria-label="초안 결과 보기">
@@ -139,8 +142,8 @@ export function AiDocumentWriterResultPanel({
               ? <AlertTriangle aria-hidden="true" size={18} />
               : <Check aria-hidden="true" size={18} />}
             {exceedsLimit
-              ? "1500바이트를 초과했습니다. 내용을 줄여주세요."
-              : "1500바이트 이내입니다."}
+              ? `${MAX_SCHOOL_RECORD_BYTES.toLocaleString("ko-KR")}바이트를 초과했습니다. 핵심 탐구와 실제 활동을 유지하면서 내용을 줄여주세요.`
+              : `${MAX_SCHOOL_RECORD_BYTES.toLocaleString("ko-KR")}바이트 이내입니다.`}
           </p>
           {result.insufficiencyNotice && (
             <p className="ai-writer-message ai-writer-message--notice">
@@ -150,7 +153,7 @@ export function AiDocumentWriterResultPanel({
           )}
           <p className="ai-writer-message">
             <Info aria-hidden="true" size={18} />
-            이 초안은 입력된 활동보고서와 추가 기록을 바탕으로 작성되었습니다.
+            이 초안은 학생 활동보고서를 기본 근거로 작성되며, 추가 기록은 입력된 경우에만 보완 자료로 반영됩니다.
             원문과 대조한 뒤 최종 기재하세요.
           </p>
           <div className="ai-writer-result__actions">
@@ -193,8 +196,7 @@ export function AiDocumentWriterResultPanel({
           {!hasGuideline && (
             <p className="ai-writer-message ai-writer-message--notice">
               <Info aria-hidden="true" size={18} />
-              공식 기준자료가 등록되지 않아 맞춤법, 개인정보, 분량 중심으로 점검했습니다.
-              공식 근거가 없는 사항은 근거 확인이 필요합니다.
+              입력 자료 근거, 금기어, 과장된 평가, 개인정보, 서술형 문체와 분량을 중심으로 점검합니다.
             </p>
           )}
           {issues.length === 0 ? (

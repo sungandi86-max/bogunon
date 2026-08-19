@@ -24,12 +24,13 @@ describe("student record prompt", () => {
 
     expect(prompt.userPrompt).toContain("[공식 기준자료]");
     expect(prompt.userPrompt).toContain("[학생 활동보고서]");
-    expect(prompt.userPrompt).toContain("[학생 자기평가]");
-    expect(prompt.userPrompt).toContain("[교사 메모]");
+    expect(prompt.userPrompt).toContain("[활동보고서 해석 원칙]");
+    expect(prompt.userPrompt).toContain("[추가 기록 (선택)]");
     expect(prompt.userPrompt).toContain("활동보고서 내용");
     expect(prompt.userPrompt).toContain("동아리 회장");
     expect(prompt.userPrompt).toContain("공식 기재요령");
-    expect(prompt.systemPrompt).toContain("추가 기록을 우선");
+    expect(prompt.systemPrompt).toContain("추가 기록이 없어도 활동보고서의 사실만으로 정상적인 초안");
+    expect(prompt.systemPrompt).toContain("기록한 서술형 문체");
     expect(prompt.systemPrompt).toContain("실명");
     expect(prompt.systemPrompt).toContain("1,500바이트");
     expect(prompt.systemPrompt).toContain("기준자료를 요약하거나 재작성하지 마세요");

@@ -44,6 +44,25 @@ describe("school record draft review", () => {
     expect(draft.replace(issue?.expression ?? "", issue?.suggestion ?? "")).toBe("확인함.");
   });
 
+  it("does not ask for teacher observation when the report is the only source", () => {
+    const issues = reviewSchoolRecordDraft(
+      "의료 인공지능의 오류 가능성을 조사·분석함.",
+      { activityReport: "의료 인공지능의 오류 가능성에 관심을 가지고 조사했다." },
+    );
+
+    expect(issues.some(({ category }) => category === "직접 관찰")).toBe(false);
+  });
+
+  it("flags unsupported evaluation claims while allowing supported additional facts", () => {
+    const issues = reviewSchoolRecordDraft("리더십을 발휘함. 축제 부스 운영을 수행함.", {
+      activityReport: "축제 부스 운영을 수행했다.",
+    });
+
+    expect(issues.map(({ category }) => category)).toContain("입력 근거 확인");
+    expect(issues.map(({ expression }) => expression)).toContain("리더십을 발휘함");
+    expect(issues.map(({ expression }) => expression)).not.toContain("축제 부스 운영을 수행함");
+  });
+
   it("merges structured AI review with local safeguards and removes stale expressions", () => {
     const draft = "외부기관 대회에서 수상함. 연락처 010-1234-5678을 확인함.";
     const issues = mergeSchoolRecordReview(draft, {

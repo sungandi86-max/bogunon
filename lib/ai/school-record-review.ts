@@ -1,4 +1,7 @@
-import { countUtf8Bytes } from "@/lib/ai/document-writer";
+import {
+  countUtf8Bytes,
+  MAX_SCHOOL_RECORD_BYTES,
+} from "@/lib/ai/document-writer";
 import type { StudentRecordAiResponse } from "@/lib/ai/prompts/student-record";
 
 export type SchoolRecordReviewLevel = "error" | "check" | "suggestion";
@@ -14,6 +17,8 @@ export interface SchoolRecordReviewIssue {
 }
 
 interface ReviewOptions {
+  readonly activityReport?: string | undefined;
+  readonly additionalRecord?: string | undefined;
   readonly guidelineText?: string | undefined;
 }
 
@@ -38,12 +43,6 @@ const REVIEW_RULES: readonly ReviewRule[] = [
     level: "check",
     pattern: /(?:외부기관|교외)\s*[^.!?\n]{0,20}(?:대회|수상|자격)|(?:대회에서 수상|자격증을 취득)/,
     reason: "외부기관·대회·수상·자격 관련 사실과 기재 가능 여부를 교사가 확인해야 합니다.",
-  },
-  {
-    category: "직접 관찰",
-    level: "check",
-    pattern: /(?:느꼈다고|생각했다고|깨달았다고|이해했다고)\s*(?:함|기재함|작성함)?/,
-    reason: "학생 제출자료의 서술인지 교사가 직접 관찰한 내용인지 구분해 확인해 주세요.",
   },
   {
     category: "과장과 단정",
@@ -74,6 +73,16 @@ const REVIEW_RULES: readonly ReviewRule[] = [
   },
 ] as const;
 
+const UNSUPPORTED_CLAIM_RULES = [
+  "리더십을 발휘함",
+  "친구들과 적극적으로 협력함",
+  "발표를 주도함",
+  "토론에 적극 참여함",
+  "책임감이 뛰어남",
+  "성실하게 참여함",
+  "높은 관심을 보임",
+] as const;
+
 function guidelineBasis(
   expression: string,
   guidelineText: string | undefined,
@@ -102,14 +111,28 @@ export function reviewSchoolRecordDraft(
     });
   }
 
-  if (countUtf8Bytes(draft) > 1_500) {
+  const source = `${options.activityReport ?? ""}\n${options.additionalRecord ?? ""}`;
+  for (const [index, expression] of UNSUPPORTED_CLAIM_RULES.entries()) {
+    if (!draft.includes(expression) || source.includes(expression)) continue;
+    issues.push({
+      category: "입력 근거 확인",
+      expression,
+      guidelineBasis: null,
+      id: `unsupported-claim-${index}-${expression}`,
+      level: "error",
+      reason: "입력 자료에 없는 사실이나 평가 표현입니다. 근거가 있는 내용으로 바꿔 주세요.",
+      suggestion: null,
+    });
+  }
+
+  if (countUtf8Bytes(draft) > MAX_SCHOOL_RECORD_BYTES) {
     issues.push({
       category: "분량",
-      expression: "1500바이트 초과",
+      expression: `${MAX_SCHOOL_RECORD_BYTES}바이트 초과`,
       guidelineBasis: null,
       id: "byte-limit",
       level: "error",
-      reason: "UTF-8 기준 1500바이트를 초과했습니다.",
+      reason: `UTF-8 기준 ${MAX_SCHOOL_RECORD_BYTES}바이트를 초과했습니다. 핵심 탐구와 실제 활동을 우선해 축약해 주세요.`,
       suggestion: null,
     });
   }

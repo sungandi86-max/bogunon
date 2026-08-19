@@ -21,6 +21,7 @@ export const AI_DOCUMENT_LENGTHS = [
 
 export const MAX_ACTIVITY_REPORT_CHARACTERS = 15_000;
 export const MAX_ADDITIONAL_RECORD_CHARACTERS = 3_000;
+export const MAX_SCHOOL_RECORD_BYTES = 1_500;
 
 const toneValues = ["objective", "growth", "concise"] as const;
 const lengthValues = ["short", "normal", "within-1500-bytes"] as const;
@@ -53,6 +54,28 @@ export type AiDocumentWriterResult = z.infer<typeof AiDocumentWriterResultSchema
 
 export function countUtf8Bytes(value: string): number {
   return new TextEncoder().encode(value).length;
+}
+
+export function truncateUtf8Bytes(value: string, maxBytes: number): string {
+  if (countUtf8Bytes(value) <= maxBytes) return value;
+
+  let result = "";
+  for (const character of value) {
+    if (countUtf8Bytes(result + character) > maxBytes) break;
+    result += character;
+  }
+
+  const sentenceEnd = Math.max(
+    result.lastIndexOf("."),
+    result.lastIndexOf("。"),
+    result.lastIndexOf("!"),
+    result.lastIndexOf("！"),
+    result.lastIndexOf("?"),
+    result.lastIndexOf("？"),
+  );
+  return sentenceEnd >= Math.floor(result.length * 0.6)
+    ? result.slice(0, sentenceEnd + 1)
+    : result;
 }
 
 export function countCharacters(value: string): number {

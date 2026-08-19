@@ -216,7 +216,7 @@ describe("AiDocumentWriter", () => {
 
     expect(screen.getByText("3자")).toBeInTheDocument();
     expect(screen.getByText("7바이트")).toBeInTheDocument();
-    expect(screen.getByText("1500바이트 이내입니다.")).toBeInTheDocument();
+    expect(screen.getByText("1,500바이트 이내입니다.")).toBeInTheDocument();
   });
 
 });
