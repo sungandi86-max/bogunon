@@ -1,11 +1,12 @@
 import { BriefingScreen } from "@/components/briefing/briefing-screen";
 import { monthRange, todayInSeoul } from "@/lib/work-items/date";
 import { addDays } from "@/lib/work-items/recurrence";
-import { ensureRecurringEvents, ensureRecurringTasks, listEvents, listTasks } from "@/lib/work-items/repository";
+import { ensureRecurringEvents, ensureRecurringTasks, listEvents } from "@/lib/work-items/repository";
 import { listExerciseStickerData } from "@/lib/exercise/repository";
 import { listCalendarStickers } from "@/lib/calendar-stickers/repository";
 import { getUserSchoolSettings } from "@/lib/neis/school-settings";
 import { listAedDevices } from "@/lib/aed/repository";
+import { listQuickLinks } from "@/lib/quick-links/repository";
 
 export default async function BriefingPage() {
   const today = todayInSeoul();
@@ -13,13 +14,13 @@ export default async function BriefingPage() {
   const { first, last } = monthRange(today);
   const eventRangeEnd = addDays(today, 31) > last ? addDays(today, 31) : last;
   await Promise.all([ensureRecurringTasks(today), ensureRecurringEvents(eventRangeEnd).catch(() => undefined)]);
-  const [tasks, events, exercise, calendarStickers, school, aedDevices] = await Promise.all([
-    listTasks(),
+  const [events, exercise, calendarStickers, school, aedDevices, quickLinks] = await Promise.all([
     listEvents(first, eventRangeEnd),
     listExerciseStickerData(today, today).catch(() => ({ stickers: [], logs: [] })),
     listCalendarStickers(first, last).catch(() => []),
     getUserSchoolSettings().catch(() => null),
     listAedDevices().catch(() => []),
+    listQuickLinks(true).catch(() => []),
   ]);
-  return <BriefingScreen aedDevices={aedDevices} calendarStickers={calendarStickers} events={events} exerciseLogs={exercise.logs} exerciseStickers={exercise.stickers} month={month} nowIso={new Date().toISOString()} school={school} tasks={tasks} today={today} />;
+  return <BriefingScreen aedDevices={aedDevices} calendarStickers={calendarStickers} events={events} exerciseLogs={exercise.logs} exerciseStickers={exercise.stickers} month={month} nowIso={new Date().toISOString()} quickLinks={quickLinks} school={school} today={today} />;
 }

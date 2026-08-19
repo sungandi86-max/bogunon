@@ -285,6 +285,7 @@
   .operations-rail { display: contents; }
   .operations-rail > section, .operations-rail > details { display: none; }
   .operations-rail > .quick-note { display: none; }
+  .operations-rail > .quick-links-card { display: none; }
   .operations-rail > section { background: var(--surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); padding: var(--space-10); }
   .operations-rail > section + section { border-top: 1px solid var(--mobile-line); }
   .operations-rail > .aed-summary-card { display: none; }
@@ -303,6 +304,9 @@
   .aed-device-list, .aed-editor__form { grid-template-columns: 1fr; }
   .aed-device-card__actions { width: 100%; }
   .aed-device-card__actions .button { flex: 1; }
+  .quick-links-manager__toolbar, .quick-links-manager__item { align-items: flex-start; flex-direction: column; }
+  .quick-links-manager__actions { width: 100%; }
+  .quick-links-manager__actions button { flex: 1; }
   .briefing-main { gap: 28px; }
   .focus-card { padding: var(--space-1) var(--space-6); }
   .task-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 56px; }
