@@ -5,6 +5,7 @@ import { ensureRecurringEvents, ensureRecurringTasks, listEvents, listTasks } fr
 import { listExerciseStickerData } from "@/lib/exercise/repository";
 import { listCalendarStickers } from "@/lib/calendar-stickers/repository";
 import { getUserSchoolSettings } from "@/lib/neis/school-settings";
+import { listAedDevices } from "@/lib/aed/repository";
 
 export default async function BriefingPage() {
   const today = todayInSeoul();
@@ -12,12 +13,13 @@ export default async function BriefingPage() {
   const { first, last } = monthRange(today);
   const eventRangeEnd = addDays(today, 31) > last ? addDays(today, 31) : last;
   await Promise.all([ensureRecurringTasks(today), ensureRecurringEvents(eventRangeEnd).catch(() => undefined)]);
-  const [tasks, events, exercise, calendarStickers, school] = await Promise.all([
+  const [tasks, events, exercise, calendarStickers, school, aedDevices] = await Promise.all([
     listTasks(),
     listEvents(first, eventRangeEnd),
     listExerciseStickerData(today, today).catch(() => ({ stickers: [], logs: [] })),
     listCalendarStickers(first, last).catch(() => []),
     getUserSchoolSettings().catch(() => null),
+    listAedDevices().catch(() => []),
   ]);
-  return <BriefingScreen calendarStickers={calendarStickers} events={events} exerciseLogs={exercise.logs} exerciseStickers={exercise.stickers} month={month} nowIso={new Date().toISOString()} school={school} tasks={tasks} today={today} />;
+  return <BriefingScreen aedDevices={aedDevices} calendarStickers={calendarStickers} events={events} exerciseLogs={exercise.logs} exerciseStickers={exercise.stickers} month={month} nowIso={new Date().toISOString()} school={school} tasks={tasks} today={today} />;
 }

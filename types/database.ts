@@ -26,6 +26,7 @@ export type WorkItemKind = "task" | "event";
 export type ReminderReference = "scheduled" | "due";
 export type Json = string | number | boolean | null | { readonly [key: string]: Json | undefined } | readonly Json[];
 export type ProfileRow = { id: string; email: string | null; display_name: string | null; avatar_url: string | null; role: UserRole; created_at: string; updated_at: string };
+export type AedDeviceRow = { id: string; user_id: string; name: string; location: string; battery_expiry_date: string | null; pad_expiry_date: string | null; last_inspection_date: string | null; next_inspection_date: string | null; inspection_interval_months: number; note: string | null; sort_order: number; created_at: string; updated_at: string };
 export type NoticeRow = { id: string; title: string; summary: string | null; content: string; category: NoticeCategory; is_published: boolean; is_important: boolean; publish_start_at: string | null; publish_end_at: string | null; created_by: string; created_at: string; updated_at: string };
 export type NoticeReadRow = { notice_id: string; user_id: string; read_at: string };
 
@@ -491,6 +492,7 @@ export type Database = {
   public: {
     Tables: WorkflowDatabaseTables & {
       profiles: { Row: ProfileRow; Insert: Insert<ProfileRow, "email" | "display_name" | "avatar_url" | "role" | "created_at" | "updated_at">; Update: Partial<Omit<ProfileRow, "role">>; Relationships: [] };
+      aed_devices: { Row: AedDeviceRow; Insert: Insert<AedDeviceRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<AedDeviceRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
       notices: { Row: NoticeRow; Insert: Insert<NoticeRow, "id" | "summary" | "category" | "is_published" | "is_important" | "publish_start_at" | "publish_end_at" | "created_at" | "updated_at">; Update: Partial<NoticeRow>; Relationships: [] };
       notice_reads: { Row: NoticeReadRow; Insert: Insert<NoticeReadRow, "read_at">; Update: Pick<NoticeReadRow, "read_at">; Relationships: [] };
       ai_preferences: {

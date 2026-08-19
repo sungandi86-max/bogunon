@@ -4,6 +4,21 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.12.0 - AED Management
+
+Release Date: 2026-08-19
+
+### Added
+
+- Today 우측 패널의 날씨 카드를 AED 점검 요약으로 교체
+- 사용자별 다중 AED 등록, 만료일·점검일 관리 및 상태 자동 계산
+- AED 관리 화면의 추가·수정·삭제·점검 완료 흐름
+
+### Verified
+
+- AED 상태·날짜 계산 집중 테스트
+- Desktop Today 카드 및 Mobile 비노출 회귀 검증
+
 ## v0.11.0 - Health Support Instructor Manager
 
 Release Date: 2026-08-18
