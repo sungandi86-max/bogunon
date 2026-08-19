@@ -46,9 +46,14 @@ describe("health support settlement documents", () => {
     expect(documents.paymentStatement).toEqual({
       instructorId: "instructor-1",
       month: "2026-08",
+      instructorName: "Instructor A",
+      weeklyHours: 0,
+      subject: "Health support",
       hourlyRate: 30_000,
       hours: 3,
       amount: 90_000,
+      rows: [{ date: "2026-08-03", weekday: "월", hours: 3, note: "", isoWeekKey: "2026-W32" }],
+      weeklyTotals: [{ isoWeekKey: "2026-W32", hours: 3 }],
     });
     expect(documents.settlement.insurance).toBe(45_000);
   });
@@ -123,6 +128,70 @@ describe("health support settlement documents", () => {
 
     // Then: the July weekly limit warning does not leak into the August document
     expect(documents.warnings).toEqual([]);
+  });
+
+  it("derives an attendance register from the selected month's source logs", () => {
+    const input = {
+      ...settlementInput(),
+      instructor: { ...settlementInput().instructor, operationStartDate: "2026-03-01", operationEndDate: "2026-12-31" },
+      workLogs: [
+        { instructorId: "instructor-1", date: "2026-06-02", startTime: "09:30", endTime: "12:30" },
+        { instructorId: "instructor-1", date: "2026-06-01", startTime: "09:00", endTime: "12:00" },
+      ],
+    };
+
+    const documents = createHealthSupportSettlementDocuments({ ...input, month: "2026-06" });
+
+    expect(documents.attendanceRegister).toMatchObject({
+      title: "출 근 관 리 부 (6월)",
+      field: "학교보건지원강사",
+      instructorName: "Instructor A",
+      operationPeriod: "‘26.03.01. ~ ‘26.12.31.",
+      workDays: 2,
+    });
+    expect(documents.attendanceRegister.rows).toEqual([
+      { date: "2026-06-01", weekday: "월요일", startTime: "09:00", endTime: "12:00", signature: "", teacherConfirmation: "" },
+      { date: "2026-06-02", weekday: "화요일", startTime: "09:30", endTime: "12:30", signature: "", teacherConfirmation: "" },
+    ]);
+  });
+
+  it("keeps an empty attendance month printable only as a zero-row document", () => {
+    const documents = createHealthSupportSettlementDocuments({ ...settlementInput(), month: "2026-06" });
+
+    expect(documents.attendanceRegister.workDays).toBe(0);
+    expect(documents.attendanceRegister.rows).toEqual([]);
+  });
+
+  it("supports a full twenty-day attendance month without cloning source records", () => {
+    const workLogs = Array.from({ length: 20 }, (_, index) => ({
+      instructorId: "instructor-1",
+      date: `2026-06-${String(index + 1).padStart(2, "0")}`,
+      startTime: "09:00",
+      endTime: "12:00",
+    }));
+    const documents = createHealthSupportSettlementDocuments({ ...settlementInput(), month: "2026-06", workLogs });
+
+    expect(documents.attendanceRegister.workDays).toBe(20);
+    expect(documents.attendanceRegister.rows).toHaveLength(20);
+    expect(documents.attendanceRegister.rows[0]?.date).toBe("2026-06-01");
+    expect(documents.attendanceRegister.rows[19]?.date).toBe("2026-06-20");
+  });
+
+  it("reproduces the supplied June statement totals from twenty source logs", () => {
+    const entries: readonly [string, string, string][] = [
+      ["01", "09:00", "12:00"], ["02", "09:00", "12:00"], ["05", "09:00", "12:00"],
+      ["08", "09:00", "12:00"], ["09", "09:00", "12:00"], ["10", "09:30", "12:00"], ["11", "09:00", "13:00"], ["12", "09:00", "11:00"],
+      ["15", "09:00", "12:00"], ["16", "09:00", "12:00"], ["17", "09:00", "12:00"], ["18", "09:00", "12:00"], ["19", "09:00", "11:00"],
+      ["22", "09:00", "11:00"], ["23", "09:00", "11:00"], ["24", "09:00", "11:00"], ["25", "09:00", "13:00"], ["26", "09:00", "13:30"], ["29", "09:00", "12:00"], ["30", "09:00", "12:00"],
+    ];
+    const input = { ...settlementInput(), instructor: { ...settlementInput().instructor, hourlyRate: 25_000 }, workLogs: entries.map(([day, startTime, endTime]) => ({ instructorId: "instructor-1", date: `2026-06-${day}`, startTime, endTime })) };
+    const documents = createHealthSupportSettlementDocuments({ ...input, month: "2026-06" });
+
+    expect(documents.paymentStatement.rows).toHaveLength(20);
+    expect(documents.paymentStatement.hours).toBe(58);
+    expect(documents.paymentStatement.amount).toBe(1_450_000);
+    expect(documents.paymentStatement.weeklyTotals.map((total) => total.hours)).toEqual([9, 14.5, 14, 14.5, 6]);
+    expect(documents.attendanceRegister.rows.map((row) => row.date)).toEqual(documents.paymentStatement.rows.map((row) => row.date));
   });
 });
 

@@ -4,6 +4,9 @@ import * as XLSX from "xlsx";
 
 import { HealthSupportInstructorWorkspace } from "@/components/health-support-instructors/health-support-instructor-workspace";
 
+const navigationMocks = vi.hoisted(() => ({ refresh: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => navigationMocks }));
+
 const instructors = [
   { id: "instructor-1", name: "김보건", subject: "보건 지원", weeklyHours: 15, hourlyRate: 20_000, monthlyInsurance: 10_000, monthlyHourLimit: 60, weeklyHourLimit: 15, totalBudget: 1_000_000, operationStartDate: "2026-03-01", operationEndDate: "2026-12-31" },
   { id: "instructor-2", name: "이건강", subject: "건강 교육", weeklyHours: 12, hourlyRate: 19_000, monthlyInsurance: 8_000, monthlyHourLimit: 60, weeklyHourLimit: 15, totalBudget: 1_000_000, operationStartDate: "2026-03-01", operationEndDate: "2026-12-31" },
@@ -73,6 +76,44 @@ describe("HealthSupportInstructorWorkspace", () => {
     fireEvent.click(screen.getByRole("tab", { name: "지급명세서·출력" }));
     fireEvent.click(screen.getByRole("button", { name: "Preview payment statement" }));
     expect(screen.getByRole("region", { name: "Payment statement document" })).toHaveTextContent("140,000");
+  });
+
+  it("previews the selected month's attendance register with sorted source rows and blank sign-off cells", () => {
+    const workLogs = [
+      { id: "june-2", instructorId: "instructor-1", date: "2026-06-02", startTime: "09:30", endTime: "12:30", note: null },
+      { id: "july-1", instructorId: "instructor-1", date: "2026-07-01", startTime: "09:00", endTime: "12:00", note: null },
+      { id: "june-1", instructorId: "instructor-1", date: "2026-06-01", startTime: "09:00", endTime: "12:00", note: null },
+    ];
+    render(<HealthSupportInstructorWorkspace instructors={[sharedInstructor]} workLogs={workLogs} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "지급명세서·출력" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Attendance register verifier" }), { target: { value: "박숙현" } });
+    fireEvent.click(screen.getByRole("button", { name: "Preview attendance register" }));
+
+    const table = screen.getByRole("table", { name: "Attendance register table" });
+    expect(screen.getByRole("heading", { name: "출 근 관 리 부 (6월)" })).toBeInTheDocument();
+    expect(screen.getByText("분야: 학교보건지원강사")).toBeInTheDocument();
+    expect(screen.getByText("성명: 김보건")).toBeInTheDocument();
+    expect(screen.getByText("근무기간: ‘26.03.01. ~ ‘26.12.31.")).toBeInTheDocument();
+    expect(screen.getByText("근무일수: 총(2)일")).toBeInTheDocument();
+    expect(table).toHaveTextContent("2026-06-01");
+    expect(table).toHaveTextContent("월요일");
+    expect(table).toHaveTextContent("2026-06-02");
+    expect(table).not.toHaveTextContent("2026-07-01");
+    expect(screen.getAllByLabelText("서명 빈칸")).toHaveLength(2);
+    expect(screen.getAllByLabelText("보건교사 확인 빈칸")).toHaveLength(2);
+    expect(screen.getByText("확인자: 박숙현 (서명)")).toBeInTheDocument();
+  });
+
+  it("blocks an empty-month attendance register preview and print action", () => {
+    render(<HealthSupportInstructorWorkspace instructors={[sharedInstructor]} workLogs={[]} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "지급명세서·출력" }));
+
+    expect(screen.getAllByRole("status")).toHaveLength(2);
+    expect(screen.getByRole("button", { name: "Preview attendance register" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Print attendance register" })).toBeDisabled();
+    expect(screen.queryByRole("table", { name: "Attendance register table" })).not.toBeInTheDocument();
   });
 
   it("takes a no-log Dashboard user directly to a new work-log entry", () => {
@@ -233,6 +274,7 @@ describe("HealthSupportInstructorWorkspace", () => {
     // Given: an existing work log
     const deleteWorkLog = vi.fn<(formData: FormData) => Promise<void>>().mockResolvedValue(undefined);
     const saveWorkLog = vi.fn<(state: unknown, formData: FormData) => Promise<{ readonly status: "success"; readonly message: string }>>().mockResolvedValue({ status: "success", message: "saved" });
+    navigationMocks.refresh.mockClear();
     render(<HealthSupportInstructorWorkspace deleteWorkLog={deleteWorkLog} instructors={[sharedInstructor]} saveWorkLog={saveWorkLog} workLogs={[sharedWorkLogs[0]]} />);
 
     // When: Work Logs is opened and the delete command is chosen
@@ -253,6 +295,17 @@ describe("HealthSupportInstructorWorkspace", () => {
     expect(deleteWorkLog.mock.calls[0]?.[0].get("id")).toBe("shared-log-1");
     await waitFor(() => expect(saveWorkLog).toHaveBeenCalledOnce());
     expect(saveWorkLog.mock.calls[0]?.[1].get("date")).toBe("2026-08-04");
+    expect(navigationMocks.refresh).toHaveBeenCalledOnce();
+  });
+
+  it("refreshes the server-backed work-log list after a successful save", async () => {
+    const saveWorkLog = vi.fn<(state: unknown, formData: FormData) => Promise<{ readonly status: "success"; readonly message: string }>>().mockResolvedValue({ status: "success", message: "saved" });
+    render(<HealthSupportInstructorWorkspace instructors={[sharedInstructor]} saveWorkLog={saveWorkLog} workLogs={[]} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "근무기록" }));
+    fireEvent.click(screen.getByRole("button", { name: "근무 기록 추가" }));
+
+    await waitFor(() => expect(navigationMocks.refresh).toHaveBeenCalled());
   });
 
   it("uses the local current date for a new work-log draft", () => {
@@ -382,10 +435,8 @@ describe("HealthSupportInstructorWorkspace", () => {
     expect(screen.getByRole("heading", { name: "Monthly work-detail preview" })).toBeInTheDocument();
     expect(screen.getByText(/선택한 달의 근무기록이 없습니다/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("tab", { name: /지급명세서·출력/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Preview payment statement" }));
-
-    // And: the separate payment-statement preview retains its own output and print command
-    expect(screen.getByRole("heading", { name: "Payment statement preview" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Preview payment statement" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Print payment statement" })).toBeDisabled();
     expect(screen.queryByRole("table", { name: "Monthly work detail" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Print payment statement" })).toBeInTheDocument();
   });
