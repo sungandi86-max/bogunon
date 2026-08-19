@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import { AedSummaryCard } from "@/components/briefing/aed-summary-card";
 import type { AedDevice } from "@/lib/aed/repository";
 
-const base: AedDevice = { id: "aed-1", userId: "user-1", name: "1층 AED", location: "보건실 옆", batteryExpiryDate: "2027-01-01", padExpiryDate: "2027-01-01", lastInspectionDate: "2026-07-19", nextInspectionDate: "2026-09-01", inspectionIntervalMonths: 1, note: null, sortOrder: 1, createdAt: "2026-07-19T00:00:00Z", updatedAt: "2026-07-19T00:00:00Z" };
+const base: AedDevice = { id: "aed-1", userId: "user-1", name: "1층 AED", location: "보건실 옆", batteryExpiryDate: "2027-01-01", padExpiryDate: "2027-01-01", lastInspectionDate: "2026-07-19", nextInspectionDate: "2027-09-01", inspectionIntervalMonths: 1, note: null, sortOrder: 1, createdAt: "2026-07-19T00:00:00Z", updatedAt: "2026-07-19T00:00:00Z" };
 
 describe("AED Today summary", () => {
   it("shows an action-first empty state", () => {
@@ -21,5 +21,14 @@ describe("AED Today summary", () => {
     expect(list.firstElementChild).toHaveTextContent("4층 AED");
     expect(list.firstElementChild).toHaveTextContent("만료");
     expect(screen.queryByText("오늘의 날씨")).not.toBeInTheDocument();
+    expect(screen.getByText("AED 1대 점검이 필요합니다.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /점검하기/ })).toHaveAttribute("href", "/aed");
+    expect(document.querySelector(".aed-summary-card--urgent")).toBeInTheDocument();
+  });
+
+  it("marks an all-clear device as non-urgent for mobile hiding", () => {
+    render(<AedSummaryCard devices={[base]} today="2026-08-19" />);
+    expect(document.querySelector(".aed-summary-card--urgent")).not.toBeInTheDocument();
+    expect(screen.queryByText(/점검이 필요합니다/)).not.toBeInTheDocument();
   });
 });
