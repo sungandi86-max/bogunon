@@ -15,6 +15,19 @@ vi.mock("next/navigation", () => ({
 describe("MobileBottomNavigation", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("keeps the mobile workflow focused on schedule, projects, AED, and exercise", () => {
+    render(<MobileBottomNavigation onCreate={vi.fn()} />);
+
+    expect(screen.getByRole("link", { name: "오늘" })).toHaveAttribute("href", "/briefing");
+    expect(screen.getByRole("link", { name: "일정" })).toHaveAttribute("href", "/calendar");
+    expect(screen.getByRole("link", { name: "프로젝트" })).toHaveAttribute("href", "/projects");
+    expect(screen.getByRole("link", { name: "AED" })).toHaveAttribute("href", "/aed");
+    expect(screen.getByRole("link", { name: "운동" })).toHaveAttribute("href", "/exercise");
+    expect(screen.queryByRole("link", { name: "강사" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "연간" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "설정" })).not.toBeInTheDocument();
+  });
+
   it("opens the existing exercise record route before closing the create sheet", () => {
     render(<MobileBottomNavigation onCreate={vi.fn()} />);
 

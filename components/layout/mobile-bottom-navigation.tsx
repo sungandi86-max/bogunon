@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ClipboardList, Dumbbell, FolderKanban, Home, Plus, Settings, Sticker, StickyNote, UsersRound } from "lucide-react";
+import { CalendarDays, CalendarPlus, Dumbbell, FolderKanban, Home, Plus, ShieldCheck, Sticker, StickyNote } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { type MouseEvent, useRef, useState } from "react";
@@ -10,12 +10,10 @@ import type { TemplateDefinition } from "@/lib/work-items/workflow";
 
 const links = [
   ["오늘", "/briefing", Home],
-  ["연간", "/annual", ClipboardList],
   ["일정", "/calendar", CalendarDays],
   ["프로젝트", "/projects", FolderKanban],
+  ["AED", "/aed", ShieldCheck],
   ["운동", "/exercise", Dumbbell],
-  ["강사", "/health-support-instructors", UsersRound],
-  ["설정", "/settings", Settings],
 ] as const;
 
 interface MobileBottomNavigationProps {
