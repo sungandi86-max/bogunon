@@ -12,7 +12,7 @@ vi.mock("next/navigation", () => ({
 
 describe("BriefingScreen", () => {
   it("renders an empty briefing when server collections are unavailable", () => {
-    render(<AppShell><BriefingScreen events={undefined} month="2026-07" tasks={undefined} today="2026-07-17" /></AppShell>);
+    render(<AppShell><BriefingScreen month="2026-07" today="2026-07-17" /></AppShell>);
 
     expect(screen.getByText("오늘 등록된 일정이 없습니다.")).toBeInTheDocument();
   });
