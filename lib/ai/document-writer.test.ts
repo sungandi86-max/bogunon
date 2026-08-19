@@ -4,6 +4,8 @@ import {
   AiDocumentWriterRequestSchema,
   countCharacters,
   countUtf8Bytes,
+  MAX_SCHOOL_RECORD_BYTES,
+  truncateUtf8Bytes,
 } from "@/lib/ai/document-writer";
 import { buildStudentRecordPrompt } from "@/lib/ai/prompts/student-record";
 
@@ -53,14 +55,15 @@ describe("AI document writer domain", () => {
         text: "공식 기재요령",
       },
     });
-    expect(prompt.systemPrompt).toContain("입력에 없는 활동·성과·태도·역량을 추측하거나 만들지 마세요");
-    expect(prompt.systemPrompt).toContain("추가 기록을 우선");
-    expect(prompt.systemPrompt).toContain("학생 자기평가의 주관적 표현을 교사의 직접 관찰 사실처럼 바꾸지 마세요");
+    expect(prompt.systemPrompt).toContain("학생 활동보고서는 충분한 기본 근거 자료입니다");
+    expect(prompt.systemPrompt).toContain("추가 기록이 없어도 활동보고서의 사실만으로 정상적인 초안");
+    expect(prompt.systemPrompt).toContain("기록한 서술형 문체");
+    expect(prompt.systemPrompt).toContain("입력 자료에 실제로 적힌 사실만 사용하세요");
     expect(prompt.systemPrompt).toContain("실명을 추론하거나 생성하지 마세요");
     expect(prompt.userPrompt).toContain("[공식 기준자료]");
     expect(prompt.userPrompt).toContain("[학생 활동보고서]");
-    expect(prompt.userPrompt).toContain("[학생 자기평가]");
-    expect(prompt.userPrompt).toContain("[교사 메모]");
+    expect(prompt.userPrompt).toContain("[활동보고서 해석 원칙]");
+    expect(prompt.userPrompt).toContain("[추가 기록 (선택)]");
     expect(prompt.userPrompt).toContain("S001");
     expect(prompt.userPrompt).toContain("축제 부스 운영을 총괄함");
     expect(AiDocumentWriterRequestSchema.safeParse({
@@ -68,5 +71,13 @@ describe("AI document writer domain", () => {
       selfEvaluation: "별도 자기평가",
     }).success).toBe(false);
 
+  });
+
+  it("keeps the generated draft within the Korean record byte limit", () => {
+    const value = `${"가".repeat(400)}. ${"나".repeat(400)}`;
+    const truncated = truncateUtf8Bytes(value, MAX_SCHOOL_RECORD_BYTES);
+
+    expect(countUtf8Bytes(truncated)).toBeLessThanOrEqual(MAX_SCHOOL_RECORD_BYTES);
+    expect(truncated.endsWith(".")).toBe(true);
   });
 });

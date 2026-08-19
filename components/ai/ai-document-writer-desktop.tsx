@@ -186,17 +186,19 @@ export function AiDocumentWriterDesktop() {
 
   const issues = useMemo(
     () => mergeSchoolRecordReview(draft, result?.review, {
+      activityReport: values.activityReport,
+      additionalRecord: values.additionalRecord,
       guidelineText: guidelineStore.activeGuideline?.text,
     })
       .filter(({ id }) => !dismissedIssues.includes(id)),
-    [dismissedIssues, draft, guidelineStore.activeGuideline?.text, result?.review],
+    [dismissedIssues, draft, guidelineStore.activeGuideline?.text, result?.review, values.activityReport, values.additionalRecord],
   );
 
   return (
     <div className="ai-writer">
       <div className="ai-writer-input-column">
         <PageHeader
-          description="학생 활동자료와 추가 기록을 바탕으로 초안을 만들고, 등록된 해당 학년도 학교생활기록부 기재요령에 따라 검토합니다."
+          description="학생 활동보고서를 기본 근거로 동아리 활동 세특 초안을 만들고, 선택한 추가 기록과 등록된 기재요령으로 검토합니다."
           title="동아리 생활기록부 초안"
         />
         <AiDocumentWriterPrivacyNotice />

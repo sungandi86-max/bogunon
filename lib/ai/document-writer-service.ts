@@ -4,6 +4,10 @@ import type {
   AiDocumentWriterRequest,
   AiDocumentWriterResult,
 } from "@/lib/ai/document-writer";
+import {
+  MAX_SCHOOL_RECORD_BYTES,
+  truncateUtf8Bytes,
+} from "@/lib/ai/document-writer";
 import { AiGatewayError } from "@/lib/ai/errors";
 import { aiGateway } from "@/lib/ai/gateway";
 import { inspectPrivacy, inspectStructuredPrivacy } from "@/lib/ai/privacy";
@@ -104,6 +108,10 @@ export async function generateAiDocumentDraft(
       throw new AiGatewayError("UNKNOWN", connection.provider);
     }
 
+    result = {
+      ...result,
+      draft: truncateUtf8Bytes(result.draft, MAX_SCHOOL_RECORD_BYTES),
+    };
     const outputPrivacy = inspectStructuredPrivacy(result);
     if (!outputPrivacy.allowed) {
       throw new AiDocumentWriterSensitiveInputError(outputPrivacy.warnings);
