@@ -287,9 +287,14 @@
   .operations-rail > .quick-note { display: none; }
   .operations-rail > section { background: var(--surface); border: 1px solid var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); padding: var(--space-10); }
   .operations-rail > section + section { border-top: 1px solid var(--mobile-line); }
+  .operations-rail > .aed-summary-card { display: none; }
   .quick-add__actions button { min-height: 54px; }
   .rail-module--split { grid-template-columns: 1fr; }
   .rail-module--split > div + div { border-left: 0; border-top: 1px solid var(--line-subtle); padding-left: 0; padding-top: 14px; }
+  .aed-page .page-header, .aed-device-card__heading { align-items: start; flex-direction: column; }
+  .aed-device-list, .aed-editor__form { grid-template-columns: 1fr; }
+  .aed-device-card__actions { width: 100%; }
+  .aed-device-card__actions .button { flex: 1; }
   .briefing-main { gap: 28px; }
   .focus-card { padding: var(--space-1) var(--space-6); }
   .task-row { grid-template-columns: 24px minmax(0, 1fr); min-height: 56px; }
