@@ -66,7 +66,7 @@ describe("HealthSupportInstructorWorkspace", () => {
     expect(dashboard).toHaveTextContent("7.0시간");
     expect(dashboard).toHaveTextContent("7.0시간 / 15시간");
     fireEvent.click(screen.getByRole("tab", { name: "근무기록" }));
-    expect(screen.getByRole("region", { name: "Work log summaries" })).toHaveTextContent("선택 월 합계7.0시간");
+    expect(screen.getByRole("region", { name: "Work log summaries" })).toHaveTextContent("근무시간7.0시간");
 
     // And: the same selected month drives settlement, payment statement, and printable detail rows
     fireEvent.click(screen.getByRole("tab", { name: "월별 정산" }));
@@ -264,7 +264,7 @@ describe("HealthSupportInstructorWorkspace", () => {
 
     // Then: the list, summaries, and edit draft stay in the selected monthly context
     expect(screen.getByRole("region", { name: "Work log summaries" })).toHaveTextContent("3.0시간");
-    expect(screen.getByRole("region", { name: "Work log summaries" })).toHaveTextContent("선택 주 합계5.0시간");
+    expect(screen.getByRole("region", { name: "Work log summaries" })).toHaveTextContent("이번 주5.0시간");
     expect(screen.getByRole("button", { name: "2026-09-01 기록 수정" })).toBeInTheDocument();
     expect(screen.queryByText("2026-08-31")).not.toBeInTheDocument();
     expect(screen.getByLabelText("근무 일자")).toHaveValue("2026-09-01");
@@ -336,8 +336,8 @@ describe("HealthSupportInstructorWorkspace", () => {
 
     // Then: settlement contains insurance, warnings, and the same-log monthly detail
     expect(screen.getByRole("region", { name: "Monthly settlement document" })).toHaveTextContent("310,000");
-    expect(screen.getByText("Weekly limit reached")).toBeInTheDocument();
-    expect(screen.getByText("Monthly limit reached")).toBeInTheDocument();
+    expect(screen.getAllByText("주 최대 근무시간을 초과했습니다.")).toHaveLength(2);
+    expect(screen.getAllByText("월 최대 근무시간을 초과했습니다.")).toHaveLength(2);
     expect(screen.getByRole("table", { name: "Monthly work detail" })).toHaveTextContent("15.0");
     expect(screen.getByRole("button", { name: "Print work detail" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "Monthly settlement document" })).toHaveClass("health-support-document--work-detail");
@@ -415,7 +415,7 @@ describe("HealthSupportInstructorWorkspace", () => {
     const settlement = screen.getByRole("region", { name: "Monthly settlement document" });
     expect(screen.getByRole("heading", { name: "Selected month settlement" })).toBeInTheDocument();
     expect(screen.getByLabelText("Settlement month")).toHaveValue("2026-09");
-    expect(screen.getByRole("heading", { name: "Work and wage summary" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Selected month settlement" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Limit and budget status" })).toBeInTheDocument();
     expect(settlement).toHaveTextContent("3.0");
     expect(screen.getByRole("table", { name: "Monthly work detail" })).toHaveTextContent("2026-09-01");

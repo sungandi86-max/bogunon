@@ -84,13 +84,15 @@
   .health-support-workspace__tabs { padding-inline: var(--space-3); }
   .health-support-workspace__tabs button { min-height: var(--touch-target); }
   .health-support-workspace__panel { padding: var(--space-6); }
-  .health-support-dashboard__summary, .health-support-dashboard__grid, .health-support-records { grid-template-columns: 1fr; }
+  .health-support-dashboard__summary, .health-support-dashboard__grid, .health-support-records__overview, .health-support-settlement__metrics, .health-support-settlement__details { grid-template-columns: 1fr; }
   .health-support-dashboard__summary > div + div { border-left: 0; border-top: 1px solid var(--line); }
   .health-support-dashboard li { grid-template-columns: 86px minmax(0, 1fr) auto; }
   .health-support-record-list li { align-items: flex-start; }
   .health-support-worklog-form { grid-template-columns: 1fr; }
-  .health-support-worklog-form__note, .health-support-worklog-form .form-message, .health-support-worklog-form > div { grid-column: auto; }
+  .health-support-worklog-form__header, .health-support-worklog-form__note, .health-support-worklog-form .form-message, .health-support-worklog-form > div { grid-column: auto; }
   .health-support-worklog-form .button { min-height: var(--touch-target); }
+  .health-support-record-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .health-support-settlement__header, .health-support-record-summary__header, .health-support-record-list__header { align-items: stretch; flex-direction: column; gap: var(--space-4); }
   .health-support-document__actions .button { flex: 1 1 140px; }
   .health-support-document__heading { align-items: stretch; flex-direction: column; }
   .health-support-document__heading label { min-inline-size: 0; }
