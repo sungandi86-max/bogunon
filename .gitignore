@@ -11,6 +11,8 @@
 # tests
 /coverage
 /.omo
+/.artifacts
+/.dorms-check
 
 # local environment files
 .env*
