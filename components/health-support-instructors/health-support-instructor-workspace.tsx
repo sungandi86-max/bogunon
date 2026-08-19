@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, UsersRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,7 @@ function settlementMonthFor(instructor: HealthSupportInstructor | undefined, wor
 }
 
 export function HealthSupportInstructorWorkspace({ calendarEvents = [], deleteWorkLog = deleteHealthSupportWorkLogAction, instructors, saveInstructor, saveWorkLog, workLogs }: HealthSupportInstructorWorkspaceProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("대시보드");
   const [instructorId, setInstructorId] = useState(instructors[0]?.id ?? "");
   const [editingLog, setEditingLog] = useState<HealthSupportWorkLog>();
@@ -96,7 +98,7 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], deleteWo
     if (nextInstructor) setSelectedMonth(settlementMonthFor(nextInstructor, workLogs));
   }
 
-  async function submitWorkLog(formData: FormData): Promise<void> {
+  async function submitWorkLog(formData: FormData, refresh = true): Promise<void> {
     const startTime = String(formData.get("startTime") ?? "");
     const endTime = String(formData.get("endTime") ?? "");
     if (!startTime || !endTime || startTime >= endTime) {
@@ -117,6 +119,7 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], deleteWo
     setFormError(undefined);
     setFormMessage(result.message ?? "근무 기록을 저장했습니다.");
     setEditingLog(undefined);
+    if (refresh) router.refresh();
   }
 
   if (!instructor) {
@@ -198,16 +201,18 @@ function PaymentStatementPanel({ documents, onPrint, onTogglePreview, printActiv
   </section>;
 }
 
-type WorkLogPanelProps = { readonly calculation: ReturnType<typeof calculateHealthSupportInstructorManager>; readonly calendarEvents: readonly EventRow[]; readonly deleteWorkLog: DeleteWorkLog; readonly editingLog?: HealthSupportWorkLog; readonly formError?: string; readonly formMessage?: string; readonly instructor: HealthSupportInstructor; readonly logs: readonly HealthSupportWorkLog[]; readonly month: string; readonly onEdit: (log: HealthSupportWorkLog | undefined) => void; readonly onMonthChange: (month: string) => void; readonly onSubmit: (formData: FormData) => Promise<void> };
+type WorkLogPanelProps = { readonly calculation: ReturnType<typeof calculateHealthSupportInstructorManager>; readonly calendarEvents: readonly EventRow[]; readonly deleteWorkLog: DeleteWorkLog; readonly editingLog?: HealthSupportWorkLog; readonly formError?: string; readonly formMessage?: string; readonly instructor: HealthSupportInstructor; readonly logs: readonly HealthSupportWorkLog[]; readonly month: string; readonly onEdit: (log: HealthSupportWorkLog | undefined) => void; readonly onMonthChange: (month: string) => void; readonly onSubmit: (formData: FormData, refresh?: boolean) => Promise<void> };
 
 function workLogDraft(log?: HealthSupportWorkLog) {
   return { date: log?.date ?? localIsoDate(), endTime: log?.endTime.slice(0, 5) ?? "12:00", note: log?.note ?? "", startTime: log?.startTime.slice(0, 5) ?? "09:00" };
 }
 
 function CalendarAwareWorkLogPanel({ calculation, calendarEvents, deleteWorkLog, editingLog, formError, formMessage, instructor, logs, month, onEdit, onMonthChange, onSubmit }: WorkLogPanelProps) {
+  const router = useRouter();
   const [draft, setDraft] = useState(() => workLogDraft(editingLog));
   const [importMessage, setImportMessage] = useState<string>();
   const [importPreview, setImportPreview] = useState<HealthSupportWorkLogImportPreview>();
+  const [isImporting, setIsImporting] = useState(false);
   const filteredLogs = logs.filter((log) => log.date.startsWith(month));
   const draftHours = hoursFor({ ...editingLog, ...draft, id: editingLog?.id ?? "draft", instructorId: instructor.id });
   const hasValidDraftInterval = draft.startTime < draft.endTime;
@@ -232,19 +237,26 @@ function CalendarAwareWorkLogPanel({ calculation, calendarEvents, deleteWorkLog,
   async function importSelectedRows(): Promise<void> {
     if (!importPreview) return;
     const plan = createHealthSupportWorkLogImportPlan(importPreview, "add");
-    for (const candidate of plan.candidates) {
-      const formData = new FormData();
-      formData.set("instructorId", candidate.instructorId);
-      formData.set("date", candidate.date);
-      formData.set("startTime", candidate.startTime);
-      formData.set("endTime", candidate.endTime);
-      formData.set("note", candidate.note ?? "");
-      await onSubmit(formData);
+    setIsImporting(true);
+    setImportMessage(`${plan.candidates.length}건을 가져오는 중입니다.`);
+    try {
+      for (const candidate of plan.candidates) {
+        const formData = new FormData();
+        formData.set("instructorId", candidate.instructorId);
+        formData.set("date", candidate.date);
+        formData.set("startTime", candidate.startTime);
+        formData.set("endTime", candidate.endTime);
+        formData.set("note", candidate.note ?? "");
+        await onSubmit(formData, false);
+      }
+      router.refresh();
+      setImportMessage(`${plan.candidates.length}건의 가져오기 요청을 완료했습니다.`);
+    } finally {
+      setIsImporting(false);
     }
-    setImportMessage(`${plan.candidates.length}건의 가져오기 요청을 완료했습니다.`);
   }
 
   const importPlan = importPreview ? createHealthSupportWorkLogImportPlan(importPreview, "add") : undefined;
 
-  return <div className="health-support-records"><form aria-label="근무 기록 추가" className="health-support-worklog-form" noValidate onSubmit={(event) => { event.preventDefault(); void onSubmit(new FormData(event.currentTarget)); }}><input name="id" type="hidden" value={editingLog?.id ?? ""} /><input name="instructorId" type="hidden" value={instructor.id} /><label>근무 일자<input name="date" onChange={(event) => setDraft({ ...draft, date: event.target.value })} required type="date" value={draft.date} /></label><label>시작 시간<input name="startTime" onChange={(event) => setDraft({ ...draft, startTime: event.target.value })} required type="time" value={draft.startTime} /></label><label>종료 시간<input aria-describedby={formError ? "work-log-error" : undefined} name="endTime" onChange={(event) => setDraft({ ...draft, endTime: event.target.value })} required type="time" value={draft.endTime} /></label><output aria-label="Draft hours">{hasValidDraftInterval ? `${draftHours.toFixed(1)}시간` : "유효한 시간을 입력하세요"}</output><label className="health-support-worklog-form__note">메모<textarea name="note" onChange={(event) => setDraft({ ...draft, note: event.target.value })} placeholder="선택 입력" rows={2} value={draft.note} /></label><HealthSupportCalendarContext events={calendarEvents} note={draft.note} onNoteChange={(note) => setDraft({ ...draft, note })} onTimeChange={(time) => setDraft({ ...draft, ...time })} recentLogs={logs} selectedDate={draft.date} />{formError && <p className="form-message is-error" id="work-log-error" role="alert">{formError}</p>}{formMessage && <p className="form-message" role="status">{formMessage}</p>}<div><Button disabled={!hasValidDraftInterval} type="submit">{editingLog ? "근무 기록 수정" : "근무 기록 추가"}</Button>{editingLog && <Button onClick={() => onEdit(undefined)} variant="secondary">취소</Button>}</div></form><section aria-label="Work log summaries" className="health-support-record-list"><label>기록 월<input aria-label="Work log month" onChange={(event) => onMonthChange(event.target.value)} type="month" value={month} /></label><div><span>선택 월 합계</span><strong>{monthHours.toFixed(1)}시간</strong></div><div><span>선택 주 합계</span><strong>{selectedWeekHours.toFixed(1)}시간</strong></div><div><span>선택 월 기록</span><strong>{filteredLogs.length}건</strong></div></section><section aria-labelledby="recent-work-log-title" className="health-support-record-list"><div><h3 id="recent-work-log-title">최근 기록</h3><label className="button button--secondary">Excel 근무기록 가져오기<input accept=".xlsx,.xls" aria-label="Excel work log import" hidden onChange={(event) => { void previewImport(event.target.files?.[0]); }} type="file" /></label></div>{importPlan && <div role="status"><p>{importPlan.candidates.length}건을 가져올 수 있습니다.</p>{importPlan.candidates.length > 0 && <Button aria-label={`${importPlan.candidates.length}건 가져오기`} onClick={() => { void importSelectedRows(); }} type="button">{importPlan.candidates.length}건 가져오기</Button>}</div>}{importMessage && <p role="status">{importMessage}</p>}{filteredLogs.length === 0 ? <p>선택한 월의 근무기록이 없습니다.</p> : <ul>{filteredLogs.map((log) => <li key={log.id}><div><strong>{log.date}</strong><span>{log.startTime.slice(0, 5)}–{log.endTime.slice(0, 5)} · {hoursFor(log).toFixed(1)}시간</span></div><div><Button aria-label={`${log.date} 기록 수정`} onClick={() => onEdit(log)} variant="ghost">수정</Button><Button aria-label={`${log.date} 기록 삭제`} onClick={() => { void deleteLog(log); }} variant="ghost">삭제</Button></div></li>)}</ul>}</section></div>;
+  return <div className="health-support-records"><form aria-label="근무 기록 추가" className="health-support-worklog-form" noValidate onSubmit={(event) => { event.preventDefault(); void onSubmit(new FormData(event.currentTarget)); }}><input name="id" type="hidden" value={editingLog?.id ?? ""} /><input name="instructorId" type="hidden" value={instructor.id} /><label>근무 일자<input name="date" onChange={(event) => setDraft({ ...draft, date: event.target.value })} required type="date" value={draft.date} /></label><label>시작 시간<input name="startTime" onChange={(event) => setDraft({ ...draft, startTime: event.target.value })} required type="time" value={draft.startTime} /></label><label>종료 시간<input aria-describedby={formError ? "work-log-error" : undefined} name="endTime" onChange={(event) => setDraft({ ...draft, endTime: event.target.value })} required type="time" value={draft.endTime} /></label><output aria-label="Draft hours">{hasValidDraftInterval ? `${draftHours.toFixed(1)}시간` : "유효한 시간을 입력하세요"}</output><label className="health-support-worklog-form__note">메모<textarea name="note" onChange={(event) => setDraft({ ...draft, note: event.target.value })} placeholder="선택 입력" rows={2} value={draft.note} /></label><HealthSupportCalendarContext events={calendarEvents} note={draft.note} onNoteChange={(note) => setDraft({ ...draft, note })} onTimeChange={(time) => setDraft({ ...draft, ...time })} recentLogs={logs} selectedDate={draft.date} />{formError && <p className="form-message is-error" id="work-log-error" role="alert">{formError}</p>}{formMessage && <p className="form-message" role="status">{formMessage}</p>}<div><Button disabled={!hasValidDraftInterval} type="submit">{editingLog ? "근무 기록 수정" : "근무 기록 추가"}</Button>{editingLog && <Button onClick={() => onEdit(undefined)} variant="secondary">취소</Button>}</div></form><section aria-label="Work log summaries" className="health-support-record-list"><label>기록 월<input aria-label="Work log month" onChange={(event) => onMonthChange(event.target.value)} type="month" value={month} /></label><div><span>선택 월 합계</span><strong>{monthHours.toFixed(1)}시간</strong></div><div><span>선택 주 합계</span><strong>{selectedWeekHours.toFixed(1)}시간</strong></div><div><span>선택 월 기록</span><strong>{filteredLogs.length}건</strong></div></section><section aria-labelledby="recent-work-log-title" className="health-support-record-list"><div><h3 id="recent-work-log-title">최근 기록</h3><label className="button button--secondary">Excel 근무기록 가져오기<input accept=".xlsx,.xls" aria-label="Excel work log import" hidden onChange={(event) => { void previewImport(event.target.files?.[0]); }} type="file" /></label></div>{importPlan && <div role="status"><p>{isImporting ? `${importPlan.candidates.length}건을 가져오는 중입니다.` : `${importPlan.candidates.length}건을 가져올 수 있습니다.`}</p>{importPlan.candidates.length > 0 && <Button aria-label={`${importPlan.candidates.length}건 가져오기`} disabled={isImporting} onClick={() => { void importSelectedRows(); }} type="button">{isImporting ? "가져오는 중..." : `${importPlan.candidates.length}건 가져오기`}</Button>}</div>}{importMessage && <p role="status">{importMessage}</p>}{filteredLogs.length === 0 ? <p>선택한 월의 근무기록이 없습니다.</p> : <ul>{filteredLogs.map((log) => <li key={log.id}><div><strong>{log.date}</strong><span>{log.startTime.slice(0, 5)}–{log.endTime.slice(0, 5)} · {hoursFor(log).toFixed(1)}시간</span></div><div><Button aria-label={`${log.date} 기록 수정`} onClick={() => onEdit(log)} variant="ghost">수정</Button><Button aria-label={`${log.date} 기록 삭제`} onClick={() => { void deleteLog(log); }} variant="ghost">삭제</Button></div></li>)}</ul>}</section></div>;
 }

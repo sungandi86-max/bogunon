@@ -4,6 +4,9 @@ import * as XLSX from "xlsx";
 
 import { HealthSupportInstructorWorkspace } from "@/components/health-support-instructors/health-support-instructor-workspace";
 
+const navigationMocks = vi.hoisted(() => ({ refresh: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => navigationMocks }));
+
 const instructors = [
   { id: "instructor-1", name: "김보건", subject: "보건 지원", weeklyHours: 15, hourlyRate: 20_000, monthlyInsurance: 10_000, monthlyHourLimit: 60, weeklyHourLimit: 15, totalBudget: 1_000_000, operationStartDate: "2026-03-01", operationEndDate: "2026-12-31" },
   { id: "instructor-2", name: "이건강", subject: "건강 교육", weeklyHours: 12, hourlyRate: 19_000, monthlyInsurance: 8_000, monthlyHourLimit: 60, weeklyHourLimit: 15, totalBudget: 1_000_000, operationStartDate: "2026-03-01", operationEndDate: "2026-12-31" },
@@ -233,6 +236,7 @@ describe("HealthSupportInstructorWorkspace", () => {
     // Given: an existing work log
     const deleteWorkLog = vi.fn<(formData: FormData) => Promise<void>>().mockResolvedValue(undefined);
     const saveWorkLog = vi.fn<(state: unknown, formData: FormData) => Promise<{ readonly status: "success"; readonly message: string }>>().mockResolvedValue({ status: "success", message: "saved" });
+    navigationMocks.refresh.mockClear();
     render(<HealthSupportInstructorWorkspace deleteWorkLog={deleteWorkLog} instructors={[sharedInstructor]} saveWorkLog={saveWorkLog} workLogs={[sharedWorkLogs[0]]} />);
 
     // When: Work Logs is opened and the delete command is chosen
@@ -253,6 +257,17 @@ describe("HealthSupportInstructorWorkspace", () => {
     expect(deleteWorkLog.mock.calls[0]?.[0].get("id")).toBe("shared-log-1");
     await waitFor(() => expect(saveWorkLog).toHaveBeenCalledOnce());
     expect(saveWorkLog.mock.calls[0]?.[1].get("date")).toBe("2026-08-04");
+    expect(navigationMocks.refresh).toHaveBeenCalledOnce();
+  });
+
+  it("refreshes the server-backed work-log list after a successful save", async () => {
+    const saveWorkLog = vi.fn<(state: unknown, formData: FormData) => Promise<{ readonly status: "success"; readonly message: string }>>().mockResolvedValue({ status: "success", message: "saved" });
+    render(<HealthSupportInstructorWorkspace instructors={[sharedInstructor]} saveWorkLog={saveWorkLog} workLogs={[]} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "근무기록" }));
+    fireEvent.click(screen.getByRole("button", { name: "근무 기록 추가" }));
+
+    await waitFor(() => expect(navigationMocks.refresh).toHaveBeenCalled());
   });
 
   it("uses the local current date for a new work-log draft", () => {

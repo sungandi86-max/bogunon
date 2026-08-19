@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("@/lib/health-support-instructors/repository", () => ({
   listHealthSupportInstructors: vi.fn(async () => []),
   listHealthSupportWorkLogs: vi.fn(async () => []),
