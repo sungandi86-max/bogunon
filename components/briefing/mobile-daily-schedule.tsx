@@ -4,7 +4,7 @@ import { CalendarClock } from "lucide-react";
 
 import type { EventRow } from "@/types/database";
 
-export function MobileDailySchedule({ today, upcomingEvents }: { readonly today: string; readonly upcomingEvents: readonly EventRow[] }) {
+export function MobileDailySchedule({ today, upcomingEvents = [] }: { readonly today: string; readonly upcomingEvents?: readonly EventRow[] }) {
   const todayEvents = upcomingEvents
     .filter((event) => event.start_date <= today && event.end_date >= today)
     .sort((left, right) => (left.start_time ?? "23:59").localeCompare(right.start_time ?? "23:59"))
