@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 describe("practical schedules migration", () => {
   it("defines optional-date owned work records and a calendar projection link", () => {
-    const sql = readFileSync(resolve(process.cwd(), "supabase/migrations/20260820003708_create_practical_schedules.sql"), "utf8");
+    const sql = readFileSync(resolve(process.cwd(), "supabase/migrations/20260820014702_create_practical_schedules.sql"), "utf8");
     expect(sql).toContain("create table if not exists public.health_practical_schedules");
     expect(sql).toContain("scheduled_date date");
     expect(sql).toContain("url ~* '^https?://'");
