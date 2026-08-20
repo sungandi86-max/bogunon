@@ -2265,3 +2265,20 @@
 .practical-schedule-row__actions details[open] .practical-schedule-form { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-md); left: 0; min-width: 620px; padding: var(--space-5); position: absolute; top: 28px; z-index: 3; }
 .practical-schedule-empty { color: var(--ink-500); padding: var(--space-8); text-align: center; }
 .practical-schedule-empty p { color: var(--brand-950); font-weight: var(--weight-semibold); margin: 0 0 var(--space-2); }
+.practical-schedule-mode { border-bottom: 1px solid var(--line); display: flex; gap: var(--space-2); margin: calc(var(--space-6) * -1) calc(var(--space-6) * -1) var(--space-5); padding: var(--space-3) var(--space-6); }
+.practical-schedule-mode button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm); color: var(--ink-500); cursor: pointer; display: inline-flex; font: inherit; gap: var(--space-2); min-height: var(--control-md); padding: var(--space-2) var(--space-3); }
+.practical-schedule-mode button.is-active { background: var(--action-50); color: var(--action-700); font-weight: var(--weight-semibold); }
+.practical-schedule-form__hint, .practical-schedule-add__hint { color: var(--ink-500); font-size: var(--text-sm); margin: 0; }
+.practical-schedule-form input:disabled { background: var(--surface-subtle); color: var(--ink-600); }
+.practical-schedule-linked-event { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: var(--radius-sm); display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); }
+.practical-schedule-linked-event strong { color: var(--brand-950); }
+.practical-schedule-linked-event span { color: var(--ink-500); font-size: var(--text-sm); }
+.practical-schedule-event-search { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); margin-top: var(--space-5); max-width: 420px; }
+.practical-schedule-event-search input { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink-950); min-height: var(--control-lg); padding: var(--space-3) var(--space-4); }
+.practical-schedule-event-list { border: 1px solid var(--line); border-radius: var(--radius-sm); display: grid; margin-top: var(--space-4); max-height: 260px; overflow-y: auto; }
+.practical-schedule-event-list button { background: var(--surface); border: 0; border-bottom: 1px solid var(--line); cursor: pointer; display: grid; gap: var(--space-1); padding: var(--space-3) var(--space-4); text-align: left; }
+.practical-schedule-event-list button:last-child { border-bottom: 0; }
+.practical-schedule-event-list button:hover, .practical-schedule-event-list button.is-selected { background: var(--action-50); }
+.practical-schedule-event-list strong { color: var(--brand-950); }
+.practical-schedule-event-list span { color: var(--ink-500); font-size: var(--text-sm); }
+.practical-schedule-event-list p { color: var(--ink-500); margin: 0; padding: var(--space-4); }

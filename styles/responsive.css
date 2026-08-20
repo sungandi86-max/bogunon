@@ -598,6 +598,8 @@
   .practical-schedule-form__wide { grid-column: auto; }
   .practical-schedule-form__footer { align-items: stretch; flex-direction: column; }
   .practical-schedule-form__footer .button { justify-content: center; }
+  .practical-schedule-mode { margin-left: calc(var(--space-5) * -1); margin-right: calc(var(--space-5) * -1); padding-left: var(--space-5); padding-right: var(--space-5); }
+  .practical-schedule-mode button { flex: 1; justify-content: center; }
   .practical-schedule-table__header { display: none; }
   .practical-schedule-row { align-items: stretch; grid-template-columns: 1fr; }
   .practical-schedule-row__category { padding-top: 0; }

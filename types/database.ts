@@ -75,6 +75,7 @@ export type EventRow = {
   recurrence_date?: string | null;
   recurrence_generated_through?: string | null;
   practical_schedule_id?: string | null;
+  practical_schedule_origin?: PracticalScheduleOrigin | null;
   memo: string | null;
   description: string | null;
   created_at: string;
@@ -352,6 +353,7 @@ export type AnnualPlannerCustomItemRow = {
 };
 
 export type PracticalScheduleCategory = "staff" | "student" | "admin";
+export type PracticalScheduleOrigin = "projected" | "linked_existing";
 export type PracticalScheduleRow = {
   id: string;
   user_id: string;
@@ -366,6 +368,7 @@ export type PracticalScheduleRow = {
   notes: string | null;
   url: string | null;
   annual_preset_key: string | null;
+  sticker_key: CalendarStickerKey | null;
   created_at: string;
   updated_at: string;
 };

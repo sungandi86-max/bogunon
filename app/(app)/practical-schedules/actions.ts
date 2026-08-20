@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { removePracticalSchedule, savePracticalSchedule } from "@/lib/practical-schedules/repository";
-import { isSafePracticalUrl } from "@/lib/practical-schedules/domain";
+import { linkExistingEvent, removePracticalSchedule, savePracticalSchedule } from "@/lib/practical-schedules/repository";
+import { isSafePracticalUrl, parsePracticalStickerKey } from "@/lib/practical-schedules/domain";
 import type { PracticalScheduleCategory } from "@/types/database";
 
 const categories = new Set<PracticalScheduleCategory>(["staff", "student", "admin"]);
@@ -39,10 +39,27 @@ export async function savePracticalScheduleAction(formData: FormData): Promise<v
   if ((startTime || endTime) && (!startTime || !endTime || endTime <= startTime)) throw new Error("시간을 확인해 주세요.");
   const url = optional(formData, "url");
   if (url && !isSafePracticalUrl(url)) throw new Error("관련 링크는 http 또는 https 주소만 사용할 수 있습니다.");
+  const stickerValue = optional(formData, "stickerKey");
+  const stickerKey = parsePracticalStickerKey(stickerValue);
+  if (stickerValue && !stickerKey) throw new Error("일정 스티커를 확인해 주세요.");
   await savePracticalSchedule({
     year, category, title, scheduledDate, startTime, endTime, location: optional(formData, "location"),
-    method: optional(formData, "method"), notes: optional(formData, "notes"), url, annualPresetKey: optional(formData, "annualPresetKey"),
+    method: optional(formData, "method"), notes: optional(formData, "notes"), url, annualPresetKey: optional(formData, "annualPresetKey"), stickerKey,
   }, optional(formData, "id") ?? undefined);
+  refresh();
+}
+
+export async function linkExistingEventAction(formData: FormData): Promise<void> {
+  const eventId = String(formData.get("eventId") ?? "").trim();
+  const year = Number(formData.get("year"));
+  const category = String(formData.get("category") ?? "staff") as PracticalScheduleCategory;
+  if (!eventId || !Number.isInteger(year) || year < 2000 || year > 2100 || !categories.has(category)) throw new Error("연결할 일정과 구분을 확인해 주세요.");
+  const url = optional(formData, "url");
+  if (url && !isSafePracticalUrl(url)) throw new Error("관련 링크는 http 또는 https 주소만 사용할 수 있습니다.");
+  await linkExistingEvent(eventId, {
+    year, category, method: optional(formData, "method"), notes: optional(formData, "notes"), url,
+    annualPresetKey: optional(formData, "annualPresetKey"),
+  });
   refresh();
 }
 
