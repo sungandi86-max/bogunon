@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ChevronDown, Dumbbell, FilePenLine, FileSpreadsheet, FolderKanban, Home, LayoutGrid, ListPlus, Plus, Settings, UsersRound } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, ClipboardList, Dumbbell, FilePenLine, FileSpreadsheet, FolderKanban, Home, LayoutGrid, ListPlus, Plus, Settings, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BogunonBrand } from "@/components/brand/bogunon-brand";
@@ -12,6 +12,7 @@ const navigationGroups = [
     ["오늘", "/briefing", Home],
     ["캘린더", "/calendar", CalendarDays],
     ["연간 계획", "/annual", LayoutGrid],
+    ["실무 일정", "/practical-schedules", ClipboardList],
     ["프로젝트", "/projects", FolderKanban],
   ] },
   { label: "기록", links: [

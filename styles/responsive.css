@@ -590,6 +590,16 @@
   .smart-calendar-result__actions { display: grid; width: 100%; }
   button, .quick-input-box__heading .button { min-height: var(--touch-target); }
   .quick-note { scroll-margin-top: var(--space-8); }
+  .practical-schedule-toolbar, .practical-schedule-list__header { align-items: flex-start; flex-direction: column; }
+  .practical-schedule-toolbar > .button { align-self: stretch; justify-content: center; }
+  .practical-schedule-add, .practical-schedule-list { padding: var(--space-5); }
+  .practical-schedule-form__grid { grid-template-columns: 1fr; }
+  .practical-schedule-form__wide { grid-column: auto; }
+  .practical-schedule-form__footer { align-items: stretch; flex-direction: column; }
+  .practical-schedule-form__footer .button { justify-content: center; }
+  .practical-schedule-row { align-items: stretch; grid-template-columns: 1fr; }
+  .practical-schedule-row__actions { flex-wrap: wrap; }
+  .practical-schedule-row__actions details[open] .practical-schedule-form { left: auto; min-width: min(620px, calc(100vw - 48px)); right: 0; }
 }
 @media (display-mode: standalone) and (max-width: 767px) {
   body { min-height: 100dvh; }

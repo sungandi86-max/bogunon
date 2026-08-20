@@ -2222,3 +2222,37 @@
 .project-place-form__visited { align-items: center; display: flex !important; min-height: var(--touch-target); }
 .project-place-form__visited input { min-height: auto; width: auto; }
 .project-place-form__actions { display: flex; gap: var(--space-3); justify-content: flex-end; padding-bottom: env(safe-area-inset-bottom); }
+
+.practical-schedules-page .year-navigation { margin-bottom: var(--space-6); }
+.practical-schedule-workspace { display: grid; gap: var(--space-6); }
+.practical-schedule-toolbar, .practical-schedule-list__header { align-items: center; display: flex; gap: var(--space-4); justify-content: space-between; }
+.practical-schedule-toolbar > div, .practical-schedule-list__header > div { display: grid; gap: var(--space-1); }
+.practical-schedule-toolbar strong { color: var(--brand-950); font-size: var(--text-lg); }
+.practical-schedule-toolbar span, .practical-schedule-list__header p { color: var(--ink-500); font-size: var(--text-sm); margin: 0; }
+.practical-schedule-add, .practical-schedule-list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); padding: var(--space-6); }
+.practical-schedule-add h2, .practical-schedule-list h2 { color: var(--brand-950); font-size: var(--text-card); margin: 0; }
+.practical-schedule-add__context { color: var(--action-700); font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.practical-schedule-form { display: grid; gap: var(--space-5); margin-top: var(--space-5); }
+.practical-schedule-form__grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.practical-schedule-form label { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); }
+.practical-schedule-form input, .practical-schedule-form select, .practical-schedule-form textarea { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink-950); min-height: var(--control-lg); padding: var(--space-3) var(--space-4); width: 100%; }
+.practical-schedule-form__wide { grid-column: 1 / -1; }
+.practical-schedule-form__footer { align-items: center; display: flex; gap: var(--space-4); justify-content: space-between; }
+.practical-schedule-form__footer small { color: var(--ink-500); }
+.practical-schedule-list { display: grid; gap: var(--space-5); }
+.practical-schedule-row { align-items: center; border-top: 1px solid var(--line); display: grid; gap: var(--space-4); grid-template-columns: minmax(220px, 1.2fr) minmax(220px, 1fr) auto; padding-top: var(--space-4); }
+.practical-schedule-row__main, .practical-schedule-row__detail { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); min-width: 0; }
+.practical-schedule-row__main { align-items: center; }
+.practical-schedule-row__main strong { color: var(--brand-950); }
+.practical-schedule-row__main small, .practical-schedule-row__detail span { color: var(--ink-500); font-size: var(--text-sm); }
+.practical-schedule-row__detail span { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.practical-category { border-radius: 999px; font-size: var(--text-xs); font-weight: var(--weight-semibold); padding: 3px 8px; }
+.practical-category--staff { background: var(--action-50); color: var(--action-700); }
+.practical-category--student { background: var(--school-50, #eff8ff); color: var(--school-700, #246b9d); }
+.practical-category--admin { background: var(--warning-50, #fff8e8); color: var(--warning-700, #8a6300); }
+.practical-schedule-row__actions { align-items: center; display: flex; gap: var(--space-3); white-space: nowrap; }
+.practical-schedule-row__actions a, .practical-schedule-row__actions summary { align-items: center; color: var(--action-700); cursor: pointer; display: inline-flex; gap: var(--space-1); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.practical-schedule-row__actions details { position: relative; }
+.practical-schedule-row__actions details[open] .practical-schedule-form { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: var(--shadow-md); left: 0; min-width: 620px; padding: var(--space-5); position: absolute; top: 28px; z-index: 3; }
+.practical-schedule-empty { color: var(--ink-500); padding: var(--space-8); text-align: center; }
+.practical-schedule-empty p { color: var(--brand-950); font-weight: var(--weight-semibold); margin: 0 0 var(--space-2); }

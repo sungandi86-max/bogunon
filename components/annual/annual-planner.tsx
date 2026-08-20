@@ -2,6 +2,7 @@
 
 import { CalendarPlus, Check, ChevronDown, Clock3, GripVertical, ListTodo, Star } from "lucide-react";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 
 import { AnnualCustomItemForm } from "@/components/annual/annual-custom-item-form";
 import { CalendarDateInput } from "@/components/calendar/calendar-date-input";
@@ -128,6 +129,7 @@ export function AnnualPlanner({ year, currentYear, currentMonth, customItems, ex
                       <div className="annual-preset-item__actions">
                         <button aria-label={`${preset.title} 업무로 추가`} className={`annual-task-add button ${preset.kind === "task" ? "button--primary" : "button--secondary"}`} onClick={(event) => openPreset(event.currentTarget, preset, "task")} type="button">업무로 추가</button>
                         <button aria-label={`${preset.title} 일정으로 추가`} className={preset.kind === "event" ? "button button--primary" : "button button--secondary"} onClick={(event) => openPreset(event.currentTarget, preset, "event")} type="button"><CalendarPlus aria-hidden="true" size={14} />일정으로 추가</button>
+                        <Link aria-label={`${preset.title} 실무 일정으로 추가`} className="button button--secondary annual-practical-add" href={`/practical-schedules?year=${year}&new=1&title=${encodeURIComponent(preset.title)}&month=${preset.month}`}>실무 일정으로 추가</Link>
                       </div>
                     </article>
                   );

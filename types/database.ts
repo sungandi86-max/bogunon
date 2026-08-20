@@ -74,6 +74,7 @@ export type EventRow = {
   recurrence_source_id?: string | null;
   recurrence_date?: string | null;
   recurrence_generated_through?: string | null;
+  practical_schedule_id?: string | null;
   memo: string | null;
   description: string | null;
   created_at: string;
@@ -350,6 +351,25 @@ export type AnnualPlannerCustomItemRow = {
   updated_at: string;
 };
 
+export type PracticalScheduleCategory = "staff" | "student" | "admin";
+export type PracticalScheduleRow = {
+  id: string;
+  user_id: string;
+  year: number;
+  category: PracticalScheduleCategory;
+  title: string;
+  scheduled_date: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+  method: string | null;
+  notes: string | null;
+  url: string | null;
+  annual_preset_key: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type UserSettingsRow = {
   id: string;
   user_id: string;
@@ -523,7 +543,7 @@ export type Database = {
       };
       events: {
         Row: EventRow;
-        Insert: Insert<EventRow, "id" | "project_id" | "event_type" | "event_details" | "sticker_key" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "memo" | "description" | "created_at" | "updated_at">;
+        Insert: Insert<EventRow, "id" | "project_id" | "event_type" | "event_details" | "sticker_key" | "is_all_day" | "start_time" | "end_time" | "location" | "color_key" | "recurrence_frequency" | "recurrence_source_id" | "recurrence_date" | "recurrence_generated_through" | "practical_schedule_id" | "memo" | "description" | "created_at" | "updated_at">;
         Update: Partial<EventRow>;
         Relationships: [];
       };
@@ -615,6 +635,12 @@ export type Database = {
         Row: AnnualPlannerCustomItemRow;
         Insert: Insert<AnnualPlannerCustomItemRow, "id" | "description" | "estimated_minutes" | "checklist_json" | "sort_order" | "created_at" | "updated_at">;
         Update: Partial<AnnualPlannerCustomItemRow>;
+        Relationships: [];
+      };
+      health_practical_schedules: {
+        Row: PracticalScheduleRow;
+        Insert: Insert<PracticalScheduleRow, "id" | "created_at" | "updated_at">;
+        Update: Partial<Omit<PracticalScheduleRow, "id" | "user_id" | "created_at" | "updated_at">>;
         Relationships: [];
       };
       user_settings: {
