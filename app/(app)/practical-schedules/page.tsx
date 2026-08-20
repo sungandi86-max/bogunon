@@ -16,6 +16,6 @@ export default async function PracticalSchedulesPage({ searchParams }: { readonl
   return <main className="page-canvas practical-schedules-page">
     <PageHeader description="연간 보건업무를 실제 날짜·장소·진행방법과 함께 관리합니다." title="실무 일정" />
     <nav aria-label="실무 일정 연도 이동" className="year-navigation"><Link aria-label="이전 연도" href={`/practical-schedules?year=${year - 1}`}><ChevronLeft size={17} />{year - 1}</Link><strong>{year}년</strong><Link href={`/practical-schedules?year=${currentYear}`}><RotateCcw size={15} />현재 연도</Link><Link aria-label="다음 연도" href={`/practical-schedules?year=${year + 1}`}>{year + 1}<ChevronRight size={17} /></Link></nav>
-    <PracticalScheduleWorkspace items={items} newMonth={params.month} newTitle={newTitle} year={year} />
+    <PracticalScheduleWorkspace items={items} newMonth={params.month} newOpen={params.new === "1"} newTitle={newTitle} year={year} />
   </main>;
 }
