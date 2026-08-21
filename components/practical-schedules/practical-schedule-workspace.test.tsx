@@ -35,3 +35,31 @@ describe("PracticalScheduleWorkspace linking flow", () => {
     expect(screen.getByRole("option", { name: "학생건강검진" })).not.toBeNull();
   });
 });
+
+const schedule = {
+  id: "schedule-1", user_id: "user-1", year: 2026, category: "student" as const, title: "1학년 건강검진", scheduled_date: "2026-05-14", start_time: "08:00:00", end_time: "12:00:00", location: "체육관", method: "검진기관 진행", notes: "문진표 확인", url: null, annual_preset_key: null, sticker_key: "health.student-checkup" as const, created_at: "", updated_at: "",
+};
+
+describe("PracticalScheduleWorkspace edit modal", () => {
+  it("opens a centered dialog, preserves linked fields as read-only, and closes on cancel with focus restored", () => {
+    render(<PracticalScheduleWorkspace items={[schedule]} linkableEvents={[]} linkedScheduleIds={[schedule.id]} year={2026} />);
+    const editButton = screen.getByRole("button", { name: "1학년 건강검진 수정" });
+    fireEvent.click(editButton);
+    const dialog = screen.getByRole("dialog", { name: "실무 일정 수정" });
+    expect(dialog).toBeTruthy();
+    expect(document.body.classList.contains("overlay-open")).toBe(true);
+    expect((screen.getByLabelText("업무명") as HTMLInputElement).disabled).toBe(true);
+    expect((screen.getByLabelText("날짜") as HTMLInputElement).disabled).toBe(true);
+    expect((screen.getByLabelText("진행방법") as HTMLInputElement).disabled).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "취소" }));
+    expect(screen.queryByRole("dialog", { name: "실무 일정 수정" })).toBeNull();
+    expect(document.activeElement).toBe(editButton);
+  });
+
+  it("closes the edit dialog with Escape", () => {
+    render(<PracticalScheduleWorkspace items={[schedule]} linkableEvents={[]} year={2026} />);
+    fireEvent.click(screen.getByRole("button", { name: "1학년 건강검진 수정" }));
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByRole("dialog", { name: "실무 일정 수정" })).toBeNull();
+  });
+});

@@ -13,6 +13,7 @@ interface ResponsiveDetailPanelProps {
   readonly onClose: () => void;
   readonly open: boolean;
   readonly panelClassName?: string;
+  readonly presentation?: "drawer" | "modal";
   readonly returnFocusRef?: RefObject<HTMLElement | null>;
   readonly title: string;
 }
@@ -33,6 +34,7 @@ export function ResponsiveDetailPanel({
   onClose,
   open,
   panelClassName,
+  presentation = "drawer",
   returnFocusRef,
   title,
 }: ResponsiveDetailPanelProps) {
@@ -78,11 +80,11 @@ export function ResponsiveDetailPanel({
   if (!open) return null;
 
   return (
-    <div className="overlay" role="presentation" onMouseDown={onClose}>
+    <div className={`overlay${presentation === "modal" ? " overlay--modal" : ""}`} role="presentation" onMouseDown={onClose}>
       <aside
         aria-labelledby="detail-panel-title"
         aria-modal="true"
-        className={["detail-panel", panelClassName].filter(Boolean).join(" ")}
+        className={["detail-panel", presentation === "modal" ? "detail-panel--modal" : "", panelClassName].filter(Boolean).join(" ")}
         onMouseDown={(event) => event.stopPropagation()}
         ref={panelRef}
         role="dialog"

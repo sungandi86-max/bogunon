@@ -5,6 +5,8 @@ import { linkExistingEvent, removePracticalSchedule, savePracticalSchedule } fro
 import { isSafePracticalUrl, parsePracticalStickerKey } from "@/lib/practical-schedules/domain";
 import type { PracticalScheduleCategory } from "@/types/database";
 
+export type PracticalScheduleActionState = { readonly status: "idle" | "success" | "error"; readonly message?: string };
+
 const categories = new Set<PracticalScheduleCategory>(["staff", "student", "admin"]);
 
 function optional(formData: FormData, key: string): string | null {
@@ -27,7 +29,8 @@ function refresh() {
   revalidatePath("/briefing");
 }
 
-export async function savePracticalScheduleAction(formData: FormData): Promise<void> {
+export async function savePracticalScheduleAction(_state: PracticalScheduleActionState, formData: FormData): Promise<PracticalScheduleActionState> {
+  try {
   const title = String(formData.get("title") ?? "").trim();
   const year = Number(formData.get("year"));
   const category = String(formData.get("category") ?? "staff") as PracticalScheduleCategory;
@@ -47,9 +50,14 @@ export async function savePracticalScheduleAction(formData: FormData): Promise<v
     method: optional(formData, "method"), notes: optional(formData, "notes"), url, annualPresetKey: optional(formData, "annualPresetKey"), stickerKey,
   }, optional(formData, "id") ?? undefined);
   refresh();
+  return { status: "success", message: "실무 일정을 저장했습니다." };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "실무 일정을 저장하지 못했습니다." };
+  }
 }
 
-export async function linkExistingEventAction(formData: FormData): Promise<void> {
+export async function linkExistingEventAction(_state: PracticalScheduleActionState, formData: FormData): Promise<PracticalScheduleActionState> {
+  try {
   const eventId = String(formData.get("eventId") ?? "").trim();
   const year = Number(formData.get("year"));
   const category = String(formData.get("category") ?? "staff") as PracticalScheduleCategory;
@@ -61,6 +69,10 @@ export async function linkExistingEventAction(formData: FormData): Promise<void>
     annualPresetKey: optional(formData, "annualPresetKey"),
   });
   refresh();
+  return { status: "success", message: "기존 일정에 연결했습니다." };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "기존 일정에 연결하지 못했습니다." };
+  }
 }
 
 export async function deletePracticalScheduleAction(formData: FormData): Promise<void> {

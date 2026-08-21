@@ -189,26 +189,26 @@ describe("CalendarWorkspace", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "편집" }));
 
-    const editor = screen.getByRole("complementary", { name: "온라인 연수 수강 일정 편집" });
-    expect(within(editor).queryByRole("region", { name: "2026-07-18 일정 상세" })).not.toBeInTheDocument();
-    expect(editor.querySelector(".inline-editor")).not.toBeInTheDocument();
-    expect(editor.querySelector(".calendar-detail-panel__editor > .work-item-form")).toBeInTheDocument();
-    expect(within(editor).getByLabelText("제목")).toHaveValue("온라인 연수 수강");
-    expect(within(editor).getByLabelText("설명")).toHaveValue("연수 내용을 확인합니다.");
-    expect(within(editor).getByLabelText("시작일")).toHaveValue("2026-07-18");
-    expect(within(editor).getByRole("checkbox", { name: "종일" })).not.toBeChecked();
-    expect(within(editor).getByLabelText("시작 시간")).toHaveValue("14:00");
-    expect(within(editor).getByLabelText("종료 시간")).toHaveValue("15:00");
-    expect(editor.querySelector<HTMLInputElement>('input[name="id"]')).toHaveValue("event-1");
-    expect(editor.querySelector<HTMLInputElement>('input[name="stickerKey"]')).toHaveValue("academic.online-training-study");
+    const editor = screen.getByRole("dialog", { name: "일정 편집" });
+    expect(within(editor).queryByRole("region", { name: "2026-07-18 일정 상세" })).toBeNull();
+    expect(editor.querySelector(".inline-editor")).toBeNull();
+    expect(editor.querySelector(".work-item-form")).toBeTruthy();
+    expect((within(editor).getByLabelText("제목") as HTMLInputElement).value).toBe("온라인 연수 수강");
+    expect((within(editor).getByLabelText("설명") as HTMLTextAreaElement).value).toBe("연수 내용을 확인합니다.");
+    expect((within(editor).getByLabelText("시작일") as HTMLInputElement).value).toBe("2026-07-18");
+    expect((within(editor).getByRole("checkbox", { name: "종일" }) as HTMLInputElement).checked).toBe(false);
+    expect((within(editor).getByLabelText("시작 시간") as HTMLInputElement).value).toBe("14:00");
+    expect((within(editor).getByLabelText("종료 시간") as HTMLInputElement).value).toBe("15:00");
+    expect(editor.querySelector<HTMLInputElement>('input[name="id"]')?.value).toBe("event-1");
+    expect(editor.querySelector<HTMLInputElement>('input[name="stickerKey"]')?.value).toBe("academic.online-training-study");
 
     fireEvent.change(within(editor).getByLabelText("제목"), { target: { value: "저장하지 않을 제목" } });
-    fireEvent.click(within(editor).getByRole("button", { name: "취소" }));
+    fireEvent.click(within(editor).getByRole("button", { name: "패널 닫기" }));
 
     const detail = screen.getByRole("complementary", { name: "2026-07-18 선택 날짜 상세" });
-    expect(within(detail).getByRole("region", { name: "2026-07-18 일정 상세" })).toHaveTextContent("온라인 연수 수강");
-    expect(within(detail).queryByDisplayValue("저장하지 않을 제목")).not.toBeInTheDocument();
-    expect(container.querySelector(".calendar-detail-panel--editing")).not.toBeInTheDocument();
+    expect(within(detail).getByRole("region", { name: "2026-07-18 일정 상세" }).textContent).toContain("온라인 연수 수강");
+    expect(within(detail).queryByDisplayValue("저장하지 않을 제목")).toBeNull();
+    expect(container.querySelector(".calendar-detail-panel--editing")).toBeNull();
   });
 
   it("optimistically moves a dropped event and persists it immediately", async () => {

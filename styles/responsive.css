@@ -387,6 +387,9 @@
   .calendar-detail-panel { height: auto; max-height: none; overflow: visible; }
   .calendar-detail-panel__header { position: static; }
   .detail-panel { border-left: 0; border-radius: var(--mobile-sheet-radius) var(--mobile-sheet-radius) 0 0; box-shadow: var(--mobile-sheet-shadow); max-height: calc(100dvh - var(--space-10)); max-width: none; top: auto; width: 100%; }
+  .overlay--modal { padding: var(--space-4); }
+  .detail-panel--modal::before { display: none; }
+  .detail-panel--modal { border: 1px solid var(--line); border-radius: var(--radius-lg); bottom: auto; max-height: calc(100dvh - 32px); max-width: none; top: 50%; transform: translateY(-50%); width: calc(100vw - 32px); }
   .detail-panel--academic-import { width: 100%; }
   .detail-panel::before { background: var(--line-strong); border-radius: var(--radius-full); content: ""; height: var(--space-2); left: 50%; position: absolute; top: var(--space-4); transform: translateX(-50%); width: var(--control-md); }
   .detail-panel__header { padding-top: var(--space-12); }
@@ -604,7 +607,9 @@
   .practical-schedule-row { align-items: stretch; grid-template-columns: 1fr; }
   .practical-schedule-row__category { padding-top: 0; }
   .practical-schedule-row__actions { flex-wrap: wrap; }
-  .practical-schedule-row__actions details[open] .practical-schedule-form { left: auto; min-width: min(620px, calc(100vw - 48px)); right: 0; }
+  .practical-schedule-modal { padding: var(--space-4); }
+  .practical-schedule-modal__panel { max-height: 90vh; }
+  .practical-schedule-modal__panel > header, .practical-schedule-modal__body { padding-left: var(--space-5); padding-right: var(--space-5); }
 }
 @media (display-mode: standalone) and (max-width: 767px) {
   body { min-height: 100dvh; }

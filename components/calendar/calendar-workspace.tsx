@@ -48,6 +48,7 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
   const stickerButtonRef = useRef<HTMLButtonElement>(null);
   const activeStickerFilterRef = useRef<HTMLButtonElement>(null);
   const moveButtonRef = useRef<HTMLButtonElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
 
   const navigate = useCallback((date: string, view = initialView, nextHighlight?: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -127,6 +128,10 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
   };
   const periodLabel = initialView === "month" ? `${selectedDate.slice(0, 4)}년 ${Number(selectedDate.slice(5, 7))}월` : initialView === "week" ? `${range.first.slice(5).replace("-", ".")} – ${range.last.slice(5).replace("-", ".")}` : selectedDate.replaceAll("-", ". ");
   const selectTimeItem = (item: AllDayGridItem) => { setSelectedDate(item.date); navigate(item.date, initialView, `${item.kind}:${item.id}`); };
+  const openEdit = useCallback((event: EventRow, trigger?: HTMLButtonElement) => {
+    editButtonRef.current = trigger ?? null;
+    setEditingEvent(event);
+  }, []);
   const completeEdit = useCallback(() => {
     setEditingEvent(null);
     router.refresh();
@@ -151,18 +156,16 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
         >{moveMessage.text}</p>}
         {initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={moveDroppedEvent} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
       </div>
-      <aside aria-label={editingEvent ? `${editingEvent.title} 일정 편집` : `${selectedDate} 선택 날짜 상세`} className={`calendar-detail-panel${editingEvent ? " calendar-detail-panel--editing" : ""}`}>
-        {editingEvent ? <>
-          <header className="calendar-detail-panel__header calendar-detail-panel__header--editing"><span>일정 편집</span><strong>{editingEvent.title}</strong><button className="button button--secondary" onClick={() => setEditingEvent(null)} type="button">취소</button></header>
-          <div className="calendar-detail-panel__editor"><CreateItemForm initialItem={editingEvent} key={editingEvent.id} links={workflow.eventLinks.filter((item) => item.event_id === editingEvent.id)} onSaved={completeEdit} reminders={workflow.eventReminders.filter((item) => item.event_id === editingEvent.id)} /></div>
-        </> : <>
-          <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
-          <EventList currentTime={currentTime} date={selectedDate} events={selectedDateEvents} exerciseLogs={exerciseLogs} onEdit={setEditingEvent} today={today} workflow={workflow} />
-          {selectedDateTasks.length > 0 && <section aria-label={`${selectedDate} 업무`} className="calendar-detail-panel__group calendar-detail-panel__group--task"><h3>업무</h3>{selectedDateTasks.map((task) => <div className="calendar-detail-panel__item" key={task.id}><span className="calendar-item__indicator" /><strong>{task.title}</strong></div>)}</section>}
-          {selectedDateStickers.length > 0 && <section aria-label={`${selectedDate} 스티커`} className="calendar-detail-panel__group"><h3>날짜 스티커</h3>{selectedDateStickers.map((sticker) => <div className="calendar-detail-panel__item" key={sticker.id}><span className="calendar-item__indicator" /><strong>{sticker.label}</strong></div>)}</section>}
-        </>}
+      <aside aria-label={`${selectedDate} 선택 날짜 상세`} className="calendar-detail-panel">
+        <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
+        <EventList currentTime={currentTime} date={selectedDate} events={selectedDateEvents} exerciseLogs={exerciseLogs} onEdit={openEdit} today={today} workflow={workflow} />
+        {selectedDateTasks.length > 0 && <section aria-label={`${selectedDate} 업무`} className="calendar-detail-panel__group calendar-detail-panel__group--task"><h3>업무</h3>{selectedDateTasks.map((task) => <div className="calendar-detail-panel__item" key={task.id}><span className="calendar-item__indicator" /><strong>{task.title}</strong></div>)}</section>}
+        {selectedDateStickers.length > 0 && <section aria-label={`${selectedDate} 스티커`} className="calendar-detail-panel__group"><h3>날짜 스티커</h3>{selectedDateStickers.map((sticker) => <div className="calendar-detail-panel__item" key={sticker.id}><span className="calendar-item__indicator" /><strong>{sticker.label}</strong></div>)}</section>}
       </aside>
     </div>
+    <ResponsiveDetailPanel footer={<button className="button button--secondary" onClick={() => setEditingEvent(null)} type="button">취소</button>} onClose={() => setEditingEvent(null)} open={Boolean(editingEvent)} panelClassName="calendar-event-edit-modal" presentation="modal" returnFocusRef={editButtonRef} title="일정 편집">
+      {editingEvent && <CreateItemForm initialItem={editingEvent} key={editingEvent.id} links={workflow.eventLinks.filter((item) => item.event_id === editingEvent.id)} onSaved={completeEdit} reminders={workflow.eventReminders.filter((item) => item.event_id === editingEvent.id)} /> }
+    </ResponsiveDetailPanel>
     <ResponsiveDetailPanel onClose={() => setStickerOpen(false)} open={stickerOpen} returnFocusRef={stickerButtonRef} title="날짜 스티커 추가"><SchoolStickerPicker stickers={stickers} today={selectedDate} /></ResponsiveDetailPanel>
     <button aria-hidden="true" className="calendar-move-focus" ref={moveButtonRef} tabIndex={-1} type="button" />
     <ResponsiveDetailPanel onClose={() => setMoveState(null)} open={Boolean(moveState)} returnFocusRef={moveButtonRef} title="날짜 변경">{moveState && <CalendarMovePanel move={moveState.value} newDate={moveState.newDate} onComplete={() => setMoveState(null)} />}</ResponsiveDetailPanel>

@@ -1,9 +1,10 @@
 "use client";
 
 import { ExternalLink, Link2, Plus, Trash2, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useActionState, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
-import { deletePracticalScheduleAction, linkExistingEventAction, savePracticalScheduleAction } from "@/app/(app)/practical-schedules/actions";
+import { deletePracticalScheduleAction, linkExistingEventAction, savePracticalScheduleAction, type PracticalScheduleActionState } from "@/app/(app)/practical-schedules/actions";
+import { ResponsiveDetailPanel } from "@/components/layout/responsive-detail-panel";
 import { CALENDAR_STICKER_CATALOG } from "@/lib/calendar-stickers/catalog";
 import { formatPracticalScheduleDate, practicalScheduleCategoryLabels } from "@/lib/practical-schedules/domain";
 import type { EventRow, PracticalScheduleCategory, PracticalScheduleRow } from "@/types/database";
@@ -14,8 +15,12 @@ function StickerSelect({ initial }: { readonly initial: string | null | undefine
   return <label>일정 스티커<select defaultValue={initial ?? ""} name="stickerKey"><option value="">선택 안 함</option>{CALENDAR_STICKER_CATALOG.map((sticker) => <option key={sticker.key} value={sticker.key}>{sticker.label}</option>)}</select></label>;
 }
 
-function ScheduleForm({ year, initial, linkedReadonly = false }: { readonly year: number; readonly initial?: PracticalScheduleRow | undefined; readonly linkedReadonly?: boolean }) {
-  return <form action={savePracticalScheduleAction} className="practical-schedule-form">
+const idleActionState: PracticalScheduleActionState = { status: "idle" };
+
+function ScheduleForm({ year, initial, linkedReadonly = false, onSuccess, onCancel }: { readonly year: number; readonly initial?: PracticalScheduleRow | undefined; readonly linkedReadonly?: boolean; readonly onSuccess?: () => void; readonly onCancel?: () => void }) {
+  const [state, action, pending] = useActionState(savePracticalScheduleAction, idleActionState);
+  useEffect(() => { if (state.status === "success") onSuccess?.(); }, [onSuccess, state.status]);
+  return <form action={action} className="practical-schedule-form">
     {initial && <input name="id" type="hidden" value={initial.id} />}
     <input name="year" type="hidden" value={year} />
     <div className="practical-schedule-form__grid">
@@ -32,12 +37,15 @@ function ScheduleForm({ year, initial, linkedReadonly = false }: { readonly year
     </div>
     {linkedReadonly && <><input name="title" type="hidden" value={initial?.title ?? ""} /><input name="scheduledDate" type="hidden" value={initial?.scheduled_date ?? ""} /><input name="startTime" type="hidden" value={initial?.start_time?.slice(0, 5) ?? ""} /><input name="endTime" type="hidden" value={initial?.end_time?.slice(0, 5) ?? ""} /><input name="location" type="hidden" value={initial?.location ?? ""} /><input name="stickerKey" type="hidden" value={initial?.sticker_key ?? ""} /></>}
     {linkedReadonly && <p className="practical-schedule-form__hint">제목·날짜·시간·장소는 캘린더 일정에서 관리합니다.</p>}
-    <div className="practical-schedule-form__footer"><small>날짜가 정해지지 않은 업무도 저장할 수 있습니다.</small><button className="button button--primary" type="submit">{initial ? "변경 저장" : "실무 일정 추가"}</button></div>
+    {state.message && <p className={state.status === "error" ? "form-message is-error" : "form-message"} role={state.status === "error" ? "alert" : "status"}>{state.message}</p>}
+    <div className="practical-schedule-form__footer"><small>날짜가 정해지지 않은 업무도 저장할 수 있습니다.</small><div><button className="button button--primary" disabled={pending} type="submit">{pending ? "저장 중..." : initial ? "변경 저장" : "실무 일정 추가"}</button>{onCancel && <button className="button button--secondary" onClick={onCancel} type="button">취소</button>}</div></div>
   </form>;
 }
 
-function LinkedEventForm({ year, event }: { readonly year: number; readonly event: EventRow }) {
-  return <form action={linkExistingEventAction} className="practical-schedule-form">
+function LinkedEventForm({ year, event, onSuccess }: { readonly year: number; readonly event: EventRow; readonly onSuccess?: () => void }) {
+  const [state, action, pending] = useActionState(linkExistingEventAction, idleActionState);
+  useEffect(() => { if (state.status === "success") onSuccess?.(); }, [onSuccess, state.status]);
+  return <form action={action} className="practical-schedule-form">
     <input name="eventId" type="hidden" value={event.id} />
     <input name="year" type="hidden" value={year} />
     <div className="practical-schedule-linked-event"><strong>{event.title}</strong><span>{formatPracticalScheduleDate(event.start_date)}{event.start_time ? ` · ${event.start_time.slice(0, 5)}~${event.end_time?.slice(0, 5) ?? ""}` : " · 종일"}{event.location ? ` · ${event.location}` : ""}</span></div>
@@ -47,23 +55,31 @@ function LinkedEventForm({ year, event }: { readonly year: number; readonly even
       <label className="practical-schedule-form__wide">확인사항<textarea name="notes" placeholder="준비하거나 확인할 내용을 적어주세요." rows={2} /></label>
       <label className="practical-schedule-form__wide">관련 링크<input name="url" placeholder="https://" type="url" /></label>
     </div>
-    <div className="practical-schedule-form__footer"><small>캘린더의 제목·날짜·시간·장소·스티커를 그대로 유지합니다.</small><button className="button button--primary" type="submit"><Link2 size={16} />기존 일정에 연결</button></div>
+    {state.message && <p className={state.status === "error" ? "form-message is-error" : "form-message"} role={state.status === "error" ? "alert" : "status"}>{state.message}</p>}
+    <div className="practical-schedule-form__footer"><small>캘린더의 제목·날짜·시간·장소·스티커를 그대로 유지합니다.</small><button className="button button--primary" disabled={pending} type="submit"><Link2 size={16} />{pending ? "연결 중..." : "기존 일정에 연결"}</button></div>
   </form>;
 }
 
-function ScheduleRow({ item, linkedReadonly }: { readonly item: PracticalScheduleRow; readonly linkedReadonly: boolean }) {
+function ScheduleRow({ item, onEdit }: { readonly item: PracticalScheduleRow; readonly onEdit: (button: HTMLButtonElement) => void }) {
   return <article className="practical-schedule-row">
     <div className="practical-schedule-row__category"><span className={`practical-category practical-category--${item.category}`}>{categoryLabels[item.category]}</span></div>
     <div className="practical-schedule-row__main"><strong>{item.title}</strong><small>{formatPracticalScheduleDate(item.scheduled_date)}{item.start_time ? ` · ${item.start_time.slice(0, 5)}~${item.end_time?.slice(0, 5) ?? ""}` : ""}</small></div>
     <div className="practical-schedule-row__detail"><span>{item.location || "장소 미정"}</span><span>{item.method || "진행방법 미정"}</span><span>{item.notes || "확인사항 없음"}</span></div>
-    <div className="practical-schedule-row__actions">{item.url && <a aria-label={`${item.title} 관련 링크 열기`} href={item.url} rel="noopener noreferrer" target="_blank"><ExternalLink size={15} />바로가기</a>}<details><summary>수정</summary><ScheduleForm initial={item} linkedReadonly={linkedReadonly} year={item.year} /></details><form action={deletePracticalScheduleAction}><input name="id" type="hidden" value={item.id} /><button aria-label={`${item.title} 삭제`} className="icon-text-action danger-action" type="submit"><Trash2 size={15} />삭제</button></form></div>
+    <div className="practical-schedule-row__actions">{item.url && <a aria-label={`${item.title} 관련 링크 열기`} href={item.url} rel="noopener noreferrer" target="_blank"><ExternalLink size={15} />바로가기</a>}<button aria-label={`${item.title} 수정`} className="icon-text-action" onClick={(event) => onEdit(event.currentTarget)} type="button">수정</button><form action={deletePracticalScheduleAction}><input name="id" type="hidden" value={item.id} /><button aria-label={`${item.title} 삭제`} className="icon-text-action danger-action" type="submit"><Trash2 size={15} />삭제</button></form></div>
   </article>;
 }
 
+function ScheduleEditModal({ item, linkedReadonly, onClose, returnFocusRef }: { readonly item: PracticalScheduleRow; readonly linkedReadonly: boolean; readonly onClose: () => void; readonly returnFocusRef: RefObject<HTMLButtonElement | null> }) {
+  return <ResponsiveDetailPanel onClose={onClose} open panelClassName="practical-schedule-edit-panel" presentation="modal" returnFocusRef={returnFocusRef} title="실무 일정 수정">
+    <ScheduleForm initial={item} linkedReadonly={linkedReadonly} onCancel={onClose} onSuccess={onClose} year={item.year} />
+  </ResponsiveDetailPanel>;
+}
 export function PracticalScheduleWorkspace({ year, items, linkableEvents, linkedScheduleIds = [], newTitle, newMonth, newOpen = false }: { readonly year: number; readonly items: readonly PracticalScheduleRow[]; readonly linkableEvents: readonly EventRow[]; readonly linkedScheduleIds?: readonly string[]; readonly newTitle?: string | undefined; readonly newMonth?: string | undefined; readonly newOpen?: boolean }) {
   const [formOpen, setFormOpen] = useState(newOpen || Boolean(newTitle));
   const [mode, setMode] = useState<"new" | "link">("new");
   const [selectedEventId, setSelectedEventId] = useState("");
+  const [editTarget, setEditTarget] = useState<PracticalScheduleRow | null>(null);
+  const editTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [query, setQuery] = useState("");
   const visibleEvents = useMemo(() => {
     const normalized = query.trim().toLocaleLowerCase();
@@ -72,9 +88,11 @@ export function PracticalScheduleWorkspace({ year, items, linkableEvents, linked
   const selectedEvent = visibleEvents.find((event) => event.id === selectedEventId);
   const linkedScheduleIdSet = useMemo(() => new Set(linkedScheduleIds), [linkedScheduleIds]);
 
+  const closeEditModal = useCallback(() => { setEditTarget(null); window.setTimeout(() => editTriggerRef.current?.focus(), 0); }, []);
   return <div className="practical-schedule-workspace">
     <div className="practical-schedule-toolbar"><div><strong>{year}학년도 실무 일정</strong><span>날짜가 확정된 업무는 캘린더와 Today에 자동으로 연결됩니다.</span></div></div>
-    <section aria-label={`${year}년 실무 일정 목록`} className="practical-schedule-list"><div className="practical-schedule-list__header"><div><h2>연간 업무 상황판</h2><p>{items.length ? `${items.length}개 업무 · 날짜 미정 업무도 함께 관리합니다.` : "등록된 실무 일정이 없습니다."}</p></div><button className="button button--primary" onClick={() => setFormOpen((open) => !open)} type="button">{formOpen ? <><X size={16} />닫기</> : <><Plus size={16} />실무 일정 추가</>}</button></div>{items.length ? <div className="practical-schedule-table" role="table"><div aria-hidden="true" className="practical-schedule-table__header"><span>구분</span><span>업무·일정</span><span>시간·장소·진행</span><span>관리</span></div>{items.map((item) => <ScheduleRow item={item} key={item.id} linkedReadonly={linkedScheduleIdSet.has(item.id)} />)}</div> : <div className="practical-schedule-empty"><p>아직 등록된 실무 일정이 없습니다.</p><span>올해 진행할 보건실 업무를 등록해 관리해보세요.</span></div>}</section>
-    {formOpen && <section className="practical-schedule-add" id="practical-schedule-add"><div className="practical-schedule-mode" role="tablist" aria-label="실무 일정 추가 방식"><button aria-selected={mode === "new"} className={mode === "new" ? "is-active" : undefined} onClick={() => setMode("new")} role="tab" type="button"><Plus size={15} />새 실무 일정 만들기</button><button aria-selected={mode === "link"} className={mode === "link" ? "is-active" : undefined} onClick={() => setMode("link")} role="tab" type="button"><Link2 size={15} />기존 일정 연결</button></div>{mode === "new" ? <><h2>{newTitle ? "연간 플래너 업무에서 추가" : "새 실무 일정"}</h2>{newTitle && newMonth && <p className="practical-schedule-add__context">{newMonth}월 추천 업무에서 가져왔습니다. 정확한 날짜는 확정 후 입력하세요.</p>}<ScheduleForm initial={newTitle ? { id: "", user_id: "", year, category: "staff", title: newTitle, scheduled_date: null, start_time: null, end_time: null, location: null, method: null, notes: null, url: null, annual_preset_key: null, sticker_key: null, created_at: "", updated_at: "" } : undefined} year={year} /></> : <><h2>기존 캘린더 일정 연결</h2><p className="practical-schedule-add__context">이미 등록된 일정을 선택하면 새 캘린더 event를 만들지 않고 실무 일정으로 연결합니다.</p><label className="practical-schedule-event-search">일정 검색<input onChange={(event) => setQuery(event.target.value)} placeholder="일정 제목으로 검색" type="search" value={query} /></label><div className="practical-schedule-event-list">{visibleEvents.length ? visibleEvents.map((event) => <button className={selectedEventId === event.id ? "is-selected" : undefined} key={event.id} onClick={() => setSelectedEventId(event.id)} type="button"><strong>{event.title}</strong><span>{formatPracticalScheduleDate(event.start_date)}{event.start_time ? ` · ${event.start_time.slice(0, 5)}~${event.end_time?.slice(0, 5) ?? ""}` : " · 종일"}{event.sticker_key ? " · 스티커 있음" : ""}</span></button>) : <p>연결할 수 있는 일정이 없습니다.</p>}</div>{selectedEvent ? <LinkedEventForm event={selectedEvent} year={year} /> : <p className="practical-schedule-add__hint">연결할 일정을 선택하세요.</p>}</>}</section>}
+    <section aria-label={`${year}년 실무 일정 목록`} className="practical-schedule-list"><div className="practical-schedule-list__header"><div><h2>연간 업무 상황판</h2><p>{items.length ? `${items.length}개 업무 · 날짜 미정 업무도 함께 관리합니다.` : "등록된 실무 일정이 없습니다."}</p></div><button className="button button--primary" onClick={() => setFormOpen((open) => !open)} type="button">{formOpen ? <><X size={16} />닫기</> : <><Plus size={16} />실무 일정 추가</>}</button></div>{items.length ? <div className="practical-schedule-table" role="table"><div aria-hidden="true" className="practical-schedule-table__header"><span>구분</span><span>업무·일정</span><span>시간·장소·진행</span><span>관리</span></div>{items.map((item) => <ScheduleRow item={item} key={item.id} onEdit={(button) => { editTriggerRef.current = button; setEditTarget(item); }} />)}</div> : <div className="practical-schedule-empty"><p>아직 등록된 실무 일정이 없습니다.</p><span>올해 진행할 보건실 업무를 등록해 관리해보세요.</span></div>}</section>
+    {formOpen && <section className="practical-schedule-add" id="practical-schedule-add"><div className="practical-schedule-mode" role="tablist" aria-label="실무 일정 추가 방식"><button aria-selected={mode === "new"} className={mode === "new" ? "is-active" : undefined} onClick={() => setMode("new")} role="tab" type="button"><Plus size={15} />새 실무 일정 만들기</button><button aria-selected={mode === "link"} className={mode === "link" ? "is-active" : undefined} onClick={() => setMode("link")} role="tab" type="button"><Link2 size={15} />기존 일정 연결</button></div>{mode === "new" ? <><h2>{newTitle ? "연간 플래너 업무에서 추가" : "새 실무 일정"}</h2>{newTitle && newMonth && <p className="practical-schedule-add__context">{newMonth}월 추천 업무에서 가져왔습니다. 정확한 날짜는 확정 후 입력하세요.</p>}<ScheduleForm initial={newTitle ? { id: "", user_id: "", year, category: "staff", title: newTitle, scheduled_date: null, start_time: null, end_time: null, location: null, method: null, notes: null, url: null, annual_preset_key: null, sticker_key: null, created_at: "", updated_at: "" } : undefined} onSuccess={() => setFormOpen(false)} year={year} /></> : <><h2>기존 캘린더 일정 연결</h2><p className="practical-schedule-add__context">이미 등록된 일정을 선택하면 새 캘린더 event를 만들지 않고 실무 일정으로 연결합니다.</p><label className="practical-schedule-event-search">일정 검색<input onChange={(event) => setQuery(event.target.value)} placeholder="일정 제목으로 검색" type="search" value={query} /></label><div className="practical-schedule-event-list">{visibleEvents.length ? visibleEvents.map((event) => <button className={selectedEventId === event.id ? "is-selected" : undefined} key={event.id} onClick={() => setSelectedEventId(event.id)} type="button"><strong>{event.title}</strong><span>{formatPracticalScheduleDate(event.start_date)}{event.start_time ? ` · ${event.start_time.slice(0, 5)}~${event.end_time?.slice(0, 5) ?? ""}` : " · 종일"}{event.sticker_key ? " · 스티커 있음" : ""}</span></button>) : <p>연결할 수 있는 일정이 없습니다.</p>}</div>{selectedEvent ? <LinkedEventForm event={selectedEvent} onSuccess={() => { setFormOpen(false); setSelectedEventId(""); }} year={year} /> : <p className="practical-schedule-add__hint">연결할 일정을 선택하세요.</p>}</>}</section>}
+    {editTarget && <ScheduleEditModal item={editTarget} linkedReadonly={linkedScheduleIdSet.has(editTarget.id)} onClose={closeEditModal} returnFocusRef={editTriggerRef} />}
   </div>;
 }
