@@ -52,15 +52,24 @@ describe("responsive home calendar layout", () => {
     );
   });
 
-  it("uses compact mobile title summaries instead of desktop stickers", () => {
+  it("uses one short mobile title summary instead of desktop stickers", () => {
     expect(stylesheet).toMatch(
-      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-summary\s*\{[^}]*display:\s*grid;/,
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-summary\s*\{[^}]*display:\s*flex;/,
     );
     expect(stylesheet).toMatch(
       /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__event-list \.calendar-cell-items,\s*\.full-calendar__event-list \.calendar-overflow\s*\{[^}]*display:\s*none;/,
     );
     expect(stylesheet).toMatch(
       /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-title\s*\{[^}]*text-overflow:\s*ellipsis;[^}]*white-space:\s*nowrap;/,
+    );
+  });
+
+  it("removes Smart Calendar and the mobile view switch from the calendar surface", () => {
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.calendar-page \.page-header__actions > a\[href="\/calendar\/generator"\]\s*\{[^}]*display:\s*none;/,
+    );
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.calendar-view-switch--mobile\s*\{[^}]*display:\s*none;/,
     );
   });
 

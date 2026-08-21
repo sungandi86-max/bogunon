@@ -327,19 +327,22 @@
   .calendar-page { min-height: calc(100dvh - var(--mobile-nav-height)); overflow-x: clip; padding-bottom: calc(var(--mobile-nav-height) + var(--space-10) + env(safe-area-inset-bottom)); }
   .calendar-page .page-canvas { padding-top: calc(var(--app-header-height) + var(--space-2)); }
   .calendar-page .page-header { margin-bottom: var(--space-2); min-height: 36px; }
-  .calendar-page .smart-calendar-toolbar { margin-bottom: var(--space-4); }
+  .calendar-page .page-header__actions > a[href="/calendar/generator"] { display: none; }
+  .calendar-page .smart-calendar-toolbar { align-items: center; flex-wrap: nowrap; gap: var(--space-2); margin-bottom: var(--space-2); }
   .calendar-page .calendar-search, .calendar-page .calendar-controls { display: none; }
-  .calendar-page .smart-calendar-toolbar { gap: var(--space-2); }
+  .calendar-page .smart-calendar-toolbar__period { flex: 1 1 auto; min-width: 0; }
+  .calendar-page .smart-calendar-toolbar__period strong { font-size: var(--text-support); min-width: 0; white-space: nowrap; }
   .calendar-page .smart-calendar-toolbar__period > button:not(.button) { height: 36px; width: 36px; }
   .calendar-page .smart-calendar-toolbar__period .button { min-height: 36px; padding-inline: var(--space-3); }
   .calendar-page .calendar-search > input { min-height: 38px; }
   .calendar-view-switch--desktop { display: none; }
-  .calendar-view-switch--mobile { display: flex; }
+  .calendar-view-switch--mobile { display: none; }
   .calendar-desktop-add { display: none; }
-  .calendar-page .calendar-controls { display: flex; gap: var(--space-3); overflow-x: auto; padding-bottom: var(--space-1); scrollbar-width: none; }
+  .calendar-page .calendar-controls { display: flex; gap: var(--space-2); margin-bottom: var(--space-2); overflow-x: auto; padding-bottom: var(--space-1); scrollbar-width: none; }
   .calendar-page .calendar-controls::-webkit-scrollbar { display: none; }
   .calendar-page .calendar-controls__primary, .calendar-page .calendar-entry-filter, .calendar-page .calendar-sticker-filter { align-items: center; display: flex; flex: none; gap: var(--space-2); }
-  .calendar-page .calendar-entry-filter > div { display: flex; }
+  .calendar-page .calendar-entry-filter > div { display: flex; overflow-x: auto; scrollbar-width: none; }
+  .calendar-page .calendar-entry-filter > div::-webkit-scrollbar { display: none; }
   .calendar-page .calendar-filter-label { display: none; }
   .calendar-page .calendar-sticker-add { min-width: var(--touch-target); padding-inline: var(--space-4); width: auto; }
   .calendar-page .calendar-entry-filter button[data-filter="work"], .calendar-page .calendar-sticker-add, .calendar-page .calendar-sticker-filter, .calendar-page .calendar-item--task, .calendar-page .calendar-search__result--task, .calendar-page .calendar-detail-panel__group--task, .calendar-page .calendar-detail-panel__summary--desktop, .annual-task-add, .annual-desktop-assistant { display: none; }
@@ -354,8 +357,8 @@
   .calendar-workspace-layout.is-time-view .calendar-detail-panel { display: none; }
   .month-overview .full-calendar { border-color: var(--mobile-line); border-radius: var(--mobile-card-radius); box-shadow: var(--mobile-floating-shadow); height: auto; }
   .calendar-page .full-calendar { height: auto; }
-  .full-calendar__cell, .month-overview .full-calendar__cell { border-color: var(--mobile-line-soft); gap: 1px; height: 78px; padding: var(--space-1) var(--space-2); }
-  .full-calendar[data-week-count="5"] .full-calendar__cell { height: 82px; }
+  .full-calendar__cell, .month-overview .full-calendar__cell { border-color: var(--mobile-line-soft); gap: 1px; height: 88px; padding: var(--space-1); }
+  .full-calendar[data-week-count="5"] .full-calendar__cell { height: 92px; }
   .full-calendar__weekdays span { border-color: var(--mobile-line-soft); padding-block: var(--space-2); text-align: center; }
   .full-calendar__day-header { flex-basis: 28px; height: 28px; min-height: 28px; }
   .full-calendar__cell time { font-size: var(--text-xs); }
@@ -363,14 +366,16 @@
   .full-calendar__cell.is-today time { height: 22px; width: 22px; }
   .full-calendar__event-list { gap: 1px; }
   .full-calendar__event-list .calendar-cell-items, .full-calendar__event-list .calendar-overflow { display: none; }
-  .full-calendar__mobile-summary { align-items: center; align-self: stretch; display: flex; flex-wrap: wrap; gap: var(--space-1); min-height: 13px; min-width: 0; }
+  .full-calendar__mobile-summary { align-items: center; align-self: stretch; display: flex; min-height: 17px; min-width: 0; }
+  .full-calendar__mobile-summary-item { align-items: center; display: flex; gap: var(--space-1); min-width: 0; width: 100%; }
   .full-calendar__mobile-dot { background: var(--event-work); border-radius: var(--radius-full); flex: 0 0 6px; height: 6px; width: 6px; }
   .full-calendar__mobile-dot--academic, .full-calendar__mobile-dot--school { background: var(--event-school); }
   .full-calendar__mobile-dot--health, .full-calendar__mobile-dot--work { background: var(--event-work); }
   .full-calendar__mobile-dot--holiday, .full-calendar__mobile-dot--tournament { background: var(--event-tournament); }
   .full-calendar__mobile-dot--personal { background: var(--event-personal); }
   .full-calendar__mobile-dot--workout { background: var(--event-workout); }
-  .full-calendar__mobile-overflow { color: var(--mobile-body); font-size: var(--text-2xs); line-height: var(--leading-tight); min-height: 13px; padding-left: calc(5px + var(--space-1)); text-align: left; }
+  .full-calendar__mobile-title { color: var(--mobile-title); font-size: var(--text-2xs); line-height: var(--leading-tight); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .full-calendar__mobile-overflow { color: var(--mobile-body); font-size: var(--text-2xs); line-height: var(--leading-tight); margin-left: var(--space-1); min-height: 13px; padding-left: 0; text-align: left; }
   .mobile-selected-date-list { background: var(--surface); border: 1px solid var(--mobile-line); border-radius: var(--radius-lg); box-shadow: var(--mobile-card-shadow); display: block; margin-top: var(--space-4); overflow: hidden; }
   .mobile-selected-date-list > header { align-items: center; border-bottom: 1px solid var(--mobile-line-soft); display: flex; justify-content: space-between; min-height: var(--touch-target); padding: 0 var(--space-6); }
   .mobile-selected-date-list > header strong { color: var(--mobile-title); font-size: var(--text-base); }

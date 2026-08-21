@@ -25,7 +25,7 @@ const workout: EventRow = {
 };
 
 describe("FullMonthCalendar mobile summary", () => {
-  it("keeps the day header before desktop entries and uses a compact mobile indicator summary", () => {
+  it("keeps the day header before desktop entries and shows one short mobile title", () => {
     render(<FullMonthCalendar events={[workout]} month="2026-07" today="2026-07-25" />);
 
     const cell = screen.getByRole("gridcell", { name: /2026-07-31, 일정 1개/ });
@@ -38,11 +38,11 @@ describe("FullMonthCalendar mobile summary", () => {
     expect(summary).not.toBeNull();
     expect(header?.compareDocumentPosition(entries as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(entries?.compareDocumentPosition(summary as Node)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(summary?.textContent ?? "").not.toContain("배드민턴 레슨");
+    expect(summary).toHaveTextContent("배드민턴 레슨");
     expect(summary?.querySelector(".full-calendar__mobile-dot--workout")).not.toBeNull();
   });
 
-  it("shows up to three indicators and an overflow count in the mobile summary", () => {
+  it("shows one title and an overflow count in the mobile summary", () => {
     const tournament: EventRow = {
       ...workout,
       id: "tournament-1",
@@ -73,12 +73,12 @@ describe("FullMonthCalendar mobile summary", () => {
     const summary = screen
       .getByRole("gridcell", { name: /2026-07-31, 일정 4개/ })
       .querySelector(".full-calendar__mobile-summary");
-    expect(summary?.textContent ?? "").not.toContain("배드민턴 레슨");
+    expect(summary).toHaveTextContent("배드민턴 레슨");
     expect(summary?.textContent ?? "").not.toContain("성동구 오픈대회");
     expect(summary?.textContent ?? "").not.toContain("개인 약속");
-    expect(summary?.textContent ?? "").toContain("+1");
+    expect(summary?.textContent ?? "").toContain("+3");
     expect(summary?.querySelector(".full-calendar__mobile-dot--workout")).not.toBeNull();
-    expect(summary?.querySelector(".full-calendar__mobile-dot--tournament")).not.toBeNull();
-    expect(summary?.querySelectorAll(".full-calendar__mobile-dot")).toHaveLength(3);
+    expect(summary?.querySelector(".full-calendar__mobile-dot--tournament")).toBeNull();
+    expect(summary?.querySelectorAll(".full-calendar__mobile-dot")).toHaveLength(1);
   });
 });
