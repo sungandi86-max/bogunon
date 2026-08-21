@@ -1,7 +1,9 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { SidebarOtter } from "@/components/layout/sidebar-otter";
 import type { Notice } from "@/lib/notices/model";
+
+vi.mock("@/app/(app)/notices/actions", () => ({ markNoticeReadAction: vi.fn().mockResolvedValue(undefined) }));
 
 const base = { summary: null, content: "내용", category: "notice", isPublished: true, publishStartAt: null, publishEndAt: null, createdBy: "owner", createdAt: "2026-07-20T00:00:00Z", updatedAt: "2026-07-20T00:00:00Z" } as const;
 describe("SidebarOtter", () => {
@@ -10,6 +12,7 @@ describe("SidebarOtter", () => {
   it("opens the latest notice in a body portal and closes it with Escape", () => {
     render(<SidebarOtter notices={[{ ...base, id: "1", title: "긴급 안내", content: "첫 문단\n\n둘째 문단", isImportant: true, isRead: false }]} />);
     fireEvent.click(screen.getByRole("button", { name: "긴급 안내 공지 상세 열기" }));
+    expect(screen.queryByRole("button", { name: "긴급 안내 공지 상세 열기" })).toBeNull();
     expect(screen.getByRole("dialog", { name: "긴급 안내" }).parentElement?.parentElement).toBe(document.body);
     expect(document.body).toHaveClass("overlay-open");
     expect(within(screen.getByRole("dialog")).getByText(/첫 문단/)).toBeInTheDocument();
