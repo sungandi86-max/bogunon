@@ -50,10 +50,6 @@ function mobileSummaryTone(displayItem: CalendarDisplayItem): MobileSummaryTone 
   return "work";
 }
 
-function mobileSummaryTitle(displayItem: CalendarDisplayItem): string {
-  return displayItem.kind === "sticker" ? displayItem.item.label : displayItem.item.title;
-}
-
 function responsiveItemLimit(weekCount: number, calendarHeight?: number): number {
   if (typeof window === "undefined") return weekCount === 6 ? 1 : 2;
   if (window.innerWidth < 768) return weekCount === 6 && window.innerHeight < 900 ? 1 : 2;
@@ -155,7 +151,7 @@ export function FullMonthCalendar({ dragEnabled, events = [], highlight, month =
       const items = displayItems(dayEvents, dayTasks, dayStickers);
       const visibleItems = items.slice(0, itemLimit);
       const hidden = items.length - visibleItems.length;
-      const mobileSummaryItems = items.slice(0, 2);
+      const mobileSummaryItems = items.slice(0, 3);
       const mobileHidden = items.length - mobileSummaryItems.length;
       const weekday = inMonth ? new Date(`${date}T00:00:00Z`).getUTCDay() : -1;
       return <div
@@ -224,11 +220,8 @@ export function FullMonthCalendar({ dragEnabled, events = [], highlight, month =
                 onMove={onMove}
                 showTime
               />)}</div>}
-          {mobileSummaryItems.length > 0 && <div aria-label={`${date} 일정 요약`} className="full-calendar__mobile-summary">
-            {mobileSummaryItems.map((displayItem) => <div className="full-calendar__mobile-summary-item" key={`mobile-${displayItem.kind}-${displayItem.id}`}>
-              <span aria-hidden="true" className={`full-calendar__mobile-dot full-calendar__mobile-dot--${mobileSummaryTone(displayItem)}`} />
-              <span className="full-calendar__mobile-title">{mobileSummaryTitle(displayItem)}</span>
-            </div>)}
+          {mobileSummaryItems.length > 0 && <div aria-label={`${date} 일정 ${items.length}개 요약`} className="full-calendar__mobile-summary">
+            {mobileSummaryItems.map((displayItem) => <span aria-hidden="true" className={`full-calendar__mobile-dot full-calendar__mobile-dot--${mobileSummaryTone(displayItem)}`} key={`mobile-${displayItem.kind}-${displayItem.id}`} />)}
             {mobileHidden > 0 && <span aria-label={`나머지 일정 ${mobileHidden}개`} className="full-calendar__mobile-overflow">+{mobileHidden}</span>}
           </div>}
           {hidden > 0 && <button aria-label={`숨겨진 일정 ${hidden}개 모두 보기`} className="calendar-overflow" onClick={() => onSelectDate?.(date)} type="button">+{hidden}</button>}

@@ -283,7 +283,7 @@
   .briefing-grid { display: block; }
   .operations-dashboard { display: block; }
   .operations-main .briefing-header { border-bottom: 0; margin-bottom: var(--space-3); padding-bottom: 0; }
-  .month-overview { display: block; }
+  .briefing-page .month-overview { display: none; }
   .operations-rail { display: contents; }
   .operations-rail > section, .operations-rail > details { display: none; }
   .operations-rail > .quick-note { display: none; }
@@ -327,7 +327,8 @@
   .calendar-page { min-height: calc(100dvh - var(--mobile-nav-height)); overflow-x: clip; padding-bottom: calc(var(--mobile-nav-height) + var(--space-10) + env(safe-area-inset-bottom)); }
   .calendar-page .page-canvas { padding-top: calc(var(--app-header-height) + var(--space-2)); }
   .calendar-page .page-header { margin-bottom: var(--space-2); min-height: 36px; }
-  .calendar-page .smart-calendar-toolbar, .calendar-page .calendar-search, .calendar-page .calendar-controls { margin-bottom: var(--space-2); }
+  .calendar-page .smart-calendar-toolbar { margin-bottom: var(--space-4); }
+  .calendar-page .calendar-search, .calendar-page .calendar-controls { display: none; }
   .calendar-page .smart-calendar-toolbar { gap: var(--space-2); }
   .calendar-page .smart-calendar-toolbar__period > button:not(.button) { height: 36px; width: 36px; }
   .calendar-page .smart-calendar-toolbar__period .button { min-height: 36px; padding-inline: var(--space-3); }
@@ -362,10 +363,8 @@
   .full-calendar__cell.is-today time { height: 22px; width: 22px; }
   .full-calendar__event-list { gap: 1px; }
   .full-calendar__event-list .calendar-cell-items, .full-calendar__event-list .calendar-overflow { display: none; }
-  .full-calendar__mobile-summary { align-self: stretch; color: var(--mobile-body); display: grid; font-size: var(--text-2xs); gap: 1px; min-width: 0; }
-  .full-calendar__mobile-summary-item { align-items: center; display: grid; gap: var(--space-1); grid-template-columns: 5px minmax(0, 1fr); min-height: 13px; min-width: 0; }
-  .full-calendar__mobile-title { line-height: var(--leading-tight); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .full-calendar__mobile-dot { background: var(--event-work); border-radius: var(--radius-full); height: 5px; width: 5px; }
+  .full-calendar__mobile-summary { align-items: center; align-self: stretch; display: flex; flex-wrap: wrap; gap: var(--space-1); min-height: 13px; min-width: 0; }
+  .full-calendar__mobile-dot { background: var(--event-work); border-radius: var(--radius-full); flex: 0 0 6px; height: 6px; width: 6px; }
   .full-calendar__mobile-dot--academic, .full-calendar__mobile-dot--school { background: var(--event-school); }
   .full-calendar__mobile-dot--health, .full-calendar__mobile-dot--work { background: var(--event-work); }
   .full-calendar__mobile-dot--holiday, .full-calendar__mobile-dot--tournament { background: var(--event-tournament); }
@@ -377,11 +376,11 @@
   .mobile-selected-date-list > header strong { color: var(--mobile-title); font-size: var(--text-base); }
   .mobile-selected-date-list > header span { color: var(--mobile-body); font-size: var(--text-meta); }
   .mobile-selected-date-list > p { color: var(--mobile-body); font-size: var(--text-support); margin: 0; padding: var(--space-6); }
-  .mobile-selected-date-list__item { align-items: center; color: var(--mobile-title); display: grid; gap: var(--space-3); grid-template-columns: 18px 38px minmax(0, 1fr); min-height: var(--touch-target); padding: var(--space-3) var(--space-6); }
+  .mobile-selected-date-list__item { align-items: start; color: var(--mobile-title); display: grid; gap: var(--space-3); grid-template-columns: 18px 38px minmax(0, 1fr); min-height: var(--touch-target); padding: var(--space-3) var(--space-6); }
   .mobile-selected-date-list__item + .mobile-selected-date-list__item { border-top: 1px solid var(--mobile-line-soft); }
   .mobile-selected-date-list__item > svg { color: var(--action-700); }
   .mobile-selected-date-list__item > span { color: var(--mobile-body); font-size: var(--text-meta); white-space: nowrap; }
-  .mobile-selected-date-list__item > strong { font-size: var(--text-support); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mobile-selected-date-list__item > strong { font-size: var(--text-support); line-height: var(--leading-body); min-width: 0; overflow-wrap: anywhere; white-space: normal; }
   .mobile-selected-date-list__item--tournament > svg { color: var(--event-tournament); }
   .mobile-selected-date-list__dot { background: var(--event-school); border-radius: var(--radius-full); height: var(--space-3); justify-self: center; width: var(--space-3); }
   .calendar-detail-panel { height: auto; max-height: none; overflow: visible; }
