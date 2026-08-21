@@ -54,7 +54,7 @@ describe("responsive home calendar layout", () => {
 
   it("uses one short mobile title summary instead of desktop stickers", () => {
     expect(stylesheet).toMatch(
-      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-summary\s*\{[^}]*display:\s*flex;/,
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__mobile-summary\s*\{[^}]*display:\s*grid;/,
     );
     expect(stylesheet).toMatch(
       /@media\s*\(max-width:\s*767px\)[\s\S]*?\.full-calendar__event-list \.calendar-cell-items,\s*\.full-calendar__event-list \.calendar-overflow\s*\{[^}]*display:\s*none;/,

@@ -326,7 +326,9 @@
   .week-strip-markers { display: flex; gap: var(--space-1); height: var(--space-2); margin-top: var(--mobile-accent-line); }
   .calendar-page { min-height: calc(100dvh - var(--mobile-nav-height)); overflow-x: clip; padding-bottom: calc(var(--mobile-nav-height) + var(--space-10) + env(safe-area-inset-bottom)); }
   .calendar-page .page-canvas { padding-top: calc(var(--app-header-height) + var(--space-2)); }
-  .calendar-page .page-header { margin-bottom: var(--space-2); min-height: 36px; }
+  .calendar-page .page-header { margin-bottom: var(--space-1); min-height: 32px; }
+  .calendar-page .page-header h1 { font-size: var(--text-xl); line-height: var(--leading-heading); white-space: nowrap; }
+  .calendar-page .page-header__actions { display: none; }
   .calendar-page .page-header__actions > a[href="/calendar/generator"] { display: none; }
   .calendar-page .smart-calendar-toolbar { align-items: center; flex-wrap: nowrap; gap: var(--space-2); margin-bottom: var(--space-2); }
   .calendar-page .calendar-search, .calendar-page .calendar-controls { display: none; }
@@ -366,7 +368,7 @@
   .full-calendar__cell.is-today time { height: 22px; width: 22px; }
   .full-calendar__event-list { gap: 1px; }
   .full-calendar__event-list .calendar-cell-items, .full-calendar__event-list .calendar-overflow { display: none; }
-  .full-calendar__mobile-summary { align-items: center; align-self: stretch; display: flex; min-height: 17px; min-width: 0; }
+  .full-calendar__mobile-summary { align-items: start; align-self: stretch; display: grid; gap: 1px; grid-template-columns: minmax(0, 1fr); min-height: 28px; min-width: 0; }
   .full-calendar__mobile-summary-item { align-items: center; display: flex; gap: var(--space-1); min-width: 0; width: 100%; }
   .full-calendar__mobile-dot { background: var(--event-work); border-radius: var(--radius-full); flex: 0 0 6px; height: 6px; width: 6px; }
   .full-calendar__mobile-dot--academic, .full-calendar__mobile-dot--school { background: var(--event-school); }
@@ -375,7 +377,7 @@
   .full-calendar__mobile-dot--personal { background: var(--event-personal); }
   .full-calendar__mobile-dot--workout { background: var(--event-workout); }
   .full-calendar__mobile-title { color: var(--mobile-title); font-size: var(--text-2xs); line-height: var(--leading-tight); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .full-calendar__mobile-overflow { color: var(--mobile-body); font-size: var(--text-2xs); line-height: var(--leading-tight); margin-left: var(--space-1); min-height: 13px; padding-left: 0; text-align: left; }
+  .full-calendar__mobile-overflow { color: var(--mobile-body); font-size: var(--text-2xs); line-height: var(--leading-tight); margin-left: calc(6px + var(--space-1)); min-height: 13px; padding-left: 0; text-align: left; }
   .mobile-selected-date-list { background: var(--surface); border: 1px solid var(--mobile-line); border-radius: var(--radius-lg); box-shadow: var(--mobile-card-shadow); display: block; margin-top: var(--space-4); overflow: hidden; }
   .mobile-selected-date-list > header { align-items: center; border-bottom: 1px solid var(--mobile-line-soft); display: flex; justify-content: space-between; min-height: var(--touch-target); padding: 0 var(--space-6); }
   .mobile-selected-date-list > header strong { color: var(--mobile-title); font-size: var(--text-base); }
