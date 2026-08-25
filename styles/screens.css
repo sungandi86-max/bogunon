@@ -704,7 +704,7 @@
 .medication-import__table td small { max-width: 220px; white-space: normal; }
 
 @media (min-width: 1024px) {
-  .medication-page { gap: var(--space-1); padding-top: calc(var(--app-header-height) + var(--space-4)); }
+  .medication-page { align-content: start; gap: var(--space-4); grid-auto-rows: max-content; min-height: 0; padding-top: calc(var(--app-header-height) + var(--space-4)); }
   .medication-page .page-header p { margin-top: var(--space-1); }
   .medication-kpis { align-items: center; display: flex; flex-wrap: wrap; gap: 0 var(--space-5); min-height: 0; padding: 0; }
   .medication-kpi { align-items: baseline; background: transparent; border: 0; border-radius: 0; box-shadow: none; display: inline-flex; flex: 0 0 auto; gap: var(--space-2); min-height: 0; padding: 0; }
