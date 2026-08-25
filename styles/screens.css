@@ -706,18 +706,23 @@
 @media (min-width: 1024px) {
   .medication-page { gap: var(--space-1); padding-top: calc(var(--app-header-height) + var(--space-4)); }
   .medication-page .page-header p { margin-top: var(--space-1); }
-  .medication-kpis { align-items: stretch; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-md); box-shadow: none; gap: 0; min-height: 48px; overflow: hidden; padding: 0 var(--space-2); }
-  .medication-kpi { align-items: center; background: transparent; border: 0; border-radius: 0; box-shadow: none; display: flex; flex: 1 1 0; gap: var(--space-2); justify-content: center; min-height: 0; padding: 0 var(--space-3); }
-  .medication-kpi + .medication-kpi { border-left: 1px solid var(--line-subtle); }
-  .medication-kpi span { font-size: var(--text-sm); line-height: var(--leading-tight); }
-  .medication-kpi strong { font-size: var(--text-base); line-height: var(--leading-tight); }
+  .medication-kpis { align-items: center; display: flex; flex-wrap: wrap; gap: 0 var(--space-5); min-height: 0; padding: 0; }
+  .medication-kpi { align-items: baseline; background: transparent; border: 0; border-radius: 0; box-shadow: none; display: inline-flex; flex: 0 0 auto; gap: var(--space-2); min-height: 0; padding: 0; }
+  .medication-kpi + .medication-kpi { border-left: 0; }
+  .medication-kpi + .medication-kpi::before { color: var(--ink-300); content: "·"; font-size: var(--text-sm); margin-right: var(--space-3); }
+  .medication-kpi span { color: var(--ink-600); font-size: var(--text-sm); line-height: var(--leading-tight); }
+  .medication-kpi strong { color: var(--brand-950); font-size: var(--text-sm); line-height: var(--leading-tight); }
   .medication-tabs { gap: 0; }
-  .medication-tabs button { min-height: var(--control-lg); padding-inline: var(--space-2); }
-  .medication-section { gap: var(--space-1); padding: var(--space-1) var(--space-3) var(--space-2); }
+  .medication-tabs button { border-bottom: 2px solid transparent; border-radius: 0; min-height: var(--control-lg); padding-inline: var(--space-3); }
+  .medication-tabs button.is-active { background: transparent; border-bottom-color: var(--action-600); color: var(--action-700); }
+  .medication-section { background: transparent; border: 0; border-radius: 0; box-shadow: none; gap: 0; padding: 0; }
   .medication-subhead p { margin-top: var(--space-1); }
-  .medication-filters { gap: var(--space-1); }
+  .medication-filters { border-bottom: 1px solid var(--line-subtle); gap: var(--space-2); padding: var(--space-2) 0; }
   .medication-filters input, .medication-filters select { min-height: var(--control-sm); }
+  .medication-table-wrap { border-bottom: 1px solid var(--line); border-top: 1px solid var(--line); }
   .medication-table th, .medication-table td { padding-bottom: var(--space-1); padding-top: var(--space-1); }
+  .medication-table th { background: var(--surface-muted); }
+  .medication-table tbody tr:hover { background: var(--surface-muted); }
 }
 .category-dot--officialDocument { background: var(--category-document); }
 .category-dot--training { background: var(--category-training); }
