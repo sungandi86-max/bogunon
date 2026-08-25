@@ -42,6 +42,41 @@ describe("medication Excel import preview", () => {
     expect(preview.duplicateCount).toBe(1);
   });
 
+  it("accepts zero recommended and current stock values", () => {
+    const preview = buildMedicationImportPreview([{ 품명: "제로 재고 약", 현재고: 0, 권장재고: 0, 유통기한: "2026-12-31" }], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
+    expect(preview.errorCount).toBe(0);
+    expect(preview.rows[0]).toMatchObject({ quantity: 0, recommendedStock: 0, itemRecommendedStock: 0, status: "newItem" });
+  });
+
+  it("rejects negative recommended stock values", () => {
+    const preview = buildMedicationImportPreview([{ 품명: "음수 재고 약", 현재고: 0, 권장재고: -1, 유통기한: "2026-12-31" }], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
+    expect(preview.errorCount).toBe(1);
+    expect(preview.rows[0]?.status).toBe("error");
+  });
+
+  it("uses the positive recommendation for an item split across lots", () => {
+    const preview = buildMedicationImportPreview([
+      { 품명: "지르세틴(1)", 현재고: 4, 권장재고: 30, 유통기한: "2026-12-31" },
+      { 품명: "지르세틴(2)", 현재고: 2, 권장재고: 0, 유통기한: "2027-01-31" },
+    ], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
+    expect(preview.errorCount).toBe(0);
+    expect(preview.newItemCount).toBe(1);
+    expect(preview.rows.map((row) => row.status)).toEqual(["newItem", "newItem"]);
+    expect(preview.rows.map((row) => row.itemRecommendedStock)).toEqual([30, 30]);
+    expect(preview.rows[1]?.recommendedStock).toBe(0);
+  });
+
+  it("flags conflicting positive recommendations for the same item", () => {
+    const preview = buildMedicationImportPreview([
+      { 품명: "권장재고 충돌 약(1)", 현재고: 1, 권장재고: 10, 유통기한: "2026-12-31" },
+      { 품명: "권장재고 충돌 약(2)", 현재고: 1, 권장재고: 20, 유통기한: "2027-01-31" },
+    ], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
+    expect(preview.errorCount).toBe(0);
+    expect(preview.duplicateCount).toBe(2);
+    expect(preview.rows.every((row) => row.status === "duplicate")).toBe(true);
+    expect(preview.rows.every((row) => row.itemRecommendedStock === 20)).toBe(true);
+  });
+
   it("reports missing columns and invalid values without making valid rows look safe", () => {
     const preview = buildMedicationImportPreview([{ 품명: "누락 품목", 현재고: "많음" }], [], [], "2026-08-25", ["품명", "현재고"]);
     expect(preview.errorCount).toBe(1);

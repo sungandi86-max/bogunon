@@ -25,6 +25,7 @@ export type MedicationImportRow = {
 export type MedicationImportPreviewRow = MedicationImportRow & {
   readonly rowNumber: number;
   readonly originalName: string;
+  readonly itemRecommendedStock: number;
   readonly status: MedicationImportStatus;
   readonly error?: string;
 };
@@ -145,7 +146,7 @@ export function buildMedicationImportPreview(rawRows: readonly MedicationImportR
   const missingHeaders = requiredHeaders.filter((key) => !fields[key]).map((key) => headerAliases[key][0]);
   const existingByKey = new Map(existingItems.map((item) => [identityKey(item), item]));
   const seen = new Set<string>();
-  const rows = rawRows.map((raw, index): MedicationImportPreviewRow => {
+  const parsedRows = rawRows.map((raw, index): MedicationImportPreviewRow => {
     const originalName = text(fields.name ? raw[fields.name] : "");
     const name = normalizeName(originalName);
     const { specification, unit } = splitSpecificationUnit(fields.specification ? raw[fields.specification] : "");
@@ -161,11 +162,28 @@ export function buildMedicationImportPreview(rawRows: readonly MedicationImportR
     const item = existingByKey.get(identityKey(row));
     const duplicateKey = `${identityKey(row)}|${row.expirationDate}|${row.quantity}`;
     const duplicate = hasDuplicate(row, existingItems, existingLots, item?.id) || seen.has(duplicateKey);
-    if (errors.length) return { ...row, rowNumber: firstDataRowNumber + index, originalName, status: "error", error: errors.join(" ") };
+    if (errors.length) return { ...row, rowNumber: firstDataRowNumber + index, originalName, itemRecommendedStock: row.recommendedStock, status: "error", error: errors.join(" ") };
     seen.add(duplicateKey);
-    return { ...row, rowNumber: firstDataRowNumber + index, originalName, status: duplicate ? "duplicate" : item ? "existingItem" : "newItem", ...(duplicate ? { error: "동일 품목·유통기한·수량의 lot가 이미 있거나 파일 안에 중복됩니다." } : {}) };
+    return { ...row, rowNumber: firstDataRowNumber + index, originalName, itemRecommendedStock: row.recommendedStock, status: duplicate ? "duplicate" : item ? "existingItem" : "newItem", ...(duplicate ? { error: "동일 품목·유통기한·수량의 lot가 이미 있거나 파일 안에 중복됩니다." } : {}) };
   });
-  const validRows = rows.filter((row) => row.status !== "error");
+  const positiveRecommendations = new Map<string, Set<number>>();
+  for (const row of parsedRows) {
+    if (row.status === "error" || row.recommendedStock <= 0) continue;
+    const key = identityKey(row);
+    const values = positiveRecommendations.get(key) ?? new Set<number>();
+    values.add(row.recommendedStock);
+    positiveRecommendations.set(key, values);
+  }
+  const normalizedRows = parsedRows.map((row) => {
+    if (row.status === "error") return row;
+    const key = identityKey(row);
+    const recommendations = positiveRecommendations.get(key);
+    const itemRecommendedStock = recommendations ? Math.max(...recommendations) : 0;
+    const conflictingRecommendations = recommendations !== undefined && recommendations.size > 1;
+    if (!conflictingRecommendations) return { ...row, itemRecommendedStock };
+    return { ...row, itemRecommendedStock, status: "duplicate" as const, error: row.error ? `${row.error} 동일 품목의 양수 권장재고가 여러 값입니다.` : "동일 품목의 양수 권장재고가 여러 값입니다. 확인해 주세요." };
+  });
+  const validRows = normalizedRows.filter((row) => row.status !== "error");
   const newKeys = new Set(validRows.filter((row) => row.status === "newItem").map(identityKey));
-  return { rows, missingHeaders, headers, newItemCount: newKeys.size, newLotCount: validRows.length, existingItemCount: validRows.filter((row) => row.status === "existingItem").length, duplicateCount: rows.filter((row) => row.status === "duplicate").length, errorCount: rows.filter((row) => row.status === "error").length };
+  return { rows: normalizedRows, missingHeaders, headers, newItemCount: newKeys.size, newLotCount: validRows.length, existingItemCount: validRows.filter((row) => row.status === "existingItem").length, duplicateCount: normalizedRows.filter((row) => row.status === "duplicate").length, errorCount: normalizedRows.filter((row) => row.status === "error").length };
 }
