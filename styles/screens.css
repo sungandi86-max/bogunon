@@ -696,6 +696,8 @@
 .medication-import__intro p { color: var(--ink-600); font-size: var(--text-sm); margin: 0; }
 .medication-import__file { cursor: pointer; flex: 0 0 auto; position: relative; }
 .medication-import__file input { height: 1px; opacity: 0; position: absolute; width: 1px; }
+.medication-import__sheet { align-items: center; color: var(--ink-700); display: flex; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-3); }
+.medication-import__sheet select { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); min-height: var(--control-md); min-width: 240px; padding: 0 var(--space-3); }
 .medication-import__summary { display: grid; gap: var(--space-2); grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .medication-import__summary > div { background: var(--surface-muted); border: 1px solid var(--line-subtle); border-radius: var(--radius-sm); display: grid; gap: var(--space-1); padding: var(--space-3); }
 .medication-import__summary span { color: var(--ink-500); font-size: var(--text-xs); font-weight: var(--weight-semibold); }
