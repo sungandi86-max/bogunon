@@ -510,6 +510,12 @@ export type AiActionDraftRow = {
   updated_at: string;
 };
 
+export type MedicationItemRow = { id: string; user_id: string; category: "internal" | "external" | "supplies" | "other"; name: string; specification: string; unit: string; recommended_stock: number; management_tip: string | null; note: string | null; active: boolean; created_at: string; updated_at: string };
+export type MedicationBudgetRow = { id: string; user_id: string; budget_year: number; name: string; amount: number; memo: string | null; created_at: string; updated_at: string };
+export type MedicationPurchasePlanRow = { id: string; user_id: string; item_id: string; quantity: number; expected_unit_price: number; status: "planned" | "ordered" | "partially_received" | "received" | "cancelled"; note: string | null; created_at: string; updated_at: string };
+export type MedicationReceiptRow = { id: string; user_id: string; item_id: string; purchase_plan_id: string | null; received_at: string; quantity: number; actual_unit_price: number; expiration_date: string; idempotency_key: string; inventory_applied_at: string; created_at: string };
+export type MedicationLotRow = { id: string; user_id: string; item_id: string; receipt_id: string | null; quantity: number; expiration_date: string; received_at: string; unit_price: number; created_at: string };
+
 type Insert<T, Optional extends keyof T> = Omit<T, Optional> & Partial<Pick<T, Optional>>;
 
 export type Database = {
@@ -517,6 +523,11 @@ export type Database = {
     Tables: WorkflowDatabaseTables & {
       profiles: { Row: ProfileRow; Insert: Insert<ProfileRow, "email" | "display_name" | "avatar_url" | "role" | "created_at" | "updated_at">; Update: Partial<Omit<ProfileRow, "role">>; Relationships: [] };
       aed_devices: { Row: AedDeviceRow; Insert: Insert<AedDeviceRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<AedDeviceRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      medication_items: { Row: MedicationItemRow; Insert: Insert<MedicationItemRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<MedicationItemRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      medication_budgets: { Row: MedicationBudgetRow; Insert: Insert<MedicationBudgetRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<MedicationBudgetRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      medication_purchase_plans: { Row: MedicationPurchasePlanRow; Insert: Insert<MedicationPurchasePlanRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<MedicationPurchasePlanRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      medication_receipts: { Row: MedicationReceiptRow; Insert: Insert<MedicationReceiptRow, "id" | "created_at" | "inventory_applied_at">; Update: Partial<Omit<MedicationReceiptRow, "id" | "user_id" | "created_at" | "inventory_applied_at">>; Relationships: [] };
+      medication_lots: { Row: MedicationLotRow; Insert: Insert<MedicationLotRow, "id" | "receipt_id" | "created_at">; Update: Partial<Omit<MedicationLotRow, "id" | "user_id" | "created_at">>; Relationships: [] };
       user_quick_links: { Row: UserQuickLinkRow; Insert: Insert<UserQuickLinkRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<UserQuickLinkRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
       notices: { Row: NoticeRow; Insert: Insert<NoticeRow, "id" | "summary" | "category" | "is_published" | "is_important" | "publish_start_at" | "publish_end_at" | "created_at" | "updated_at">; Update: Partial<NoticeRow>; Relationships: [] };
       notice_reads: { Row: NoticeReadRow; Insert: Insert<NoticeReadRow, "read_at">; Update: Pick<NoticeReadRow, "read_at">; Relationships: [] };
@@ -792,6 +803,7 @@ export type Database = {
         Args: { p_user_id: string; p_request_type: string; p_prompt: string; p_payload: Json };
         Returns: string;
       };
+      receive_medication: { Args: { p_item_id: string; p_purchase_plan_id: string | null; p_received_at: string; p_quantity: number; p_actual_unit_price: number; p_expiration_date: string; p_idempotency_key: string }; Returns: string };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

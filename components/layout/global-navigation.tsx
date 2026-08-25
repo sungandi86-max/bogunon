@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, CalendarPlus, ChevronDown, ClipboardList, Dumbbell, FilePenLine, FileSpreadsheet, FolderKanban, Home, LayoutGrid, ListPlus, Plus, Settings, UsersRound } from "lucide-react";
+import { CalendarDays, CalendarPlus, ChevronDown, ClipboardList, Dumbbell, FilePenLine, FileSpreadsheet, FolderKanban, Home, LayoutGrid, ListPlus, Package, Plus, Settings, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { BogunonBrand } from "@/components/brand/bogunon-brand";
@@ -18,6 +18,7 @@ const navigationGroups = [
   { label: "기록", links: [
     ["운동 기록", "/exercise", Dumbbell],
     ["보건지원강사 관리", "/health-support-instructors", UsersRound],
+    ["의약품 관리", "/medications", Package],
   ] },
   { label: "도구", links: [
     ["생기부 도우미", "/ai-writer", FilePenLine],

@@ -35,6 +35,13 @@
   .exercise-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 767px) {
+  .medication-page .page-header { align-items: flex-start; flex-direction: column; }
+  .medication-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .medication-mini-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .medication-subhead { align-items: flex-start; flex-direction: column; }
+  .medication-section { padding: var(--space-4); }
+  .medication-form__grid { grid-template-columns: 1fr; }
+  .medication-form__wide { grid-column: auto; }
   .notice-editor__dates { flex-direction: column; }
   .legal-header__inner { align-items: flex-start; flex-direction: column; gap: var(--space-4); padding-block: var(--space-5); }
   .legal-header nav { justify-content: space-between; width: 100%; }

@@ -645,6 +645,51 @@
 .category-dot--infectiousDisease { background: var(--category-infectious); }
 .category-dot--firstAid { background: var(--category-first-aid); }
 .category-dot--medication { background: var(--category-medication); }
+
+.medication-page { display: grid; gap: var(--space-6); }
+.medication-page .page-header { align-items: end; margin-bottom: 0; }
+.medication-page .page-header h1 { color: var(--brand-950); }
+.medication-page .page-header p { color: var(--ink-600); margin: var(--space-2) 0 0; }
+.medication-kpis { display: grid; gap: var(--space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.medication-kpi, .medication-section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.medication-kpi { display: grid; gap: var(--space-2); padding: var(--space-5); }
+.medication-kpi span, .medication-mini-kpis span { color: var(--ink-500); font-size: var(--text-xs); font-weight: var(--weight-semibold); }
+.medication-kpi strong { color: var(--brand-950); font-size: var(--text-xl); }
+.medication-kpi--danger strong { color: var(--danger); }
+.medication-kpi--warning strong { color: var(--warning); }
+.medication-kpi--alert strong { color: var(--action-700); }
+.medication-tabs { display: flex; gap: var(--space-2); border-bottom: 1px solid var(--line); overflow-x: auto; }
+.medication-tabs button { align-items: center; background: transparent; border: 0; border-radius: var(--radius-sm) var(--radius-sm) 0 0; color: var(--ink-600); display: inline-flex; font: inherit; gap: var(--space-2); min-height: var(--control-md); padding: 0 var(--space-4); white-space: nowrap; }
+.medication-tabs button.is-active { background: var(--category-medication-soft); color: var(--action-700); font-weight: var(--weight-semibold); }
+.medication-section { display: grid; gap: var(--space-5); padding: var(--space-6); min-width: 0; }
+.medication-subhead { align-items: center; display: flex; justify-content: space-between; gap: var(--space-4); }
+.medication-subhead h2 { color: var(--brand-950); font-size: var(--text-section); margin: 0; }
+.medication-subhead p { color: var(--ink-600); font-size: var(--text-sm); margin: var(--space-2) 0 0; }
+.medication-filters { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+.medication-filters input, .medication-filters select { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); min-height: var(--control-md); padding: 0 var(--space-3); }
+.medication-table-wrap { overflow-x: auto; }
+.medication-table { border-collapse: collapse; min-width: 960px; width: 100%; }
+.medication-table th, .medication-table td { border-bottom: 1px solid var(--line-subtle); padding: var(--space-3) var(--space-3); text-align: left; vertical-align: middle; white-space: nowrap; }
+.medication-table th { background: var(--surface-muted); color: var(--ink-600); font-size: var(--text-xs); font-weight: var(--weight-semibold); }
+.medication-table td { color: var(--ink-800); font-size: var(--text-sm); }
+.medication-table td strong, .medication-table td small { display: block; }
+.medication-table td form { display: inline; }
+.medication-status { border-radius: var(--radius-full); display: inline-flex; font-size: var(--text-xs); font-weight: var(--weight-semibold); padding: var(--space-1) var(--space-2); }
+.medication-status--expired, .medication-status--shortage { background: var(--danger-soft); color: var(--danger); }
+.medication-status--replacementSoon { background: var(--warning-soft); color: var(--warning); }
+.medication-status--normal, .medication-status--sufficient { background: var(--success-soft); color: var(--success); }
+.medication-muted { color: var(--ink-500); font-size: var(--text-xs); margin-top: var(--space-1); }
+.medication-empty { color: var(--ink-500); padding: var(--space-8); text-align: center; }
+.medication-mini-kpis { display: grid; gap: var(--space-4); grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.medication-mini-kpis > div { background: var(--surface-muted); border-radius: var(--radius-md); display: grid; gap: var(--space-2); padding: var(--space-4); }
+.medication-mini-kpis strong { color: var(--brand-950); font-size: var(--text-lg); }
+.medication-form { display: grid; gap: var(--space-5); min-width: 0; }
+.medication-form__grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.medication-form label { color: var(--ink-700); display: grid; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-2); }
+.medication-form input, .medication-form select, .medication-form textarea { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink-950); min-height: var(--control-md); padding: var(--space-3) var(--space-4); width: 100%; }
+.medication-form textarea { min-height: 84px; }
+.medication-form__wide { grid-column: 1 / -1; }
+.medication-form__footer { display: flex; gap: var(--space-3); justify-content: flex-end; }
 .category-dot--officialDocument { background: var(--category-document); }
 .category-dot--training { background: var(--category-training); }
 .category-dot--event { background: var(--category-event); }
