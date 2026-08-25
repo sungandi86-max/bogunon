@@ -55,6 +55,19 @@ describe("medication Excel import preview", () => {
     ]));
   });
 
+  it("classifies 이지엔6 애니 with current stock 42 and recommended stock 0 as a new item", () => {
+    const preview = buildMedicationImportPreview([{ 품명: "이지엔6 애니", 현재고: 42, 권장재고: 0, 유통기한: "2027-01-20" }], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
+    expect(preview.errorCount).toBe(0);
+    expect(preview.rows[0]).toMatchObject({ name: "이지엔6 애니", quantity: 42, recommendedStock: 0, itemRecommendedStock: 0, status: "newItem" });
+  });
+
+  it("treats blank recommendation cells as zero in the legacy inventory sheet format", () => {
+    const headers = ["분류", "품명", "규격/단위", "현재고", "권장재고", "유통기한", "잔여일수", "안전상태", "재고상태", "비고", "관리TIP"];
+    const preview = buildMedicationImportPreview([{ 품명: "이지엔6 애니", 현재고: 42, 권장재고: "", 유통기한: "2027-01-20" }], [], [], "2026-08-25", headers);
+    expect(preview.errorCount).toBe(0);
+    expect(preview.rows[0]).toMatchObject({ name: "이지엔6 애니", quantity: 42, recommendedStock: 0, itemRecommendedStock: 0, status: "newItem" });
+  });
+
   it("does not count implicit zero recommendations on a later lot as errors", () => {
     const worksheet = [
       ["세화여고 보건실 의약품 대장"],

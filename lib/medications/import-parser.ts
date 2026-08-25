@@ -158,12 +158,13 @@ export function buildMedicationImportPreview(rawRows: readonly MedicationImportR
   const missingHeaders = requiredHeaders.filter((key) => !fields[key]).map((key) => headerAliases[key][0]);
   const existingByKey = new Map(existingItems.map((item) => [identityKey(item), item]));
   const seen = new Set<string>();
+  const sourceCarriesDerivedInventoryColumns = ["잔여일수", "안전상태", "재고상태"].every((header) => headers.some((candidate) => canonical(candidate) === canonical(header)));
   const positiveRecommendationKeys = new Set<string>();
   for (const raw of rawRows) {
     const originalName = text(fields.name ? raw[fields.name] : "");
     const name = normalizeName(originalName);
     const { specification, unit } = splitSpecificationUnit(fields.specification ? raw[fields.specification] : "");
-    const recommendation = parseNonnegativeInteger(fields.recommendedStock ? raw[fields.recommendedStock] : "");
+    const recommendation = parseNonnegativeInteger(fields.recommendedStock === undefined ? "" : raw[fields.recommendedStock]);
     if (name && recommendation.ok && recommendation.value > 0) {
       positiveRecommendationKeys.add(identityKey({ name, specification, unit }));
     }
@@ -173,12 +174,12 @@ export function buildMedicationImportPreview(rawRows: readonly MedicationImportR
     const name = normalizeName(originalName);
     const { specification, unit } = splitSpecificationUnit(fields.specification ? raw[fields.specification] : "");
     const quantityResult = parseNonnegativeInteger(fields.quantity ? raw[fields.quantity] : "");
-    const rawRecommendedStock = fields.recommendedStock ? raw[fields.recommendedStock] : "";
+    const rawRecommendedStock = fields.recommendedStock === undefined ? "" : raw[fields.recommendedStock];
     const identity = identityKey({ name, specification, unit });
     // Some inventory sheets leave the recommendation blank on subsequent lots.
     // When another lot of the same item has a positive recommendation, that blank
     // is the sheet's implicit zero and is normalized before the shared validator.
-    const recommendedSource = text(rawRecommendedStock) === "" && positiveRecommendationKeys.has(identity) ? 0 : rawRecommendedStock;
+    const recommendedSource = text(rawRecommendedStock) === "" && (positiveRecommendationKeys.has(identity) || sourceCarriesDerivedInventoryColumns) ? 0 : rawRecommendedStock;
     const recommendedResult = parseNonnegativeInteger(recommendedSource);
     const quantity = quantityResult.ok ? quantityResult.value : null;
     const recommendedStock = recommendedResult.ok ? recommendedResult.value : null;
