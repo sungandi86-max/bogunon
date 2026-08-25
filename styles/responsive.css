@@ -42,6 +42,10 @@
   .medication-section { padding: var(--space-4); }
   .medication-form__grid { grid-template-columns: 1fr; }
   .medication-form__wide { grid-column: auto; }
+  .medication-page__actions { width: 100%; }
+  .medication-page__actions .button { flex: 1; }
+  .medication-import__intro { align-items: stretch; flex-direction: column; }
+  .medication-import__summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .notice-editor__dates { flex-direction: column; }
   .legal-header__inner { align-items: flex-start; flex-direction: column; gap: var(--space-4); padding-block: var(--space-5); }
   .legal-header nav { justify-content: space-between; width: 100%; }

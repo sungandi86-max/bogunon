@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import type { BudgetInput, MedicationBudget, MedicationItem, MedicationItemInput, MedicationLot, MedicationPurchasePlan, MedicationReceipt, PurchasePlanInput, ReceiptInput } from "@/lib/medications/domain";
+import type { BudgetInput, MedicationBudget, MedicationImportInput, MedicationItem, MedicationItemInput, MedicationLot, MedicationPurchasePlan, MedicationReceipt, PurchasePlanInput, ReceiptInput } from "@/lib/medications/domain";
 import type { MedicationBudgetRow, MedicationItemRow, MedicationLotRow, MedicationPurchasePlanRow, MedicationReceiptRow } from "@/types/database";
 
 export class MedicationRepositoryError extends Error { readonly name = "MedicationRepositoryError"; }
@@ -26,6 +26,42 @@ export async function listMedicationData() {
   return { items: (itemsResult.data ?? []).map(mapItem), lots: (lotsResult.data ?? []).map((row) => mapLot(row as MedicationLotRow)), plans, receipts, budgets: (budgetsResult.data ?? []).map(mapBudget) };
 }
 export async function saveMedicationItem(userId: string, input: MedicationItemInput): Promise<void> { const { supabase } = await ownedClient(); const fields = { category: input.category, name: input.name, specification: input.specification, unit: input.unit, recommended_stock: input.recommendedStock, management_tip: input.managementTip, note: input.note, active: true }; const result = input.id ? await supabase.from("medication_items").update(fields).eq("id", input.id).eq("user_id", userId).select("id").single() : await supabase.from("medication_items").insert({ user_id: userId, ...fields }).select("id").single(); if (result.error || !result.data) throw new MedicationRepositoryError("의약품 품목을 저장하지 못했습니다."); if (!input.id && input.initialQuantity > 0 && input.expirationDate) { const { error } = await supabase.from("medication_lots").insert({ user_id: userId, item_id: result.data.id, quantity: input.initialQuantity, expiration_date: input.expirationDate, received_at: new Date().toISOString().slice(0, 10), unit_price: 0 }); if (error) throw new MedicationRepositoryError("초기 재고를 저장하지 못했습니다."); } }
+export async function importMedicationRows(rows: readonly MedicationImportInput[]): Promise<{ createdItems: number; createdLots: number; skippedDuplicates: number }> {
+  const { supabase, userId } = await ownedClient();
+  const [itemsResult, lotsResult] = await Promise.all([
+    supabase.from("medication_items").select("*").eq("user_id", userId),
+    supabase.from("medication_lots").select("*").eq("user_id", userId),
+  ]);
+  if (itemsResult.error || lotsResult.error) throw new MedicationRepositoryError("기존 의약품 데이터를 확인하지 못했습니다.");
+  const items = (itemsResult.data ?? []).map((row) => row as MedicationItemRow);
+  const lots = (lotsResult.data ?? []).map((row) => row as MedicationLotRow);
+  const itemByKey = new Map(items.map((item) => [[item.name, item.specification, item.unit].join("|"), item]));
+  let createdItems = 0;
+  let createdLots = 0;
+  let skippedDuplicates = 0;
+  for (const row of rows) {
+    const key = [row.name, row.specification, row.unit].join("|");
+    let item = itemByKey.get(key);
+    if (!item) {
+      const result = await supabase.from("medication_items").insert({ user_id: userId, category: row.category, name: row.name, specification: row.specification, unit: row.unit, recommended_stock: row.recommendedStock, management_tip: row.managementTip, note: row.note, active: true }).select("*").single();
+      if (result.error || !result.data) throw new MedicationRepositoryError("새 의약품 품목을 저장하지 못했습니다.");
+      item = result.data as MedicationItemRow;
+      itemByKey.set(key, item);
+      items.push(item);
+      createdItems += 1;
+    }
+    const duplicate = lots.some((lot) => lot.item_id === item?.id && lot.expiration_date === row.expirationDate && lot.quantity === row.quantity && lot.unit_price === 0);
+    if (duplicate) {
+      skippedDuplicates += 1;
+      continue;
+    }
+    const result = await supabase.from("medication_lots").insert({ user_id: userId, item_id: item.id, quantity: row.quantity, expiration_date: row.expirationDate, received_at: row.receivedAt, unit_price: 0 }).select("*").single();
+    if (result.error || !result.data) throw new MedicationRepositoryError("의약품 lot를 저장하지 못했습니다.");
+    lots.push(result.data as MedicationLotRow);
+    createdLots += 1;
+  }
+  return { createdItems, createdLots, skippedDuplicates };
+}
 export async function archiveMedicationItem(id: string): Promise<void> { const { supabase, userId } = await ownedClient(); const { error } = await supabase.from("medication_items").update({ active: false }).eq("id", id).eq("user_id", userId); if (error) throw new MedicationRepositoryError("의약품 품목을 보관 처리하지 못했습니다."); }
 export async function savePurchasePlan(userId: string, input: PurchasePlanInput): Promise<void> { const { supabase } = await ownedClient(); const fields = { item_id: input.itemId, quantity: input.quantity, expected_unit_price: input.expectedUnitPrice, status: input.status, note: input.note }; const result = input.id ? await supabase.from("medication_purchase_plans").update(fields).eq("id", input.id).eq("user_id", userId) : await supabase.from("medication_purchase_plans").insert({ user_id: userId, ...fields }); if (result.error) throw new MedicationRepositoryError("구매 계획을 저장하지 못했습니다."); }
 export async function saveBudget(userId: string, input: BudgetInput): Promise<void> { const { supabase } = await ownedClient(); const { error } = await supabase.from("medication_budgets").upsert({ user_id: userId, budget_year: input.budgetYear, name: input.name, amount: input.amount, memo: input.memo }, { onConflict: "user_id,budget_year" }); if (error) throw new MedicationRepositoryError("예산을 저장하지 못했습니다."); }

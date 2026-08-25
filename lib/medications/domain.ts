@@ -61,6 +61,21 @@ export const budgetSchema = z.object({
 });
 export type BudgetInput = z.infer<typeof budgetSchema>;
 
+export const medicationImportRowSchema = z.object({
+  category: z.enum(MEDICATION_CATEGORIES),
+  name: z.string().trim().min(1).max(160),
+  specification: z.string().trim().max(160),
+  unit: z.string().trim().max(40),
+  recommendedStock: z.number().int().min(0),
+  quantity: z.number().int().min(0),
+  expirationDate: z.string().date(),
+  note: z.string().trim().max(2000).nullable(),
+  managementTip: z.string().trim().max(1000).nullable(),
+  receivedAt: z.string().date(),
+});
+export const medicationImportPayloadSchema = z.array(medicationImportRowSchema).min(1).max(1000);
+export type MedicationImportInput = z.infer<typeof medicationImportRowSchema>;
+
 export type MedicationItem = { readonly id: string; readonly userId: string; readonly category: MedicationCategory; readonly name: string; readonly specification: string; readonly unit: string; readonly recommendedStock: number; readonly managementTip: string | null; readonly note: string | null; readonly active: boolean; readonly createdAt: string; readonly updatedAt: string };
 export type MedicationLot = { readonly id: string; readonly itemId: string; readonly receiptId: string | null; readonly quantity: number; readonly expirationDate: string; readonly receivedAt: string; readonly unitPrice: number; };
 export type MedicationPurchasePlan = { readonly id: string; readonly itemId: string; readonly quantity: number; readonly expectedUnitPrice: number; readonly status: PurchaseStatus; readonly note: string | null; readonly createdAt: string; readonly receivedQuantity: number };
