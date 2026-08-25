@@ -711,11 +711,11 @@
   .medication-kpi span { font-size: var(--text-2xs); }
   .medication-kpi strong { font-size: var(--text-base); }
   .medication-tabs { gap: 0; }
-  .medication-tabs button { min-height: calc(var(--control-sm) - var(--space-2)); padding-inline: var(--space-2); }
+  .medication-tabs button { min-height: var(--control-sm); padding-inline: var(--space-2); }
   .medication-section { gap: var(--space-2); padding: var(--space-2) var(--space-3) var(--space-3); }
   .medication-subhead p { margin-top: var(--space-1); }
   .medication-filters { gap: var(--space-1); }
-  .medication-filters input, .medication-filters select { min-height: calc(var(--control-sm) - var(--space-2)); }
+  .medication-filters input, .medication-filters select { min-height: var(--control-sm); }
   .medication-table th, .medication-table td { padding-bottom: var(--space-1); padding-top: var(--space-1); }
 }
 .category-dot--officialDocument { background: var(--category-document); }
