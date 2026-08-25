@@ -23,8 +23,9 @@ const navigationGroups = [
   { label: "도구", links: [
     ["생기부 도우미", "/ai-writer", FilePenLine],
   ] },
-  { label: "설정", links: [["설정", "/settings", Settings]] },
 ] as const;
+
+const settingsGroup = { label: "설정", links: [["설정", "/settings", Settings]] } as const;
 
 interface GlobalNavigationProps {
   readonly notices?: readonly Notice[];
@@ -50,7 +51,10 @@ export function GlobalNavigation({ notices = [], onAcademicImport, onCreate }: G
         <nav className="desktop-navigation" aria-label="주요 메뉴">
           {navigationGroups.map((group) => <div className="navigation-group" key={group.label}><p>{group.label}</p>{group.links.map(([label, href, Icon]) => <Link aria-current={pathname.startsWith(href) ? "page" : undefined} href={href} key={href}><Icon aria-hidden="true" size={18} />{label}</Link>)}</div>)}
         </nav>
-        <SidebarOtter notices={notices} />
+        <div className="global-navigation__footer">
+          <div className="navigation-group"><p>{settingsGroup.label}</p>{settingsGroup.links.map(([label, href, Icon]) => <Link aria-current={pathname.startsWith(href) ? "page" : undefined} href={href} key={href}><Icon aria-hidden="true" size={18} />{label}</Link>)}</div>
+          <SidebarOtter notices={notices} />
+        </div>
       </div>
     </aside>
   );
