@@ -43,9 +43,43 @@ describe("medication Excel import preview", () => {
   });
 
   it("accepts zero recommended and current stock values", () => {
-    const preview = buildMedicationImportPreview([{ 품명: "제로 재고 약", 현재고: 0, 권장재고: 0, 유통기한: "2026-12-31" }], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
+    const preview = buildMedicationImportPreview([
+      { 품명: "숫자 0 약", 현재고: 0, 권장재고: 0, 유통기한: "2026-12-31" },
+      { 품명: "문자 0 약", 현재고: "0", 권장재고: "0", 유통기한: "2026-12-31" },
+    ], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
     expect(preview.errorCount).toBe(0);
-    expect(preview.rows[0]).toMatchObject({ quantity: 0, recommendedStock: 0, itemRecommendedStock: 0, status: "newItem" });
+    expect(preview.rows.every((row) => row.status !== "error")).toBe(true);
+    expect(preview.rows.every((row) => row.error === undefined)).toBe(true);
+    expect(preview.rows).toEqual(expect.arrayContaining([
+      expect.objectContaining({ quantity: 0, recommendedStock: 0, itemRecommendedStock: 0, status: "newItem" }),
+    ]));
+  });
+
+  it("does not count implicit zero recommendations on a later lot as errors", () => {
+    const worksheet = [
+      ["세화여고 보건실 의약품 대장"],
+      ["권장재고를 생략한 후속 lot는 같은 품목의 기준재고를 따릅니다."],
+      [],
+      ["품명", "현재고", "권장재고", "유통기한"],
+      ["지르세틴(1)", 30, 30, "2028-02-17"],
+      ["지르세틴(2)", 24, "", "2028-06-16"],
+      ["임팩타민(1)", 216, 400, "2026-05-14"],
+      ["임팩타민(2)", 36, "", "2027-01-31"],
+    ];
+    const parsed = parseMedicationWorksheet(worksheet);
+    const preview = buildMedicationImportPreview(parsed.rows, [], [], "2026-08-25", parsed.headers, (parsed.headerRowNumber ?? 1) + 1);
+
+    expect(preview.errorCount).toBe(0);
+    expect(preview.rows.map((row) => row.status)).toEqual(["newItem", "newItem", "newItem", "newItem"]);
+    expect(preview.rows.map((row) => row.itemRecommendedStock)).toEqual([30, 30, 400, 400]);
+    expect(preview.rows.every((row) => !row.error?.includes("권장재고는 0 이상의 정수"))).toBe(true);
+  });
+
+  it("keeps a standalone blank recommendation as an input error", () => {
+    const preview = buildMedicationImportPreview([{ 품명: "권장재고 누락 약", 현재고: 1, 권장재고: "", 유통기한: "2026-12-31" }], [], [], "2026-08-25", ["품명", "현재고", "권장재고", "유통기한"]);
+    expect(preview.errorCount).toBe(1);
+    expect(preview.rows[0]?.status).toBe("error");
+    expect(preview.rows[0]?.error).toContain("권장재고 값을 입력해 주세요.");
   });
 
   it("rejects negative recommended stock values", () => {

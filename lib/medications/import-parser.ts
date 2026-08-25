@@ -76,11 +76,23 @@ function text(value: unknown): string {
   return String(value ?? "").trim();
 }
 
-function numberValue(value: unknown): number | null {
+type NonnegativeIntegerResult =
+  | { readonly ok: true; readonly value: number }
+  | { readonly ok: false; readonly reason: "empty" | "invalid" | "negative" };
+
+function parseNonnegativeInteger(value: unknown): NonnegativeIntegerResult {
   const normalized = text(value).replace(/,/g, "");
-  if (!normalized) return null;
+  if (!normalized) return { ok: false, reason: "empty" };
   const parsed = Number(normalized);
-  return Number.isFinite(parsed) && Number.isInteger(parsed) ? parsed : null;
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed)) return { ok: false, reason: "invalid" };
+  if (parsed < 0) return { ok: false, reason: "negative" };
+  return { ok: true, value: parsed };
+}
+
+function stockValidationError(label: string, result: NonnegativeIntegerResult): string | null {
+  if (result.ok) return null;
+  if (result.reason === "empty") return `${label} 값을 입력해 주세요.`;
+  return `${label}는 0 이상의 정수여야 합니다.`;
 }
 
 function dateValue(value: unknown): string | null {
@@ -146,18 +158,38 @@ export function buildMedicationImportPreview(rawRows: readonly MedicationImportR
   const missingHeaders = requiredHeaders.filter((key) => !fields[key]).map((key) => headerAliases[key][0]);
   const existingByKey = new Map(existingItems.map((item) => [identityKey(item), item]));
   const seen = new Set<string>();
+  const positiveRecommendationKeys = new Set<string>();
+  for (const raw of rawRows) {
+    const originalName = text(fields.name ? raw[fields.name] : "");
+    const name = normalizeName(originalName);
+    const { specification, unit } = splitSpecificationUnit(fields.specification ? raw[fields.specification] : "");
+    const recommendation = parseNonnegativeInteger(fields.recommendedStock ? raw[fields.recommendedStock] : "");
+    if (name && recommendation.ok && recommendation.value > 0) {
+      positiveRecommendationKeys.add(identityKey({ name, specification, unit }));
+    }
+  }
   const parsedRows = rawRows.map((raw, index): MedicationImportPreviewRow => {
     const originalName = text(fields.name ? raw[fields.name] : "");
     const name = normalizeName(originalName);
     const { specification, unit } = splitSpecificationUnit(fields.specification ? raw[fields.specification] : "");
-    const quantity = numberValue(fields.quantity ? raw[fields.quantity] : "");
-    const recommendedStock = numberValue(fields.recommendedStock ? raw[fields.recommendedStock] : "");
+    const quantityResult = parseNonnegativeInteger(fields.quantity ? raw[fields.quantity] : "");
+    const rawRecommendedStock = fields.recommendedStock ? raw[fields.recommendedStock] : "";
+    const identity = identityKey({ name, specification, unit });
+    // Some inventory sheets leave the recommendation blank on subsequent lots.
+    // When another lot of the same item has a positive recommendation, that blank
+    // is the sheet's implicit zero and is normalized before the shared validator.
+    const recommendedSource = text(rawRecommendedStock) === "" && positiveRecommendationKeys.has(identity) ? 0 : rawRecommendedStock;
+    const recommendedResult = parseNonnegativeInteger(recommendedSource);
+    const quantity = quantityResult.ok ? quantityResult.value : null;
+    const recommendedStock = recommendedResult.ok ? recommendedResult.value : null;
     const expirationDate = dateValue(fields.expirationDate ? raw[fields.expirationDate] : "");
     const row = { category: categoryValue(fields.category ? raw[fields.category] : ""), name, specification, unit, recommendedStock: recommendedStock ?? 0, quantity: quantity ?? 0, expirationDate: expirationDate ?? "", note: fields.note ? text(raw[fields.note]) || null : null, managementTip: fields.managementTip ? text(raw[fields.managementTip]) || null : null, receivedAt };
     const errors = [...missingHeaders.map((header) => `${header} 열이 없습니다.`)];
     if (!name) errors.push("품명을 입력해 주세요.");
-    if (quantity === null || quantity < 0) errors.push("현재고는 0 이상의 정수여야 합니다.");
-    if (recommendedStock === null || recommendedStock < 0) errors.push("권장재고는 0 이상의 정수여야 합니다.");
+    const quantityError = stockValidationError("현재고", quantityResult);
+    if (quantityError) errors.push(quantityError);
+    const recommendedError = stockValidationError("권장재고", recommendedResult);
+    if (recommendedError) errors.push(recommendedError);
     if (!expirationDate) errors.push("유통기한을 YYYY-MM-DD 형식으로 입력해 주세요.");
     const item = existingByKey.get(identityKey(row));
     const duplicateKey = `${identityKey(row)}|${row.expirationDate}|${row.quantity}`;
