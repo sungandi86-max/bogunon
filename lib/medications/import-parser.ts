@@ -42,6 +42,13 @@ export type MedicationImportPreview = {
 
 export type MedicationImportRawRow = Readonly<Record<string, unknown>>;
 
+export type MedicationWorksheetParseResult = {
+  readonly headerRowNumber: number | null;
+  readonly headers: readonly string[];
+  readonly rows: readonly MedicationImportRawRow[];
+  readonly dataRowCount: number;
+};
+
 const headerAliases = {
   category: ["분류", "구분", "category"],
   name: ["품명", "약품명", "name"],
@@ -119,7 +126,21 @@ function hasDuplicate(row: MedicationImportRow, existingItems: readonly Medicati
   return existingLots.some((lot) => lot.itemId === itemId && lot.expirationDate === row.expirationDate && lot.quantity === row.quantity && lot.unitPrice === 0);
 }
 
-export function buildMedicationImportPreview(rawRows: readonly MedicationImportRawRow[], existingItems: readonly MedicationItem[], existingLots: readonly MedicationLot[], receivedAt: string, headers: readonly string[]): MedicationImportPreview {
+export function parseMedicationWorksheet(matrix: readonly (readonly unknown[])[]): MedicationWorksheetParseResult {
+  const requiredAliases = requiredHeaders.map((key) => headerAliases[key]);
+  const scanLimit = Math.min(matrix.length, 30);
+  for (let rowIndex = 0; rowIndex < scanLimit; rowIndex += 1) {
+    const sourceRow = matrix[rowIndex] ?? [];
+    const headers = sourceRow.map(text);
+    const fieldIndexes = requiredAliases.map((aliases) => headers.findIndex((header) => aliases.map(canonical).includes(canonical(header))));
+    if (fieldIndexes.some((index) => index < 0)) continue;
+    const rows = matrix.slice(rowIndex + 1).filter((row) => !fieldIndexes.every((index) => !text(row[index]))).map((row) => Object.fromEntries(headers.flatMap((header, index) => header ? [[header, row[index] ?? ""]] : [])));
+    return { headerRowNumber: rowIndex + 1, headers, rows, dataRowCount: rows.length };
+  }
+  return { headerRowNumber: null, headers: [], rows: [], dataRowCount: 0 };
+}
+
+export function buildMedicationImportPreview(rawRows: readonly MedicationImportRawRow[], existingItems: readonly MedicationItem[], existingLots: readonly MedicationLot[], receivedAt: string, headers: readonly string[], firstDataRowNumber = 2): MedicationImportPreview {
   const fields = Object.fromEntries((Object.keys(headerAliases) as Array<keyof typeof headerAliases>).map((key) => [key, findHeader(headers, key)])) as Record<keyof typeof headerAliases, string | undefined>;
   const missingHeaders = requiredHeaders.filter((key) => !fields[key]).map((key) => headerAliases[key][0]);
   const existingByKey = new Map(existingItems.map((item) => [identityKey(item), item]));
@@ -140,9 +161,9 @@ export function buildMedicationImportPreview(rawRows: readonly MedicationImportR
     const item = existingByKey.get(identityKey(row));
     const duplicateKey = `${identityKey(row)}|${row.expirationDate}|${row.quantity}`;
     const duplicate = hasDuplicate(row, existingItems, existingLots, item?.id) || seen.has(duplicateKey);
-    if (errors.length) return { ...row, rowNumber: index + 2, originalName, status: "error", error: errors.join(" ") };
+    if (errors.length) return { ...row, rowNumber: firstDataRowNumber + index, originalName, status: "error", error: errors.join(" ") };
     seen.add(duplicateKey);
-    return { ...row, rowNumber: index + 2, originalName, status: duplicate ? "duplicate" : item ? "existingItem" : "newItem", ...(duplicate ? { error: "동일 품목·유통기한·수량의 lot가 이미 있거나 파일 안에 중복됩니다." } : {}) };
+    return { ...row, rowNumber: firstDataRowNumber + index, originalName, status: duplicate ? "duplicate" : item ? "existingItem" : "newItem", ...(duplicate ? { error: "동일 품목·유통기한·수량의 lot가 이미 있거나 파일 안에 중복됩니다." } : {}) };
   });
   const validRows = rows.filter((row) => row.status !== "error");
   const newKeys = new Set(validRows.filter((row) => row.status === "newItem").map(identityKey));
