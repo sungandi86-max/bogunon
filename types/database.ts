@@ -30,6 +30,7 @@ export type AedDeviceRow = { id: string; user_id: string; name: string; location
 export type UserQuickLinkRow = { id: string; user_id: string; name: string; url: string; icon_key: "document" | "spreadsheet" | "drive" | "school" | "admin" | "health" | "web" | "other"; sort_order: number; is_visible: boolean; created_at: string; updated_at: string };
 export type NoticeRow = { id: string; title: string; summary: string | null; content: string; category: NoticeCategory; is_published: boolean; is_important: boolean; publish_start_at: string | null; publish_end_at: string | null; created_by: string; created_at: string; updated_at: string };
 export type NoticeReadRow = { notice_id: string; user_id: string; read_at: string };
+export type HealthSupportAttendanceConfirmationRow = { id: string; user_id: string; instructor_id: string; year: number; month: number; confirmed: boolean; confirmed_at: string | null; created_at: string; updated_at: string };
 
 export type TaskRow = {
   id: string;
@@ -530,6 +531,7 @@ export type Database = {
       medication_receipts: { Row: MedicationReceiptRow; Insert: Insert<MedicationReceiptRow, "id" | "created_at" | "inventory_applied_at">; Update: Partial<Omit<MedicationReceiptRow, "id" | "user_id" | "created_at" | "inventory_applied_at">>; Relationships: [] };
       medication_lots: { Row: MedicationLotRow; Insert: Insert<MedicationLotRow, "id" | "receipt_id" | "created_at">; Update: Partial<Omit<MedicationLotRow, "id" | "user_id" | "created_at">>; Relationships: [] };
       user_quick_links: { Row: UserQuickLinkRow; Insert: Insert<UserQuickLinkRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<UserQuickLinkRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      health_support_attendance_confirmations: { Row: HealthSupportAttendanceConfirmationRow; Insert: Insert<HealthSupportAttendanceConfirmationRow, "id" | "confirmed" | "confirmed_at" | "created_at" | "updated_at">; Update: Partial<Omit<HealthSupportAttendanceConfirmationRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
       notices: { Row: NoticeRow; Insert: Insert<NoticeRow, "id" | "summary" | "category" | "is_published" | "is_important" | "publish_start_at" | "publish_end_at" | "created_at" | "updated_at">; Update: Partial<NoticeRow>; Relationships: [] };
       notice_reads: { Row: NoticeReadRow; Insert: Insert<NoticeReadRow, "read_at">; Update: Pick<NoticeReadRow, "read_at">; Relationships: [] };
       ai_preferences: {

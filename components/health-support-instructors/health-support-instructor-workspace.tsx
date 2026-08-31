@@ -17,22 +17,26 @@ import type { HealthSupportInstructor, HealthSupportWorkLog } from "@/lib/health
 import { createHealthSupportSettlementDocuments } from "@/lib/health-support-instructors/settlement/documents";
 import type { HealthSupportSettlementDocuments } from "@/lib/health-support-instructors/settlement/documents";
 import type { EventRow } from "@/types/database";
+import type { HealthSupportAttendanceConfirmation } from "@/lib/health-support-instructors/attendance-confirmation-repository";
 
 const tabs = ["대시보드", "근무기록", "월별 정산", "지급명세서·출력", "설정"] as const;
 type WorkspaceTab = (typeof tabs)[number];
 type SaveInstructor = (state: HealthSupportActionState, formData: FormData) => Promise<HealthSupportActionState>;
 type SaveWorkLog = (state: HealthSupportActionState, formData: FormData) => Promise<HealthSupportActionState>;
 type SaveConfirmerName = (state: HealthSupportActionState, formData: FormData) => Promise<HealthSupportActionState>;
+type SaveAttendanceConfirmation = (state: HealthSupportActionState, formData: FormData) => Promise<HealthSupportActionState>;
 type DeleteWorkLog = (formData: FormData) => Promise<void>;
 type PrintableDocument = "work-detail" | "payment-statement" | "attendance-register";
 
 interface HealthSupportInstructorWorkspaceProps {
+  readonly attendanceConfirmations?: readonly HealthSupportAttendanceConfirmation[];
   readonly calendarEvents?: readonly EventRow[];
   readonly confirmerName?: string;
   readonly deleteWorkLog?: DeleteWorkLog;
   readonly instructors: readonly HealthSupportInstructor[];
   readonly saveInstructor?: SaveInstructor;
   readonly saveConfirmerName?: SaveConfirmerName;
+  readonly saveAttendanceConfirmation?: SaveAttendanceConfirmation;
   readonly saveWorkLog?: SaveWorkLog;
   readonly workLogs: readonly HealthSupportWorkLog[];
 }
@@ -66,7 +70,7 @@ function settlementMonthFor(instructor: HealthSupportInstructor | undefined, wor
   return latestLog?.date.slice(0, 7) ?? instructor?.operationStartDate.slice(0, 7) ?? "";
 }
 
-export function HealthSupportInstructorWorkspace({ calendarEvents = [], confirmerName = "", deleteWorkLog = deleteHealthSupportWorkLogAction, instructors, saveConfirmerName, saveInstructor, saveWorkLog, workLogs }: HealthSupportInstructorWorkspaceProps) {
+export function HealthSupportInstructorWorkspace({ attendanceConfirmations = [], calendarEvents = [], confirmerName = "", deleteWorkLog = deleteHealthSupportWorkLogAction, instructors, saveAttendanceConfirmation, saveConfirmerName, saveInstructor, saveWorkLog, workLogs }: HealthSupportInstructorWorkspaceProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<WorkspaceTab>("대시보드");
   const [instructorId, setInstructorId] = useState(instructors[0]?.id ?? "");
@@ -81,6 +85,9 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], confirme
   const [savedConfirmerName, setSavedConfirmerName] = useState(confirmerName);
   const [confirmerSaveMessage, setConfirmerSaveMessage] = useState<string>();
   const [includeElectronicStamps, setIncludeElectronicStamps] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState<string>();
+  const currentConfirmation = attendanceConfirmations.find((item) => item.instructor_id === instructor?.id && `${item.year}-${String(item.month).padStart(2, "0")}` === selectedMonth);
+  const attendanceConfirmed = currentConfirmation?.confirmed ?? false;
   const [printDocument, setPrintDocument] = useState<PrintableDocument>();
   const instructor = instructors.find((candidate) => candidate.id === instructorId) ?? instructors[0];
   const selectedLogs = workLogs.filter((log) => log.instructorId === instructor?.id);
@@ -146,6 +153,20 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], confirme
     if (result.status === "success") setSavedConfirmerName(verifierName);
   }
 
+  async function toggleAttendanceConfirmation(confirmed: boolean): Promise<void> {
+    if (!saveAttendanceConfirmation || !instructor) return;
+    const formData = new FormData();
+    formData.set("instructorId", instructor.id);
+    formData.set("month", selectedMonth);
+    formData.set("confirmed", String(confirmed));
+    const result = await saveAttendanceConfirmation({ status: "idle" }, formData);
+    setConfirmationMessage(result.message);
+    if (result.status === "success") {
+      router.refresh();
+      if (!confirmed) setIncludeElectronicStamps(false);
+    }
+  }
+
   if (!instructor) {
     return <EmptyInstructorWorkspace activeTab={activeTab} onOpenSettings={() => setActiveTab("설정")} {...(saveInstructor ? { saveInstructor } : {})} />;
   }
@@ -162,7 +183,7 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], confirme
       {activeTab === "대시보드" && documents && calculation && <Dashboard calculation={calculation} documents={documents} instructor={instructor} onOpenWorkLogs={() => setActiveTab("근무기록")} />}
       {activeTab === "근무기록" && calculation && <CalendarAwareWorkLogPanel {...(editingLog ? { editingLog } : {})} {...(formError ? { formError } : {})} {...(formMessage ? { formMessage } : {})} calculation={calculation} calendarEvents={calendarEvents} deleteWorkLog={deleteWorkLog} instructor={instructor} key={`${instructor.id}-${editingLog?.id ?? "new"}`} logs={selectedLogs} month={selectedMonth} onEdit={setEditingLog} onMonthChange={setSelectedMonth} onSubmit={submitWorkLog} />}
       {activeTab === "월별 정산" && documents && <SettlementPanel documents={documents} onMonthChange={setSelectedMonth} onPrint={() => printDocumentPreview("work-detail")} onToggleDetail={() => setShowWorkDetail(true)} printActive={printDocument === "work-detail"} selectedMonth={selectedMonth} showWorkDetail={showWorkDetail} />}
-      {activeTab === "지급명세서·출력" && documents && <PaymentStatementPanel confirmerSaveMessage={confirmerSaveMessage} documents={documents} includeElectronicStamps={includeElectronicStamps} onConfirmerNameBlur={saveConfirmerNameOnBlur} onElectronicStampsChange={setIncludeElectronicStamps} onAttendancePrint={() => printDocumentPreview("attendance-register")} onAttendanceTogglePreview={() => setShowAttendanceRegister(true)} onPrint={() => printDocumentPreview("payment-statement")} onTogglePreview={() => setShowPaymentStatement(true)} printActive={printDocument === "payment-statement"} printAttendanceActive={printDocument === "attendance-register"} showAttendancePreview={showAttendanceRegister} showPreview={showPaymentStatement} verifierName={verifierName} onVerifierNameChange={setVerifierName} />}
+      {activeTab === "지급명세서·출력" && documents && <PaymentStatementPanel attendanceConfirmed={attendanceConfirmed} confirmationDate={currentConfirmation?.confirmed_at} confirmationMessage={confirmationMessage} confirmerSaveMessage={confirmerSaveMessage} documents={documents} includeElectronicStamps={includeElectronicStamps} onAttendanceConfirmationChange={toggleAttendanceConfirmation} onConfirmerNameBlur={saveConfirmerNameOnBlur} onElectronicStampsChange={(include) => { if (!attendanceConfirmed && include) { setConfirmationMessage("강사 선생님의 월별 근무내역 확인 후 전자도장을 적용할 수 있습니다."); return; } setIncludeElectronicStamps(include); }} onAttendancePrint={() => printDocumentPreview("attendance-register")} onAttendanceTogglePreview={() => setShowAttendanceRegister(true)} onPrint={() => printDocumentPreview("payment-statement")} onTogglePreview={() => setShowPaymentStatement(true)} printActive={printDocument === "payment-statement"} printAttendanceActive={printDocument === "attendance-register"} showAttendancePreview={showAttendanceRegister} showPreview={showPaymentStatement} verifierName={verifierName} onVerifierNameChange={setVerifierName} />}
       {activeTab === "설정" && <InstructorSettingsForm instructor={instructor} {...(saveInstructor ? { saveInstructor } : {})} />}
     </div>
   </section>;
@@ -208,6 +229,9 @@ function InstructorRegistrationForm({ saveInstructor }: { readonly saveInstructo
 }
 
 type PaymentStatementPanelProps = {
+  readonly attendanceConfirmed: boolean;
+  readonly confirmationDate?: string | null | undefined;
+  readonly confirmationMessage?: string | undefined;
   readonly confirmerSaveMessage?: string | undefined;
   readonly onAttendancePrint: () => void;
   readonly onAttendanceTogglePreview: () => void;
@@ -223,9 +247,10 @@ type PaymentStatementPanelProps = {
   readonly includeElectronicStamps: boolean;
   readonly onElectronicStampsChange: (include: boolean) => void;
   readonly onConfirmerNameBlur: () => void;
+  readonly onAttendanceConfirmationChange: (confirmed: boolean) => void;
 };
 
-function PaymentStatementPanel({ confirmerSaveMessage, documents, includeElectronicStamps, onConfirmerNameBlur, onElectronicStampsChange, onAttendancePrint, onAttendanceTogglePreview, onPrint, onTogglePreview, printActive, printAttendanceActive, showAttendancePreview, showPreview, verifierName, onVerifierNameChange }: PaymentStatementPanelProps) {
+function PaymentStatementPanel({ attendanceConfirmed, confirmationDate, confirmationMessage, confirmerSaveMessage, documents, includeElectronicStamps, onAttendanceConfirmationChange, onConfirmerNameBlur, onElectronicStampsChange, onAttendancePrint, onAttendanceTogglePreview, onPrint, onTogglePreview, printActive, printAttendanceActive, showAttendancePreview, showPreview, verifierName, onVerifierNameChange }: PaymentStatementPanelProps) {
   const { paymentStatement } = documents;
   const hasRows = paymentStatement.rows.length > 0;
   return <>
@@ -236,7 +261,7 @@ function PaymentStatementPanel({ confirmerSaveMessage, documents, includeElectro
     <PaymentStatementPreview documents={documents} printActive={printActive} showPreview={showPreview} />
     {!hasRows && <p role="status">해당 월의 근무기록이 없습니다.</p>}
     </section>
-    <AttendanceRegisterPanel confirmerSaveMessage={confirmerSaveMessage} documents={documents} includeElectronicStamps={includeElectronicStamps} onConfirmerNameBlur={onConfirmerNameBlur} onElectronicStampsChange={onElectronicStampsChange} onPrint={onAttendancePrint} onTogglePreview={onAttendanceTogglePreview} printActive={printAttendanceActive} showPreview={showAttendancePreview} verifierName={verifierName} onVerifierNameChange={onVerifierNameChange} />
+    <AttendanceRegisterPanel attendanceConfirmed={attendanceConfirmed} confirmationDate={confirmationDate} confirmationMessage={confirmationMessage} confirmerSaveMessage={confirmerSaveMessage} documents={documents} includeElectronicStamps={includeElectronicStamps} onAttendanceConfirmationChange={onAttendanceConfirmationChange} onConfirmerNameBlur={onConfirmerNameBlur} onElectronicStampsChange={onElectronicStampsChange} onPrint={onAttendancePrint} onTogglePreview={onAttendanceTogglePreview} printActive={printAttendanceActive} showPreview={showAttendancePreview} verifierName={verifierName} onVerifierNameChange={onVerifierNameChange} />
   </>;
 }
 

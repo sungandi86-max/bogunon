@@ -178,6 +178,8 @@
 .attendance-register-preview th:nth-child(5), .attendance-register-preview td:nth-child(5), .attendance-register-preview th:nth-child(6), .attendance-register-preview td:nth-child(6) { inline-size: 21.5%; min-block-size: 10mm; }
 .attendance-register-preview__verifier { margin: var(--space-7) 0 0; text-align: right; }
 .attendance-register__stamp-option { align-items: center; display: inline-flex; gap: var(--space-2); color: var(--ink-500); font-size: var(--text-meta); }
+.attendance-register__confirmation-option { align-items: center; display: inline-flex; gap: var(--space-2); color: var(--ink-500); font-size: var(--text-meta); }
+.attendance-register__confirmation-date { color: var(--ink-500); font-size: var(--text-meta); }
 .attendance-register-preview__stamp { display: inline-block; object-fit: contain; vertical-align: middle; }
 .attendance-register-preview__stamp--instructor { block-size: 10mm; inline-size: 10mm; }
 .attendance-register-preview__stamp--teacher { block-size: 10mm; inline-size: 10mm; }

@@ -13,6 +13,7 @@ import {
   updateHealthSupportWorkLog,
 } from "@/lib/health-support-instructors/repository";
 import { saveHealthSupportAttendanceConfirmerName } from "@/lib/settings/repository";
+import { setHealthSupportAttendanceConfirmation } from "@/lib/health-support-instructors/attendance-confirmation-repository";
 
 export type HealthSupportActionState = { readonly status: "idle" | "success" | "error"; readonly message?: string };
 type WorkLogActionInput = { readonly instructorId: string; readonly date: string; readonly startTime: string; readonly endTime: string; readonly note: string | null };
@@ -91,6 +92,19 @@ export async function saveHealthSupportAttendanceConfirmerNameAction(_state: Hea
     return { status: "success", message: "확인자 이름을 저장했습니다." };
   } catch (error) {
     return { status: "error", message: error instanceof Error ? error.message : "확인자 이름을 저장하지 못했습니다." };
+  }
+}
+
+export async function saveHealthSupportAttendanceConfirmationAction(_state: HealthSupportActionState, formData: FormData): Promise<HealthSupportActionState> {
+  const instructorId = value(formData, "instructorId");
+  const month = value(formData, "month");
+  if (!instructorId || !month) return { status: "error", message: "강사와 월 정보를 확인해 주세요." };
+  try {
+    await setHealthSupportAttendanceConfirmation(instructorId, month, formData.get("confirmed") === "true");
+    refreshHealthSupportInstructors();
+    return { status: "success", message: "강사 확인 상태를 저장했습니다." };
+  } catch (error) {
+    return { status: "error", message: error instanceof Error ? error.message : "강사 확인 상태를 저장하지 못했습니다." };
   }
 }
 

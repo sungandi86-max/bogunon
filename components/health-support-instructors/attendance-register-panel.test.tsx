@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AttendanceRegisterPanel } from "./attendance-register-panel";
@@ -18,8 +18,8 @@ const documents = {
   },
 } as unknown as HealthSupportSettlementDocuments;
 
-function renderPanel(includeElectronicStamps: boolean) {
-  return render(<AttendanceRegisterPanel confirmerSaveMessage={undefined} documents={documents} includeElectronicStamps={includeElectronicStamps} onConfirmerNameBlur={vi.fn()} onElectronicStampsChange={vi.fn()} onPrint={vi.fn()} onTogglePreview={vi.fn()} printActive={false} showPreview verifierName="" onVerifierNameChange={vi.fn()} />);
+function renderPanel(includeElectronicStamps: boolean, attendanceConfirmed = true) {
+  return render(<AttendanceRegisterPanel attendanceConfirmed={attendanceConfirmed} confirmationDate="2026-08-31T00:00:00.000Z" confirmationMessage={undefined} confirmerSaveMessage={undefined} documents={documents} includeElectronicStamps={includeElectronicStamps} onAttendanceConfirmationChange={vi.fn()} onConfirmerNameBlur={vi.fn()} onElectronicStampsChange={vi.fn()} onPrint={vi.fn()} onTogglePreview={vi.fn()} printActive={false} showPreview verifierName="" onVerifierNameChange={vi.fn()} />);
 }
 
 describe("AttendanceRegisterPanel electronic stamps", () => {
@@ -39,5 +39,10 @@ describe("AttendanceRegisterPanel electronic stamps", () => {
     expect(screen.getAllByRole("img", { name: "박숙현 전자도장" })[2]).toBeInTheDocument();
     expect(screen.getByText(/확인자: 박숙현/)).toBeInTheDocument();
     expect(screen.getByText(/서명\/인/)).toBeInTheDocument();
+  });
+
+  it("blocks electronic stamps until the monthly confirmation is complete", () => {
+    renderPanel(false, false);
+    expect(screen.getByRole("checkbox", { name: "전자도장 포함" })).toBeDisabled();
   });
 });
