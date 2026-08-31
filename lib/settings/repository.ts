@@ -30,3 +30,19 @@ export async function upsertUserSettings(values: UserSettingsInput): Promise<voi
   }, { onConflict: "user_id" });
   if (error) throw new Error("설정을 저장하지 못했습니다.");
 }
+
+export async function getHealthSupportAttendanceConfirmerName(): Promise<string> {
+  const { row } = await getUserSettings();
+  return row?.health_support_attendance_confirmer_name ?? "";
+}
+
+export async function saveHealthSupportAttendanceConfirmerName(name: string): Promise<void> {
+  const { supabase, user } = await ownedClient();
+  const normalized = name.trim();
+  if (normalized.length > 100) throw new Error("확인자 이름은 100자 이내로 입력해 주세요.");
+  const { error } = await supabase.from("user_settings").upsert({
+    user_id: user.id,
+    health_support_attendance_confirmer_name: normalized || null,
+  }, { onConflict: "user_id" });
+  if (error) throw new Error("확인자 이름을 저장하지 못했습니다.");
+}

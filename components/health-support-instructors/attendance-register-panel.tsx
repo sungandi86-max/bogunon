@@ -10,15 +10,17 @@ type AttendanceRegisterPanelProps = {
   readonly showPreview: boolean;
   readonly verifierName: string;
   readonly onVerifierNameChange: (name: string) => void;
+  readonly onConfirmerNameBlur: () => void;
+  readonly confirmerSaveMessage?: string | undefined;
   readonly includeElectronicStamps: boolean;
   readonly onElectronicStampsChange: (include: boolean) => void;
 };
 
-export function AttendanceRegisterPanel({ documents, onPrint, onTogglePreview, printActive, showPreview, verifierName, onVerifierNameChange, includeElectronicStamps, onElectronicStampsChange }: AttendanceRegisterPanelProps) {
+export function AttendanceRegisterPanel({ confirmerSaveMessage, documents, onConfirmerNameBlur, onPrint, onTogglePreview, printActive, showPreview, verifierName, onVerifierNameChange, includeElectronicStamps, onElectronicStampsChange }: AttendanceRegisterPanelProps) {
   const register = documents.attendanceRegister;
   const hasRows = register.rows.length > 0;
   return <section aria-label="Attendance register document" className="health-support-document health-support-document--attendance-register">
-    <div className="health-support-document__heading"><h3>출근관리부</h3><label>확인자 이름<input aria-label="Attendance register verifier" onChange={(event) => onVerifierNameChange(event.target.value)} placeholder="선택 입력" type="text" value={verifierName} /></label></div>
+    <div className="health-support-document__heading"><h3>출근관리부</h3><label>확인자 이름<input aria-label="Attendance register verifier" onBlur={onConfirmerNameBlur} onChange={(event) => onVerifierNameChange(event.target.value)} placeholder="선택 입력" type="text" value={verifierName} />{confirmerSaveMessage && <span className="form-message" role="status">{confirmerSaveMessage}</span>}</label></div>
     <div className="health-support-document__actions"><label className="attendance-register__stamp-option"><input aria-label="전자도장 포함" checked={includeElectronicStamps} onChange={(event) => onElectronicStampsChange(event.target.checked)} type="checkbox" />전자도장 포함</label><Button aria-label="Preview attendance register" disabled={!hasRows} onClick={onTogglePreview} variant="secondary">출근관리부 미리보기</Button><Button aria-label="Print attendance register" disabled={!hasRows} onClick={onPrint} variant="secondary">출근관리부 출력</Button></div>
     {!hasRows && <p role="status">해당 월의 근무기록이 없습니다.</p>}
     {(showPreview || printActive) && hasRows && <AttendanceRegisterPreview documents={documents} includeElectronicStamps={includeElectronicStamps} verifierName={verifierName} />}

@@ -16,10 +16,10 @@ const documents = {
       { date: "2026-08-02", weekday: "일요일", startTime: "09:00", endTime: "12:00", signature: "", teacherConfirmation: "" },
     ],
   },
-} as HealthSupportSettlementDocuments;
+} as unknown as HealthSupportSettlementDocuments;
 
 function renderPanel(includeElectronicStamps: boolean) {
-  return render(<AttendanceRegisterPanel documents={documents} includeElectronicStamps={includeElectronicStamps} onElectronicStampsChange={vi.fn()} onPrint={vi.fn()} onTogglePreview={vi.fn()} printActive={false} showPreview verifierName="" onVerifierNameChange={vi.fn()} />);
+  return render(<AttendanceRegisterPanel confirmerSaveMessage={undefined} documents={documents} includeElectronicStamps={includeElectronicStamps} onConfirmerNameBlur={vi.fn()} onElectronicStampsChange={vi.fn()} onPrint={vi.fn()} onTogglePreview={vi.fn()} printActive={false} showPreview verifierName="" onVerifierNameChange={vi.fn()} />);
 }
 
 describe("AttendanceRegisterPanel electronic stamps", () => {
