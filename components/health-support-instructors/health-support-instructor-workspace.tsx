@@ -86,10 +86,10 @@ export function HealthSupportInstructorWorkspace({ attendanceConfirmations = [],
   const [confirmerSaveMessage, setConfirmerSaveMessage] = useState<string>();
   const [includeElectronicStamps, setIncludeElectronicStamps] = useState(false);
   const [confirmationMessage, setConfirmationMessage] = useState<string>();
+  const instructor = instructors.find((candidate) => candidate.id === instructorId) ?? instructors[0];
   const currentConfirmation = attendanceConfirmations.find((item) => item.instructor_id === instructor?.id && `${item.year}-${String(item.month).padStart(2, "0")}` === selectedMonth);
   const attendanceConfirmed = currentConfirmation?.confirmed ?? false;
   const [printDocument, setPrintDocument] = useState<PrintableDocument>();
-  const instructor = instructors.find((candidate) => candidate.id === instructorId) ?? instructors[0];
   const selectedLogs = workLogs.filter((log) => log.instructorId === instructor?.id);
   const documents = instructor ? createHealthSupportSettlementDocuments({ instructor, month: selectedMonth, workLogs }) : null;
   const calculation = instructor ? calculateHealthSupportInstructorManager({
