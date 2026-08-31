@@ -75,6 +75,7 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], deleteWo
   const [showPaymentStatement, setShowPaymentStatement] = useState(false);
   const [showAttendanceRegister, setShowAttendanceRegister] = useState(false);
   const [verifierName, setVerifierName] = useState("");
+  const [includeElectronicStamps, setIncludeElectronicStamps] = useState(false);
   const [printDocument, setPrintDocument] = useState<PrintableDocument>();
   const instructor = instructors.find((candidate) => candidate.id === instructorId) ?? instructors[0];
   const selectedLogs = workLogs.filter((log) => log.instructorId === instructor?.id);
@@ -147,7 +148,7 @@ export function HealthSupportInstructorWorkspace({ calendarEvents = [], deleteWo
       {activeTab === "대시보드" && documents && calculation && <Dashboard calculation={calculation} documents={documents} instructor={instructor} onOpenWorkLogs={() => setActiveTab("근무기록")} />}
       {activeTab === "근무기록" && calculation && <CalendarAwareWorkLogPanel {...(editingLog ? { editingLog } : {})} {...(formError ? { formError } : {})} {...(formMessage ? { formMessage } : {})} calculation={calculation} calendarEvents={calendarEvents} deleteWorkLog={deleteWorkLog} instructor={instructor} key={`${instructor.id}-${editingLog?.id ?? "new"}`} logs={selectedLogs} month={selectedMonth} onEdit={setEditingLog} onMonthChange={setSelectedMonth} onSubmit={submitWorkLog} />}
       {activeTab === "월별 정산" && documents && <SettlementPanel documents={documents} onMonthChange={setSelectedMonth} onPrint={() => printDocumentPreview("work-detail")} onToggleDetail={() => setShowWorkDetail(true)} printActive={printDocument === "work-detail"} selectedMonth={selectedMonth} showWorkDetail={showWorkDetail} />}
-      {activeTab === "지급명세서·출력" && documents && <PaymentStatementPanel documents={documents} onAttendancePrint={() => printDocumentPreview("attendance-register")} onAttendanceTogglePreview={() => setShowAttendanceRegister(true)} onPrint={() => printDocumentPreview("payment-statement")} onTogglePreview={() => setShowPaymentStatement(true)} printActive={printDocument === "payment-statement"} printAttendanceActive={printDocument === "attendance-register"} showAttendancePreview={showAttendanceRegister} showPreview={showPaymentStatement} verifierName={verifierName} onVerifierNameChange={setVerifierName} />}
+      {activeTab === "지급명세서·출력" && documents && <PaymentStatementPanel documents={documents} includeElectronicStamps={includeElectronicStamps} onElectronicStampsChange={setIncludeElectronicStamps} onAttendancePrint={() => printDocumentPreview("attendance-register")} onAttendanceTogglePreview={() => setShowAttendanceRegister(true)} onPrint={() => printDocumentPreview("payment-statement")} onTogglePreview={() => setShowPaymentStatement(true)} printActive={printDocument === "payment-statement"} printAttendanceActive={printDocument === "attendance-register"} showAttendancePreview={showAttendanceRegister} showPreview={showPaymentStatement} verifierName={verifierName} onVerifierNameChange={setVerifierName} />}
       {activeTab === "설정" && <InstructorSettingsForm instructor={instructor} {...(saveInstructor ? { saveInstructor } : {})} />}
     </div>
   </section>;
@@ -204,9 +205,11 @@ type PaymentStatementPanelProps = {
   readonly showPreview: boolean;
   readonly verifierName: string;
   readonly onVerifierNameChange: (name: string) => void;
+  readonly includeElectronicStamps: boolean;
+  readonly onElectronicStampsChange: (include: boolean) => void;
 };
 
-function PaymentStatementPanel({ documents, onAttendancePrint, onAttendanceTogglePreview, onPrint, onTogglePreview, printActive, printAttendanceActive, showAttendancePreview, showPreview, verifierName, onVerifierNameChange }: PaymentStatementPanelProps) {
+function PaymentStatementPanel({ documents, includeElectronicStamps, onElectronicStampsChange, onAttendancePrint, onAttendanceTogglePreview, onPrint, onTogglePreview, printActive, printAttendanceActive, showAttendancePreview, showPreview, verifierName, onVerifierNameChange }: PaymentStatementPanelProps) {
   const { paymentStatement } = documents;
   const hasRows = paymentStatement.rows.length > 0;
   return <>
@@ -217,7 +220,7 @@ function PaymentStatementPanel({ documents, onAttendancePrint, onAttendanceToggl
     <PaymentStatementPreview documents={documents} printActive={printActive} showPreview={showPreview} />
     {!hasRows && <p role="status">해당 월의 근무기록이 없습니다.</p>}
     </section>
-    <AttendanceRegisterPanel documents={documents} onPrint={onAttendancePrint} onTogglePreview={onAttendanceTogglePreview} printActive={printAttendanceActive} showPreview={showAttendancePreview} verifierName={verifierName} onVerifierNameChange={onVerifierNameChange} />
+    <AttendanceRegisterPanel documents={documents} includeElectronicStamps={includeElectronicStamps} onElectronicStampsChange={onElectronicStampsChange} onPrint={onAttendancePrint} onTogglePreview={onAttendanceTogglePreview} printActive={printAttendanceActive} showPreview={showAttendancePreview} verifierName={verifierName} onVerifierNameChange={onVerifierNameChange} />
   </>;
 }
 
