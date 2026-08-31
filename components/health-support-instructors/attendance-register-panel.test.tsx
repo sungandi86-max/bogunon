@@ -35,7 +35,8 @@ describe("AttendanceRegisterPanel electronic stamps", () => {
     renderPanel(true);
 
     expect(screen.getAllByRole("img", { name: "장진희 전자도장" })).toHaveLength(2);
-    expect(screen.getByRole("img", { name: "박숙현 전자도장" })).toBeInTheDocument();
+    expect(screen.getAllByRole("img", { name: "박숙현 전자도장" })).toHaveLength(3);
+    expect(screen.getAllByRole("img", { name: "박숙현 전자도장" })[2]).toBeInTheDocument();
     expect(screen.getByText(/확인자: 박숙현/)).toBeInTheDocument();
     expect(screen.getByText(/서명\/인/)).toBeInTheDocument();
   });
