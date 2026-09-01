@@ -128,7 +128,7 @@ function EventStickerCalendarItem({ canDrag, date, event, highlighted, onDragSta
       }}
     >
       <span aria-hidden="true" className="calendar-item__indicator" />
-      <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact stickerKey={stickerKey} /></span>
+      <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact showLabel={false} stickerKey={stickerKey} /></span>
       <span className="calendar-item__title">{timePrefix ? `${timePrefix} ${event.title}` : event.title}</span>
     </span>
   </StickerManagementButton>;

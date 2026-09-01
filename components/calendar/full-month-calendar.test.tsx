@@ -265,6 +265,7 @@ describe("FullMonthCalendar", () => {
     const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
     expect(cell.querySelector(".calendar-item--sticker .calendar-item__sticker-icon img")).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
     expect(cell.querySelector(".calendar-item--sticker .calendar-item__title")).toHaveTextContent("학생건강검진");
+    expect(cell.querySelector(".calendar-item--sticker")?.textContent).toBe("학생건강검진");
   });
 
   it("does not render an event sticker icon when sticker_key is null", () => {

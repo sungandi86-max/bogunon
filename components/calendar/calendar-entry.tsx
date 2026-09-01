@@ -56,7 +56,7 @@ export function CalendarEntry({
     event.dataTransfer.setData("application/x-bogunon-calendar", JSON.stringify({ id: item.id, kind, date }));
   }}>
     {kind === "event" && !showSticker ? <CategoryIcon aria-hidden="true" size={11} /> : kind === "task" ? <CheckSquare2 aria-hidden="true" size={11} /> : null}
-    {showSticker && stickerKey && <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact stickerKey={stickerKey} /></span>}
+    {showSticker && stickerKey && <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact showLabel={false} stickerKey={stickerKey} /></span>}
     {!showSticker && <span className="calendar-item__area">{categoryLabel}</span>}<span className="calendar-item__title">{timePrefix ? `${timePrefix} ${item.title}` : item.title}</span>
     {onMove && <button aria-label={`${item.title} 날짜 변경`} className="calendar-item__move" onClick={() => onMove(value)} type="button"><MoveRight aria-hidden="true" size={13} /></button>}
   </div>;
