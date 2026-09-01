@@ -71,6 +71,7 @@ export type EventRow = {
   end_time: string | null;
   location?: string | null;
   color_key?: "mint" | "blue" | "yellow" | "coral" | "lavender" | "pink" | null;
+  sticker_key?: CalendarStickerKey | null;
   recurrence_frequency?: RecurrenceFrequency | null;
   recurrence_source_id?: string | null;
   recurrence_date?: string | null;

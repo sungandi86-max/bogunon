@@ -55,6 +55,13 @@ const personalEvent: EventRow = {
   area: "personal",
 };
 
+const stickerEvent: EventRow = {
+  ...schoolEvent,
+  id: "event-sticker",
+  title: "학생건강검진",
+  sticker_key: "health.student-checkup",
+};
+
 const monthStickerRows = [
   { id: "holiday-1", user_id: "user", sticker_key: "holiday.hangul-day", sticker_date: "2026-07-18", end_date: null, label: "한글날", note: null, created_at: "", updated_at: "" },
   { id: "health-1", user_id: "user", sticker_key: "health.student-checkup", sticker_date: "2026-07-18", end_date: null, label: "학생건강검진", note: null, created_at: "", updated_at: "" },
@@ -250,6 +257,20 @@ describe("FullMonthCalendar", () => {
     const icon = container.querySelector(".calendar-item__sticker-icon img");
     expect(icon).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
     expect(container.querySelector(".calendar-item__sticker-icon")).toBeInTheDocument();
+  });
+
+  it("renders a selected sticker asset for ordinary events without changing the event title", () => {
+    render(<FullMonthCalendar events={[stickerEvent]} month="2026-07" today="2026-07-18" visibleItemLimit={4} />);
+
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    expect(cell.querySelector(".calendar-item--event .calendar-item__sticker-icon img")).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
+    expect(cell.querySelector(".calendar-item--event .calendar-item__title")).toHaveTextContent("학생건강검진");
+  });
+
+  it("does not render an event sticker icon when sticker_key is null", () => {
+    const { container } = render(<FullMonthCalendar events={[{ ...schoolEvent, sticker_key: null }]} month="2026-07" today="2026-07-18" visibleItemLimit={4} />);
+
+    expect(container.querySelector(".calendar-item--event .calendar-item__sticker-icon")).not.toBeInTheDocument();
   });
 
   it("opens record-specific sticker management from the sticker instead of the date cell", () => {
