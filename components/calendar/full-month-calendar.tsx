@@ -109,7 +109,9 @@ function EventStickerCalendarItem({ canDrag, date, event, highlighted, onDragSta
   readonly highlighted: boolean;
   readonly onDragStateChange: (dragging: boolean) => void;
 }) {
-  const definition = event.sticker_key ? calendarStickerByKey(event.sticker_key) : undefined;
+  const stickerKey = event.sticker_key;
+  if (!stickerKey) return null;
+  const definition = calendarStickerByKey(stickerKey);
   const pack = definition?.pack ?? "school";
   const timePrefix = !event.is_all_day ? event.start_time?.slice(0, 5) : null;
   const draggable = canDrag && event.start_date === event.end_date && !event.recurrence_frequency;
@@ -126,7 +128,7 @@ function EventStickerCalendarItem({ canDrag, date, event, highlighted, onDragSta
       }}
     >
       <span aria-hidden="true" className="calendar-item__indicator" />
-      <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact stickerKey={event.sticker_key} /></span>
+      <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact stickerKey={stickerKey} /></span>
       <span className="calendar-item__title">{timePrefix ? `${timePrefix} ${event.title}` : event.title}</span>
     </span>
   </StickerManagementButton>;
