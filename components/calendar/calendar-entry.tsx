@@ -40,6 +40,7 @@ export function CalendarEntry({
   const value = { item, kind, date };
   const eventType = kind === "event" ? resolveEventType(item as EventRow) : null;
   const stickerKey = kind === "event" ? (item as EventRow).sticker_key : null;
+  const showSticker = showStickerIcon && Boolean(stickerKey);
   const timePrefix = showTime && kind === "event" && !(item as EventRow).is_all_day ? (item as EventRow).start_time?.slice(0, 5) : null;
   const categoryClass = eventType ? `calendar-item--event-${eventType}` : areaClass[item.area];
   const categoryLabel = eventType ? EVENT_TYPE_LABELS[eventType] : areaLabel[item.area];
@@ -54,9 +55,9 @@ export function CalendarEntry({
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("application/x-bogunon-calendar", JSON.stringify({ id: item.id, kind, date }));
   }}>
-    {kind === "event" ? <CategoryIcon aria-hidden="true" size={11} /> : <CheckSquare2 aria-hidden="true" size={11} />}
-    {showStickerIcon && stickerKey && <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact stickerKey={stickerKey} /></span>}
-    <span className="calendar-item__area">{categoryLabel}</span><span className="calendar-item__title">{timePrefix ? `${timePrefix} ${item.title}` : item.title}</span>
+    {kind === "event" && !showSticker ? <CategoryIcon aria-hidden="true" size={11} /> : kind === "task" ? <CheckSquare2 aria-hidden="true" size={11} /> : null}
+    {showSticker && stickerKey && <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact stickerKey={stickerKey} /></span>}
+    {!showSticker && <span className="calendar-item__area">{categoryLabel}</span>}<span className="calendar-item__title">{timePrefix ? `${timePrefix} ${item.title}` : item.title}</span>
     {onMove && <button aria-label={`${item.title} 날짜 변경`} className="calendar-item__move" onClick={() => onMove(value)} type="button"><MoveRight aria-hidden="true" size={13} /></button>}
   </div>;
 }

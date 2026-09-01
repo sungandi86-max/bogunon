@@ -71,4 +71,22 @@ describe("CalendarEntry", () => {
     expect(screen.queryByText("프로젝트")).not.toBeInTheDocument();
     expect(container.firstElementChild).not.toHaveClass("calendar-item--project");
   });
+
+  it("uses the sticker as the representative month-cell icon when enabled", () => {
+    const stickerEvent = { ...exerciseEvent, sticker_key: "health.student-checkup" };
+    const { container } = render(<CalendarEntry item={stickerEvent} kind="event" showStickerIcon showTime />);
+
+    expect(container.querySelector(".calendar-item__sticker-icon img")).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
+    expect(container.querySelector(".calendar-item__area")).not.toBeInTheDocument();
+    expect(container.querySelector(".calendar-item > svg")).not.toBeInTheDocument();
+    expect(screen.getByText("19:00 레거시 운동 일정")).toBeInTheDocument();
+  });
+
+  it("keeps the category icon and label when no sticker is selected", () => {
+    const { container } = render(<CalendarEntry item={exerciseEvent} kind="event" showStickerIcon />);
+
+    expect(container.querySelector(".calendar-item__sticker-icon")).not.toBeInTheDocument();
+    expect(container.querySelector(".calendar-item__area")).toHaveTextContent("운동");
+    expect(container.querySelector(".calendar-item > svg")).toBeInTheDocument();
+  });
 });
