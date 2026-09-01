@@ -263,14 +263,14 @@ describe("FullMonthCalendar", () => {
     render(<FullMonthCalendar events={[stickerEvent]} month="2026-07" today="2026-07-18" visibleItemLimit={4} />);
 
     const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
-    expect(cell.querySelector(".calendar-item--event .calendar-item__sticker-icon img")).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
-    expect(cell.querySelector(".calendar-item--event .calendar-item__title")).toHaveTextContent("학생건강검진");
+    expect(cell.querySelector(".calendar-item--sticker .calendar-item__sticker-icon img")).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
+    expect(cell.querySelector(".calendar-item--sticker .calendar-item__title")).toHaveTextContent("학생건강검진");
   });
 
   it("does not render an event sticker icon when sticker_key is null", () => {
     const { container } = render(<FullMonthCalendar events={[{ ...schoolEvent, sticker_key: null }]} month="2026-07" today="2026-07-18" visibleItemLimit={4} />);
 
-    expect(container.querySelector(".calendar-item--event .calendar-item__sticker-icon")).not.toBeInTheDocument();
+    expect(container.querySelector(".calendar-item--sticker .calendar-item__sticker-icon")).not.toBeInTheDocument();
   });
 
   it("opens record-specific sticker management from the sticker instead of the date cell", () => {
