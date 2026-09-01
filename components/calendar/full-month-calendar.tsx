@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { CalendarEntry, type MovableCalendarItem } from "@/components/calendar/calendar-entry";
 import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
 import { StickerManagementButton } from "@/components/calendar/sticker-management-button";
+import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
 import { calendarStickerByKey } from "@/lib/calendar-stickers/catalog";
 import { calendarMonthCells, weekdayLabels } from "@/lib/calendar/preferences";
 import { taskCalendarDate } from "@/lib/calendar/smart-calendar";
@@ -95,6 +96,7 @@ function StickerCalendarItem({ date, highlighted, sticker }: { readonly date: st
   return <StickerManagementButton date={date} label={sticker.label} recordId={sticker.id} recordType="calendar">
     <span className={`calendar-item calendar-item--sticker calendar-item--${pack}${highlighted ? " is-highlighted" : ""}`}>
       <span aria-hidden="true" className="calendar-item__indicator" />
+      <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact stickerKey={sticker.sticker_key} /></span>
       <span className="calendar-item__title">{sticker.label}</span>
     </span>
   </StickerManagementButton>;

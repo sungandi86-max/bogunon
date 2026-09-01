@@ -244,6 +244,14 @@ describe("FullMonthCalendar", () => {
     expect(cell).toHaveTextContent("병원");
   });
 
+  it("renders the selected sticker asset beside desktop month-cell sticker labels", () => {
+    const { container } = render(<FullMonthCalendar month="2026-07" today="2026-07-18" schoolStickers={monthStickerRows.slice(1, 2)} />);
+
+    const icon = container.querySelector(".calendar-item__sticker-icon img");
+    expect(icon).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
+    expect(container.querySelector(".calendar-item__sticker-icon")).toBeInTheDocument();
+  });
+
   it("opens record-specific sticker management from the sticker instead of the date cell", () => {
     render(<FullMonthCalendar month="2026-07" today="2026-07-18" schoolStickers={[
       { id: "a5000000-0000-4000-8000-000000000003", user_id: "user", sticker_key: "personal.hospital", sticker_date: "2026-07-18", end_date: null, label: "병원", note: null, created_at: "", updated_at: "" },
