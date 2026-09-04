@@ -270,6 +270,26 @@ describe("HealthSupportInstructorWorkspace", () => {
     expect(screen.getByLabelText("근무 일자")).toHaveValue("2026-09-01");
   });
 
+  it("loads an existing work log into edit mode without adding a row", async () => {
+    const saveWorkLog = vi.fn<(state: unknown, formData: FormData) => Promise<{ readonly status: "success"; readonly message: string }>>().mockResolvedValue({ status: "success", message: "saved" });
+    render(<HealthSupportInstructorWorkspace instructors={[sharedInstructor]} saveWorkLog={saveWorkLog} workLogs={[sharedWorkLogs[0]]} />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "근무기록" }));
+    fireEvent.click(screen.getByRole("button", { name: "2026-08-03 기록 수정" }));
+
+    expect(screen.getByRole("form", { name: "근무 기록 수정" })).toBeInTheDocument();
+    expect(screen.getByLabelText("근무 일자")).toHaveValue("2026-08-03");
+    expect(screen.getByLabelText("시작 시간")).toHaveValue("09:00");
+    expect(screen.getByLabelText("종료 시간")).toHaveValue("12:00");
+    expect(screen.getByRole("button", { name: "수정 저장" })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("종료 시간"), { target: { value: "13:00" } });
+    fireEvent.submit(screen.getByRole("form", { name: "근무 기록 수정" }));
+    await waitFor(() => expect(saveWorkLog).toHaveBeenCalledOnce());
+    expect(saveWorkLog.mock.calls[0]?.[1].get("id")).toBe("shared-log-1");
+    expect(saveWorkLog.mock.calls[0]?.[1].get("endTime")).toBe("13:00");
+  });
+
   it("keeps delete and Excel import entry discoverable from the work-log list", async () => {
     // Given: an existing work log
     const deleteWorkLog = vi.fn<(formData: FormData) => Promise<void>>().mockResolvedValue(undefined);
