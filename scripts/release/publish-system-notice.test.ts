@@ -279,9 +279,12 @@ describe("system notice workflow source contract", () => {
     const normalized = workflow.toLowerCase();
     const steps = workflowSteps(workflow);
     const verifyCheckout = stepNamed(steps, "Verify trusted checkout");
+    const readPackageVersion = stepNamed(steps, "Read package version");
     const verifyCurrentMain = stepNamed(steps, "Verify deployment event targets current main");
+    const resolveDeploymentParent = stepNamed(steps, "Resolve deployment parent SHA");
     const verifyBackfill = stepNamed(steps, "Verify backfill has a successful Vercel Production deployment");
     const validateAuthor = stepNamed(steps, "Validate system notice author");
+    const publishDeployment = stepNamed(steps, "Publish system notice for deployment");
     const publishBackfill = stepNamed(steps, "Publish system notice for backfill");
     const secretsSteps = steps.filter((step) => step.raw.includes("secrets."));
     const runScripts = Array.from(workflow.matchAll(/^\s*run:\s*(?:(?:[>|]-?)\r?\n(?:\s{10,}.+(?:\r?\n|$))*|.+)$/gmu), (match) => match[0]).join("\n");
@@ -297,10 +300,23 @@ describe("system notice workflow source contract", () => {
     expect(stepNamed(steps, "Checkout release source").raw).toContain("ref: ${{ github.event_name == 'deployment_status' && github.event.deployment.sha || github.sha }}");
     expect(verifyCheckout.raw).toContain("EXPECTED_SHA: ${{ github.event_name == 'deployment_status' && github.event.deployment.sha || github.sha }}");
     expect(verifyCheckout.raw).toContain('test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"');
+    expect(readPackageVersion.raw).toContain('VERSION="$(node -p "require(\'./package.json\').version")"');
+    expect(readPackageVersion.raw).toContain('test -n "$VERSION"');
+    expect(readPackageVersion.raw).toContain('echo "version=$VERSION" >> "$GITHUB_OUTPUT"');
+    expect(workflow).not.toContain('require(\\"./package.json\\").version');
+    expect(resolveDeploymentParent.raw).toContain("id: deployment-parent");
+    expect(resolveDeploymentParent.raw).toContain("HEAD_SHA: ${{ github.event.deployment.sha }}");
+    expect(resolveDeploymentParent.raw).toContain('BASE_SHA="$(git rev-parse "${HEAD_SHA}^")"');
+    expect(resolveDeploymentParent.raw).toContain('test -n "$BASE_SHA"');
+    expect(resolveDeploymentParent.raw).toContain('echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"');
+    expect(publishDeployment.raw).toContain("BASE_SHA: ${{ steps.deployment-parent.outputs.base_sha }}");
+    expect(publishDeployment.raw).not.toContain("BASE_SHA: ${{ github.event.deployment.sha }}^");
     expect(publishBackfill.raw).toContain("RELEASE_VERSION: ${{ inputs.version }}");
     expect(publishBackfill.raw).toContain('          --version "$RELEASE_VERSION"');
     expect(secretsSteps.map((step) => step.name)).toStrictEqual([...secretStepNames]);
-    for (const step of secretsSteps) expect(step.index).toBeGreaterThan(Math.max(verifyCheckout.index, verifyCurrentMain.index, verifyBackfill.index));
+    for (const step of secretsSteps) {
+      expect(step.index).toBeGreaterThan(Math.max(verifyCheckout.index, verifyCurrentMain.index, resolveDeploymentParent.index, verifyBackfill.index));
+    }
     expect(publishBackfill.index).toBeGreaterThan(validateAuthor.index);
     expect(runScripts).not.toContain("${{ inputs.");
     expect(workflow).toContain("statuses: read");

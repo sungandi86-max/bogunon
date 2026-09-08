@@ -70,7 +70,10 @@ jobs:
 
       - name: Read package version
         id: package
-        run: echo "version=$(node -p 'require(\"./package.json\").version')" >> "$GITHUB_OUTPUT"
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          test -n "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Verify deployment event targets current main
         if: github.event_name == 'deployment_status'
@@ -78,6 +81,16 @@ jobs:
           DEPLOYMENT_SHA: ${{ github.event.deployment.sha }}
           MAIN_SHA: ${{ steps.main.outputs.sha }}
         run: test "$DEPLOYMENT_SHA" = "$MAIN_SHA"
+
+      - name: Resolve deployment parent SHA
+        id: deployment-parent
+        if: github.event_name == 'deployment_status'
+        env:
+          HEAD_SHA: ${{ github.event.deployment.sha }}
+        run: |
+          BASE_SHA="$(git rev-parse "${HEAD_SHA}^")"
+          test -n "$BASE_SHA"
+          echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
 
       - name: Verify backfill has a successful Vercel Production deployment
         if: github.event_name == 'workflow_dispatch'
@@ -110,7 +123,7 @@ jobs:
       - name: Publish system notice for deployment
         if: github.event_name == 'deployment_status'
         env:
-          BASE_SHA: ${{ github.event.deployment.sha }}^
+          BASE_SHA: ${{ steps.deployment-parent.outputs.base_sha }}
           HEAD_SHA: ${{ github.event.deployment.sha }}
           RELEASE_VERSION: ${{ steps.package.outputs.version }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
