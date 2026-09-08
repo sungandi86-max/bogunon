@@ -61,9 +61,14 @@ AI_PROVIDER=mock
 OPENAI_API_KEY=
 AI_MODEL=
 NEIS_API_KEY=
+SUPABASE_URL=
+SUPABASE_SECRET_KEY=
+SYSTEM_NOTICE_AUTHOR_ID=
 ```
 
 `AI_PROVIDER`, `OPENAI_API_KEY`, `AI_MODEL`, `NEIS_API_KEY`는 서버 전용입니다. `NEXT_PUBLIC_` 접두사를 붙이거나 브라우저 코드, 응답과 로그에 값을 노출하지 않습니다.
+
+`SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SYSTEM_NOTICE_AUTHOR_ID`는 릴리즈 공지 자동화의 Production 서버 전용 변수입니다. `SYSTEM_NOTICE_AUTHOR_ID`는 실제 운영 데이터에서 이미 존재하는 admin 또는 owner 계정의 ID여야 하며, 예시 값·식별자·메일 주소는 저장소에 기록하지 않습니다. Preview와 build 단계는 공지 데이터를 쓰지 않고, Vercel Production deployment status가 `READY`인 것을 확인한 뒤에만 게시 절차를 실행합니다. 자동화 실행 자체만으로 사용자 공지가 생성되지는 않습니다.
 
 ## Google OAuth 설정 상태
 
