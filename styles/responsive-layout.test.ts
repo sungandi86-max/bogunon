@@ -64,6 +64,15 @@ describe("responsive home calendar layout", () => {
     );
   });
 
+  it("replaces the inline month detail with the mobile sheet and keeps sheet tasks visible", () => {
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.calendar-workspace-layout:not\(\.is-time-view\) > \.calendar-detail-panel\s*\{[^}]*display:\s*none;/,
+    );
+    expect(stylesheet).toMatch(
+      /@media\s*\(max-width:\s*767px\)[\s\S]*?\.calendar-page \.calendar-mobile-date-detail \.calendar-mobile-date-detail__tasks\s*\{[^}]*display:\s*grid;/,
+    );
+  });
+
   it("removes Smart Calendar and the mobile view switch from the calendar surface", () => {
     expect(stylesheet).toMatch(
       /@media\s*\(max-width:\s*767px\)[\s\S]*?\.calendar-page \.page-header__actions > a\[href="\/calendar\/generator"\]\s*\{[^}]*display:\s*none;/,
