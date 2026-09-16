@@ -6,12 +6,13 @@ import { CalendarEntry, type MovableCalendarItem } from "@/components/calendar/c
 import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
 import { StickerManagementButton } from "@/components/calendar/sticker-management-button";
 import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
+import { ExerciseSticker } from "@/components/exercise/exercise-sticker";
 import { calendarStickerByKey } from "@/lib/calendar-stickers/catalog";
 import { calendarMonthCells, weekdayLabels } from "@/lib/calendar/preferences";
 import { taskCalendarDate } from "@/lib/calendar/smart-calendar";
 import { resolveEventType } from "@/lib/work-items/event-types";
 import { addCalendarDays, todayInSeoul } from "@/lib/work-items/date";
-import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
+import type { CalendarStickerRow, EventRow, ExerciseLogRow, ExerciseStickerRow, TaskRow } from "@/types/database";
 
 type CalendarDisplayItem =
   | { readonly id: string; readonly item: EventRow; readonly kind: "event"; readonly order: number; readonly priority: number; readonly time: string | null }
@@ -20,7 +21,7 @@ type CalendarDisplayItem =
 
 type MobileSummaryTone = "academic" | "health" | "holiday" | "personal" | "school" | "tournament" | "work" | "workout";
 
-interface Props { readonly dragEnabled?: boolean; readonly events?: EventRow[]; readonly highlight?: string | undefined; readonly month?: string; readonly onDropDate?: (value: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => void; readonly onMove?: ((value: MovableCalendarItem) => void) | undefined; readonly onSelectDate?: (date: string) => void; readonly schoolStickers?: CalendarStickerRow[]; readonly selectedDate?: string; readonly tasks?: TaskRow[]; readonly today?: string; readonly visibleItemLimit?: number }
+interface Props { readonly dragEnabled?: boolean; readonly events?: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly exerciseStickers?: ExerciseStickerRow[]; readonly highlight?: string | undefined; readonly month?: string; readonly onDropDate?: (value: { readonly id: string; readonly kind: "event" | "task"; readonly date: string; readonly newDate: string }) => void; readonly onMove?: ((value: MovableCalendarItem) => void) | undefined; readonly onSelectDate?: (date: string) => void; readonly schoolStickers?: CalendarStickerRow[]; readonly selectedDate?: string; readonly tasks?: TaskRow[]; readonly today?: string; readonly visibleItemLimit?: number }
 
 function stickerPriority(sticker: CalendarStickerRow): number {
   const pack = calendarStickerByKey(sticker.sticker_key)?.pack;
@@ -102,17 +103,18 @@ function StickerCalendarItem({ date, highlighted, sticker }: { readonly date: st
   </StickerManagementButton>;
 }
 
-function EventStickerCalendarItem({ canDrag, date, event, highlighted, onDragStateChange }: {
+function EventStickerCalendarItem({ canDrag, date, event, exerciseSticker, highlighted, onDragStateChange, stickerKey }: {
   readonly canDrag: boolean;
   readonly date: string;
   readonly event: EventRow;
+  readonly exerciseSticker: ExerciseStickerRow | undefined;
   readonly highlighted: boolean;
   readonly onDragStateChange: (dragging: boolean) => void;
+  readonly stickerKey: string | undefined;
 }) {
-  const stickerKey = event.sticker_key;
-  if (!stickerKey) return null;
-  const definition = calendarStickerByKey(stickerKey);
-  const pack = definition?.pack ?? "school";
+  if (!stickerKey && !exerciseSticker) return null;
+  const definition = stickerKey ? calendarStickerByKey(stickerKey) : undefined;
+  const pack = exerciseSticker ? "exercise" : definition?.pack ?? "school";
   const timePrefix = !event.is_all_day ? event.start_time?.slice(0, 5) : null;
   const draggable = canDrag && event.start_date === event.end_date && !event.recurrence_frequency;
   return <StickerManagementButton date={date} event={event} label={event.title} recordId={event.id} recordType="event">
@@ -127,13 +129,13 @@ function EventStickerCalendarItem({ canDrag, date, event, highlighted, onDragSta
         dragEvent.dataTransfer.setData("application/x-bogunon-calendar", JSON.stringify({ id: event.id, kind: "event", date: event.start_date }));
       }}
     >
-      <span aria-hidden="true" className="calendar-item__sticker-icon"><CalendarDateSticker compact showLabel={false} stickerKey={stickerKey} /></span>
+      <span aria-hidden="true" className="calendar-item__sticker-icon">{stickerKey ? <CalendarDateSticker compact showLabel={false} stickerKey={stickerKey} /> : exerciseSticker ? <ExerciseSticker eager size="xs" sticker={exerciseSticker} /> : null}</span>
       <span className="calendar-item__title">{timePrefix ? `${timePrefix} ${event.title}` : event.title}</span>
     </span>
   </StickerManagementButton>;
 }
 
-export function FullMonthCalendar({ dragEnabled, events = [], highlight, month = "2026-07", onDropDate, onMove, onSelectDate, schoolStickers = [], selectedDate, tasks = [], today = todayInSeoul(), visibleItemLimit }: Props) {
+export function FullMonthCalendar({ dragEnabled, events = [], exerciseLogs = [], exerciseStickers = [], highlight, month = "2026-07", onDropDate, onMove, onSelectDate, schoolStickers = [], selectedDate, tasks = [], today = todayInSeoul(), visibleItemLimit }: Props) {
   const { weekStart } = useCalendarPreferences();
   const [year = 1970, monthNumber = 1] = month.split("-").map(Number);
   const monthCells = calendarMonthCells(month, weekStart);
@@ -147,6 +149,8 @@ export function FullMonthCalendar({ dragEnabled, events = [], highlight, month =
   const [draggedId, setDraggedId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<string | null>(null);
   const itemLimit = visibleItemLimit ?? responsiveLimit;
+  const exerciseStickerById = new Map(exerciseStickers.map((sticker) => [sticker.id, sticker]));
+  const exerciseStickerForEvent = (event: EventRow) => event.area === "exercise" ? exerciseStickerById.get(exerciseLogs.find((log) => log.event_id === event.id)?.sticker_id ?? "") : undefined;
 
   return <section className="full-calendar" aria-label={`${year}년 ${monthNumber}월 월간 캘린더`} data-visible-item-limit={itemLimit} data-week-count={weekCount} ref={calendarRef} role="grid">
     <div className="full-calendar__weekdays" role="row">{weekdays.map((weekday) => <span className={weekday === "일" ? "is-sunday" : weekday === "토" ? "is-saturday" : undefined} key={weekday} role="columnheader">{weekday}</span>)}</div>
@@ -199,17 +203,19 @@ export function FullMonthCalendar({ dragEnabled, events = [], highlight, month =
         <div className="full-calendar__event-list">
           {visibleItems.length > 0 && <div className="calendar-cell-items">{visibleItems.map((displayItem) => displayItem.kind === "sticker"
             ? <StickerCalendarItem date={date} highlighted={highlight === `sticker:${displayItem.id}`} key={`sticker-${displayItem.id}`} sticker={displayItem.item} />
-            : displayItem.kind === "event" && displayItem.item.sticker_key
+            : displayItem.kind === "event" && (displayItem.item.sticker_key || exerciseStickerForEvent(displayItem.item))
               ? <EventStickerCalendarItem
                   canDrag={canDrag}
                   date={date}
                   event={displayItem.item}
+                  exerciseSticker={exerciseStickerForEvent(displayItem.item)}
                   highlighted={highlight === `event:${displayItem.id}`}
                   key={`event-sticker-${displayItem.id}`}
                   onDragStateChange={(dragging) => {
                     setDraggedId(dragging ? displayItem.id : null);
                     if (!dragging) setDropTarget(null);
                   }}
+                  stickerKey={displayItem.item.sticker_key ?? undefined}
                 />
               : <CalendarEntry
                 compact

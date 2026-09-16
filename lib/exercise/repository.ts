@@ -81,6 +81,18 @@ export async function listExerciseLogsForEvents(
   return data;
 }
 
+export async function listExerciseStickersForLogs(stickerIds: readonly string[]): Promise<ExerciseStickerRow[]> {
+  if (stickerIds.length === 0) return [];
+  const { supabase, userId } = await ownedClient();
+  const { data, error } = await supabase
+    .from("exercise_stickers")
+    .select("*")
+    .in("id", [...stickerIds])
+    .or(`user_id.is.null,user_id.eq.${userId}`);
+  if (error) throw new ExerciseRepositoryError("운동 스티커를 불러오지 못했습니다.");
+  return data;
+}
+
 export type SaveExerciseLogValues = {
   readonly eventId?: string | null;
   readonly stickerId: string;

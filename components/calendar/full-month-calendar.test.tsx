@@ -5,7 +5,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
-import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
+import type { CalendarStickerRow, EventRow, ExerciseLogRow, ExerciseStickerRow, TaskRow } from "@/types/database";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 
@@ -60,6 +60,41 @@ const stickerEvent: EventRow = {
   id: "event-sticker",
   title: "학생건강검진",
   sticker_key: "health.student-checkup",
+};
+
+const exerciseEvent: EventRow = {
+  ...schoolEvent,
+  id: "event-exercise",
+  title: "배드민턴 레슨",
+  area: "exercise",
+  is_all_day: false,
+  start_time: "15:20",
+  end_time: "16:20",
+};
+
+const exerciseLog: ExerciseLogRow = {
+  id: "exercise-log",
+  user_id: "user",
+  sticker_id: "exercise-sticker",
+  exercise_date: "2026-07-18",
+  duration_minutes: 60,
+  note: null,
+  record_type: "exercise",
+  event_id: "event-exercise",
+  created_at: "",
+  updated_at: "",
+};
+
+const exerciseSticker: ExerciseStickerRow = {
+  id: "exercise-sticker",
+  user_id: null,
+  label: "배드민턴",
+  icon_key: "badminton",
+  color_key: "mint",
+  display_order: 1,
+  is_default: true,
+  created_at: "",
+  updated_at: "",
 };
 
 const monthStickerRows = [
@@ -266,6 +301,15 @@ describe("FullMonthCalendar", () => {
     expect(cell.querySelector(".calendar-item--sticker .calendar-item__sticker-icon img")).toHaveAttribute("src", expect.stringContaining("/stickers/health/student-checkup.svg"));
     expect(cell.querySelector(".calendar-item--sticker .calendar-item__title")).toHaveTextContent("학생건강검진");
     expect(cell.querySelector(".calendar-item--sticker")?.textContent).toBe("학생건강검진");
+    expect(cell.querySelector(".calendar-item--sticker .calendar-item__indicator")).not.toBeInTheDocument();
+  });
+
+  it("renders the linked exercise sticker for workout events without duplicating a bullet", () => {
+    render(<FullMonthCalendar events={[exerciseEvent]} exerciseLogs={[exerciseLog]} exerciseStickers={[exerciseSticker]} month="2026-07" today="2026-07-18" visibleItemLimit={4} />);
+
+    const cell = screen.getByRole("gridcell", { name: /2026-07-18/ });
+    expect(cell.querySelector(".calendar-item--sticker .exercise-sticker")).toBeInTheDocument();
+    expect(cell.querySelector(".calendar-item--sticker .calendar-item__title")).toHaveTextContent("15:20 배드민턴 레슨");
     expect(cell.querySelector(".calendar-item--sticker .calendar-item__indicator")).not.toBeInTheDocument();
   });
 

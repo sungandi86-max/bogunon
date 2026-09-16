@@ -21,7 +21,7 @@ import { createSlotDraft, type AllDayGridItem } from "@/lib/calendar/time-grid";
 import type { TemplateDefinition } from "@/lib/work-items/workflow";
 import type { WorkflowData } from "@/lib/work-items/phase5-repository";
 import type { CalendarStickerRow, EventRow, TaskRow } from "@/types/database";
-import type { ExerciseLogRow } from "@/types/database";
+import type { ExerciseLogRow, ExerciseStickerRow } from "@/types/database";
 import { resolveEventType } from "@/lib/work-items/event-types";
 
 type EntryFilter = "all" | "work" | "school" | "personal" | "workout" | "tournament";
@@ -66,9 +66,9 @@ function createDateDraft(date: string): TemplateDefinition {
   };
 }
 
-interface Props { readonly currentTime?: string; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly highlight?: string | undefined; readonly initialDate: string; readonly initialStickerOpen?: boolean; readonly initialView: CalendarView; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string; readonly toolbarAction?: ReactNode; readonly workflow: WorkflowData }
+interface Props { readonly currentTime?: string; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly exerciseStickers?: ExerciseStickerRow[]; readonly highlight?: string | undefined; readonly initialDate: string; readonly initialStickerOpen?: boolean; readonly initialView: CalendarView; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string; readonly toolbarAction?: ReactNode; readonly workflow: WorkflowData }
 
-export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initialDate, initialStickerOpen = false, initialView, stickers, tasks, today, currentTime = "00:00", toolbarAction, workflow }: Props) {
+export function CalendarWorkspace({ events, exerciseLogs = [], exerciseStickers = [], highlight, initialDate, initialStickerOpen = false, initialView, stickers, tasks, today, currentTime = "00:00", toolbarAction, workflow }: Props) {
   const { weekStart } = useCalendarPreferences();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -204,7 +204,7 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
           className={`calendar-move-feedback${moveMessage.status === "error" ? " is-error" : ""}`}
           role={moveMessage.status === "error" ? "alert" : "status"}
         >{moveMessage.text}</p>}
-        {initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={moveDroppedEvent} onMove={(value) => setMoveState({ value })} onSelectDate={selectMonthDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
+        {initialView === "month" ? <FullMonthCalendar events={periodEvents} exerciseLogs={exerciseLogs} exerciseStickers={exerciseStickers} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={moveDroppedEvent} onMove={(value) => setMoveState({ value })} onSelectDate={selectMonthDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
       </div>
       <aside aria-label={`${selectedDate} 선택 날짜 상세`} className="calendar-detail-panel">
         <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
