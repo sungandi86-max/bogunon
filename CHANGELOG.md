@@ -4,6 +4,26 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.21.0 - Mobile Calendar Date Detail
+
+Release Date: 2026-09-08
+
+### Added
+
+- 모바일 월간 캘린더에서 선택한 날짜의 일정, 업무, 날짜 스티커를 확인하는 날짜 상세 바텀 시트
+- 선택한 날짜를 시작일과 종료일로 미리 채우는 `이 날 일정 추가하기` 흐름
+
+### Improved
+
+- 날짜 상세 바텀 시트의 닫기 동작과 닫힌 뒤 날짜 버튼으로 돌아가는 포커스 복원
+- 기존 데스크톱 월간 상세 패널과 일간 시간표 흐름 유지
+
+### Verified
+
+- 모바일 날짜 상세, 빈 날짜, 일정 추가 날짜 전달, 닫기 및 데스크톱 회귀 집중 테스트
+- 설정 화면의 `package.json` 버전 연결과 패키지·잠금 파일 버전 일치 확인
+- `git diff --check`
+
 ## v0.12.0 - AED Management
 
 Release Date: 2026-08-19

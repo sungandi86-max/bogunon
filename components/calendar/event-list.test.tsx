@@ -58,8 +58,18 @@ describe("EventList time details", () => {
     const { container } = render(<EventList date="2026-07-26" events={[selectedEvent]} onEdit={onEdit} workflow={workflow} />);
     fireEvent.click(screen.getByRole("button", { name: "편집" }));
 
-    expect(onEdit).toHaveBeenCalledWith(selectedEvent);
+    expect(onEdit).toHaveBeenCalledWith(selectedEvent, expect.any(HTMLButtonElement));
     expect(container.querySelector(".inline-editor")).not.toBeInTheDocument();
+  });
+
+  it("keeps event details but omits row actions when actions are disabled", () => {
+    render(<EventList date="2026-07-26" events={[event()]} showActions={false} workflow={workflow} />);
+
+    expect(screen.getByText("성동구 배드민턴 대회")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "편집" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "복사" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "템플릿으로 저장" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "삭제" })).not.toBeInTheDocument();
   });
 
   it("labels an all-day event as all-day", () => {

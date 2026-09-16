@@ -21,6 +21,7 @@ interface EventListProps {
   readonly events: readonly EventRow[];
   readonly exerciseLogs?: readonly ExerciseLogRow[];
   readonly onEdit?: (event: EventRow, trigger?: HTMLButtonElement) => void;
+  readonly showActions?: boolean;
   readonly today?: string;
   readonly workflow: WorkflowData;
 }
@@ -53,6 +54,7 @@ export function EventList({
   events,
   exerciseLogs = [],
   onEdit,
+  showActions = true,
   today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date()),
   workflow,
 }: EventListProps) {
@@ -86,12 +88,12 @@ export function EventList({
         {reminders.length > 0 && <small><Bell size={12} /> 알림 {reminders.length}</small>}
         {showRecordLink && <Link className="tournament-record-link" href={exerciseHref(event, linkedLog)}>{linkedLog ? (eventType === "tournament" ? "대회 기록 보기" : "운동 기록 수정") : (eventType === "tournament" ? "결과 기록하기" : "운동 기록 작성")}<ArrowRight aria-hidden="true" size={14} /></Link>}
       </div>
-      <div className="work-item-actions">
+      {showActions && <div className="work-item-actions">
         <button className="icon-text-action" onClick={(clickEvent) => onEdit?.(event, clickEvent.currentTarget)} type="button"><Pencil aria-hidden="true" size={16} />편집</button>
         <EventCopyMenu eventId={event.id} startDate={event.start_date} />
         <form action={saveWorkItemAsTemplateAction}><input name="id" type="hidden" value={event.id} /><input name="kind" type="hidden" value="event" /><button className="icon-text-action" title="템플릿으로 저장" type="submit"><Save size={16} />템플릿</button></form>
         <form action={deleteWorkItemAction}><input name="id" type="hidden" value={event.id} /><input name="kind" type="hidden" value="event" /><button className="danger-action" type="submit"><Trash2 aria-hidden="true" size={16} />삭제</button></form>
-      </div>
+      </div>}
     </article>;
   })}</section>;
 }

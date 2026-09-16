@@ -11,6 +11,11 @@ export type Notice = {
   readonly createdBy: string; readonly createdAt: string; readonly updatedAt: string; readonly isRead: boolean;
 };
 
+export type NoticeInput = {
+  readonly title: string; readonly summary: string | null; readonly content: string; readonly category: NoticeCategory;
+  readonly isPublished: boolean; readonly isImportant: boolean; readonly publishStartAt: string | null; readonly publishEndAt: string | null;
+};
+
 export function isAdminRole(role: UserRole): boolean { return role === "admin" || role === "owner"; }
 export function roleLabel(role: UserRole): string { return role === "owner" ? "최고 관리자" : role === "admin" ? "관리자" : "사용자"; }
 export function visibleNotice(value: Pick<Notice, "isPublished" | "publishStartAt" | "publishEndAt">, now = new Date()): boolean {

@@ -8,6 +8,7 @@ import { moveSingleDayEventAction } from "@/app/(app)/calendar-event-actions";
 import { CalendarMovePanel } from "@/components/calendar/calendar-move-panel";
 import { useCalendarPreferences } from "@/components/calendar/calendar-preferences-provider";
 import type { MovableCalendarItem } from "@/components/calendar/calendar-entry";
+import { CalendarDateSticker } from "@/components/calendar/calendar-date-sticker";
 import { EventList } from "@/components/calendar/event-list";
 import { FullMonthCalendar } from "@/components/calendar/full-month-calendar";
 import { TimeGridCalendar } from "@/components/calendar/time-grid-calendar";
@@ -28,6 +29,43 @@ type StickerFilter = "all" | CalendarStickerPack;
 const entryFilterOptions: ReadonlyArray<readonly [EntryFilter, string]> = [["all", "전체"], ["work", "업무"], ["school", "학교"], ["personal", "개인"], ["workout", "운동"], ["tournament", "대회"]];
 const stickerFilterOptions: ReadonlyArray<readonly [StickerFilter, string]> = [["all", "전체"], ["school", "학교"], ["academic", "학사일정"], ["health", "보건업무"], ["holiday", "공휴일"], ["personal", "개인"]];
 
+export function mobileDateTitle(date: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!match) return "선택한 날짜";
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const calendarDate = new Date(Date.UTC(year, month - 1, day));
+  if (calendarDate.getUTCFullYear() !== year || calendarDate.getUTCMonth() !== month - 1 || calendarDate.getUTCDate() !== day) return "선택한 날짜";
+  return new Intl.DateTimeFormat("ko-KR", {
+    day: "numeric",
+    month: "long",
+    timeZone: "Asia/Seoul",
+    weekday: "long",
+  }).format(new Date(`${date}T00:00:00+09:00`));
+}
+
+function createDateDraft(date: string): TemplateDefinition {
+  return {
+    key: `calendar-date-${date}`,
+    name: "날짜 일정",
+    kind: "event",
+    area: "healthWork",
+    category: "event",
+    title: "",
+    description: "",
+    priority: "normal",
+    estimatedMinutes: 60,
+    recommendedTiming: "선택한 날짜",
+    recurrenceFrequency: null,
+    checklist: [],
+    memo: "",
+    startDate: date,
+    endDate: date,
+    isAllDay: true,
+  };
+}
+
 interface Props { readonly currentTime?: string; readonly events: EventRow[]; readonly exerciseLogs?: ExerciseLogRow[]; readonly highlight?: string | undefined; readonly initialDate: string; readonly initialStickerOpen?: boolean; readonly initialView: CalendarView; readonly stickers: CalendarStickerRow[]; readonly tasks: TaskRow[]; readonly today: string; readonly toolbarAction?: ReactNode; readonly workflow: WorkflowData }
 
 export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initialDate, initialStickerOpen = false, initialView, stickers, tasks, today, currentTime = "00:00", toolbarAction, workflow }: Props) {
@@ -45,10 +83,12 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
   const [moveState, setMoveState] = useState<{ readonly value: MovableCalendarItem; readonly newDate?: string } | null>(null);
   const [slotDraft, setSlotDraft] = useState<TemplateDefinition | null>(null);
   const [editingEvent, setEditingEvent] = useState<EventRow | null>(null);
+  const [mobileDateDetailOpen, setMobileDateDetailOpen] = useState(false);
   const stickerButtonRef = useRef<HTMLButtonElement>(null);
   const activeStickerFilterRef = useRef<HTMLButtonElement>(null);
   const moveButtonRef = useRef<HTMLButtonElement>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
+  const mobileDateButtonRef = useRef<HTMLButtonElement>(null);
 
   const navigate = useCallback((date: string, view = initialView, nextHighlight?: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -136,6 +176,16 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
     setEditingEvent(null);
     router.refresh();
   }, [router]);
+  const selectMonthDate = (date: string) => {
+    setSelectedDate(date);
+    if (typeof window.matchMedia !== "function" || !window.matchMedia("(max-width: 767px)").matches) return;
+    mobileDateButtonRef.current = document.activeElement instanceof HTMLButtonElement ? document.activeElement : null;
+    setMobileDateDetailOpen(true);
+  };
+  const closeMobileDateDetail = () => {
+    setMobileDateDetailOpen(false);
+    window.setTimeout(() => mobileDateButtonRef.current?.focus(), 0);
+  };
 
   return <>
     <div className="smart-calendar-toolbar"><div className="smart-calendar-toolbar__period"><button aria-label={initialView === "month" ? "이전 달" : initialView === "week" ? "이전 주" : "이전 날짜"} onClick={() => navigate(shiftCalendarPeriod(selectedDate, initialView, -1))} type="button"><ChevronLeft /></button><strong>{periodLabel}</strong><button aria-label={initialView === "month" ? "다음 달" : initialView === "week" ? "다음 주" : "다음 날짜"} onClick={() => navigate(shiftCalendarPeriod(selectedDate, initialView, 1))} type="button"><ChevronRight /></button><button aria-label="오늘 날짜로 이동" className="button button--secondary" onClick={() => navigate(today)} type="button">오늘</button></div><div className="calendar-view-switch calendar-view-switch--desktop" role="group" aria-label="캘린더 보기"><button aria-pressed={initialView === "month"} className={initialView === "month" ? "is-active" : ""} onClick={() => setView("month")} type="button">월간</button><button aria-pressed={initialView === "week"} className={initialView === "week" ? "is-active" : ""} onClick={() => setView("week")} type="button">주간</button><button aria-pressed={initialView === "day"} className={initialView === "day" ? "is-active" : ""} onClick={() => setView("day")} type="button">일간</button></div><div className="calendar-view-switch calendar-view-switch--mobile" role="group" aria-label="모바일 캘린더 보기"><button aria-pressed={initialView === "month"} className={initialView === "month" ? "is-active" : ""} onClick={() => setView("month")} type="button">월간</button><button aria-pressed={initialView !== "month"} className={initialView !== "month" ? "is-active" : ""} onClick={() => setView("day")} type="button">일정표</button></div>{toolbarAction}</div>
@@ -154,7 +204,7 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
           className={`calendar-move-feedback${moveMessage.status === "error" ? " is-error" : ""}`}
           role={moveMessage.status === "error" ? "alert" : "status"}
         >{moveMessage.text}</p>}
-        {initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={moveDroppedEvent} onMove={(value) => setMoveState({ value })} onSelectDate={setSelectedDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
+        {initialView === "month" ? <FullMonthCalendar events={periodEvents} highlight={highlight} month={selectedDate.slice(0, 7)} onDropDate={moveDroppedEvent} onMove={(value) => setMoveState({ value })} onSelectDate={selectMonthDate} schoolStickers={visibleStickers} selectedDate={selectedDate} tasks={periodTasks} today={today} /> : <TimeGridCalendar date={selectedDate} events={periodEvents} mode={initialView} onSelectDate={(date) => { setSelectedDate(date); if (initialView === "day") navigate(date, "day"); }} onSelectItem={selectTimeItem} onSelectSlot={(date, minute) => { setSelectedDate(date); setSlotDraft(createSlotDraft(date, minute)); }} selectedDate={selectedDate} stickers={visibleStickers} tasks={periodTasks} today={today} />}
       </div>
       <aside aria-label={`${selectedDate} 선택 날짜 상세`} className="calendar-detail-panel">
         <header className="calendar-detail-panel__header"><span>선택한 날짜</span><strong>{selectedDate.replaceAll("-", ". ")}</strong><small className="calendar-detail-panel__summary--desktop">일정 {selectedDateEvents.length} · 업무 {selectedDateTasks.length} · 스티커 {selectedDateStickers.length}</small><small className="calendar-detail-panel__summary--mobile">일정 {selectedDateEvents.length} · 스티커 {selectedDateStickers.length}</small></header>
@@ -163,6 +213,22 @@ export function CalendarWorkspace({ events, exerciseLogs = [], highlight, initia
         {selectedDateStickers.length > 0 && <section aria-label={`${selectedDate} 스티커`} className="calendar-detail-panel__group"><h3>날짜 스티커</h3>{selectedDateStickers.map((sticker) => <div className="calendar-detail-panel__item" key={sticker.id}><span className="calendar-item__indicator" /><strong>{sticker.label}</strong></div>)}</section>}
       </aside>
     </div>
+    <ResponsiveDetailPanel
+      footer={<button className="button button--primary" onClick={() => { setMobileDateDetailOpen(false); setSlotDraft(createDateDraft(selectedDate)); }} type="button">이 날 일정 추가하기</button>}
+      onClose={closeMobileDateDetail}
+      open={initialView === "month" && mobileDateDetailOpen}
+      panelClassName="calendar-mobile-date-detail"
+      returnFocusRef={mobileDateButtonRef}
+      title={mobileDateTitle(selectedDate)}
+    >
+      {selectedDateEvents.length + selectedDateTasks.length + selectedDateStickers.length === 0
+        ? <p className="static-note">아직 등록된 일정이 없어요</p>
+        : <>
+          <EventList currentTime={currentTime} date={selectedDate} events={selectedDateEvents} exerciseLogs={exerciseLogs} showActions={false} today={today} workflow={workflow} />
+          {selectedDateTasks.length > 0 && <section aria-label={`${selectedDate} 업무`} className="calendar-detail-panel__group calendar-detail-panel__group--task calendar-mobile-date-detail__tasks"><h3>업무</h3>{selectedDateTasks.map((task) => <div className="calendar-detail-panel__item" key={task.id}><span className="calendar-item__indicator" /><strong>{task.title}</strong></div>)}</section>}
+          {selectedDateStickers.length > 0 && <section aria-label={`${selectedDate} 스티커`} className="calendar-detail-panel__group"><h3>날짜 스티커</h3>{selectedDateStickers.map((sticker) => <div className="calendar-detail-panel__item" key={sticker.id}><CalendarDateSticker compact showLabel={false} stickerKey={sticker.sticker_key} /><strong>{sticker.label}</strong></div>)}</section>}
+        </>}
+    </ResponsiveDetailPanel>
     <ResponsiveDetailPanel footer={<button className="button button--secondary" onClick={() => setEditingEvent(null)} type="button">취소</button>} onClose={() => setEditingEvent(null)} open={Boolean(editingEvent)} panelClassName="calendar-event-edit-modal" presentation="modal" returnFocusRef={editButtonRef} title="일정 편집">
       {editingEvent && <CreateItemForm initialItem={editingEvent} key={editingEvent.id} links={workflow.eventLinks.filter((item) => item.event_id === editingEvent.id)} onSaved={completeEdit} reminders={workflow.eventReminders.filter((item) => item.event_id === editingEvent.id)} /> }
     </ResponsiveDetailPanel>

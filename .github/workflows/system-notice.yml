@@ -1,0 +1,155 @@
+name: System Notice
+
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version to backfill
+        required: true
+        type: string
+      base_sha:
+        description: Base Git SHA for the release diff
+        required: true
+        type: string
+      head_sha:
+        description: Head Git SHA with a successful Vercel Production deployment
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  deployments: read
+  statuses: read
+
+concurrency:
+  group: system-notice-production
+  cancel-in-progress: false
+
+jobs:
+  publish-system-notice:
+    if: >-
+      (
+        github.event_name == 'workflow_dispatch' &&
+        github.ref == 'refs/heads/main'
+      ) ||
+      (
+        github.event.deployment_status.state == 'success' &&
+        github.event.deployment.environment == 'Production' &&
+        github.event.deployment.creator.login == 'vercel[bot]'
+      )
+    environment: Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'deployment_status' && github.event.deployment.sha || github.sha }}
+
+      - name: Verify trusted checkout
+        env:
+          EXPECTED_SHA: ${{ github.event_name == 'deployment_status' && github.event.deployment.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve current main
+        id: main
+        run: |
+          MAIN_SHA="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
+          test -n "$MAIN_SHA"
+          echo "sha=$MAIN_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Read package version
+        id: package
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          test -n "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Verify deployment event targets current main
+        if: github.event_name == 'deployment_status'
+        env:
+          DEPLOYMENT_SHA: ${{ github.event.deployment.sha }}
+          MAIN_SHA: ${{ steps.main.outputs.sha }}
+        run: test "$DEPLOYMENT_SHA" = "$MAIN_SHA"
+
+      - name: Resolve deployment parent SHA
+        id: deployment-parent
+        if: github.event_name == 'deployment_status'
+        env:
+          HEAD_SHA: ${{ github.event.deployment.sha }}
+        run: |
+          BASE_SHA="$(git rev-parse "${HEAD_SHA}^")"
+          test -n "$BASE_SHA"
+          echo "base_sha=$BASE_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Verify backfill has a successful Vercel Production deployment
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          DEPLOYMENT_ID="$(
+            gh api --method GET "repos/${REPOSITORY}/deployments" \
+              -f sha="$HEAD_SHA" \
+              -f environment=Production \
+              -f per_page=100 \
+              --jq '.[] | select(.creator.login == "vercel[bot]") | .id' \
+              | head -n 1
+          )"
+          test -n "$DEPLOYMENT_ID"
+          gh api --method GET "repos/${REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" \
+            --jq '.[0].state' \
+            | grep -qx success
+
+      - name: Validate system notice author
+        env:
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SYSTEM_NOTICE_AUTHOR_ID: ${{ secrets.SYSTEM_NOTICE_AUTHOR_ID }}
+        run: >-
+          node --conditions=react-server --import tsx scripts/release/publish-system-notice.ts validate-author
+
+      - name: Publish system notice for deployment
+        if: github.event_name == 'deployment_status'
+        env:
+          BASE_SHA: ${{ steps.deployment-parent.outputs.base_sha }}
+          HEAD_SHA: ${{ github.event.deployment.sha }}
+          RELEASE_VERSION: ${{ steps.package.outputs.version }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SYSTEM_NOTICE_AUTHOR_ID: ${{ secrets.SYSTEM_NOTICE_AUTHOR_ID }}
+        run: >-
+          node --conditions=react-server --import tsx scripts/release/publish-system-notice.ts publish
+          --version "$RELEASE_VERSION"
+          --base "$BASE_SHA"
+          --head "$HEAD_SHA"
+          --deployment-environment Production
+          --confirm-production
+
+      - name: Publish system notice for backfill
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          BASE_SHA: ${{ inputs.base_sha }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SYSTEM_NOTICE_AUTHOR_ID: ${{ secrets.SYSTEM_NOTICE_AUTHOR_ID }}
+        run: >-
+          node --conditions=react-server --import tsx scripts/release/publish-system-notice.ts publish
+          --version "$RELEASE_VERSION"
+          --base "$BASE_SHA"
+          --head "$HEAD_SHA"
+          --deployment-environment Production
+          --confirm-production
