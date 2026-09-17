@@ -11,7 +11,8 @@ create table public.practical_tools (
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint practical_tools_scope_owner_check check ((scope = 'public' and owner_id is null) or (scope = 'personal' and owner_id is not null))
+  constraint practical_tools_scope_owner_check check ((scope = 'public' and owner_id is null) or (scope = 'personal' and owner_id is not null)),
+  constraint practical_tools_online_health_personal_check check (icon_key <> 'online_health' or scope = 'personal')
 );
 
 create index practical_tools_scope_owner_idx on public.practical_tools(scope, owner_id, is_active, name);
