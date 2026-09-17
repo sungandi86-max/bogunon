@@ -78,4 +78,13 @@ describe("PracticalScheduleWorkspace related tools", () => {
     expect(screen.getByText("온라인 보건실")).toBeTruthy();
     expect(screen.getByRole("button", { name: "온라인 보건실 연결" })).toBeTruthy();
   });
+
+  it("distinguishes a tool-list load failure from an empty candidate list", () => {
+    render(<PracticalScheduleWorkspace items={[schedule]} linkableEvents={[]} practicalToolsError practicalTools={[]} scheduleToolLinks={[]} year={2026} />);
+    fireEvent.click(screen.getByRole("button", { name: "1학년 건강검진 관련 도구" }));
+    expect(screen.getByText("아직 연결된 도구가 없어요.")).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: "도구 추가" })[0]!);
+    expect(screen.getByRole("alert")).toHaveTextContent("도구 목록을 불러오지 못했어요. 다시 시도해 주세요.");
+    expect(screen.queryByText("연결할 수 있는 도구가 없습니다.")).toBeNull();
+  });
 });

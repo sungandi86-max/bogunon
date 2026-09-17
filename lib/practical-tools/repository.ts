@@ -11,10 +11,22 @@ async function ownedClient() {
   return { supabase, userId: user.id };
 }
 
+function reportQueryError(context: string, error: { code?: string; message?: string; details?: string; hint?: string }) {
+  console.error(`[practical-tools] ${context}`, {
+    code: error.code,
+    message: error.message,
+    details: error.details,
+    hint: error.hint,
+  });
+}
+
 export async function listPracticalTools(): Promise<PracticalTool[]> {
   const { supabase } = await ownedClient();
   const { data, error } = await supabase.from("practical_tools").select("*").order("scope").order("name");
-  if (error) throw new Error("관련 도구를 불러오지 못했습니다.");
+  if (error) {
+    reportQueryError("tool list query failed", error);
+    throw new Error("관련 도구를 불러오지 못했습니다.", { cause: error });
+  }
   return data;
 }
 
@@ -22,7 +34,10 @@ export async function listScheduleToolLinks(scheduleIds: readonly string[]): Pro
   if (scheduleIds.length === 0) return [];
   const { supabase } = await ownedClient();
   const { data, error } = await supabase.from("practical_schedule_tools").select("*").in("schedule_id", scheduleIds);
-  if (error) throw new Error("일정 도구 연결을 불러오지 못했습니다.");
+  if (error) {
+    reportQueryError("schedule tool links query failed", error);
+    throw new Error("일정 도구 연결을 불러오지 못했습니다.", { cause: error });
+  }
   return data;
 }
 
