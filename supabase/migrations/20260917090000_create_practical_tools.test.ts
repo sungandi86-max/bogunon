@@ -8,9 +8,12 @@ describe("practical tools migration", () => {
   it("creates scoped tools and an ownership-protected schedule join", () => {
     expect(sql).toContain("create table public.practical_tools");
     expect(sql).toContain("scope in ('public','personal')");
+    expect(sql).toContain("icon_key text not null default 'website'");
     expect(sql).toContain("alter table public.practical_tools enable row level security");
     expect(sql).toContain("create table public.practical_schedule_tools");
     expect(sql).toContain("exists (select 1 from public.practical_tools t");
     expect(sql).toContain("t.scope = 'public' or t.owner_id = (select auth.uid())");
+    expect(sql).toContain("on delete cascade");
+    expect(sql).toContain("unique (schedule_id, tool_id)");
   });
 });

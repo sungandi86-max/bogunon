@@ -2392,6 +2392,9 @@
 .practical-tools-detail__schedule { color: var(--brand-950); font-weight: var(--weight-semibold); margin: 0; }
 .practical-tool-card { align-items: center; border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; gap: var(--space-4); justify-content: space-between; padding: var(--space-4); }
 .practical-tool-card > div:first-child { display: grid; gap: var(--space-1); min-width: 0; }
+.practical-tool-card__identity { align-items: flex-start; display: flex !important; gap: var(--space-2); min-width: 0; }
+.practical-tool-card__identity > svg { color: var(--action-700); flex: 0 0 auto; margin-top: 2px; }
+.practical-tool-card__identity > div, .practical-tool-card__identity > span { display: grid; gap: var(--space-1); min-width: 0; }
 .practical-tool-card strong { color: var(--brand-950); }
 .practical-tool-card p, .practical-tool-card small, .practical-tools-detail__hint, .practical-tools-detail__empty { color: var(--ink-500); font-size: var(--text-sm); margin: 0; }
 .practical-tool-card__actions { align-items: center; display: flex; flex-shrink: 0; gap: var(--space-2); }
@@ -2408,6 +2411,7 @@
 .practical-tools-manager__list article { align-items: center; border-top: 1px solid var(--line-subtle); display: flex; justify-content: space-between; padding: var(--space-4); }
 .practical-tools-manager__list article:first-child { border-top: 0; }
 .practical-tools-manager__list article > div:first-child { display: grid; gap: var(--space-1); }
+.practical-tools-manager__list article > .practical-tool-card__identity { display: flex; }
 .practical-tools-manager__list small, .practical-tools-manager__empty { color: var(--ink-500); font-size: var(--text-sm); }
 .practical-tools-manager__actions { align-items: center; display: flex; gap: var(--space-2); }
 .practical-tools-manager__actions button, .practical-tools-manager__actions a { align-items: center; background: transparent; border: 0; color: var(--ink-500); cursor: pointer; display: inline-flex; min-height: var(--touch-target); min-width: var(--touch-target); justify-content: center; }

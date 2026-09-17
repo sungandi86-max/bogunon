@@ -13,9 +13,9 @@ function parse(formData: FormData): { name: string; description: string | null; 
   const url = value(formData, "url");
   const icon = value(formData, "iconKey") as PracticalToolIconKey;
   if (!name || name.length > 80) return "도구 이름을 확인해 주세요.";
-  if (url.startsWith("/") && !url.startsWith("//")) return { name, description: value(formData, "description") || null, url, icon_key: icons.includes(icon) ? icon : "other", is_active: formData.get("isActive") !== "off" };
+  if (url.startsWith("/") && !url.startsWith("//")) return { name, description: value(formData, "description") || null, url, icon_key: icons.includes(icon) ? icon : "other", is_active: formData.has("isActive") };
   try { if (!/^https?:$/i.test(new URL(url).protocol)) return "http 또는 https 주소만 사용할 수 있습니다."; } catch { return "URL을 확인해 주세요."; }
-  return { name, description: value(formData, "description") || null, url, icon_key: icons.includes(icon) ? icon : "other", is_active: formData.get("isActive") !== "off" };
+  return { name, description: value(formData, "description") || null, url, icon_key: icons.includes(icon) ? icon : "other", is_active: formData.has("isActive") };
 }
 function refresh(): void { revalidatePath("/settings/practical-tools"); revalidatePath("/practical-schedules"); }
 

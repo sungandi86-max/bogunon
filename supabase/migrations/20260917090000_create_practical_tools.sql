@@ -5,7 +5,7 @@ create table public.practical_tools (
   name text not null check (char_length(btrim(name)) between 1 and 80),
   description text,
   url text not null check (url ~* '^(https?://|/[^/])'),
-  icon_key text not null default 'web' check (icon_key in ('online_health','spreadsheet','drive','school_system','website','other')),
+  icon_key text not null default 'website' check (icon_key in ('online_health','spreadsheet','drive','school_system','website','other')),
   scope text not null default 'personal' check (scope in ('public','personal')),
   owner_id uuid references auth.users(id) on delete cascade,
   is_active boolean not null default true,

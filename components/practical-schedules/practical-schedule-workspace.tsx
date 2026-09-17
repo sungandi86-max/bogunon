@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, Link2, Plus, Trash2, X } from "lucide-react";
+import Link from "next/link";
 import { useActionState, useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 import { attachPracticalToolAction, deletePracticalScheduleAction, detachPracticalToolAction, linkExistingEventAction, savePracticalScheduleAction, type PracticalScheduleActionState } from "@/app/(app)/practical-schedules/actions";
@@ -9,6 +10,7 @@ import { CALENDAR_STICKER_CATALOG } from "@/lib/calendar-stickers/catalog";
 import { formatPracticalScheduleDate, practicalScheduleCategoryLabels } from "@/lib/practical-schedules/domain";
 import type { EventRow, PracticalScheduleCategory, PracticalScheduleRow } from "@/types/database";
 import type { PracticalScheduleTool, PracticalTool } from "@/lib/practical-tools/repository";
+import { PracticalToolIcon } from "@/components/practical-tools/practical-tool-icon";
 
 const categoryLabels: Record<PracticalScheduleCategory, string> = practicalScheduleCategoryLabels;
 
@@ -72,9 +74,9 @@ function ScheduleRow({ item, onEdit, onDetails }: { readonly item: PracticalSche
 
 function ScheduleToolsModal({ item, tools, links, onClose, returnFocusRef }: { readonly item: PracticalScheduleRow; readonly tools: readonly PracticalTool[]; readonly links: readonly PracticalScheduleTool[]; readonly onClose: () => void; readonly returnFocusRef: RefObject<HTMLButtonElement | null> }) {
   const linked = new Set(links.filter((link) => link.schedule_id === item.id).map((link) => link.tool_id));
-  const available = tools.filter((tool) => !linked.has(tool.id));
+  const available = tools.filter((tool) => tool.is_active && !linked.has(tool.id));
   return <ResponsiveDetailPanel onClose={onClose} open panelClassName="practical-schedule-tools-panel" presentation="modal" returnFocusRef={returnFocusRef} title="관련 도구">
-    <div className="practical-tools-detail"><p className="practical-tools-detail__schedule">{item.title}</p>{tools.filter((tool) => linked.has(tool.id)).map((tool) => <article className="practical-tool-card" key={tool.id}><div><strong>{tool.name}</strong>{tool.description && <p>{tool.description}</p>}<small>{tool.scope === "public" ? "공용 도구" : "내 도구"}</small></div><div className="practical-tool-card__actions"><a href={tool.url} rel="noopener noreferrer" target="_blank">열기 <ExternalLink aria-hidden="true" size={14} /></a><form action={detachPracticalToolAction}><input name="scheduleId" type="hidden" value={item.id} /><input name="toolId" type="hidden" value={tool.id} /><button type="submit">연결 해제</button></form></div></article>)}{available.length > 0 && <div className="practical-tools-detail__add"><h3>도구 연결</h3>{available.map((tool) => <form action={attachPracticalToolAction} key={tool.id}><input name="scheduleId" type="hidden" value={item.id} /><input name="toolId" type="hidden" value={tool.id} /><span>{tool.name}<small>{tool.scope === "public" ? "공용" : "내 도구"}</small></span><button type="submit">연결</button></form>)}</div>}{linked.size === 0 && <p className="practical-tools-detail__empty">연결된 도구가 없습니다.</p>}{tools.length === 0 && <p className="practical-tools-detail__hint">설정에서 내 도구를 등록하거나 공용 도구를 추가해 주세요.</p>}</div>
+    <div className="practical-tools-detail"><p className="practical-tools-detail__schedule">{item.title}</p>{tools.filter((tool) => linked.has(tool.id)).map((tool) => <article className="practical-tool-card" key={tool.id}><div className="practical-tool-card__identity"><PracticalToolIcon iconKey={tool.icon_key} /><div><strong>{tool.name}</strong>{tool.description && <p>{tool.description}</p>}<small>{tool.scope === "public" ? "공용 도구" : "내 도구"}{!tool.is_active && " · 비활성"}</small></div></div><div className="practical-tool-card__actions">{tool.url.startsWith("/") ? <Link href={tool.url}>열기 <ExternalLink aria-hidden="true" size={14} /></Link> : <a href={tool.url} rel="noopener noreferrer" target="_blank">열기 <ExternalLink aria-hidden="true" size={14} /></a>}<form action={detachPracticalToolAction}><input name="scheduleId" type="hidden" value={item.id} /><input name="toolId" type="hidden" value={tool.id} /><button type="submit">연결 해제</button></form></div></article>)}{available.length > 0 && <div className="practical-tools-detail__add"><h3>도구 연결</h3>{available.map((tool) => <form action={attachPracticalToolAction} key={tool.id}><input name="scheduleId" type="hidden" value={item.id} /><input name="toolId" type="hidden" value={tool.id} /><span className="practical-tool-card__identity"><PracticalToolIcon iconKey={tool.icon_key} /><span>{tool.name}<small>{tool.scope === "public" ? "공용" : "내 도구"}</small></span></span><button type="submit">연결</button></form>)}</div>}{linked.size === 0 && <p className="practical-tools-detail__empty">연결된 도구가 없습니다.</p>}{tools.length === 0 && <p className="practical-tools-detail__hint">설정에서 내 도구를 등록하거나 공용 도구를 추가해 주세요.</p>}</div>
   </ResponsiveDetailPanel>;
 }
 

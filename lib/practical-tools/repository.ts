@@ -13,7 +13,7 @@ async function ownedClient() {
 
 export async function listPracticalTools(): Promise<PracticalTool[]> {
   const { supabase } = await ownedClient();
-  const { data, error } = await supabase.from("practical_tools").select("*").eq("is_active", true).order("scope").order("name");
+  const { data, error } = await supabase.from("practical_tools").select("*").order("scope").order("name");
   if (error) throw new Error("관련 도구를 불러오지 못했습니다.");
   return data;
 }
