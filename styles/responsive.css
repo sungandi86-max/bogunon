@@ -39,6 +39,9 @@
   .practical-tools-detail__add { bottom: 0; box-shadow: var(--shadow-panel); position: fixed; right: 0; top: 0; width: min(380px, 100vw); z-index: 2; }
   .exercise-grid { grid-template-columns: 1fr; }
 }
+@media (min-width: 900px) and (max-width: 1099px) {
+  .practical-tools-detail:has(> .practical-tools-detail__add) { grid-template-columns: minmax(0, 1fr) clamp(340px, 34%, 360px); }
+}
 @media (max-width: 767px) {
   .practical-schedule-tools-panel { height: auto; min-height: 0; max-height: calc(100dvh - 32px); }
   .practical-schedule-tools-panel .detail-panel__body { display: block; overflow-y: auto; }
