@@ -35,9 +35,12 @@
   .exercise-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 767px) {
+  .practical-schedule-tools-panel { height: auto; min-height: 0; max-height: calc(100dvh - 32px); }
+  .practical-schedule-tools-panel .detail-panel__body { display: block; overflow-y: auto; }
+  .practical-tools-detail { overflow: visible; padding: var(--space-5); }
+  .practical-tools-detail__add { border-left: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0; bottom: 0; max-height: calc(100dvh - var(--space-10)); overflow: hidden; position: fixed; top: auto; width: 100%; }
   .practical-tools-detail__grid { grid-template-columns: 1fr; }
   .practical-tools-detail__header { flex-direction: column; }
-  .practical-tools-detail__add { border-left: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0; bottom: 0; max-height: calc(100dvh - var(--space-10)); top: auto; width: 100%; }
   .medication-page .page-header { align-items: flex-start; flex-direction: column; }
   .medication-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .medication-mini-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
