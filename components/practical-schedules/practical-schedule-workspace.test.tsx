@@ -72,8 +72,8 @@ describe("PracticalScheduleWorkspace related tools", () => {
     const tool = { id: "tool-1", name: "온라인 보건실", description: "우리 학교 제출 및 확인", url: "https://health.example", icon_key: "online_health" as const, scope: "personal" as const, owner_id: "user-1", is_active: true, created_at: "", updated_at: "" };
     render(<PracticalScheduleWorkspace items={[schedule]} linkableEvents={[]} practicalTools={[tool]} scheduleToolLinks={[]} year={2026} />);
     fireEvent.click(screen.getByRole("button", { name: "1학년 건강검진 관련 도구" }));
-    expect(screen.getByRole("dialog", { name: "관련 도구" })).toBeTruthy();
-    fireEvent.click(screen.getAllByRole("button", { name: "도구 추가", exact: true })[0]!);
+    expect(screen.getByRole("dialog", { name: "1학년 건강검진" })).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: "도구 추가" })[0]!);
     fireEvent.click(screen.getByRole("tab", { name: "내 도구" }));
     expect(screen.getByText("온라인 보건실")).toBeTruthy();
     expect(screen.getByRole("button", { name: "온라인 보건실 연결" })).toBeTruthy();
