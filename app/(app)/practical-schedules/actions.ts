@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { linkExistingEvent, removePracticalSchedule, savePracticalSchedule } from "@/lib/practical-schedules/repository";
+import { attachToolToSchedule, detachToolFromSchedule } from "@/lib/practical-tools/repository";
 import { isSafePracticalUrl, parsePracticalStickerKey } from "@/lib/practical-schedules/domain";
 import type { PracticalScheduleCategory } from "@/types/database";
 
@@ -79,5 +80,21 @@ export async function deletePracticalScheduleAction(formData: FormData): Promise
   const id = String(formData.get("id") ?? "");
   if (!id) return;
   await removePracticalSchedule(id);
+  refresh();
+}
+
+export async function attachPracticalToolAction(formData: FormData): Promise<void> {
+  const scheduleId = String(formData.get("scheduleId") ?? "").trim();
+  const toolId = String(formData.get("toolId") ?? "").trim();
+  if (!scheduleId || !toolId) return;
+  await attachToolToSchedule(scheduleId, toolId);
+  refresh();
+}
+
+export async function detachPracticalToolAction(formData: FormData): Promise<void> {
+  const scheduleId = String(formData.get("scheduleId") ?? "").trim();
+  const toolId = String(formData.get("toolId") ?? "").trim();
+  if (!scheduleId || !toolId) return;
+  await detachToolFromSchedule(scheduleId, toolId);
   refresh();
 }

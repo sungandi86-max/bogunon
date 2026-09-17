@@ -5,7 +5,9 @@ import type { EventRow } from "@/types/database";
 import { PracticalScheduleWorkspace } from "@/components/practical-schedules/practical-schedule-workspace";
 
 vi.mock("@/app/(app)/practical-schedules/actions", () => ({
+  attachPracticalToolAction: vi.fn(),
   deletePracticalScheduleAction: vi.fn(),
+  detachPracticalToolAction: vi.fn(),
   linkExistingEventAction: vi.fn(),
   savePracticalScheduleAction: vi.fn(),
 }));
@@ -61,5 +63,16 @@ describe("PracticalScheduleWorkspace edit modal", () => {
     fireEvent.click(screen.getByRole("button", { name: "1학년 건강검진 수정" }));
     fireEvent.keyDown(document, { key: "Escape" });
     expect(screen.queryByRole("dialog", { name: "실무 일정 수정" })).toBeNull();
+  });
+});
+
+describe("PracticalScheduleWorkspace related tools", () => {
+  it("shows only supplied public or personal tools for the selected schedule", () => {
+    const tool = { id: "tool-1", name: "온라인 보건실", description: "우리 학교 제출 및 확인", url: "https://health.example", icon_key: "online_health" as const, scope: "personal" as const, owner_id: "user-1", is_active: true, created_at: "", updated_at: "" };
+    render(<PracticalScheduleWorkspace items={[schedule]} linkableEvents={[]} practicalTools={[tool]} scheduleToolLinks={[]} year={2026} />);
+    fireEvent.click(screen.getByRole("button", { name: "1학년 건강검진 관련 도구" }));
+    expect(screen.getByRole("dialog", { name: "관련 도구" })).toBeTruthy();
+    expect(screen.getByText("온라인 보건실")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "연결" })).toBeTruthy();
   });
 });

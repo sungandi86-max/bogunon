@@ -8,6 +8,7 @@ import { DEFAULT_USER_SETTINGS } from "@/lib/settings/domain";
 import { getUserSettings } from "@/lib/settings/repository";
 import { getUserSchoolSettings } from "@/lib/neis/school-settings";
 import packageMetadata from "@/package.json";
+import Link from "next/link";
 
 export default async function SettingsPage() {
   const [result, school] = await Promise.all([
@@ -27,5 +28,5 @@ export default async function SettingsPage() {
     writingAssistanceEnabled: row.writing_assistance_enabled,
     displayDensity: row.display_density,
   } as const : DEFAULT_USER_SETTINGS;
-  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><div className="settings-layout"><AiConnectionLinkCard /><PwaInstallCard version={packageMetadata.version} /><SchoolInformationCard initialSchool={school} /><SettingsForm email={email} initialValues={initialValues} /></div><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
+  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><div className="settings-layout"><AiConnectionLinkCard /><PwaInstallCard version={packageMetadata.version} /><SchoolInformationCard initialSchool={school} /><Link className="settings-tool-link" href="/settings/practical-tools">내 도구 관리</Link><SettingsForm email={email} initialValues={initialValues} /></div><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
 }
