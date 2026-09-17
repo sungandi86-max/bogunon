@@ -9,6 +9,8 @@ describe("practical tools migration", () => {
     expect(sql).toContain("create table public.practical_tools");
     expect(sql).toContain("scope in ('public','personal')");
     expect(sql).toContain("icon_key text not null default 'website'");
+    expect(sql).toContain("practical_tools_online_health_personal_check");
+    expect(sql).toContain("icon_key <> 'online_health' or scope = 'personal'");
     expect(sql).toContain("alter table public.practical_tools enable row level security");
     expect(sql).toContain("create table public.practical_schedule_tools");
     expect(sql).toContain("exists (select 1 from public.practical_tools t");
