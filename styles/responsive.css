@@ -32,6 +32,11 @@
 }
 @media (min-width: 768px) and (max-width: 899px) {
   .detail-panel { max-width: none; width: calc(100% - var(--sidebar-compact-width)); }
+  .practical-tools-detail:has(> .practical-tools-detail__add) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; overflow-y: auto; padding: var(--space-6); }
+  .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__header { grid-column: 1; grid-row: 1; padding: 0; }
+  .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__groups, .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__empty { grid-column: 1; grid-row: 2; overflow: visible; padding: 0 0 var(--space-6); }
+  .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__add { grid-column: 1; grid-row: 3; }
+  .practical-tools-detail__add { bottom: 0; box-shadow: var(--shadow-panel); position: fixed; right: 0; top: 0; width: min(380px, 100vw); z-index: 2; }
   .exercise-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 767px) {
@@ -39,6 +44,10 @@
   .practical-schedule-tools-panel .detail-panel__body { display: block; overflow-y: auto; }
   .practical-tools-detail { overflow: visible; padding: var(--space-5); }
   .practical-tools-detail__add { border-left: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0; bottom: 0; max-height: calc(100dvh - var(--space-10)); overflow: hidden; position: fixed; top: auto; width: 100%; }
+  .practical-tools-detail:has(> .practical-tools-detail__add) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; overflow: visible; padding: 0; }
+  .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__header { grid-column: 1; grid-row: 1; padding: var(--space-5); }
+  .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__groups, .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__empty { grid-column: 1; grid-row: 2; overflow: visible; padding: 0 var(--space-5) var(--space-5); }
+  .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__add { grid-column: 1; grid-row: 3; }
   .practical-tools-detail__grid { grid-template-columns: 1fr; }
   .practical-tools-detail__header { flex-direction: column; }
   .medication-page .page-header { align-items: flex-start; flex-direction: column; }

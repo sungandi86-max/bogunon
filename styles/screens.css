@@ -2391,6 +2391,9 @@
 .practical-schedule-tools-panel { height: min(760px, 85vh); max-height: 85vh; max-width: 1220px; min-height: 620px; width: min(1220px, calc(100vw - 80px)); }
 .practical-schedule-tools-panel .detail-panel__body { display: flex; min-height: 0; overflow: hidden; padding: 0; }
 .practical-tools-detail { display: grid; flex: 1 1 auto; gap: var(--space-4); min-height: 0; min-width: 0; overflow-y: auto; padding: var(--space-8); }
+.practical-tools-detail:has(> .practical-tools-detail__add) { column-gap: 0; grid-template-columns: minmax(0, 1fr) 400px; grid-template-rows: auto minmax(0, 1fr); overflow: hidden; padding: 0; }
+.practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__header { grid-column: 1; grid-row: 1; padding: var(--space-8) var(--space-8) 0; }
+.practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__groups, .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__empty { grid-column: 1; grid-row: 2; min-height: 0; overflow-y: auto; padding: 0 var(--space-8) var(--space-8); }
 .practical-tools-detail__header { align-items: flex-start; display: flex; gap: var(--space-4); justify-content: space-between; }
 .practical-tools-detail__header h2 { margin: 0; }
 .practical-tools-detail__header p { color: var(--ink-500); margin: var(--space-1) 0 0; }
@@ -2409,6 +2412,7 @@
 .practical-tool-card__actions a, .practical-tool-card__actions button, .practical-tools-detail__add button { background: transparent; border: 0; color: var(--action-700); cursor: pointer; font: inherit; font-size: var(--text-sm); font-weight: var(--weight-semibold); }
 .practical-tools-detail__empty .button { display: none; }
 .practical-tools-detail__add { background: var(--surface); border-left: 1px solid var(--line); display: grid; flex: 0 0 400px; gap: var(--space-2); grid-template-rows: auto auto minmax(0, 1fr); min-height: 0; overflow: hidden; padding: var(--space-6); }
+.practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__add { grid-column: 2; grid-row: 1 / span 2; }
 .practical-tools-detail__add-head { align-items: center; display: flex; justify-content: space-between; }
 .practical-tools-detail__add-head h3 { margin: 0; }
 .practical-tools-tabs { border-bottom: 1px solid var(--line-subtle); display: flex; gap: var(--space-4); }
