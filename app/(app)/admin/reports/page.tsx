@@ -1,0 +1,9 @@
+import { PageHeader } from "@/components/layout/page-header";
+import { REPORT_STATUS_LABELS, REPORT_STATUSES, REPORT_TYPE_LABELS } from "@/lib/reports/model";
+import { listAllReports } from "@/lib/reports/repository";
+import { updateReportAction } from "@/app/(app)/support/reports/actions";
+
+export default async function AdminReportsPage() {
+  const reports = await listAllReports();
+  return <main className="page-canvas admin-reports-page"><PageHeader description="사용자 신고를 확인하고 처리 상태를 관리합니다." eyebrow="관리자" title="오류·문의 신고 관리" /><section className="admin-report-list">{reports.length === 0 ? <p className="report-empty">접수된 신고가 없습니다.</p> : reports.map((report) => <article className="admin-report-card" key={report.id}><header><div><span>{REPORT_TYPE_LABELS[report.reportType]}</span><h2>{report.title}</h2><small>{report.userId} · {new Intl.DateTimeFormat("ko-KR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(report.createdAt))}</small></div><span className="report-status">{REPORT_STATUS_LABELS[report.status]}</span></header><details><summary>신고 내용 보기</summary><div className="admin-report-card__content"><p>{report.description}</p>{report.attemptedAction && <p><b>하려고 했던 작업</b>{report.attemptedAction}</p>}{report.observedResult && <p><b>발생한 현상</b>{report.observedResult}</p>}<small>경로: {report.pagePath} · 화면: {report.viewportWidth ?? "-"} × {report.viewportHeight ?? "-"}</small></div></details><form action={updateReportAction} className="admin-report-card__form"><input name="id" type="hidden" value={report.id} /><label>상태<select defaultValue={report.status} name="status">{REPORT_STATUSES.map((status) => <option key={status} value={status}>{REPORT_STATUS_LABELS[status]}</option>)}</select></label><label>관리자 메모<textarea defaultValue={report.adminNote ?? ""} name="adminNote" rows={2} /></label><button className="button button--secondary" type="submit">상태 저장</button></form></article>)}</section></main>;
+}

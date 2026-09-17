@@ -8,6 +8,8 @@ import { DEFAULT_USER_SETTINGS } from "@/lib/settings/domain";
 import { getUserSettings } from "@/lib/settings/repository";
 import { getUserSchoolSettings } from "@/lib/neis/school-settings";
 import packageMetadata from "@/package.json";
+import Link from "next/link";
+import { MessageSquareWarning } from "lucide-react";
 
 export default async function SettingsPage() {
   const [result, school] = await Promise.all([
@@ -27,5 +29,5 @@ export default async function SettingsPage() {
     writingAssistanceEnabled: row.writing_assistance_enabled,
     displayDensity: row.display_density,
   } as const : DEFAULT_USER_SETTINGS;
-  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><div className="settings-layout"><AiConnectionLinkCard /><PwaInstallCard version={packageMetadata.version} /><SchoolInformationCard initialSchool={school} /><SettingsForm email={email} initialValues={initialValues} /></div><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
+  return <main className="page-canvas settings-page"><PageHeader description="알림과 화면, 자주 쓰는 기능을 내 방식에 맞춥니다." title="설정" /><div className="settings-layout"><AiConnectionLinkCard /><PwaInstallCard version={packageMetadata.version} /><SchoolInformationCard initialSchool={school} /><SettingsForm email={email} initialValues={initialValues} /><Link className="settings-card report-settings-card" href="/support/reports"><div className="settings-card__heading"><MessageSquareWarning aria-hidden="true" /><div><h2>오류·문의 신고</h2><p>BOGUNON 사용 중 불편한 점이나 오류를 알려주세요.</p></div></div><span className="settings-card__link">신고센터 열기 →</span></Link></div><form action="/auth/logout" id="settings-logout-form" method="post" /></main>;
 }

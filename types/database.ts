@@ -3,6 +3,7 @@ import type { CalendarStickerKey } from "@/lib/calendar-stickers/catalog";
 import type { NoticeCategory, UserRole } from "@/lib/notices/model";
 import type { EventDetails, EventType } from "@/lib/work-items/event-types";
 import type { GuidelineSourceType } from "@/lib/ai/record-guidelines";
+import type { ReportStatus, ReportType } from "@/lib/reports/model";
 
 export type Area = "healthWork" | "schoolSchedule" | "exercise" | "personal" | "project";
 export type TaskStatus = "planned" | "inProgress" | "waitingForReply" | "needsCheck" | "completed" | "onHold";
@@ -34,6 +35,7 @@ export type PracticalToolRow = { id: string; name: string; description: string |
 export type PracticalScheduleToolRow = { id: string; user_id: string; schedule_id: string; tool_id: string; created_at: string };
 export type NoticeRow = { id: string; title: string; summary: string | null; content: string; category: NoticeCategory; is_published: boolean; is_important: boolean; publish_start_at: string | null; publish_end_at: string | null; created_by: string; created_at: string; updated_at: string };
 export type NoticeReadRow = { notice_id: string; user_id: string; read_at: string };
+export type UserReportRow = { id: string; user_id: string; report_type: ReportType; title: string; description: string; attempted_action: string | null; observed_result: string | null; reproducible: "yes" | "no" | "unknown" | null; page_path: string; app_version: string | null; user_agent: string | null; viewport_width: number | null; viewport_height: number | null; status: ReportStatus; admin_note: string | null; created_at: string; updated_at: string };
 export type HealthSupportAttendanceConfirmationRow = { id: string; user_id: string; instructor_id: string; year: number; month: number; confirmed: boolean; confirmed_at: string | null; created_at: string; updated_at: string };
 
 export type TaskRow = {
@@ -540,6 +542,7 @@ export type Database = {
       health_support_attendance_confirmations: { Row: HealthSupportAttendanceConfirmationRow; Insert: Insert<HealthSupportAttendanceConfirmationRow, "id" | "confirmed" | "confirmed_at" | "created_at" | "updated_at">; Update: Partial<Omit<HealthSupportAttendanceConfirmationRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
       notices: { Row: NoticeRow; Insert: Insert<NoticeRow, "id" | "summary" | "category" | "is_published" | "is_important" | "publish_start_at" | "publish_end_at" | "created_at" | "updated_at">; Update: Partial<NoticeRow>; Relationships: [] };
       notice_reads: { Row: NoticeReadRow; Insert: Insert<NoticeReadRow, "read_at">; Update: Pick<NoticeReadRow, "read_at">; Relationships: [] };
+      user_reports: { Row: UserReportRow; Insert: Insert<UserReportRow, "id" | "attempted_action" | "observed_result" | "reproducible" | "app_version" | "user_agent" | "viewport_width" | "viewport_height" | "status" | "admin_note" | "created_at" | "updated_at">; Update: Partial<Pick<UserReportRow, "status" | "admin_note">>; Relationships: [] };
       ai_preferences: {
         Row: AiPreferencesRow;
         Insert: Insert<AiPreferencesRow, "id" | "history_enabled" | "created_at" | "updated_at">;
