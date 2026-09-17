@@ -26,11 +26,12 @@ export async function listScheduleToolLinks(scheduleIds: readonly string[]): Pro
   return data;
 }
 
-export async function createPracticalTool(userId: string, values: Omit<PracticalToolRow, "id" | "created_at" | "updated_at" | "owner_id" | "scope">): Promise<void> {
+export async function createPracticalTool(userId: string, values: Omit<PracticalToolRow, "id" | "created_at" | "updated_at" | "owner_id" | "scope">): Promise<string> {
   const { supabase } = await ownedClient();
   const insert: Database["public"]["Tables"]["practical_tools"]["Insert"] = { ...values, owner_id: userId, scope: "personal" };
-  const { error } = await supabase.from("practical_tools").insert(insert);
+  const { data, error } = await supabase.from("practical_tools").insert(insert).select("id").single();
   if (error) throw new Error("내 도구를 저장하지 못했습니다.");
+  return data.id;
 }
 
 export async function updatePracticalTool(id: string, values: Pick<PracticalToolRow, "name" | "description" | "url" | "icon_key" | "is_active">): Promise<void> {

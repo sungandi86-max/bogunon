@@ -35,6 +35,8 @@
   .exercise-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 767px) {
+  .practical-tools-detail__grid { grid-template-columns: 1fr; }
+  .practical-tools-detail__header { flex-direction: column; }
   .medication-page .page-header { align-items: flex-start; flex-direction: column; }
   .medication-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .medication-mini-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }

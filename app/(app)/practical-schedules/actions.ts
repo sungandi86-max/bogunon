@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
 import { linkExistingEvent, removePracticalSchedule, savePracticalSchedule } from "@/lib/practical-schedules/repository";
-import { attachToolToSchedule, detachToolFromSchedule } from "@/lib/practical-tools/repository";
+import { attachToolToSchedule, createPracticalTool, deletePracticalTool, detachToolFromSchedule } from "@/lib/practical-tools/repository";
 import { isSafePracticalUrl, parsePracticalStickerKey } from "@/lib/practical-schedules/domain";
-import type { PracticalScheduleCategory } from "@/types/database";
+import type { PracticalScheduleCategory, PracticalToolRow } from "@/types/database";
 
 export type PracticalScheduleActionState = { readonly status: "idle" | "success" | "error"; readonly message?: string };
 
@@ -97,4 +98,29 @@ export async function detachPracticalToolAction(formData: FormData): Promise<voi
   if (!scheduleId || !toolId) return;
   await detachToolFromSchedule(scheduleId, toolId);
   refresh();
+}
+
+export async function createAndAttachPracticalToolAction(_state: PracticalScheduleActionState, formData: FormData): Promise<PracticalScheduleActionState> {
+  let createdId: string | null = null;
+  try {
+    const scheduleId = String(formData.get("scheduleId") ?? "").trim();
+    const name = String(formData.get("name") ?? "").trim();
+    const url = String(formData.get("url") ?? "").trim();
+    const description = optional(formData, "description");
+    const iconKey = String(formData.get("iconKey") ?? "other").trim();
+    if (!scheduleId || !name || !url) throw new Error("도구명과 URL을 입력해 주세요.");
+    if (!isSafePracticalUrl(url)) throw new Error("URL은 http 또는 https 주소만 사용할 수 있습니다.");
+    const allowedIcons = new Set(["online_health", "spreadsheet", "drive", "school_system", "website", "other"]);
+    if (!allowedIcons.has(iconKey)) throw new Error("아이콘을 확인해 주세요.");
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error("로그인이 필요합니다.");
+    createdId = await createPracticalTool(user.id, { name, description, url, icon_key: iconKey as PracticalToolRow["icon_key"], is_active: true });
+    await attachToolToSchedule(scheduleId, createdId);
+    refresh();
+    return { status: "success", message: "도구를 추가하고 일정에 연결했습니다." };
+  } catch (error) {
+    if (createdId) await deletePracticalTool(createdId).catch(() => undefined);
+    return { status: "error", message: error instanceof Error ? error.message : "도구를 추가하지 못했습니다." };
+  }
 }

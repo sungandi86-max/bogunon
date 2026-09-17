@@ -6,6 +6,7 @@ import { PracticalScheduleWorkspace } from "@/components/practical-schedules/pra
 
 vi.mock("@/app/(app)/practical-schedules/actions", () => ({
   attachPracticalToolAction: vi.fn(),
+  createAndAttachPracticalToolAction: vi.fn(),
   deletePracticalScheduleAction: vi.fn(),
   detachPracticalToolAction: vi.fn(),
   linkExistingEventAction: vi.fn(),
@@ -72,7 +73,9 @@ describe("PracticalScheduleWorkspace related tools", () => {
     render(<PracticalScheduleWorkspace items={[schedule]} linkableEvents={[]} practicalTools={[tool]} scheduleToolLinks={[]} year={2026} />);
     fireEvent.click(screen.getByRole("button", { name: "1학년 건강검진 관련 도구" }));
     expect(screen.getByRole("dialog", { name: "관련 도구" })).toBeTruthy();
+    fireEvent.click(screen.getAllByRole("button", { name: "도구 추가", exact: true })[0]!);
+    fireEvent.click(screen.getByRole("tab", { name: "내 도구" }));
     expect(screen.getByText("온라인 보건실")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "연결" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "온라인 보건실 연결" })).toBeTruthy();
   });
 });
