@@ -16,7 +16,7 @@ export default async function PracticalSchedulesPage({ searchParams }: { readonl
   const toolLinks = await listScheduleToolLinks(items.map((item) => item.id)).catch(() => []);
   const newTitle = params.new === "1" && params.title ? params.title : undefined;
   return <main className="page-canvas practical-schedules-page">
-    <PageHeader description="연간 보건업무를 실제 날짜·장소·진행방법과 함께 관리합니다." title="실무 일정" />
+    <PageHeader action={<Link className="button button--secondary" href="/settings/practical-tools">도구 관리</Link>} description="연간 보건업무를 실제 날짜·장소·진행방법과 함께 관리합니다." title="실무 일정" />
     <nav aria-label="실무 일정 연도 이동" className="year-navigation"><Link aria-label="이전 연도" href={`/practical-schedules?year=${year - 1}`}><ChevronLeft size={17} />{year - 1}</Link><strong>{year}년</strong><Link href={`/practical-schedules?year=${currentYear}`}><RotateCcw size={15} />현재 연도</Link><Link aria-label="다음 연도" href={`/practical-schedules?year=${year + 1}`}>{year + 1}<ChevronRight size={17} /></Link></nav>
     <PracticalScheduleWorkspace items={items} linkableEvents={linkableEvents} linkedScheduleIds={linkedScheduleIds} newMonth={params.month} newOpen={params.new === "1"} newTitle={newTitle} practicalTools={tools} scheduleToolLinks={toolLinks} year={year} />
   </main>;
