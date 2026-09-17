@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isReportStatus, isReportType, sanitizePathname } from "./model";
+import { isReportStatus, isReportType, parseReportFilters, sanitizePathname } from "./model";
 
 describe("report model", () => {
   it("sanitizes query strings and hashes from the captured path", () => {
@@ -12,5 +12,10 @@ describe("report model", () => {
     expect(isReportType("ticket")).toBe(false);
     expect(isReportStatus("reviewing")).toBe(true);
     expect(isReportStatus("pending")).toBe(false);
+  });
+
+  it("keeps only valid admin filter query values", () => {
+    expect(parseReportFilters({ type: "bug", status: "reviewing" })).toEqual({ reportType: "bug", status: "reviewing" });
+    expect(parseReportFilters({ type: "invalid", status: "invalid" })).toEqual({});
   });
 });

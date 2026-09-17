@@ -10,9 +10,11 @@ export type UserReport = {
   readonly id: string; readonly userId: string; readonly reportType: ReportType; readonly title: string; readonly description: string;
   readonly attemptedAction: string | null; readonly observedResult: string | null; readonly reproducible: "yes" | "no" | "unknown" | null;
   readonly pagePath: string; readonly appVersion: string | null; readonly userAgent: string | null;
-  readonly viewportWidth: number | null; readonly viewportHeight: number | null; readonly status: ReportStatus; readonly adminNote: string | null;
+  readonly viewportWidth: number | null; readonly viewportHeight: number | null; readonly status: ReportStatus;
   readonly createdAt: string; readonly updatedAt: string;
 };
+
+export type AdminUserReport = UserReport & { readonly adminNote: string | null };
 
 export function sanitizePathname(value: string): string {
   const path = value.trim().split(/[?#]/u, 1)[0] ?? "/";
@@ -21,3 +23,9 @@ export function sanitizePathname(value: string): string {
 
 export function isReportType(value: string): value is ReportType { return (REPORT_TYPES as readonly string[]).includes(value); }
 export function isReportStatus(value: string): value is ReportStatus { return (REPORT_STATUSES as readonly string[]).includes(value); }
+
+export function parseReportFilters(params: { readonly type?: string; readonly status?: string }): { readonly reportType?: ReportType; readonly status?: ReportStatus } {
+  const reportType = params.type && isReportType(params.type) ? params.type : undefined;
+  const status = params.status && isReportStatus(params.status) ? params.status : undefined;
+  return reportType || status ? { ...(reportType ? { reportType } : {}), ...(status ? { status } : {}) } : {};
+}

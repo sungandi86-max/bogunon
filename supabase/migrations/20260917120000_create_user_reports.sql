@@ -15,6 +15,12 @@ create table public.user_reports (
   viewport_width integer check (viewport_width is null or viewport_width between 1 and 10000),
   viewport_height integer check (viewport_height is null or viewport_height between 1 and 10000),
   status text not null default 'received' check (status in ('received', 'reviewing', 'resolved', 'closed')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table public.user_report_admin_notes (
+  report_id uuid primary key references public.user_reports(id) on delete cascade,
   admin_note text check (admin_note is null or char_length(admin_note) <= 10000),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -23,17 +29,29 @@ create table public.user_reports (
 create index user_reports_user_created_idx on public.user_reports(user_id, created_at desc);
 create index user_reports_status_created_idx on public.user_reports(status, created_at desc);
 create trigger user_reports_set_updated_at before update on public.user_reports for each row execute function public.set_updated_at();
+create trigger user_report_admin_notes_set_updated_at before update on public.user_report_admin_notes for each row execute function public.set_updated_at();
 
 alter table public.user_reports enable row level security;
-revoke all on table public.user_reports from public, anon;
-grant select, insert on public.user_reports to authenticated;
-grant update (status, admin_note) on public.user_reports to authenticated;
+alter table public.user_report_admin_notes enable row level security;
+revoke all on table public.user_reports from public, anon, authenticated;
+revoke all on table public.user_report_admin_notes from public, anon, authenticated;
+grant select on public.user_reports to authenticated;
+grant insert (user_id, report_type, title, description, attempted_action, observed_result, reproducible, page_path, app_version, user_agent, viewport_width, viewport_height) on public.user_reports to authenticated;
+grant update (status) on public.user_reports to authenticated;
+grant select, insert, update on public.user_report_admin_notes to authenticated;
 
 create policy user_reports_select_own_or_admin on public.user_reports for select to authenticated
 using (user_id = (select auth.uid()) or private.is_notice_admin());
 create policy user_reports_insert_own on public.user_reports for insert to authenticated
 with check (user_id = (select auth.uid()));
 create policy user_reports_update_admin on public.user_reports for update to authenticated
+using (private.is_notice_admin()) with check (private.is_notice_admin());
+
+create policy user_report_admin_notes_admin_select on public.user_report_admin_notes for select to authenticated
+using (private.is_notice_admin());
+create policy user_report_admin_notes_admin_insert on public.user_report_admin_notes for insert to authenticated
+with check (private.is_notice_admin());
+create policy user_report_admin_notes_admin_update on public.user_report_admin_notes for update to authenticated
 using (private.is_notice_admin()) with check (private.is_notice_admin());
 
 commit;
