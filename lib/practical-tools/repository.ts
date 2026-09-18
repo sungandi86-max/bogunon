@@ -1,4 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
+import { isAdminRole } from "@/lib/notices/model";
+import { validatePracticalToolScope } from "@/lib/practical-tools/domain";
 import type { Database, PracticalScheduleToolRow, PracticalToolRow } from "@/types/database";
 
 export type PracticalTool = PracticalToolRow;
@@ -9,6 +11,13 @@ async function ownedClient() {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error || !user) throw new Error("로그인이 필요합니다.");
   return { supabase, userId: user.id };
+}
+
+async function actor() {
+  const { supabase, userId } = await ownedClient();
+  const { data: profile, error } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+  if (error) throw new Error("도구 권한을 확인하지 못했습니다.");
+  return { supabase, userId, isAdmin: isAdminRole(profile?.role ?? "user") };
 }
 
 function reportQueryError(context: string, error: { code?: string; message?: string; details?: string; hint?: string }) {
@@ -41,24 +50,40 @@ export async function listScheduleToolLinks(scheduleIds: readonly string[]): Pro
   return data;
 }
 
-export async function createPracticalTool(userId: string, values: Omit<PracticalToolRow, "id" | "created_at" | "updated_at" | "owner_id" | "scope">): Promise<string> {
-  const { supabase } = await ownedClient();
-  const insert: Database["public"]["Tables"]["practical_tools"]["Insert"] = { ...values, owner_id: userId, scope: "personal" };
+export async function createPracticalTool(userId: string, values: Omit<PracticalToolRow, "id" | "created_at" | "updated_at" | "owner_id">): Promise<string> {
+  const { supabase, userId: actorId, isAdmin } = await actor();
+  if (userId !== actorId) throw new Error("도구 소유자를 확인하지 못했습니다.");
+  const scopeError = validatePracticalToolScope(values.scope, values.icon_key, isAdmin);
+  if (scopeError) throw new Error(scopeError);
+  const { scope, ...toolValues } = values;
+  const insert: Database["public"]["Tables"]["practical_tools"]["Insert"] = { ...toolValues, owner_id: scope === "public" ? null : actorId, scope };
   const { data, error } = await supabase.from("practical_tools").insert(insert).select("id").single();
-  if (error) throw new Error("내 도구를 저장하지 못했습니다.");
+  if (error) throw new Error(scope === "public" ? "공용 도구를 저장하지 못했습니다." : "내 도구를 저장하지 못했습니다.");
   return data.id;
 }
 
 export async function updatePracticalTool(id: string, values: Pick<PracticalToolRow, "name" | "description" | "url" | "icon_key" | "is_active">): Promise<void> {
-  const { supabase, userId } = await ownedClient();
-  const { error } = await supabase.from("practical_tools").update(values).eq("id", id).eq("owner_id", userId);
-  if (error) throw new Error("내 도구를 수정하지 못했습니다.");
+  const { supabase, userId, isAdmin } = await actor();
+  const { data: current, error: lookupError } = await supabase.from("practical_tools").select("scope,owner_id").eq("id", id).maybeSingle();
+  if (lookupError) throw new Error("도구를 확인하지 못했습니다.");
+  if (!current) throw new Error("도구를 찾을 수 없습니다.");
+  if (current.scope === "public" && !isAdmin) throw new Error("공용 도구는 관리자만 수정할 수 있습니다.");
+  if (current.scope === "personal" && current.owner_id !== userId) throw new Error("내 도구만 수정할 수 있습니다.");
+  const query = supabase.from("practical_tools").update(values).eq("id", id);
+  const { error } = current.scope === "public" ? await query : await query.eq("owner_id", userId);
+  if (error) throw new Error(current.scope === "public" ? "공용 도구를 수정하지 못했습니다." : "내 도구를 수정하지 못했습니다.");
 }
 
 export async function deletePracticalTool(id: string): Promise<void> {
-  const { supabase, userId } = await ownedClient();
-  const { error } = await supabase.from("practical_tools").delete().eq("id", id).eq("owner_id", userId);
-  if (error) throw new Error("내 도구를 삭제하지 못했습니다.");
+  const { supabase, userId, isAdmin } = await actor();
+  const { data: current, error: lookupError } = await supabase.from("practical_tools").select("scope,owner_id").eq("id", id).maybeSingle();
+  if (lookupError) throw new Error("도구를 확인하지 못했습니다.");
+  if (!current) throw new Error("도구를 찾을 수 없습니다.");
+  if (current.scope === "public" && !isAdmin) throw new Error("공용 도구는 관리자만 삭제할 수 있습니다.");
+  if (current.scope === "personal" && current.owner_id !== userId) throw new Error("내 도구만 삭제할 수 있습니다.");
+  const query = supabase.from("practical_tools").delete().eq("id", id);
+  const { error } = current.scope === "public" ? await query : await query.eq("owner_id", userId);
+  if (error) throw new Error(current.scope === "public" ? "공용 도구를 삭제하지 못했습니다." : "내 도구를 삭제하지 못했습니다.");
 }
 
 export async function attachToolToSchedule(scheduleId: string, toolId: string): Promise<void> {

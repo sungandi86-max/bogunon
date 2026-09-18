@@ -115,7 +115,7 @@ export async function createAndAttachPracticalToolAction(_state: PracticalSchedu
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error("로그인이 필요합니다.");
-    createdId = await createPracticalTool(user.id, { name, description, url, icon_key: iconKey as PracticalToolRow["icon_key"], is_active: true });
+    createdId = await createPracticalTool(user.id, { name, description, url, icon_key: iconKey as PracticalToolRow["icon_key"], scope: "personal", is_active: true });
     await attachToolToSchedule(scheduleId, createdId);
     refresh();
     return { status: "success", message: "도구를 추가하고 일정에 연결했습니다." };
