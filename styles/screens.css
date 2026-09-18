@@ -2400,18 +2400,23 @@
 .practical-tools-detail__header p { color: var(--ink-500); margin: var(--space-1) 0 0; }
 .practical-tools-detail__groups { display: grid; gap: var(--space-5); }
 .practical-tools-detail__groups h3 { color: var(--ink-500); font-size: var(--text-sm); margin: 0 0 var(--space-2); }
-.practical-tools-detail__grid { display: grid; gap: var(--space-3); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.practical-tools-detail__grid { display: grid; gap: var(--space-3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); }
 .practical-tools-detail__schedule { color: var(--brand-950); font-weight: var(--weight-semibold); margin: 0; }
-.practical-tool-card { align-items: center; border: 1px solid var(--line); border-radius: var(--radius-md); display: flex; gap: var(--space-4); justify-content: space-between; padding: var(--space-4); }
-.practical-tool-card > div:first-child { display: grid; gap: var(--space-1); min-width: 0; }
+.practical-tool-card { border: 1px solid var(--line); border-radius: var(--radius-md); display: grid; gap: var(--space-4); grid-template-rows: 1fr auto; min-width: 0; padding: var(--space-4); }
+.practical-tool-card__body { min-width: 0; }
 .practical-tool-card__identity { align-items: flex-start; display: flex !important; gap: var(--space-2); min-width: 0; }
 .practical-tool-card__identity > svg { color: var(--action-700); flex: 0 0 auto; margin-top: 2px; }
 .practical-tool-card__identity > div, .practical-tool-card__identity > span { display: grid; gap: var(--space-1); min-width: 0; }
+.practical-tool-card__name-row { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-2); min-width: 0; }
+.practical-tool-card__name-row strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .practical-tool-card strong { color: var(--brand-950); }
 .practical-tool-card p, .practical-tool-card small, .practical-tools-detail__hint, .practical-tools-detail__empty { color: var(--ink-500); font-size: var(--text-sm); margin: 0; }
-.practical-tool-card__actions { align-items: center; display: flex; flex-shrink: 0; gap: var(--space-2); }
-.practical-tool-card__actions a, .practical-tool-card__actions button, .practical-tools-detail__add button { background: transparent; border: 0; color: var(--action-700); cursor: pointer; font: inherit; font-size: var(--text-sm); font-weight: var(--weight-semibold); }
-.practical-tools-detail__empty .button { display: none; }
+.practical-tool-card p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: break-word; word-break: keep-all; }
+.practical-tool-card__actions { align-items: center; border-top: 1px solid var(--line-subtle); display: flex; gap: var(--space-3); padding-top: var(--space-3); }
+.practical-tool-card__actions a, .practical-tool-card__actions button, .practical-tools-detail__add button { background: transparent; border: 0; color: var(--action-700); cursor: pointer; font: inherit; font-size: var(--text-sm); font-weight: var(--weight-semibold); min-height: var(--touch-target); }
+.practical-tool-card__actions a { align-items: center; display: inline-flex; gap: var(--space-1); }
+.practical-tool-card__actions form { margin: 0; }
+.practical-tools-detail__empty .button { display: inline-flex; margin-top: var(--space-3); }
 .practical-tools-detail__add { background: var(--surface); border-left: 1px solid var(--line); display: grid; flex: 0 0 400px; gap: var(--space-2); grid-template-rows: auto auto minmax(0, 1fr); min-height: 0; overflow: hidden; padding: var(--space-6); }
 .practical-tools-detail:has(> .practical-tools-detail__add) > .practical-tools-detail__add { grid-column: 2; grid-row: 1 / span 2; }
 .practical-tools-detail__add-head { align-items: center; display: flex; justify-content: space-between; }
