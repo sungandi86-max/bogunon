@@ -48,16 +48,16 @@ describe("Supabase session proxy", () => {
     expect(response.headers.get("location")).toBe("https://bogunon.example/login");
   });
 
-  it("lets only the exact desktop meal endpoint own bearer authentication", async () => {
-    const response = await updateSession(
-      new NextRequest("https://bogunon.example/api/desktop/meal?date=2026-09-21"),
-    );
-
+  it.each([
+    "/api/desktop/meal?date=2026-09-21",
+    "/api/desktop/weather",
+  ])("lets the exact desktop bearer endpoint %s own authentication", async (path) => {
+    const response = await updateSession(new NextRequest(`https://bogunon.example${path}`));
     expect(response.headers.get("location")).toBeNull();
     expect(getUser).not.toHaveBeenCalled();
   });
 
-  it.each(["/api/desktop", "/api/desktop/meal-extra", "/api/desktop/meal/extra"])(
+  it.each(["/api/desktop", "/api/desktop/meal-extra", "/api/desktop/meal/extra", "/api/desktop/weather-extra", "/api/desktop/weather/extra"])(
     "keeps the nearby path %s behind cookie authentication",
     async (pathname) => {
       const response = await updateSession(new NextRequest(`https://bogunon.example${pathname}`));

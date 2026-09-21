@@ -20,7 +20,7 @@ const publicPwaPaths = new Set([
   "/offline.html",
 ]);
 const publicAssetPrefixes = ["/_next/static/", "/_next/image/", "/images/", "/public/"] as const;
-const DESKTOP_MEAL_API_PATH = "/api/desktop/meal";
+const desktopBearerApiPaths = new Set(["/api/desktop/meal", "/api/desktop/weather"]);
 
 function isPublicPath(pathname: string): boolean {
   return publicPathPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -49,7 +49,7 @@ export async function updateSession(request: NextRequest, requestHeaders?: Heade
   const pathname = request.nextUrl.pathname;
   if (isPublicAssetPath(pathname)) return createNextResponse(request, requestHeaders);
   if (isPublicLegalPath(pathname)) return createNextResponse(request, requestHeaders);
-  if (pathname === DESKTOP_MEAL_API_PATH) return createNextResponse(request, requestHeaders);
+  if (desktopBearerApiPaths.has(pathname)) return createNextResponse(request, requestHeaders);
   if (!hasSupabaseConfig()) {
     if (isPublicPath(pathname)) return createNextResponse(request, requestHeaders);
     return NextResponse.redirect(new URL(createLoginPath("configuration"), request.url));
