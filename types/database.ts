@@ -38,6 +38,10 @@ export type NoticeReadRow = { notice_id: string; user_id: string; read_at: strin
 export type UserReportRow = { id: string; user_id: string; report_type: ReportType; title: string; description: string; attempted_action: string | null; observed_result: string | null; reproducible: "yes" | "no" | "unknown" | null; page_path: string; app_version: string | null; user_agent: string | null; viewport_width: number | null; viewport_height: number | null; status: ReportStatus; created_at: string; updated_at: string };
 export type UserReportAdminNoteRow = { report_id: string; admin_note: string | null; created_at: string; updated_at: string };
 export type HealthSupportAttendanceConfirmationRow = { id: string; user_id: string; instructor_id: string; year: number; month: number; confirmed: boolean; confirmed_at: string | null; created_at: string; updated_at: string };
+export type StaffContactRow = { id: string; user_id: string; school_key: string; name: string; mobile_phone: string | null; memo: string | null; is_active: boolean; created_at: string; updated_at: string };
+export type StaffAssignmentRow = { id: string; user_id: string; school_key: string; staff_id: string; school_year: number; semester: 1 | 2; department: string | null; grade_team: string | null; subject: string | null; role: string | null; duties: string | null; office_location: string | null; seat: string | null; extension: string | null; is_favorite: boolean; sort_order: number; is_active: boolean; created_at: string; updated_at: string };
+export type StaffContactGroupRow = { id: string; user_id: string; school_key: string; school_year: number; semester: 1 | 2; name: string; memo: string | null; sort_order: number; created_at: string; updated_at: string };
+export type StaffContactGroupMemberRow = { id: string; user_id: string; group_id: string; assignment_id: string; sort_order: number; memo: string | null; created_at: string; updated_at: string };
 
 export type TaskRow = {
   id: string;
@@ -545,6 +549,10 @@ export type Database = {
       notice_reads: { Row: NoticeReadRow; Insert: Insert<NoticeReadRow, "read_at">; Update: Pick<NoticeReadRow, "read_at">; Relationships: [] };
       user_reports: { Row: UserReportRow; Insert: Insert<UserReportRow, "id" | "attempted_action" | "observed_result" | "reproducible" | "app_version" | "user_agent" | "viewport_width" | "viewport_height" | "status" | "created_at" | "updated_at">; Update: Pick<UserReportRow, "status">; Relationships: [] };
       user_report_admin_notes: { Row: UserReportAdminNoteRow; Insert: Insert<UserReportAdminNoteRow, "created_at" | "updated_at">; Update: Partial<Pick<UserReportAdminNoteRow, "admin_note" | "updated_at">>; Relationships: [] };
+      staff_contacts: { Row: StaffContactRow; Insert: Insert<StaffContactRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<StaffContactRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      staff_assignments: { Row: StaffAssignmentRow; Insert: Insert<StaffAssignmentRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<StaffAssignmentRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      staff_contact_groups: { Row: StaffContactGroupRow; Insert: Insert<StaffContactGroupRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<StaffContactGroupRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
+      staff_contact_group_members: { Row: StaffContactGroupMemberRow; Insert: Insert<StaffContactGroupMemberRow, "id" | "created_at" | "updated_at">; Update: Partial<Omit<StaffContactGroupMemberRow, "id" | "user_id" | "created_at" | "updated_at">>; Relationships: [] };
       ai_preferences: {
         Row: AiPreferencesRow;
         Insert: Insert<AiPreferencesRow, "id" | "history_enabled" | "created_at" | "updated_at">;

@@ -4,6 +4,16 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.22.0 - Staff Contacts
+
+Release Date: 2026-09-23
+
+### Added
+
+- 학교 연락처를 학년도·학기별로 보존하고 이름, 담당업무, 부서, 위치, 내선으로 검색하는 교직원 연락처 허브
+- 자주 연락하는 사람 즐겨찾기, 장소 연락처, 학기별 비상연락망
+- 이전 학기 복사와 XLSX/CSV 미리보기 기반 연락처 가져오기
+
 ## v0.21.0 - Mobile Calendar Date Detail
 
 Release Date: 2026-09-08

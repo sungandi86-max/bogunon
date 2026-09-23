@@ -78,6 +78,69 @@
 .page-header__description { color: var(--ink-700); font-size: var(--text-md); margin: var(--space-3) 0 0; }
 .health-support-instructors-page { min-width: 0; }
 .health-support-instructors-page .page-canvas { inline-size: 100%; max-width: 1260px; min-width: 0; }
+
+.staff-contacts-page { min-width: 0; }
+.staff-contacts-manager { display: grid; gap: var(--space-6); min-width: 0; }
+.staff-contacts-toolbar, .staff-contacts-toolbar > div, .staff-contact-group-form, .staff-contact-editor__actions, .staff-contact-card__actions { align-items: center; display: flex; gap: var(--space-3); }
+.staff-contacts-toolbar { justify-content: space-between; }
+.staff-contacts-toolbar > div { flex-wrap: wrap; }
+.staff-contacts-term { align-items: center; color: var(--ink-700); display: inline-flex; font-size: var(--text-sm); font-weight: var(--weight-semibold); gap: var(--space-3); }
+.staff-contacts-term select, .staff-contact-group-form input, .staff-contact-group-add select { background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); font: inherit; min-height: 40px; padding: 0 var(--space-3); }
+.staff-contacts-copy-term { display: flex; }
+.staff-contacts-tabs { border-bottom: 1px solid var(--line); display: flex; gap: var(--space-6); }
+.staff-contacts-tabs button, .staff-contacts-filters button { background: transparent; border: 0; color: var(--ink-600); cursor: pointer; font: inherit; min-height: 42px; padding: 0 var(--space-2); }
+.staff-contacts-tabs button[aria-selected="true"] { border-bottom: 2px solid var(--action-600); color: var(--brand-900); font-weight: var(--weight-bold); }
+.staff-contacts-section-heading { align-items: end; display: flex; gap: var(--space-6); justify-content: space-between; }
+.staff-contacts-section-heading > div > span { color: var(--action-700); font-size: var(--text-xs); font-weight: var(--weight-bold); }
+.staff-contacts-section-heading h2 { color: var(--brand-950); font-size: var(--text-card); margin: var(--space-1) 0 0; }
+.staff-contacts-search { align-items: center; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-md); display: flex; gap: var(--space-2); max-width: 430px; padding: 0 var(--space-3); width: min(100%, 430px); }
+.staff-contacts-search input { border: 0; font: inherit; min-height: 42px; min-width: 0; outline: 0; width: 100%; }
+.staff-contacts-filters { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.staff-contacts-filters button { background: var(--surface-subtle); border: 1px solid var(--line); border-radius: var(--radius-full); min-height: 34px; padding-inline: var(--space-4); }
+.staff-contacts-filters button[aria-pressed="true"] { background: var(--action-50); border-color: var(--action-300); color: var(--action-800); }
+.staff-contacts-grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); margin-top: var(--space-5); }
+.staff-contact-card, .staff-contacts-favorites, .staff-contacts-import, .staff-contacts-groups, .staff-contact-editor { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-6); }
+.staff-contact-card { display: grid; gap: var(--space-3); }
+.staff-contact-card__heading { align-items: start; display: flex; justify-content: space-between; }
+.staff-contact-card__kind { color: var(--action-700); font-size: var(--text-xs); font-weight: var(--weight-bold); }
+.staff-contact-card h3 { color: var(--brand-950); font-size: var(--text-card); margin: var(--space-1) 0 0; }
+.staff-contact-card__heading form button { background: transparent; border: 0; color: var(--ink-400); cursor: pointer; padding: var(--space-2); }
+.staff-contact-card__heading form button.is-favorite { color: var(--action-600); }
+.staff-contact-card__role, .staff-contact-card__duties { margin: 0; }
+.staff-contact-card__role { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.staff-contact-card__duties { color: var(--ink-600); min-height: 2.8em; }
+.staff-contact-card dl { border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-2); margin: 0; padding-top: var(--space-3); }
+.staff-contact-card dl div { align-items: center; display: flex; gap: var(--space-3); }
+.staff-contact-card dt { color: var(--ink-500); font-size: var(--text-xs); min-width: 34px; }
+.staff-contact-card dd { margin: 0; }
+.staff-contact-card dd button { align-items: center; background: transparent; border: 0; color: var(--action-700); cursor: pointer; display: inline-flex; gap: var(--space-1); padding: 0; }
+.staff-contact-card__actions { border-top: 1px solid var(--line-subtle); justify-content: flex-start; padding-top: var(--space-3); }
+.staff-contact-card__actions a, .staff-contact-card__actions button, .staff-contact-card__actions span { align-items: center; background: transparent; border: 0; color: var(--action-700); cursor: pointer; display: inline-flex; font: inherit; gap: var(--space-1); padding: var(--space-2); }
+.staff-contact-card__actions form { margin: 0; }
+.staff-contact-card__actions form button { color: var(--ink-500); }
+.staff-contacts-favorites__list { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+.staff-contacts-favorites__list button { align-items: center; background: var(--action-50); border: 1px solid var(--action-100); border-radius: var(--radius-full); color: var(--action-800); cursor: pointer; display: inline-flex; gap: var(--space-1); min-height: 34px; padding: 0 var(--space-3); }
+.staff-contacts-empty { color: var(--ink-500); padding: var(--space-12) var(--space-6); text-align: center; }
+.staff-contacts-empty p { color: var(--ink-700); font-weight: var(--weight-semibold); margin: var(--space-3) 0 var(--space-1); }
+.staff-contacts-empty span { font-size: var(--text-sm); }
+.staff-contacts-import > div:first-child { align-items: start; display: flex; gap: var(--space-3); }
+.staff-contacts-import h2 { font-size: var(--text-card); margin: 0; }
+.staff-contacts-import p { color: var(--ink-600); margin: var(--space-1) 0 0; }
+.staff-contacts-import > .button { margin-top: var(--space-4); }
+.staff-contacts-import__preview { border-top: 1px solid var(--line); margin-top: var(--space-5); padding-top: var(--space-5); }
+.staff-contacts-import__table { display: grid; gap: var(--space-2); max-height: 360px; overflow: auto; }
+.staff-contacts-import__row { align-items: center; border-bottom: 1px solid var(--line-subtle); display: grid; gap: var(--space-3); grid-template-columns: auto minmax(100px, 1fr) minmax(100px, 1fr) minmax(120px, 2fr); padding: var(--space-3) 0; }
+.staff-import-status { border-radius: var(--radius-full); font-size: var(--text-xs); font-weight: var(--weight-bold); padding: 3px 8px; }
+.staff-import-status--new { background: var(--action-50); color: var(--action-800); }.staff-import-status--changed { background: #fff7ed; color: #9a3412; }.staff-import-status--needs_review, .staff-import-status--error { background: #fef2f2; color: #b91c1c; }.staff-import-status--same { background: var(--surface-subtle); color: var(--ink-600); }
+.staff-contact-editor { display: grid; gap: var(--space-5); }
+.staff-contact-editor__heading { align-items: start; display: flex; justify-content: space-between; }
+.staff-contact-editor__heading span { color: var(--action-700); font-size: var(--text-xs); font-weight: var(--weight-bold); }.staff-contact-editor__heading h2 { margin: var(--space-1) 0 0; }
+.staff-contact-editor__heading button { background: transparent; border: 0; color: var(--ink-500); cursor: pointer; }
+.staff-contact-editor__grid { display: grid; gap: var(--space-4); grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.staff-contact-editor__grid label { display: grid; gap: var(--space-2); color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); }.staff-contact-editor__grid input, .staff-contact-editor__grid textarea { border: 1px solid var(--line-strong); border-radius: var(--radius-md); font: inherit; min-height: 40px; padding: var(--space-3); }.staff-contact-editor__grid textarea { min-height: 84px; }.staff-contact-editor__wide { grid-column: 1 / -1; }
+.staff-contact-editor__favorite { align-items: center; display: flex; gap: var(--space-2); }.staff-contact-editor__actions { justify-content: flex-end; }
+.staff-contact-group-form { flex-wrap: wrap; margin-top: var(--space-5); }.staff-contact-group-form input:first-of-type { flex: 1 1 220px; }.staff-contact-group-form input:nth-of-type(2) { flex: 1 1 260px; }
+.staff-contact-groups-list { display: grid; gap: var(--space-4); margin-top: var(--space-5); }.staff-contact-groups-list article { border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-5); }.staff-contact-group-heading { align-items: start; display: flex; justify-content: space-between; }.staff-contact-group-heading h3 { margin: 0; }.staff-contact-group-heading p { color: var(--ink-600); margin: var(--space-1) 0 0; }.staff-contact-group-heading button { background: transparent; border: 0; color: var(--ink-500); cursor: pointer; }.staff-contact-groups-list ol { display: grid; gap: var(--space-2); margin: var(--space-4) 0; padding-left: var(--space-6); }.staff-contact-groups-list li { align-items: center; display: flex; gap: var(--space-3); }.staff-contact-groups-list li small { color: var(--ink-500); margin-right: auto; }.staff-contact-groups-list li button { background: transparent; border: 0; color: var(--ink-500); cursor: pointer; }.staff-contact-group-add { align-items: center; display: flex; gap: var(--space-2); }.staff-contact-group-add label { align-items: center; display: flex; gap: var(--space-2); }
 .health-support-workspace { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
 .health-support-workspace--empty { align-items: center; color: var(--action-700); display: grid; justify-items: center; min-height: 300px; padding: var(--space-16); text-align: center; }
 .health-support-workspace--empty h2 { color: var(--brand-950); font-size: var(--text-card); margin: var(--space-4) 0 0; }

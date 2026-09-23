@@ -657,3 +657,16 @@
   .briefing-page { padding-top: calc(var(--space-4) + env(safe-area-inset-top)); }
   .welcome-dialog-backdrop { padding-bottom: calc(var(--space-8) + env(safe-area-inset-bottom)); padding-top: calc(var(--space-8) + env(safe-area-inset-top)); }
 }
+@media (max-width: 767px) {
+  .staff-contacts-toolbar, .staff-contacts-section-heading { align-items: stretch; flex-direction: column; }
+  .staff-contacts-toolbar .button, .staff-contacts-copy-term, .staff-contacts-copy-term .button { justify-content: center; width: 100%; }
+  .staff-contacts-search { max-width: none; width: 100%; }
+  .staff-contact-editor__grid { grid-template-columns: 1fr; }
+  .staff-contact-editor__wide { grid-column: auto; }
+  .staff-contact-editor__actions { align-items: stretch; flex-direction: column-reverse; }
+  .staff-contact-editor__actions .button { justify-content: center; }
+  .staff-contacts-import__row { align-items: start; grid-template-columns: auto 1fr; }
+  .staff-contacts-import__row span:nth-child(3), .staff-contacts-import__row small { grid-column: 2; }
+  .staff-contact-group-add, .staff-contact-group-add label { align-items: stretch; flex-direction: column; }
+  .staff-contact-group-add .button { justify-content: center; }
+}
