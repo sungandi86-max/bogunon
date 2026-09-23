@@ -4,6 +4,15 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.22.1 - 연락처 PDF 가져오기 개선
+
+Release Date: 2026-09-23
+
+### Improved
+
+- 좌석배치표와 교무분장표도 연락처로 가져올 수 있어요.
+- PDF에서 의미 있는 연락처 행만 추출하고, 확인이 필요한 항목만 미리보기에 표시합니다.
+
 ## v0.22.0 - Staff Contacts
 
 Release Date: 2026-09-23
