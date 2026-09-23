@@ -19,12 +19,29 @@ export type StaffContactImportSession = {
   readonly analyses: readonly StaffContactFileAnalysis[];
   readonly rows: readonly StaffContactImportRow[];
   readonly autoMerged: number;
+  readonly canonicalRosterCount: number;
+  readonly pdfMatchedCount: number;
+  readonly outsideRosterCount: number;
 };
 
 const mergeFields = ["mobile_phone", "memo", "department", "grade_team", "subject", "role", "duties", "office_location", "seat", "extension"] as const satisfies readonly (keyof StaffContactImportValue)[];
 
 function normalizedName(value: string): string {
   return value.replace(/[\s·.]/gu, "").toLocaleLowerCase("ko-KR");
+}
+
+function isSpreadsheet(file: File): boolean {
+  return /\.(?:xlsx?|csv)$/iu.test(file.name);
+}
+
+function asOutsideRosterCandidate(row: StaffContactImportRow): StaffContactImportRow {
+  return {
+    ...row,
+    status: "needs_review",
+    message: "기준 명단에 없는 이름 후보입니다. 교직원으로 추가할지 확인해 주세요.",
+    existingContactId: null,
+    existingAssignmentId: null,
+  };
 }
 
 function mergeRows(entries: readonly StaffContactImportRow[], existingById: ReadonlyMap<string, StaffContactRecord>): { readonly row: StaffContactImportRow; readonly merged: boolean } {
@@ -83,18 +100,39 @@ function mergeRows(entries: readonly StaffContactImportRow[], existingById: Read
 
 export async function analyzeStaffContactFiles(files: readonly StaffContactImportFile[], existing: readonly StaffContactRecord[]): Promise<StaffContactImportSession> {
   const analyses: StaffContactFileAnalysis[] = [];
-  const grouped = new Map<string, StaffContactImportRow[]>();
   for (const item of files) {
     try {
       const rows = await parseStaffContactFile(item.file, existing, item.documentType);
       analyses.push({ id: item.id, fileName: item.file.name, documentType: item.documentType, rows, error: null });
-      for (const row of rows) {
-        if (!row.value.name || row.status === "error") continue;
-        const key = normalizedName(row.value.name);
-        grouped.set(key, [...(grouped.get(key) ?? []), { ...row, sourceName: item.file.name }]);
-      }
     } catch (error) {
       analyses.push({ id: item.id, fileName: item.file.name, documentType: item.documentType, rows: [], error: error instanceof Error ? error.message : "파일을 분석하지 못했습니다." });
+    }
+  }
+  const canonicalNames = new Set<string>();
+  for (const analysis of analyses) {
+    const source = files.find((item) => item.id === analysis.id);
+    if (!source || !isSpreadsheet(source.file) || analysis.error) continue;
+    for (const row of analysis.rows) {
+      if (row.value.name && row.status !== "error") canonicalNames.add(normalizedName(row.value.name));
+    }
+  }
+  const hasCanonicalRoster = canonicalNames.size > 0;
+  const grouped = new Map<string, StaffContactImportRow[]>();
+  const outsideCandidates = new Map<string, StaffContactImportRow>();
+  let pdfMatchedCount = 0;
+  for (const analysis of analyses) {
+    const source = files.find((item) => item.id === analysis.id);
+    if (!source || analysis.error) continue;
+    const pdf = !isSpreadsheet(source.file);
+    for (const row of analysis.rows) {
+      if (!row.value.name || row.status === "error") continue;
+      const key = normalizedName(row.value.name);
+      if (hasCanonicalRoster && pdf && !canonicalNames.has(key)) {
+        outsideCandidates.set(key, asOutsideRosterCandidate({ ...row, sourceName: analysis.fileName }));
+        continue;
+      }
+      if (hasCanonicalRoster && pdf) pdfMatchedCount += 1;
+      grouped.set(key, [...(grouped.get(key) ?? []), { ...row, sourceName: analysis.fileName }]);
     }
   }
   const mergedRows: StaffContactImportRow[] = [];
@@ -104,5 +142,6 @@ export async function analyzeStaffContactFiles(files: readonly StaffContactImpor
     mergedRows.push(result.row);
     if (result.merged) autoMerged += 1;
   }
-  return { analyses, rows: mergedRows, autoMerged };
+  mergedRows.push(...outsideCandidates.values());
+  return { analyses, rows: mergedRows, autoMerged, canonicalRosterCount: canonicalNames.size, pdfMatchedCount, outsideRosterCount: outsideCandidates.size };
 }

@@ -4,6 +4,15 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.22.4 - 연락처 PDF 기준 명단 병합 개선
+
+Release Date: 2026-09-23
+
+### Improved
+
+- 연락처 Excel을 기준 명단으로 삼아 PDF 업무·좌석 정보를 기존 교직원에게 보충합니다.
+- 기준 명단에 없는 PDF 이름 후보는 자동 신규 생성 대신 확인 필요로 분리합니다.
+
 ## v0.22.3 - 연락처 PDF 구조 분석 개선
 
 Release Date: 2026-09-23

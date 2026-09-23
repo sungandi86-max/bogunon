@@ -81,4 +81,20 @@ describe("staff contact import session", () => {
     expect(result.analyses).toHaveLength(3);
     expect(result.autoMerged).toBe(1);
   });
+
+  it("uses spreadsheet names as the canonical roster for PDF enrichment", async () => {
+    parseStaffContactFile
+      .mockResolvedValueOnce([row("박숙현", { mobile_phone: "010-0000-0000" }, "교사 연락처.xlsx")])
+      .mockResolvedValueOnce([row("박숙현", { duties: "보건·방역" }, "교무분장표.pdf"), row("고사", { duties: "시험 일정" }, "교무분장표.pdf")]);
+    const result = await analyzeStaffContactFiles([
+      { id: "xlsx", file: new File(["xlsx"], "교사 연락처.xlsx"), documentType: "auto" },
+      { id: "pdf", file: new File(["pdf"], "교무분장표.pdf", { type: "application/pdf" }), documentType: "assignment" },
+    ], []);
+    expect(result.canonicalRosterCount).toBe(1);
+    expect(result.pdfMatchedCount).toBe(1);
+    expect(result.outsideRosterCount).toBe(1);
+    expect(result.autoMerged).toBe(1);
+    expect(result.rows.find((entry) => entry.value.name === "고사")?.status).toBe("needs_review");
+    expect(result.rows.find((entry) => entry.value.name === "고사")?.message).toContain("기준 명단");
+  });
 });
