@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { StaffContactImportRow } from "@/lib/staff-contacts/import";
 import { analyzeStaffContactFiles } from "@/lib/staff-contacts/import-session";
+import type { StaffContactRecord } from "@/lib/staff-contacts/domain";
 
 const { parseStaffContactFile } = vi.hoisted(() => ({ parseStaffContactFile: vi.fn() }));
 vi.mock("@/lib/staff-contacts/import", async () => {
@@ -25,6 +26,39 @@ describe("staff contact import session", () => {
     expect(result.rows).toHaveLength(1);
     expect(result.autoMerged).toBe(1);
     expect(result.rows[0]?.value).toMatchObject({ subject: "보건", department: "생활안전부", extension: "543" });
+  });
+
+  it("supplements an existing term contact without creating a duplicate", async () => {
+    parseStaffContactFile.mockResolvedValueOnce([{ ...row("박숙현", { department: "생활안전부", duties: "보건·방역", office_location: "보건실", extension: "543" }, "교무분장표.pdf"), existingContactId: "existing-contact" }]);
+    const existing: StaffContactRecord[] = [{
+      id: "existing-contact",
+      user_id: "user-1",
+      school_key: "B10:7010198",
+      name: "박숙현",
+      mobile_phone: "010-1111-2222",
+      memo: null,
+      is_active: true,
+      created_at: "",
+      updated_at: "",
+      assignment_id: "assignment-1",
+      school_year: 2026,
+      semester: 2,
+      department: null,
+      grade_team: null,
+      subject: null,
+      role: null,
+      duties: null,
+      office_location: null,
+      seat: null,
+      extension: null,
+      is_favorite: false,
+      sort_order: 0,
+    }];
+    const result = await analyzeStaffContactFiles([{ id: "assignment", file: new File(["assignment"], "교무분장표.pdf", { type: "application/pdf" }), documentType: "assignment" }], existing);
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0]?.existingContactId).toBe("existing-contact");
+    expect(result.rows[0]?.value.mobile_phone).toBe("010-1111-2222");
+    expect(result.rows[0]?.value.extension).toBe("543");
   });
 
   it("keeps a conflict for review and continues when one file fails", async () => {

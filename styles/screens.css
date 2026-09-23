@@ -108,11 +108,13 @@
 .staff-contact-card__heading form button.is-favorite { color: var(--action-600); }
 .staff-contact-card__role, .staff-contact-card__duties { margin: 0; }
 .staff-contact-card__role { color: var(--ink-700); font-size: var(--text-sm); font-weight: var(--weight-semibold); }
-.staff-contact-card__duties { color: var(--ink-600); min-height: 2.8em; }
+.staff-contact-card__duties { color: var(--ink-600); display: -webkit-box; min-height: 2.8em; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; word-break: keep-all; }
 .staff-contact-card dl { border-top: 1px solid var(--line-subtle); display: grid; gap: var(--space-2); margin: 0; padding-top: var(--space-3); }
 .staff-contact-card dl div { align-items: center; display: flex; gap: var(--space-3); }
-.staff-contact-card dt { color: var(--ink-500); font-size: var(--text-xs); min-width: 34px; }
+.staff-contact-card dt { color: var(--ink-500); font-size: var(--text-xs); min-width: 54px; }
 .staff-contact-card dd { margin: 0; }
+.staff-contact-card__phone { color: var(--brand-900); font-weight: var(--weight-semibold); }
+.staff-contact-card__muted { color: var(--ink-400); }
 .staff-contact-card dd button { align-items: center; background: transparent; border: 0; color: var(--action-700); cursor: pointer; display: inline-flex; gap: var(--space-1); padding: 0; }
 .staff-contact-card__actions { border-top: 1px solid var(--line-subtle); justify-content: flex-start; padding-top: var(--space-3); }
 .staff-contact-card__actions a, .staff-contact-card__actions button, .staff-contact-card__actions span { align-items: center; background: transparent; border: 0; color: var(--action-700); cursor: pointer; display: inline-flex; font: inherit; gap: var(--space-1); padding: var(--space-2); }

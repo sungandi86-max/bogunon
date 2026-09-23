@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { parseStaffContactPdfText, parseStaffContactRows } from "@/lib/staff-contacts/import";
+import { parseStaffContactPdfLayout, parseStaffContactPdfText, parseStaffContactRows } from "@/lib/staff-contacts/import";
+import type { DocumentPdfTextItem } from "@/lib/ai/document-text-extraction";
 import type { StaffContactRecord } from "@/lib/staff-contacts/domain";
 
 const existing: StaffContactRecord[] = [{ id: "staff-1", user_id: "user-1", school_key: "B10:7010198", name: "김보건", mobile_phone: "010-1111-2222", memo: null, is_active: true, created_at: "", updated_at: "", assignment_id: "assignment-1", school_year: 2026, semester: 2, department: "생활안전부", grade_team: "2학년부", subject: "보건", role: "담당", duties: "학교폭력", office_location: "중앙교무실", seat: null, extension: "576", is_favorite: false, sort_order: 0 }];
@@ -29,5 +30,42 @@ describe("staff contact import", () => {
 
   it("fails safely when a PDF has no structured contact rows", () => {
     expect(() => parseStaffContactPdfText("학교 안내문 빈 페이지", "auto", [])).toThrow("구조화된 연락처 행");
+  });
+
+  it("parses assignment headers and duties across a school-sized table", () => {
+    const items: DocumentPdfTextItem[] = [{ page: 1, text: "생활안전부", x: 20, y: 800, width: 70, height: 10 }];
+    for (let index = 0; index < 60; index += 1) {
+      items.push({ page: 1, text: "강지희", x: 20, y: 780 - index * 10, width: 45, height: 10 });
+      items.push({ page: 1, text: index % 2 === 0 ? "보건" : "체육", x: 120, y: 780 - index * 10, width: 30, height: 10 });
+      items.push({ page: 1, text: "학교폭력·생활교육", x: 180, y: 780 - index * 10, width: 100, height: 10 });
+    }
+    const rows = parseStaffContactPdfLayout(items, "assignment", []);
+    expect(rows).toHaveLength(60);
+    expect(rows[0]?.value.department).toBe("생활안전부");
+    expect(rows[0]?.value.duties).toContain("학교폭력");
+  });
+
+  it("connects seating-room names with nearby extension numbers", () => {
+    const items: DocumentPdfTextItem[] = [
+      { page: 1, text: "중앙교무실", x: 20, y: 800, width: 70, height: 10 },
+      { page: 1, text: "박숙현", x: 20, y: 780, width: 45, height: 10 },
+      { page: 1, text: "보건", x: 120, y: 780, width: 30, height: 10 },
+      { page: 1, text: "543", x: 200, y: 780, width: 20, height: 10 },
+    ];
+    const rows = parseStaffContactPdfLayout(items, "seating", []);
+    expect(rows[0]?.value.name).toBe("박숙현");
+    expect(rows[0]?.value.office_location).toBe("중앙교무실");
+    expect(rows[0]?.value.extension).toBe("543");
+  });
+
+  it("auto-detects a seating layout from its document heading", () => {
+    const rows = parseStaffContactPdfLayout([
+      { page: 1, text: "좌석배치표", x: 20, y: 800, width: 70, height: 10 },
+      { page: 1, text: "보건실", x: 20, y: 780, width: 45, height: 10 },
+      { page: 1, text: "박숙현", x: 20, y: 760, width: 45, height: 10 },
+      { page: 1, text: "543", x: 200, y: 760, width: 20, height: 10 },
+    ], "auto", []);
+    expect(rows[0]?.value.office_location).toBe("보건실");
+    expect(rows[0]?.value.extension).toBe("543");
   });
 });

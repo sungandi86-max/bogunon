@@ -65,7 +65,13 @@ export function StaffContactImportPanel({ action, contacts, pending, state, scho
     setAnalyzing(true);
     setMessage(undefined);
     try {
-      setSession(await analyzeStaffContactFiles(files, contacts));
+      const nextSession = await analyzeStaffContactFiles(files, contacts);
+      setSession(nextSession);
+      const hasLowYieldPdf = nextSession.analyses.some((analysis) => {
+        const source = files.find((item) => item.id === analysis.id);
+        return Boolean(source && isPdf(source.file) && !analysis.error && analysis.rows.length > 0 && analysis.rows.length < 10);
+      });
+      if (hasLowYieldPdf) setMessage("PDF 구조를 충분히 인식하지 못했습니다. 원본 문서 유형을 확인하거나 표 형태로 다시 저장해 주세요.");
     } catch (error) {
       setSession(null);
       setMessage(error instanceof Error ? error.message : "파일을 분석하지 못했습니다.");

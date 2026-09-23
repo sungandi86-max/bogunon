@@ -1,6 +1,6 @@
 import * as XLSX from "xlsx";
 
-import { extractDocumentText } from "@/lib/ai/document-text-extraction";
+import { extractPdfLayout, type DocumentPdfTextItem } from "@/lib/ai/document-text-extraction";
 import type { StaffContactRecord } from "@/lib/staff-contacts/domain";
 
 export type StaffContactImportStatus = "new" | "changed" | "same" | "needs_review" | "error";
@@ -14,6 +14,104 @@ const aliases: Record<string, keyof StaffContactImportValue> = {
 function normalizeHeader(value: unknown): string { return String(value ?? "").replace(/[\s_/-]/g, "").trim(); }
 function normalizedName(value: string): string { return value.replace(/[\s·.]/g, "").toLocaleLowerCase("ko-KR"); }
 function asText(value: unknown): string { return String(value ?? "").trim(); }
+
+type PdfLine = { readonly page: number; readonly y: number; readonly items: readonly DocumentPdfTextItem[]; readonly text: string };
+const excludedPdfNames = new Set(["교직원", "성명", "담당업무", "연락처", "좌석배치", "교무분장", "학교", "부서", "교과", "내선", "행정실", "생활안전부"]);
+const locationWords = /(?:교무실|보건실|상담실|도서관|방송실|시청각실|행정실|교장실|교감실|학년부)/u;
+
+function pdfLines(items: readonly DocumentPdfTextItem[]): PdfLine[] {
+  const lines: PdfLine[] = [];
+  const sorted = [...items].sort((left, right) => left.page - right.page || right.y - left.y || left.x - right.x);
+  for (const item of sorted) {
+    const previous = lines.at(-1);
+    if (!previous || previous.page !== item.page || Math.abs(previous.y - item.y) > Math.max(3, item.height * 0.65)) {
+      lines.push({ page: item.page, y: item.y, items: [item], text: item.text });
+    } else {
+      const nextItems = [...previous.items, item].sort((left, right) => left.x - right.x);
+      lines[lines.length - 1] = { ...previous, items: nextItems, text: nextItems.map((entry) => entry.text).join(" ") };
+    }
+  }
+  return lines;
+}
+
+function pdfNameFromText(text: string): string | null {
+  for (const match of text.matchAll(/(?:^|\s)([가-힣]{2,4})(?=\s|$|[0-9])/gu)) {
+    const candidate = match[1];
+    if (candidate && !excludedPdfNames.has(candidate) && !locationWords.test(candidate)) return candidate;
+  }
+  return null;
+}
+
+function extensionFromText(text: string): string | null {
+  return text.match(/(?:내선|전화|TEL|Ext\.?\s*)?\s(\d{3,4})(?=\s|$)/iu)?.[1] ?? text.match(/(?:내선|전화|TEL|Ext\.?)\s*[:：]?\s*(\d{3,4})/iu)?.[1] ?? null;
+}
+
+function nonNameTokens(line: PdfLine, name: string): string[] {
+  return line.items.map((item) => item.text).filter((text) => text !== name && !/^\d{3,4}$/u.test(text));
+}
+
+function parseAssignmentLayout(items: readonly DocumentPdfTextItem[]): Record<string, unknown>[] {
+  const lines = pdfLines(items);
+  let department: string | null = null;
+  const rows: Record<string, unknown>[] = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line) continue;
+    const name = pdfNameFromText(line.text);
+    if (!name) {
+      if (line.text.length <= 30 && !/\d/u.test(line.text) && !/[·,/:]/u.test(line.text) && !/교무분장|담당업무|성명|교과/u.test(line.text)) department = line.text;
+      continue;
+    }
+    const tokens = nonNameTokens(line, name);
+    const next = lines[index + 1];
+    const nextText = next && !pdfNameFromText(next.text) ? next.text : "";
+    const subject = tokens.find((token) => /(?:보건|국어|수학|영어|체육|과학|사회|음악|미술|상담|특수)/u.test(token)) ?? tokens[0] ?? null;
+    const duties = tokens.filter((token) => token !== subject).concat(nextText ? [nextText] : []).join(" · ") || null;
+    rows.push({ 이름: name, 부서: department ?? "", 교과: subject ?? "", 담당업무: duties ?? "" });
+  }
+  return rows;
+}
+
+function parseSeatingLayout(items: readonly DocumentPdfTextItem[]): Record<string, unknown>[] {
+  const lines = pdfLines(items);
+  let location = "";
+  const rows: Record<string, unknown>[] = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    if (!line) continue;
+    if (locationWords.test(line.text) && !pdfNameFromText(line.text)) location = line.text;
+    const name = pdfNameFromText(line.text);
+    if (!name) continue;
+    const nearby = lines.slice(index, index + 3).filter((candidate) => !pdfNameFromText(candidate.text));
+    const combined = [line.text, ...nearby.map((candidate) => candidate.text)].join(" ");
+    const extension = extensionFromText(combined);
+    const subject = nonNameTokens(line, name).find((token) => !/^\d{3,4}$/u.test(token)) ?? "";
+    rows.push({ 이름: name, 교과: subject, 위치: location, 내선번호: extension ?? "" });
+  }
+  return rows;
+}
+
+function parseDirectoryLayout(items: readonly DocumentPdfTextItem[]): Record<string, unknown>[] {
+  return pdfLines(items).flatMap((line) => {
+    const name = pdfNameFromText(line.text);
+    const mobile = line.text.match(/01[016789][\s-]?\d{3,4}[\s-]?\d{4}/u)?.[0] ?? null;
+    return name && mobile ? [{ 이름: name, 휴대전화: mobile }] : [];
+  });
+}
+
+function detectPdfDocumentType(items: readonly DocumentPdfTextItem[]): Exclude<StaffContactPdfDocumentType, "auto"> {
+  const heading = items.map((item) => item.text).join(" ");
+  if (/좌석\s*배치|자리\s*배치|교무실/u.test(heading)) return "seating";
+  if (/연락처|휴대전화|휴대폰|전화번호/u.test(heading)) return "directory";
+  return "assignment";
+}
+
+export function parseStaffContactPdfLayout(items: readonly DocumentPdfTextItem[], documentType: StaffContactPdfDocumentType, existing: readonly StaffContactRecord[]): StaffContactImportRow[] {
+  const resolvedType = documentType === "auto" ? detectPdfDocumentType(items) : documentType;
+  const rows = resolvedType === "seating" ? parseSeatingLayout(items) : resolvedType === "directory" ? parseDirectoryLayout(items) : parseAssignmentLayout(items);
+  if (rows.length === 0) throw new Error("PDF 구조를 충분히 인식하지 못했습니다. 좌석배치표·교무분장표·연락처표인지 확인해 주세요.");
+  return parseStaffContactRows(rows.slice(0, 1000), existing);
+}
 
 function pdfNameFromLine(line: string): string | null {
   const candidate = line.match(/(?:^|\s)([가-힣]{2,4})(?=\s|$|[0-9])/u)?.[1] ?? null;
@@ -81,8 +179,8 @@ export function parseStaffContactRows(rows: readonly Record<string, unknown>[], 
 
 export async function parseStaffContactFile(file: File, existing: readonly StaffContactRecord[], documentType: StaffContactPdfDocumentType = "auto"): Promise<StaffContactImportRow[]> {
   if (file.name.toLocaleLowerCase("en-US").endsWith(".pdf") || file.type === "application/pdf") {
-    const extracted = await extractDocumentText(file, { allowedFormats: ["pdf"] });
-    return parseStaffContactPdfText(extracted.text, documentType, existing);
+    const layout = await extractPdfLayout(file);
+    return parseStaffContactPdfLayout(layout, documentType === "auto" ? "assignment" : documentType, existing);
   }
   const workbook = XLSX.read(await file.arrayBuffer(), { type: "array" });
   const firstSheet = workbook.Sheets[workbook.SheetNames[0] ?? ""];

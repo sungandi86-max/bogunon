@@ -66,6 +66,15 @@ export interface DocumentTextExtractionResult {
   readonly text: string;
 }
 
+export type DocumentPdfTextItem = {
+  readonly page: number;
+  readonly text: string;
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+};
+
 interface ExtractDocumentTextOptions {
   readonly allowedFormats?: readonly DocumentFileFormat[];
   readonly maxBytes?: number;
@@ -167,6 +176,33 @@ async function extractPdf(file: File): Promise<string> {
     await document.destroy();
   }
   return pages.join("\n\n");
+}
+
+export async function extractPdfLayout(file: File): Promise<readonly DocumentPdfTextItem[]> {
+  const format = validateFile(file, { allowedFormats: ["pdf"] });
+  if (format !== "pdf") throw new DocumentTextExtractionError("UNSUPPORTED_TYPE", "PDF 파일만 불러올 수 있습니다.");
+  const pdfjs = typeof Worker === "undefined"
+    ? await import("pdfjs-dist/legacy/build/pdf.mjs")
+    : await import("@/lib/ai/pdf-browser");
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false });
+  const document = await loadingTask.promise;
+  const items: DocumentPdfTextItem[] = [];
+  try {
+    for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber += 1) {
+      const page = await document.getPage(pageNumber);
+      const content = await page.getTextContent();
+      for (const item of content.items) {
+        if (!("str" in item) || !item.str.trim()) continue;
+        const transform = "transform" in item && Array.isArray(item.transform) ? item.transform : [];
+        items.push({ page: pageNumber, text: item.str.trim(), x: Number(transform[4] ?? 0), y: Number(transform[5] ?? 0), width: Number(item.width ?? 0), height: Number(item.height ?? 0) });
+      }
+      page.cleanup();
+    }
+  } finally {
+    await document.destroy();
+  }
+  if (items.length === 0) throw new DocumentTextExtractionError("NO_TEXT", "이 PDF에서는 텍스트를 찾지 못했습니다. 스캔한 문서라면 내용을 직접 붙여넣어 주세요.");
+  return items;
 }
 
 async function extractHwpx(file: File): Promise<string> {

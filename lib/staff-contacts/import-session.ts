@@ -27,10 +27,23 @@ function normalizedName(value: string): string {
   return value.replace(/[\s·.]/gu, "").toLocaleLowerCase("ko-KR");
 }
 
-function mergeRows(entries: readonly StaffContactImportRow[]): { readonly row: StaffContactImportRow; readonly merged: boolean } {
+function mergeRows(entries: readonly StaffContactImportRow[], existingById: ReadonlyMap<string, StaffContactRecord>): { readonly row: StaffContactImportRow; readonly merged: boolean } {
   const first = entries[0];
   if (!first) throw new Error("연락처 병합 대상이 없습니다.");
-  const value: StaffContactImportValue = { ...first.value };
+  const existing = first.existingContactId ? existingById.get(first.existingContactId) : undefined;
+  const value: StaffContactImportValue = {
+    ...first.value,
+    mobile_phone: first.value.mobile_phone ?? existing?.mobile_phone ?? null,
+    memo: first.value.memo ?? existing?.memo ?? null,
+    department: first.value.department ?? existing?.department ?? null,
+    grade_team: first.value.grade_team ?? existing?.grade_team ?? null,
+    subject: first.value.subject ?? existing?.subject ?? null,
+    role: first.value.role ?? existing?.role ?? null,
+    duties: first.value.duties ?? existing?.duties ?? null,
+    office_location: first.value.office_location ?? existing?.office_location ?? null,
+    seat: first.value.seat ?? existing?.seat ?? null,
+    extension: first.value.extension ?? existing?.extension ?? null,
+  };
   const conflicts: string[] = [];
   for (const entry of entries) {
     for (const field of mergeFields) {
@@ -87,7 +100,7 @@ export async function analyzeStaffContactFiles(files: readonly StaffContactImpor
   const mergedRows: StaffContactImportRow[] = [];
   let autoMerged = 0;
   for (const entries of grouped.values()) {
-    const result = mergeRows(entries);
+    const result = mergeRows(entries, new Map(existing.map((contact) => [contact.id, contact])));
     mergedRows.push(result.row);
     if (result.merged) autoMerged += 1;
   }
