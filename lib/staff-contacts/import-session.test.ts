@@ -97,4 +97,30 @@ describe("staff contact import session", () => {
     expect(result.rows.find((entry) => entry.value.name === "고사")?.status).toBe("needs_review");
     expect(result.rows.find((entry) => entry.value.name === "고사")?.message).toContain("기준 명단");
   });
+
+  it("flags PDF duties that contain another canonical staff name", async () => {
+    parseStaffContactFile
+      .mockResolvedValueOnce([row("박숙현", { mobile_phone: "010-0000-0000" }, "교사 연락처.xlsx"), row("현혜영", {}, "교사 연락처.xlsx")])
+      .mockResolvedValueOnce([row("박숙현", { duties: "보건·현혜영·방역" }, "교무분장표.pdf")]);
+    const result = await analyzeStaffContactFiles([
+      { id: "xlsx", file: new File(["xlsx"], "교사 연락처.xlsx"), documentType: "auto" },
+      { id: "pdf", file: new File(["pdf"], "교무분장표.pdf", { type: "application/pdf" }), documentType: "assignment" },
+    ], []);
+    const merged = result.rows.find((entry) => entry.value.name === "박숙현");
+    expect(merged?.status).toBe("needs_review");
+    expect(merged?.message).toContain("다른 교직원 이름");
+  });
+
+  it("reports changed values when enriching an existing contact", async () => {
+    parseStaffContactFile.mockResolvedValueOnce([{ ...row("박숙현", { department: "생활안전부" }, "교무분장표.pdf"), existingContactId: "existing-contact" }]);
+    const existing: StaffContactRecord[] = [{
+      id: "existing-contact", user_id: "user-1", school_key: "school", name: "박숙현", mobile_phone: null, memo: null,
+      is_active: true, created_at: "", updated_at: "", assignment_id: "assignment-1", school_year: 2026, semester: 2,
+      department: "교무부", grade_team: null, subject: null, role: null, duties: null, office_location: null, seat: null,
+      extension: null, is_favorite: false, sort_order: 0,
+    }];
+    const result = await analyzeStaffContactFiles([{ id: "pdf", file: new File(["pdf"], "교무분장표.pdf", { type: "application/pdf" }), documentType: "assignment" }], existing);
+    expect(result.rows[0]?.message).toContain("기존 값 → 새 값");
+    expect(result.rows[0]?.message).toContain("교무부");
+  });
 });

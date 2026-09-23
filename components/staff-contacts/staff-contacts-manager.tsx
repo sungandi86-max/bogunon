@@ -11,6 +11,7 @@ import {
   Trash2,
   Upload,
   UsersRound,
+  X,
 } from "lucide-react";
 
 import {
@@ -102,6 +103,8 @@ export function StaffContactsManager({
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<ContactFilter>("all");
   const [editing, setEditing] = useState<StaffContactRecord | null>(null);
+  const [selectedContact, setSelectedContact] =
+    useState<StaffContactRecord | null>(null);
   const [message, setMessage] = useState<string>();
   const [termState, termAction, termPending] = useActionState(
     copyStaffTermAction,
@@ -264,15 +267,18 @@ export function StaffContactsManager({
       {tab === "contacts" ? (
         <>
           <ContactsList
-            contacts={contacts}
             filtered={filtered}
             favorites={favorites}
             filter={filter}
             query={query}
             onCopyExtension={copyExtension}
             onEdit={setEditing}
+            onSelect={setSelectedContact}
             onFilter={setFilter}
             onQuery={setQuery}
+            selectedContact={selectedContact}
+            schoolYear={schoolYear}
+            semester={semester}
           />
           <StaffContactImportPanel
             action={importAction}
@@ -393,53 +399,58 @@ function ContactEditor({
 }
 
 function ContactsList({
-  contacts,
   filtered,
   favorites,
   filter,
   query,
   onCopyExtension,
   onEdit,
+  onSelect,
   onFilter,
   onQuery,
+  selectedContact,
+  schoolYear,
+  semester,
 }: {
-  readonly contacts: readonly StaffContactRecord[];
   readonly filtered: readonly StaffContactRecord[];
   readonly favorites: readonly StaffContactRecord[];
   readonly filter: ContactFilter;
   readonly query: string;
   readonly onCopyExtension: (value: string) => Promise<void>;
   readonly onEdit: (contact: StaffContactRecord) => void;
+  readonly onSelect: (contact: StaffContactRecord | null) => void;
   readonly onFilter: (value: ContactFilter) => void;
   readonly onQuery: (value: string) => void;
+  readonly selectedContact: StaffContactRecord | null;
+  readonly schoolYear: number;
+  readonly semester: 1 | 2;
 }) {
+  const directoryColumns = "이름 부서·교과 담당업무 위치 내선 휴대전화";
   return (
     <>
-      <>
-        {favorites.length > 0 && (
-          <section className="staff-contacts-favorites">
-            <div className="staff-contacts-section-heading">
-              <div>
-                <span>빠른 연락</span>
-                <h2>자주 연락하는 사람</h2>
-              </div>
-              <Star aria-hidden="true" size={18} />
+      {favorites.length > 0 && (
+        <section className="staff-contacts-favorites">
+          <div className="staff-contacts-section-heading">
+            <div>
+              <span>빠른 연락</span>
+              <h2>자주 연락하는 사람</h2>
             </div>
-            <div className="staff-contacts-favorites__list">
-              {favorites.map((contact) => (
-                <button
-                  key={contact.id}
-                  onClick={() => onEdit(contact)}
-                  type="button"
-                >
-                  <Star aria-hidden="true" size={14} />
-                  {contact.name}
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-      </>
+            <Star aria-hidden="true" size={18} />
+          </div>
+          <div className="staff-contacts-favorites__list">
+            {favorites.slice(0, 8).map((contact) => (
+              <button
+                key={contact.id}
+                onClick={() => onSelect(contact)}
+                type="button"
+              >
+                <Star aria-hidden="true" size={14} />
+                {contact.name}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
       <section className="staff-contacts-list-section">
         <div className="staff-contacts-section-heading">
           <div>
@@ -479,114 +490,196 @@ function ContactsList({
             <span>이름, 담당업무, 부서 또는 위치로 검색해 보세요.</span>
           </div>
         ) : (
-          <div className="staff-contacts-grid">
-            {filtered.map((contact) => (
-              <article className="staff-contact-card" key={contact.id}>
-                <div className="staff-contact-card__heading">
-                  <div>
+          <div className="staff-contacts-directory">
+            <div
+              aria-hidden="true"
+              className="staff-contacts-directory__table-header"
+            >
+              {directoryColumns.split(" ").map((label) => (
+                <span key={label}>{label}</span>
+              ))}
+              <span>액션</span>
+            </div>
+            <div className="staff-contacts-grid">
+              {filtered.map((contact) => (
+                <article
+                  aria-label={`${contact.name} 연락처 상세 보기`}
+                  className={`staff-contact-card${selectedContact?.id === contact.id ? " is-selected" : ""}`}
+                  key={contact.id}
+                  onClick={() => onSelect(contact)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ")
+                      onSelect(contact);
+                  }}
+                  role="button"
+                  tabIndex={0}
+                >
+                  <div className="staff-contact-card__name">
                     <span className="staff-contact-card__kind">
                       {contact.office_location && !contact.department
                         ? "장소"
                         : "교직원"}
                     </span>
-                    <h3>{contact.name}</h3>
+                    <strong>{contact.name}</strong>
                   </div>
-                  {contact.assignment_id && (
-                    <form action={toggleStaffFavoriteAction}>
-                      <input
-                        name="assignmentId"
-                        type="hidden"
-                        value={contact.assignment_id}
-                      />
-                      <input
-                        name="favorite"
-                        type="hidden"
-                        value={String(!contact.is_favorite)}
-                      />
-                      <button
-                        aria-label={`${contact.name} 즐겨찾기`}
-                        className={contact.is_favorite ? "is-favorite" : ""}
-                        type="submit"
-                      >
-                        <Star aria-hidden="true" size={17} />
-                      </button>
-                    </form>
-                  )}
+                  <p className="staff-contact-card__role">
+                    {[contact.department, contact.grade_team, contact.subject]
+                      .filter(Boolean)
+                      .join(" · ") || "학기 배치 정보 없음"}
+                  </p>
+                  <p className="staff-contact-card__duties">
+                    {contact.duties || contact.role || "담당업무 미등록"}
+                  </p>
+                  <span className="staff-contact-card__location">
+                    {contact.office_location || "미등록"}
+                  </span>
+                  <span className="staff-contact-card__extension">
+                    {contact.extension || "미등록"}
+                  </span>
+                  <span className="staff-contact-card__phone">
+                    {contact.mobile_phone || "미등록"}
+                  </span>
+                  <div
+                    className="staff-contact-card__actions"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    {contact.assignment_id && (
+                      <form action={toggleStaffFavoriteAction}>
+                        <input
+                          name="assignmentId"
+                          type="hidden"
+                          value={contact.assignment_id}
+                        />
+                        <input
+                          name="favorite"
+                          type="hidden"
+                          value={String(!contact.is_favorite)}
+                        />
+                        <button
+                          aria-label={`${contact.name} 즐겨찾기`}
+                          className={contact.is_favorite ? "is-favorite" : ""}
+                          type="submit"
+                        >
+                          <Star aria-hidden="true" size={16} />
+                        </button>
+                      </form>
+                    )}
+                    {phoneHref(contact.mobile_phone) ? (
+                      <a href={phoneHref(contact.mobile_phone) ?? undefined}>
+                        <Phone aria-hidden="true" size={14} />
+                        전화
+                      </a>
+                    ) : null}
+                    <button onClick={() => onEdit(contact)} type="button">
+                      <Pencil aria-hidden="true" size={14} />
+                      수정
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+            {selectedContact && (
+              <aside
+                className="staff-contact-detail"
+                aria-label="교직원 상세 정보"
+              >
+                <div className="staff-contact-detail__header">
+                  <div>
+                    <span>연락처 상세</span>
+                    <h3>{selectedContact.name}</h3>
+                  </div>
+                  <button
+                    aria-label="상세 패널 닫기"
+                    onClick={() => onSelect(null)}
+                    type="button"
+                  >
+                    <X aria-hidden="true" size={18} />
+                  </button>
                 </div>
-                <p className="staff-contact-card__role">
-                  {[contact.department, contact.grade_team, contact.subject]
+                <p className="staff-contact-detail__role">
+                  {[
+                    selectedContact.department,
+                    selectedContact.grade_team,
+                    selectedContact.subject,
+                  ]
                     .filter(Boolean)
                     .join(" · ") || "학기 배치 정보 없음"}
-                </p>
-                <p className="staff-contact-card__duties">
-                  {contact.duties ||
-                    contact.role ||
-                    "담당업무를 입력해 주세요."}
                 </p>
                 <dl>
                   <div>
                     <dt>휴대전화</dt>
                     <dd>
-                      {phoneHref(contact.mobile_phone) ? (
+                      {phoneHref(selectedContact.mobile_phone) ? (
                         <a
                           className="staff-contact-card__phone"
-                          href={phoneHref(contact.mobile_phone) ?? undefined}
+                          href={
+                            phoneHref(selectedContact.mobile_phone) ?? undefined
+                          }
                         >
-                          {contact.mobile_phone}
+                          {selectedContact.mobile_phone}
                         </a>
                       ) : (
-                        <span className="staff-contact-card__muted">휴대전화 미등록</span>
+                        "미등록"
                       )}
                     </dd>
                   </div>
                   <div>
                     <dt>내선</dt>
                     <dd>
-                      {contact.extension ? (
+                      {selectedContact.extension ? (
                         <button
-                          aria-label={`${contact.name} 내선 ${contact.extension} 복사`}
                           onClick={() =>
-                            void onCopyExtension(contact.extension ?? "")
+                            void onCopyExtension(
+                              selectedContact.extension ?? "",
+                            )
                           }
                           type="button"
                         >
-                          {contact.extension}
+                          {selectedContact.extension}
                           <Copy aria-hidden="true" size={13} />
-                          <span>복사</span>
+                          복사
                         </button>
                       ) : (
-                        <span className="staff-contact-card__muted">미등록</span>
+                        "미등록"
                       )}
                     </dd>
                   </div>
                   <div>
                     <dt>위치</dt>
-                    <dd>{contact.office_location || <span className="staff-contact-card__muted">미등록</span>}</dd>
+                    <dd>{selectedContact.office_location || "미등록"}</dd>
+                  </div>
+                  <div>
+                    <dt>담당업무</dt>
+                    <dd className="staff-contact-detail__duties">
+                      {selectedContact.duties ||
+                        selectedContact.role ||
+                        "미등록"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>학기</dt>
+                    <dd>{termLabel(schoolYear, semester)}</dd>
                   </div>
                 </dl>
-                <div className="staff-contact-card__actions">
-                  {phoneHref(contact.mobile_phone) ? (
-                    <a href={phoneHref(contact.mobile_phone) ?? undefined}>
-                      <Phone aria-hidden="true" size={14} />
-                      전화하기
-                    </a>
-                  ) : (
-                    <span>휴대전화 없음</span>
-                  )}
-                  <button onClick={() => onEdit(contact)} type="button">
+                <div className="staff-contact-detail__actions">
+                  <button
+                    className="button button--secondary"
+                    onClick={() => onEdit(selectedContact)}
+                    type="button"
+                  >
                     <Pencil aria-hidden="true" size={14} />
                     수정
                   </button>
                   <form action={deleteStaffContactAction}>
-                    <input name="id" type="hidden" value={contact.id} />
-                    <button type="submit">
+                    <input name="id" type="hidden" value={selectedContact.id} />
+                    <button className="button button--ghost" type="submit">
                       <Trash2 aria-hidden="true" size={14} />
                       삭제
                     </button>
                   </form>
                 </div>
-              </article>
-            ))}
+              </aside>
+            )}
           </div>
         )}
       </section>

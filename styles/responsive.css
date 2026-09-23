@@ -674,4 +674,10 @@
   .staff-contact-import-file button { grid-column: 2; grid-row: 1; }
   .staff-contact-group-add, .staff-contact-group-add label { align-items: stretch; flex-direction: column; }
   .staff-contact-group-add .button { justify-content: center; }
+  .staff-contacts-directory:has(.staff-contact-detail) { display: grid; grid-template-columns: 1fr; }
+  .staff-contacts-directory__table-header { display: none; }
+  .staff-contact-card { align-items: start; border: 1px solid var(--line); border-radius: var(--radius-lg); grid-template-columns: 1fr 1fr; margin-bottom: var(--space-3); padding: var(--space-4); }
+  .staff-contact-card__name, .staff-contact-card__role, .staff-contact-card__duties { grid-column: 1 / -1; }
+  .staff-contact-card__actions { grid-column: 1 / -1; justify-content: flex-start; }
+  .staff-contact-detail { grid-column: 1; grid-row: auto; position: static; }
 }

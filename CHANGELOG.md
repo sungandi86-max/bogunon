@@ -4,6 +4,15 @@ BOGUNON의 주요 변경 사항을 기록합니다.
 
 이 프로젝트는 [Semantic Versioning](https://semver.org/lang/ko/)을 따릅니다.
 
+## v0.22.5 - 연락처 디렉터리 및 PDF 셀 경계 개선
+
+Release Date: 2026-09-23
+
+### Improved
+
+- 교직원 연락처를 빠르게 찾고 연락할 수 있는 목록형 디렉터리로 정리했습니다.
+- 교무분장표 PDF의 표 셀 경계를 보존해 업무가 다른 교직원에게 섞이지 않도록 했습니다.
+
 ## v0.22.4 - 연락처 PDF 기준 명단 병합 개선
 
 Release Date: 2026-09-23
