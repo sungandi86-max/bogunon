@@ -31,7 +31,6 @@ function mergeRows(entries: readonly StaffContactImportRow[]): { readonly row: S
   const first = entries[0];
   if (!first) throw new Error("연락처 병합 대상이 없습니다.");
   const value: StaffContactImportValue = { ...first.value };
-  const sources = new Map<string, string[]>();
   const conflicts: string[] = [];
   for (const entry of entries) {
     for (const field of mergeFields) {
@@ -39,8 +38,7 @@ function mergeRows(entries: readonly StaffContactImportRow[]): { readonly row: S
       if (!incoming) continue;
       const current = value[field];
       if (current && current !== incoming) {
-        conflicts.push(`${field}: ${current} / ${incoming}`);
-        sources.set(field, [...(sources.get(field) ?? []), incoming]);
+        conflicts.push(`${field}: ${current} (${first.sourceName}) / ${incoming} (${entry.sourceName})`);
       } else if (!current) {
         value[field] = incoming;
       }
@@ -80,7 +78,7 @@ export async function analyzeStaffContactFiles(files: readonly StaffContactImpor
       for (const row of rows) {
         if (!row.value.name || row.status === "error") continue;
         const key = normalizedName(row.value.name);
-        grouped.set(key, [...(grouped.get(key) ?? []), row]);
+        grouped.set(key, [...(grouped.get(key) ?? []), { ...row, sourceName: item.file.name }]);
       }
     } catch (error) {
       analyses.push({ id: item.id, fileName: item.file.name, documentType: item.documentType, rows: [], error: error instanceof Error ? error.message : "파일을 분석하지 못했습니다." });
