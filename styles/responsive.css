@@ -669,6 +669,9 @@
   .staff-contacts-import__row span:nth-child(3), .staff-contacts-import__row small { grid-column: 2; }
   .staff-contact-import-controls { align-items: stretch; flex-direction: column; }
   .staff-contact-import-controls select, .staff-contact-import-controls .button { width: 100%; }
+  .staff-contact-import-file { align-items: stretch; grid-template-columns: 1fr auto; }
+  .staff-contact-import-file label, .staff-contact-import-file small { grid-column: 1 / -1; }
+  .staff-contact-import-file button { grid-column: 2; grid-row: 1; }
   .staff-contact-group-add, .staff-contact-group-add label { align-items: stretch; flex-direction: column; }
   .staff-contact-group-add .button { justify-content: center; }
 }
